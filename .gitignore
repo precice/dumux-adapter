@@ -1,0 +1,38 @@
+# build system clutter
+build-*
+Testing
+
+# auto-saved files
+*~
+
+# hidden files
+.cproject
+.project
+
+# left overs from git rebase
+*.orig
+*.rej
+
+# latex clutter
+*.pdf
+*.aux
+*.blg
+*.log
+*.bbl
+*.dvi
+*.idx
+*.out
+*.tdo
+*.toc
+*.synctex.gz
+
+# always consider files containing source code regardless of their name
+!*.cc
+!*.hh
+!*.c
+!*.h
+!*.sh
+!*.py
+
+# always consider reference solutions
+!*reference.vtu

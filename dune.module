@@ -1,0 +1,10 @@
+################################
+# Dune module information file #
+################################
+
+#Name of the module
+Module: dumux-precice
+Version: 3.0
+Maintainer: kilian.weishaupt@iws.uni-stuttgart.de
+#depending on
+Depends: dumux
