@@ -1,0 +1,44 @@
+[TimeLoop]
+TEnd = 100 # [s]
+DtInitial = 1 # [s]
+
+[SolidEnergy.Grid]
+Positions0 = 0.5 1.5 # [m]
+Positions1 = 0.0 0.25 # [m]
+Cells0 = 20 # [-]
+Cells1 = 10 # [-]
+Grading0 = 1
+Grading1 = 1
+
+[FreeFlow.Grid]
+Positions0 = 0 3.5 # [m]
+Positions1 = 0.25 0.75 # [m]
+Cells0 = 70 # [-]
+Cells1 = 30 # [-]
+Grading0 = 1
+Grading1 = 1
+
+[FreeFlow.Problem]
+Name = freeflow
+InletVelocity = 0.1 # [m/s]
+InletTemperature = 300 # [K]
+
+[SolidEnergy.Problem]
+Name = solidenergy
+BottomTemperature = 310 # [K]
+InitialTemperature = 300 # [K]
+
+[Vtk]
+OutputName = test_ch_monolithic
+
+[Problem]
+EnableGravity = false
+EnableInertiaTerms = false
+
+[Component]
+SolidThermalConductivity = 100 # [W/(m^2*s)]
+SolidHeatCapacity = 1 # [kJ/(kg*K)]
+SolidDensity = 100 # [kg/(m^3)]
+
+[Vtk]
+AddVelocity = 1
