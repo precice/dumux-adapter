@@ -1,0 +1,10 @@
+site_name: DuMuX-preCICE coupling project
+
+pages:
+    - Home: index.md
+    - DuMux-preCICE coupling: 
+        - General information: dumux_precice_coupling.md
+        - Test cases: dumux_test_case.md
+    - Meeting logs: logs/logs.md
+    
+theme: mkdocs
