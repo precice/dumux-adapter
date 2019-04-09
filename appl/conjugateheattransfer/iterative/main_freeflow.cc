@@ -46,6 +46,8 @@
 #include <dumux/assembly/staggeredfvassembler.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
 
+#include <precice/SolverInterface.hpp>
+
 
 #include "../monolithic/problem_freeflow.hh"
 
@@ -88,8 +90,62 @@ int main(int argc, char** argv) try
     sol[FreeFlowFVGridGeometry::cellCenterIdx()].resize(freeFlowFvGridGeometry->numCellCenterDofs());
     sol[FreeFlowFVGridGeometry::faceIdx()].resize(freeFlowFvGridGeometry->numFaceDofs());
 
+    // Initialize preCICE.Tell preCICE about:
+    // - Name of solver
+    // - What rank of how many ranks this instance is
+    precice::SolverInterface precice("FreeFlow", mpiHelper.rank(), mpiHelper.size() );
+    
+    // Configure preCICE. For now the config file is hardcoded.
+    precice.configure("precice-config.xml");
+
+    const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint(); 
+    const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
+
+    const int dim = precice.getDimensions();
+    int meshId = precice.getMeshID("FreeFlowMesh");
+    // TODO: Number of vertices on the interface
+    // int vertexSize = ??;
+    // std::vector<int> vertexIDs( vertexSize );
+    // GET mesh corodinates
+    // std::vector<double> coords( dim * vertexSize );
+    // FILL coords vector
+    // std::vector<int> vertexIds( vertexSize );
+    // precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
+    //
+    const int temperatureId = precice.getDataID( "Temperature", meshId );
+    const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
+
+    /*
+    std::vector<double> temperatureVec( vertexSize );
+    std::vector<double> heatFluxVec( vertexSize );
+    */
+
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
+
+    //TODO: If necessary, communicate initial data to other solver
+    /*
+    if ( precice.isActionRequired(precice::constants::actionWriteInitialData()) )
+    {
+      //Fill data vector
+      for (int i = 0; i < vertexSize; ++i)
+      {
+        //temperatureVec[i] = ??; 
+      }
+       precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
+       precice.fulfilledAction(precice::constants::actionWriteInitialData());
+    }
+    */
+
+    precice.initializeData();
+
+    // Read initialdata for heat-flux if available
+    /*
+    if (precice.isReadDataAvailable())
+    {
+      precice.readBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
+    }
+    */
 
     auto solOld = sol;
 
@@ -108,6 +164,11 @@ int main(int argc, char** argv) try
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
     const auto maxDt = getParam<Scalar>("TimeLoop.MaxTimeStepSize");
     auto dt = getParam<Scalar>("TimeLoop.DtInitial");
+
+    //Time step size can also be changed by preCICE
+    const double preciceDt = precice.initialize();
+    dt = std::max( dt, preciceDt );
+
     auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0, dt, tEnd);
     timeLoop->setMaxTimeStepSize(maxDt);
 
@@ -123,9 +184,25 @@ int main(int argc, char** argv) try
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    auto sol_checkpoint = sol;
+
     // time loop
     timeLoop->start(); do
     {
+        if ( precice.isActionRequired( writeCheckpoint ) )
+        {
+            //DO CHECKPOINTING
+            sol_checkpoint = sol;
+            precice.fulfilledAction( writeCheckpoint );
+        }
+
+        // Read heat flux from precice
+        // TODO: Remove // when vertexSize is defined
+        // precice.readBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
+
+        // Make use of the heat flux here
+        // TODO
+
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
 
@@ -136,19 +213,38 @@ int main(int argc, char** argv) try
         solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
 
-        // advance to the time loop to the next step
-        timeLoop->advanceTimeStep();
+        if ( precice.isActionRequired( readCheckpoint ) )
+        {
+            //Read checkpoint
+            sol = sol_checkpoint;
+            precice.fulfilledAction( writeCheckpoint );
+        }
+        else // coupling successful
+        {
+            // advance to the time loop to the next step
+            timeLoop->advanceTimeStep();
 
-        // write vtk output
-        freeFlowVtkWriter.write(timeLoop->time());
+            // write vtk output
+            freeFlowVtkWriter.write(timeLoop->time());
 
-        // report statistics of this time step
-        timeLoop->reportTimeStep();
+            // report statistics of this time step
+            timeLoop->reportTimeStep();
 
-        // set new dt as suggested by newton solver
-        timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
+            // Get the temperature here
+            // TODO
 
-    } while (!timeLoop->finished());
+            // Write temperature to preCICe
+            // TODO: Remove // when vertexSize is defined
+            //precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
+
+            // set new dt as suggested by newton solver
+            const double preciceDt = precice.advance( timeLoop->timeStepSize() );
+            const double newDt = std::max( preciceDt, timeLoop->timeStepSize() );
+
+            timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize( newDt ));
+        }
+
+    } while (!timeLoop->finished() && precice.isCouplingOngoing());
 
     timeLoop->finalize(freeFlowGridView.comm());
 
@@ -162,6 +258,8 @@ int main(int argc, char** argv) try
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
+
+    precice.finalize();
 
     return 0;
 } // end main
