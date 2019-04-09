@@ -98,6 +98,7 @@ int main(int argc, char** argv) try
     // Configure preCICE. For now the config file is hardcoded.
     precice.configure("precice-config.xml");
 
+    // Constants for checkpointing
     const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint(); 
     const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
 
@@ -115,6 +116,7 @@ int main(int argc, char** argv) try
     const int temperatureId = precice.getDataID( "Temperature", meshId );
     const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
 
+    // TODO
     /*
     std::vector<double> temperatureVec( vertexSize );
     std::vector<double> heatFluxVec( vertexSize );
@@ -184,6 +186,7 @@ int main(int argc, char** argv) try
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
 
     // time loop
