@@ -139,6 +139,7 @@ int main(int argc, char** argv) try
     }
     */
 
+    const double preciceDt = precice.initialize();
     precice.initializeData();
 
     // Read initialdata for heat-flux if available
@@ -168,7 +169,6 @@ int main(int argc, char** argv) try
     auto dt = getParam<Scalar>("TimeLoop.DtInitial");
 
     //Time step size can also be changed by preCICE
-    const double preciceDt = precice.initialize();
     dt = std::max( dt, preciceDt );
 
     auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0, dt, tEnd);
