@@ -1,6 +1,44 @@
 # Overview over the last meetings
 
-**Next meeting**: 2019-04-11
+**Next meeting**: 2019-??-??
+
+## 2019-04-12
+
+Side note: My class `PreciceWrapper` is in fact a singleton.
+
+- We found out that certain questions have come up regarding the test case
+
+    - Maybe double check wall boundary conditions
+    - Inflow: Verify that it is a rectangular flow profile (slip walls)
+    - Does the fluid have to be incompressible?
+    - Are the flow parameters depending on the solution? This means, are flow parameters like the viscosity depending on the temperature?
+    - What are the flow quantities. 
+    - Where are the values prescribed in OpenFOAM. Are these actual boundary values or are they cell centered?
+    - How is the coupling carried out? What values are used for the heat flux? What temperatures do we use and which conductivity?
+
+
+Question for us:
+**What quantities do we need?**
+
+Known parameters
+
+| Parameter | value |
+| --------- | ----- |
+| Reynolds  |  500  |
+| Prandtl   |  0.1  |
+| k         |  1    |
+
+**Note**: k=1 means that k_s = k_f = 1. The heat conductivity of fluid and solid are the same.
+
+**Fluid**
+
+- Inflow velocity: 
+- Inflow temperature: 
+- Viscosity (given Reynolds number)
+
+**Solid**
+
+- Conductivity: Comes from the Prandtl number. We need to now c_p and density rho of the fluid
 
 ## 2019-04-03
 

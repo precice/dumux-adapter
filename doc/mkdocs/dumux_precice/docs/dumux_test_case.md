@@ -58,6 +58,21 @@ Reynolds number is Re=500 and Prandtl number is Pr=0.01. The ratio between solid
 | k         | 1     |
 
 
+Dimensional parametes from Lucia's thesis:
+
+| Parameter | Symbol | Value |
+| --------- | ------ | ----- |
+| Inlet velocity | U_infty | 0.1 | 
+| Plate length | L | 1| 
+| Solid thermal conductivity | k_s | 100 |
+| Solid specific heat capacity | c_ps | 100 |
+| Solid density | rho_s | 1 |
+| Fluid thermal conductivity | k_f | = k_s / k |
+| Fluid density | rho_f | 1 |
+| Dynamic viscosity | mu | = rho_f * U_infty * L / Re |
+| Fluid specific heat capacity | c_pf | = k_f Pr / mu |
+
+
 **Note**: There is a [master's thesis by Lucia Cheung Yau](https://www5.in.tum.de/pub/Cheung2016_Thesis.pdf) in which she ran the simulation for a wider range of values.
 
 ### Flow solver
@@ -71,3 +86,4 @@ Reynolds number is Re=500 and Prandtl number is Pr=0.01. The ratio between solid
 | --------- | ----- |
 | dt        |  0.01 |
 | t_end     | 10    |
+ 
