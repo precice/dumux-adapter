@@ -1,8 +1,12 @@
 # Conjugate heat transfer
 
-Last updated: 2019-04-08
+Last updated: 2019-04-16
 
-## Short description
+**NOTE**: The description below refers to the preCICE-OpenFOAM test case. Our current setting is motivated by that test case, but has some differences.
+
+**TODO**: Write down information about our current test case.
+
+## Short description 
 
 The test case descibes fluid flow in a square channel connected to a solid, square block. The square block is heate from below and connected from to the channel. The block is cooled by the fluid at the top. This means that the fluid is heated up accordingly and the temperature changes.
 

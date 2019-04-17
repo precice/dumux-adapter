@@ -103,24 +103,48 @@ int main(int argc, char** argv) try
     const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
 
     const int dim = precice.getDimensions();
+    if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
+        DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
+
     int meshId = precice.getMeshID("FreeFlowMesh");
-    // TODO: Number of vertices on the interface
-    // int vertexSize = ??;
-    // std::vector<int> vertexIDs( vertexSize );
+
     // GET mesh corodinates
-    // std::vector<double> coords( dim * vertexSize );
-    // FILL coords vector
-    // std::vector<int> vertexIds( vertexSize );
-    // precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
-    //
+    const double xMin = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0")[0];
+    const double xMax = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0").back();
+    std::vector<double> coords; //( dim * vertexSize );
+    std::vector<std::size_t> coupledScvfIndices;
+
+    for (const auto& element : elements(freeFlowGridView))
+    {
+        auto fvGeometry = localView(*freeFlowFvGridGeometry);
+        fvGeometry.bindElement(element);
+
+        for (const auto& scvf : scvfs(fvGeometry))
+        {
+            static constexpr auto eps = 1e-7;
+            const auto& pos = scvf.center();
+            if (pos[1] < freeFlowFvGridGeometry->bBoxMin()[1] + eps)
+            {
+                coupledScvfIndices.push_back(scvf.index());
+                if (pos[0] > xMin - eps && pos[0] < xMax + eps)
+                    for (const auto p : pos)
+                        coords.push_back(p);
+            }
+        }
+    }
+
+    const auto vertexSize = coords.size() / dim;
+
+    std::vector<int> vertexIds( vertexSize );
+    precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
+    
     const int temperatureId = precice.getDataID( "Temperature", meshId );
     const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
 
     // TODO
-    /*
     std::vector<double> temperatureVec( vertexSize );
     std::vector<double> heatFluxVec( vertexSize );
-    */
+    
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
@@ -220,6 +244,7 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
+            freeFlowGridVariables->update(sol);
             precice.fulfilledAction( writeCheckpoint );
         }
         else // coupling successful
