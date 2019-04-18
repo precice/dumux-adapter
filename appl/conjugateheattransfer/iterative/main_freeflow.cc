@@ -106,7 +106,7 @@ int main(int argc, char** argv) try
     if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
-    int meshId = precice.getMeshID("FreeFlowMesh");
+    const int meshId = precice.getMeshID("FreeFlowMesh");
 
     // GET mesh corodinates
     const double xMin = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0")[0];
@@ -237,6 +237,7 @@ int main(int argc, char** argv) try
         nonLinearSolver.solve(sol, *timeLoop);
 
         // make the new solution the old solution
+        //TODO DO WE HAVE TO MOVE THAT?
         solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
 
