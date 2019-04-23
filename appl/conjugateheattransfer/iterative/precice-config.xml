@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+  <log>
+    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="false" /> 
+    <sink type="stream" output="stdout"  enabled="false" /> 
+  </log> 
+
+  <solver-interface dimensions="2">
+
+    <data:scalar name="Temperature"/>
+    <data:scalar name="Heat-Flux"/>
+
+    <mesh name="FreeFlowMesh">
+      <use-data name="Temperature" />
+      <use-data name="Heat-Flux" />
+    </mesh>
+
+    <mesh name="SolidMesh">
+      <use-data name="Temperature" />
+      <use-data name="Heat-Flux" />
+    </mesh>
+
+    <participant name="FreeFlow">
+      <use-mesh name="FreeFlowMesh" provide="yes"/>
+      <write-data name="Temperature" mesh="FreeFlowMesh"/>
+      <write-data name="Heat-Flux" mesh="FreeFlowMesh"/>
+    </participant>
+
+    <participant name="Solid">
+      <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
+      <use-mesh name="SolidMesh" provide="yes"/>
+      
+      <read-data name="Temperature" mesh="SolidMesh"/>
+      <read-data name="Heat-Flux" mesh="SolidMesh"/>
+
+      <mapping:nearest-neighbor direction="read" from="FreeFlowMesh" to="SolidMesh" constraint="consistent"/> 
+      <!--
+      <mapping:nearest-projection direction="read" from="FreeFlowMesh" to="SolidMesh" constraint="consistent"/>
+    -->
+      
+
+    </participant>
+
+    <m2n:sockets from="FreeFlow" to="Solid" distribution-type="gather-scatter" network="lo" exchange-directory="/tmp/coupling" />
+    
+    
+    <coupling-scheme:parallel-explicit>
+      <participants first="FreeFlow" second="Solid"/>
+      <max-time value="1e9"/>
+      <timestep-length value="1e7" />
+
+      <exchange data="Temperature" mesh="FreeFlowMesh" from="FreeFlow" to="Solid" />
+      <exchange data="Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="Solid" initialize="false" />
+           
+    </coupling-scheme:parallel-explicit>
+  </solver-interface>
+</precice-configuration>
+
