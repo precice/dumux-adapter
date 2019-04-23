@@ -46,10 +46,10 @@
 #include <dumux/assembly/staggeredfvassembler.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
 
-#include <precice/SolverInterface.hpp>
-
+//#include <precice/SolverInterface.hpp>
 
 #include "../monolithic/problem_freeflow.hh"
+#include "precicewrapper.hh"
 
 int main(int argc, char** argv) try
 {
@@ -93,26 +93,29 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    precice::SolverInterface precice("FreeFlow", mpiHelper.rank(), mpiHelper.size() );
-    
+    //precice::SolverInterface precice("FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
-    precice.configure("precice-config.xml");
+    //precice.configure("precice-config.xml");
+    PreciceWrapper::createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
+    PreciceWrapper::configure( "precice-config.xml" );
 
     // Constants for checkpointing
-    const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint(); 
-    const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
+    //const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint();
+    //const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
 
-    const int dim = precice.getDimensions();
+    const int dim = PreciceWrapper::getDimensions();
+    std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
     if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
-    const int meshId = precice.getMeshID("FreeFlowMesh");
+    //const int meshId = precice.getMeshID("FreeFlowMesh");
+
 
     // GET mesh corodinates
     const double xMin = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0")[0];
     const double xMax = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0").back();
     std::vector<double> coords; //( dim * vertexSize );
-    std::vector<std::size_t> coupledScvfIndices;
+    std::vector<int> coupledScvfIndices;
 
     for (const auto& element : elements(freeFlowGridView))
     {
@@ -125,25 +128,35 @@ int main(int argc, char** argv) try
             const auto& pos = scvf.center();
             if (pos[1] < freeFlowFvGridGeometry->bBoxMin()[1] + eps)
             {
-                coupledScvfIndices.push_back(scvf.index());
                 if (pos[0] > xMin - eps && pos[0] < xMax + eps)
+                {
+                  coupledScvfIndices.push_back(scvf.index());
                     for (const auto p : pos)
                         coords.push_back(p);
+                }
             }
         }
     }
 
-    const auto vertexSize = coords.size() / dim;
+    const auto numberOfPoints = coords.size() / dim;
 
-    std::vector<int> vertexIds( vertexSize );
-    precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
-    
-    const int temperatureId = precice.getDataID( "Temperature", meshId );
-    const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
+    //std::vector<int> vertexIds( vertexSize );
+    //precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
+//    PreciceWrapper::setMeshName("FreeFlowMesh");
+    for (const auto v: coupledScvfIndices)
+    {
+      std::cout << v << std::endl;
+    }
+    PreciceWrapper::setMesh( "FreeFlowMesh", numberOfPoints, coords, coupledScvfIndices );
+
+    PreciceWrapper::print( std::cout );
+
+    //const int temperatureId = precice.getDataID( "Temperature", meshId );
+    //const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
 
     // TODO
-    std::vector<double> temperatureVec( vertexSize );
-    std::vector<double> heatFluxVec( vertexSize );
+    //std::vector<double> temperatureVec( vertexSize );
+    //std::vector<double> heatFluxVec( vertexSize );
     
 
     // apply initial solution for instationary problems
@@ -163,8 +176,9 @@ int main(int argc, char** argv) try
     }
     */
 
-    const double preciceDt = precice.initialize();
-    precice.initializeData();
+    //const double preciceDt = precice.initialize();
+    //precice.initializeData();
+    const double preciceDt = PreciceWrapper::initialize();
 
     // Read initialdata for heat-flux if available
     /*
@@ -216,11 +230,12 @@ int main(int argc, char** argv) try
     // time loop
     timeLoop->start(); do
     {
-        if ( precice.isActionRequired( writeCheckpoint ) )
+//        if ( precice.isActionRequired( writeCheckpoint ) )
+        if ( PreciceWrapper::hasToWriteIterationCheckpoint() )
         {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
-            precice.fulfilledAction( writeCheckpoint );
+            PreciceWrapper::announceIterationCheckpointWritten();
         }
 
         // Read heat flux from precice
@@ -241,12 +256,13 @@ int main(int argc, char** argv) try
         solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
 
-        if ( precice.isActionRequired( readCheckpoint ) )
+//        if ( precice.isActionRequired( readCheckpoint ) )
+        if ( PreciceWrapper::hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
             sol = sol_checkpoint;
             freeFlowGridVariables->update(sol);
-            precice.fulfilledAction( writeCheckpoint );
+            PreciceWrapper::announceIterationCheckpointRead();
         }
         else // coupling successful
         {
@@ -267,13 +283,13 @@ int main(int argc, char** argv) try
             //precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
 
             // set new dt as suggested by newton solver
-            const double preciceDt = precice.advance( timeLoop->timeStepSize() );
+            const double preciceDt = PreciceWrapper::advance( timeLoop->timeStepSize() );
             const double newDt = std::max( preciceDt, timeLoop->timeStepSize() );
 
             timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize( newDt ));
         }
 
-    } while (!timeLoop->finished() && precice.isCouplingOngoing());
+    } while (!timeLoop->finished() && PreciceWrapper::isCouplingOngoing());
 
     timeLoop->finalize(freeFlowGridView.comm());
 
@@ -287,8 +303,6 @@ int main(int argc, char** argv) try
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
-
-    precice.finalize();
 
     return 0;
 } // end main
