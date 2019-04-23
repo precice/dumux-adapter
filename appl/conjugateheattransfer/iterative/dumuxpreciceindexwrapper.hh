@@ -29,9 +29,7 @@ class DumuxPreciceIndexMapper
     {
       assert( dumuxIndices.size() == preciceIndices.size() );
       size_ = dumuxIndices.size();
-      //preciceVertexToDumuxFaceIndex_.resize( size_ );
 
-      std::cout << "TESTING" << std::endl;
       for (T i = 0; i < size_; i++)
       {
         preciceVertexToDumuxFaceIndex_.emplace( preciceIndices[i], dumuxIndices[i] );
@@ -49,8 +47,6 @@ class DumuxPreciceIndexMapper
     const T getDumuxId( const T id ) const
     {
       assert( mappingWasCreated_ );
-      //assert( id < preciceVertexToDumuxFaceIndex_.size() );
-      //return preciceVertexToDumuxFaceIndex_[id];
       return preciceVertexToDumuxFaceIndex_.at(id);
     }
 

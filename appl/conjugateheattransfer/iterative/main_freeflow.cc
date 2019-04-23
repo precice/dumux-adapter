@@ -93,15 +93,9 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    //precice::SolverInterface precice("FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
-    //precice.configure("precice-config.xml");
     PreciceWrapper::createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     PreciceWrapper::configure( "precice-config.xml" );
-
-    // Constants for checkpointing
-    //const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint();
-    //const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
 
     const int dim = PreciceWrapper::getDimensions();
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
@@ -140,24 +134,7 @@ int main(int argc, char** argv) try
 
     const auto numberOfPoints = coords.size() / dim;
 
-    //std::vector<int> vertexIds( vertexSize );
-    //precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
-//    PreciceWrapper::setMeshName("FreeFlowMesh");
-    for (const auto v: coupledScvfIndices)
-    {
-      std::cout << v << std::endl;
-    }
     PreciceWrapper::setMesh( "FreeFlowMesh", numberOfPoints, coords, coupledScvfIndices );
-
-    PreciceWrapper::print( std::cout );
-
-    //const int temperatureId = precice.getDataID( "Temperature", meshId );
-    //const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
-
-    // TODO
-    //std::vector<double> temperatureVec( vertexSize );
-    //std::vector<double> heatFluxVec( vertexSize );
-    
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
@@ -230,7 +207,6 @@ int main(int argc, char** argv) try
     // time loop
     timeLoop->start(); do
     {
-//        if ( precice.isActionRequired( writeCheckpoint ) )
         if ( PreciceWrapper::hasToWriteIterationCheckpoint() )
         {
             //DO CHECKPOINTING
@@ -256,7 +232,6 @@ int main(int argc, char** argv) try
         solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
 
-//        if ( precice.isActionRequired( readCheckpoint ) )
         if ( PreciceWrapper::hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
