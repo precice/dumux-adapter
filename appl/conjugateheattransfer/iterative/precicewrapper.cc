@@ -2,9 +2,11 @@
 
 #include <cassert>
 
+using namespace precice_wrapper;
+
 PreciceWrapper::PreciceWrapper():
   wasCreated_(false), precice_(nullptr), meshWasCreated_(false), preciceWasInitialized_(false),
-  meshID_(0), temperatureID_(0), heatFluxID_(0), timeStepSize_(0.)
+  meshID_(0), freeFlowHeatFluxID_(0), solidHeatFluxID_(0), timeStepSize_(0.), writeHeatFluxType_(UNDEFINED), readHeatFluxType_(UNDEFINED)
 {
 
 }
@@ -18,6 +20,16 @@ PreciceWrapper& PreciceWrapper::getInstance()
 void PreciceWrapper::configure( const std::string& configurationFileName )
 {
   precice_->configure( configurationFileName );
+}
+
+void PreciceWrapper::announceHeatFluxToWrite(const HeatFluxType heatFluxType)
+{
+  writeHeatFluxType_ = heatFluxType;
+}
+
+void PreciceWrapper::announceHeatFluxToRead(const HeatFluxType heatFluxType)
+{
+  readHeatFluxType_ = heatFluxType;
 }
 
 void PreciceWrapper::announceSolver( const std::string& name, const int rank, const int size )
@@ -64,8 +76,11 @@ double PreciceWrapper::initialize()
   assert( wasCreated_ );
   assert( meshWasCreated_ );
 
-  temperatureID_ = precice_->getDataID( "Temperature", meshID_ );
-  heatFluxID_ = precice_->getDataID( "Heat-Flux", meshID_ );
+  solidHeatFluxID_ = precice_->getDataID( "Solid-Heat-Flux", meshID_ );
+  freeFlowHeatFluxID_ = precice_->getDataID( "FreeFlow-Heat-Flux", meshID_ );
+
+  freeFlowHeatFlux_.resize( getNumberOfVertices() );
+  solidHeatFlux_.resize( getNumberOfVertices() );
 
   timeStepSize_ = precice_->initialize();
   assert( timeStepSize_ > 0 );
@@ -107,20 +122,60 @@ size_t PreciceWrapper::getNumberOfVertices()
   return vertexIDs_.size();
 }
 
-double PreciceWrapper::getHeatFluxAtFace(const int faceID) const
+double PreciceWrapper::getHeatFluxAtFace( const int faceID) const
 {
   assert( wasCreated_ );
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert(idx < heatFlux_.size() );
-  return heatFlux_[idx];
+  assert( readHeatFluxType_ != HeatFluxType::UNDEFINED );
+  if (readHeatFluxType_ == HeatFluxType::FreeFlow)
+  {
+    assert(idx < freeFlowHeatFlux_.size() );
+    return freeFlowHeatFlux_[idx];
+  }
+  else
+  {
+    assert(idx < solidHeatFlux_.size() );
+    return solidHeatFlux_[idx];
+  }
 }
 
-double PreciceWrapper::getTemperatureAtFace(const int faceID) const
+void PreciceWrapper::writeHeatFluxOnFace(const int faceID,
+                                         const double value)
 {
   assert( wasCreated_ );
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert(idx < temperature_.size() );
-  return temperature_[idx];
+  assert( writeHeatFluxType_ != HeatFluxType::UNDEFINED );
+  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
+  {
+    freeFlowHeatFlux_[idx] = value;
+  }
+  else
+  {
+    solidHeatFlux_[idx] = value;
+  }
+}
+
+void PreciceWrapper::writeHeatFluxToOtherSolver()
+{
+  assert( wasCreated_ );
+  assert( writeHeatFluxType_ != HeatFluxType::UNDEFINED );
+
+  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
+    writeBlockScalarDataToPrecice( freeFlowHeatFluxID_, freeFlowHeatFlux_ );
+  else
+    writeBlockScalarDataToPrecice( solidHeatFluxID_, solidHeatFlux_ );
+
+}
+
+void PreciceWrapper::readHeatFluxFromOtherSolver()
+{
+  assert( wasCreated_ );
+  assert( readHeatFluxType_ != HeatFluxType::UNDEFINED );
+
+  if ( readHeatFluxType_ == HeatFluxType::FreeFlow )
+    readBlockScalarDataFromPrecice( freeFlowHeatFluxID_, freeFlowHeatFlux_ );
+  else
+    readBlockScalarDataFromPrecice( solidHeatFluxID_, solidHeatFlux_ );
 }
 
 bool PreciceWrapper::isCoupledEntity(const int faceID) const
@@ -195,6 +250,20 @@ void PreciceWrapper::actionIsFulfilled(const std::string& condition)
 {
   assert( wasCreated_ );
   precice_->fulfilledAction( condition );
+}
+
+void PreciceWrapper::readBlockScalarDataFromPrecice(const int dataID, std::vector<double> &data)
+{
+  assert( wasCreated_ );
+  assert( vertexIDs.size() == data.size() );
+  precice_->readBlockScalarData( dataID, vertexIDs_.size(), vertexIDs_.data(), data.data() );
+}
+
+void PreciceWrapper::writeBlockScalarDataToPrecice(const int dataID, std::vector<double> &data)
+{
+  assert( wasCreated_ );
+  assert( vertexIDs.size() == data.size() );
+  precice_->writeBlockScalarData( dataID, vertexIDs_.size(), vertexIDs_.data(), data.data() );
 }
 
 bool PreciceWrapper::hasToWriteInitialData()

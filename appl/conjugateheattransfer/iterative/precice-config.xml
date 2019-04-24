@@ -8,31 +8,31 @@
 
   <solver-interface dimensions="2">
 
-    <data:scalar name="Temperature"/>
-    <data:scalar name="Heat-Flux"/>
+    <data:scalar name="FreeFlow-Heat-Flux"/>
+    <data:scalar name="Solid-Heat-Flux"/>
 
     <mesh name="FreeFlowMesh">
-      <use-data name="Temperature" />
-      <use-data name="Heat-Flux" />
+      <use-data name="FreeFlow-Heat-Flux" />
+      <use-data name="Solid-Heat-Flux" />
     </mesh>
 
     <mesh name="SolidEnergyMesh">
-      <use-data name="Temperature" />
-      <use-data name="Heat-Flux" />
+      <use-data name="FreeFlow-Heat-Flux" />
+      <use-data name="Solid-Heat-Flux" />
     </mesh>
 
     <participant name="FreeFlow">
       <use-mesh name="FreeFlowMesh" provide="yes"/>
-      <write-data name="Temperature" mesh="FreeFlowMesh"/>
-      <write-data name="Heat-Flux" mesh="FreeFlowMesh"/>
+      <write-data name="FreeFlow-Heat-Flux" mesh="FreeFlowMesh"/>
+      <read-data name="Solid-Heat-Flux" mesh="FreeFlowMesh"/>
     </participant>
 
     <participant name="SolidEnergy">
       <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       <use-mesh name="SolidEnergyMesh" provide="yes"/>
       
-      <read-data name="Temperature" mesh="SolidEnergyMesh"/>
-      <read-data name="Heat-Flux" mesh="SolidEnergyMesh"/>
+      <read-data name="FreeFlow-Heat-Flux" mesh="SolidEnergyMesh"/>
+      <write-data name="Solid-Heat-Flux" mesh="SolidEnergyMesh"/>
 
       <mapping:nearest-neighbor direction="read" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/> 
       <!--
@@ -50,8 +50,8 @@
       <max-time value="100"/>
       <timestep-length value="1" />
 
-      <exchange data="Temperature" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" />
-      <exchange data="Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      <exchange data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" />
+      <exchange data="Solid-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
            
     </coupling-scheme:parallel-explicit>
   </solver-interface>

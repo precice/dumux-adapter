@@ -112,7 +112,7 @@ public:
     : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface(PreciceWrapper::getInstance())
+      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface(precice_wrapper::PreciceWrapper::getInstance())
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -287,7 +287,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   PreciceWrapper& couplingInterface;
+   precice_wrapper::PreciceWrapper& couplingInterface;
 #endif
 
 };

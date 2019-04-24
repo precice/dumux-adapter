@@ -88,10 +88,12 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    auto& couplingInterface = PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
     couplingInterface.announceSolver( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
     couplingInterface.configure( "precice-config.xml" );
+    couplingInterface.announceHeatFluxToWrite( precice_wrapper::HeatFluxType::Solid );
+    couplingInterface.announceHeatFluxToRead( precice_wrapper::HeatFluxType::FreeFlow );
 
     const int dim = couplingInterface.getDimensions();
     if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))

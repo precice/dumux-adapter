@@ -92,10 +92,12 @@ int main(int argc, char** argv) try
     // - Name of solver
     // - What rank of how many ranks this instance is
     // Configure preCICE. For now the config file is hardcoded.
-    auto& couplingInterface = PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
     couplingInterface.announceSolver( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     //couplingInterface.createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     couplingInterface.configure( "precice-config.xml" );
+    couplingInterface.announceHeatFluxToWrite( precice_wrapper::HeatFluxType::FreeFlow );
+    couplingInterface.announceHeatFluxToRead( precice_wrapper::HeatFluxType::Solid );
 
     const int dim = couplingInterface.getDimensions();
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
@@ -211,12 +213,8 @@ int main(int argc, char** argv) try
             couplingInterface.announceIterationCheckpointWritten();
         }
 
-        // Read heat flux from precice
-        // TODO: Remove // when vertexSize is defined
-        // precice.readBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
-
-        // Make use of the heat flux here
-        // TODO
+        // Read heat flux from precice.
+        couplingInterface.readHeatFluxFromOtherSolver();
 
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
@@ -228,6 +226,11 @@ int main(int argc, char** argv) try
         //TODO DO WE HAVE TO MOVE THAT?
         solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
+
+        // Write heatflux to wrapper
+        //couplingInterface.writeHeatFluxOnFace( ... )
+        //Tell wrapper that all values have been written
+        couplingInterface.writeHeatFluxToOtherSolver();
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
@@ -246,13 +249,6 @@ int main(int argc, char** argv) try
 
             // report statistics of this time step
             timeLoop->reportTimeStep();
-
-            // Get the temperature here
-            // TODO
-
-            // Write temperature to preCICe
-            // TODO: Remove // when vertexSize is defined
-            //precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
 
             // set new dt as suggested by newton solver
             const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );

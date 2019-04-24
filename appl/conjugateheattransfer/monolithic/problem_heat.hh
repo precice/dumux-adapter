@@ -96,7 +96,7 @@ public:
     : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
     HeatSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingInterface( PreciceWrapper::getInstance() )
+      : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingInterface( precice_wrapper::PreciceWrapper::getInstance() )
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -228,7 +228,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   PreciceWrapper& couplingInterface;
+   precice_wrapper::PreciceWrapper& couplingInterface;
 #endif
 
 };
