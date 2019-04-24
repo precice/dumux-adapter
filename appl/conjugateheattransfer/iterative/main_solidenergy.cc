@@ -242,9 +242,9 @@ int main(int argc, char** argv) try
 
             // set new dt as suggested by newton solver
             const double preciceDt = PreciceWrapper::advance( timeLoop->timeStepSize() );
-            const double newDt = std::min( preciceDt, timeLoop->timeStepSize() );
+            const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
 
-            timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize( newDt ));
+            timeLoop->setTimeStepSize( newDt );
         }
 
     } while (!timeLoop->finished() && PreciceWrapper::isCouplingOngoing() );
