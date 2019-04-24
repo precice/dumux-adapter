@@ -44,9 +44,8 @@
 
 #include <dumux/nonlinear/newtonsolver.hh>
 
-#include <precice/SolverInterface.hpp>
-
 #include "../monolithic/problem_heat.hh"
+#include "precicewrapper.hh"
 
 int main(int argc, char** argv) try
 {
@@ -89,33 +88,27 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    precice::SolverInterface precice("SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
-
+    PreciceWrapper::createInstance( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
-    precice.configure("precice-config.xml");
+    PreciceWrapper::configure( "precice-config.xml" );
 
-    // Constants for checkpointing
-    const std::string& readCheckpoint = precice::constants::actionReadIterationCheckpoint(); 
-    const std::string& writeCheckpoint = precice::constants::actionWriteIterationCheckpoint();
-
-    const int dim = precice.getDimensions();
-    if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
+    const int dim = PreciceWrapper::getDimensions();
+    if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
-    const int meshId = precice.getMeshID("SolidEnergyMesh");
 
-    std::vector<double> coords; //( dim * vertexSize );
-    std::vector<std::size_t> coupledScvfIndices;
+    std::vector<double> coords; //( dim * numPoints );
+    std::vector<int> coupledScvfIndices;
 
-    for (const auto& element : elements(freeFlowGridView))
+    for (const auto& element : elements(solidEnergyGridView))
     {
-        auto fvGeometry = localView(*freeFlowFvGridGeometry);
+        auto fvGeometry = localView(*solidEnergyFvGridGeometry);
         fvGeometry.bindElement(element);
 
         for (const auto& scvf : scvfs(fvGeometry))
         {
             static constexpr auto eps = 1e-7;
             const auto& pos = scvf.center();
-            if (pos[1] > freeFlowFvGridGeometry->bBoxx()[1] - eps)
+            if (pos[1] > solidEnergyFvGridGeometry->bBoxMax()[1] - eps)
             {
                 coupledScvfIndices.push_back(scvf.index());
                 for (const auto p : pos)
@@ -124,19 +117,9 @@ int main(int argc, char** argv) try
         }
     }
 
-    const auto vertexSize = coords.size() / dim;
+    const auto numPoints = coords.size() / dim;
 
-    std::vector<int> vertexIds( vertexSize );
-    precice.setMeshVertices( meshId, vertexSize, coords.data(), vertexIds.data() );
-
-    const int temperatureId = precice.getDataID( "Temperature", meshId );
-    const int heatFluxId = precice.getDataID( "Heat-Flux", meshId );
-
-    // TODO
-    /* 
-    std::vector<double> temperatureVec( vertexSize );
-    std::vector<double> heatFluxVec( vertexSize );
-    */
+    PreciceWrapper::setMesh( "SolidEnergyMesh", numPoints, coords, coupledScvfIndices );
 
     // apply initial solution for instationary problems
     solidEnergyProblem->applyInitialSolution(sol);
@@ -146,23 +129,22 @@ int main(int argc, char** argv) try
     if ( precice.isActionRequired(precice::constants::actionWriteInitialData()) )
     {
       //Fill data vector
-      for (int i = 0; i < vertexSize; ++i)
+      for (int i = 0; i < numPoints; ++i)
       {
         //temperatureVec[i] = ??; 
       }
-       precice.writeBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
+       precice.writeBlockScalarData( heatFluxId, numPoints, vertexIDs.data(), heatFluxVec.data() );
        precice.fulfilledAction(precice::constants::actionWriteInitialData());
     }
     */
 
-    const double preciceDt = precice.initialize();
-    precice.initializeData();
+    const double preciceDt = PreciceWrapper::initialize();
 
     // Read initialdata for heat-flux if available
     /*
     if (precice.isReadDataAvailable())
     {
-      precice.readBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
+      precice.readBlockScalarData( temperatureId, numPoints, vertexIDs.data(), temperatureVec.data() );
     }
     */
 
@@ -185,7 +167,7 @@ int main(int argc, char** argv) try
     auto dt = getParam<Scalar>("TimeLoop.DtInitial");
 
     //Time step size can also be changed by preCICE
-    dt = std::max( dt, preciceDt );
+    dt = std::min( dt, preciceDt );
 
     auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0, dt, tEnd);
     timeLoop->setMaxTimeStepSize(maxDt);
@@ -208,15 +190,15 @@ int main(int argc, char** argv) try
     // time loop
     timeLoop->start(); do
     {
-        if ( precice.isActionRequired( writeCheckpoint ) )
+        if ( PreciceWrapper::hasToWriteIterationCheckpoint() )
         {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
-            precice.fulfilledAction( writeCheckpoint );
+            PreciceWrapper::announceIterationCheckpointWritten();
         }
         // Read heat flux from precice
-        // TODO: Remove // when vertexSize is defined
-        // precice.readBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
+        // TODO: Remove // when numPoints is defined
+        // precice.readBlockScalarData( heatFluxId, numPoints, vertexIDs.data(), heatFluxVec.data() );
 
         // Make use of the heat flux here
         // TODO
@@ -233,12 +215,12 @@ int main(int argc, char** argv) try
         solOld = sol;
         solidEnergyGridVariables->advanceTimeStep();
 
-        if ( precice.isActionRequired( readCheckpoint ) )
+        if ( PreciceWrapper::hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
             sol = sol_checkpoint;
-            freeFlowGridVariables->update(sol);
-            precice.fulfilledAction( writeCheckpoint );
+            solidEnergyGridVariables->update(sol);
+            PreciceWrapper::announceIterationCheckpointRead();
         }
         else // coupling successful
         {
@@ -255,17 +237,17 @@ int main(int argc, char** argv) try
             // TODO
 
             // Write temperature to preCICe
-            // TODO: Remove // when vertexSize is defined
-            //precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
+            // TODO: Remove // when numPoints is defined
+            //precice.writeBlockScalarData( temperatureId, numPoints, vertexIDs.data(), temperatureVec.data() );
 
             // set new dt as suggested by newton solver
-            const double preciceDt = precice.advance( timeLoop->timeStepSize() );
-            const double newDt = std::max( preciceDt, timeLoop->timeStepSize() );
+            const double preciceDt = PreciceWrapper::advance( timeLoop->timeStepSize() );
+            const double newDt = std::min( preciceDt, timeLoop->timeStepSize() );
 
             timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize( newDt ));
         }
 
-    } while (!timeLoop->finished() && precice.isCouplingOngoing());
+    } while (!timeLoop->finished() && PreciceWrapper::isCouplingOngoing() );
 
     timeLoop->finalize(solidEnergyGridView.comm());
 
@@ -280,7 +262,7 @@ int main(int argc, char** argv) try
         DumuxMessage::print(/*firstCall=*/false);
     }
 
-    precice.finalize();
+    PreciceWrapper::finalize();
 
     return 0;
 } // end main

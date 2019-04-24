@@ -46,8 +46,6 @@
 #include <dumux/assembly/staggeredfvassembler.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
 
-//#include <precice/SolverInterface.hpp>
-
 #include "../monolithic/problem_freeflow.hh"
 #include "precicewrapper.hh"
 
@@ -101,9 +99,6 @@ int main(int argc, char** argv) try
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
     if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
-
-    //const int meshId = precice.getMeshID("FreeFlowMesh");
-
 
     // GET mesh corodinates
     const double xMin = getParamFromGroup<std::vector<double>>("SolidEnergy", "Grid.Positions0")[0];
@@ -184,7 +179,7 @@ int main(int argc, char** argv) try
     auto dt = getParam<Scalar>("TimeLoop.DtInitial");
 
     //Time step size can also be changed by preCICE
-    dt = std::max( dt, preciceDt );
+    dt = std::min( dt, preciceDt );
 
     auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0, dt, tEnd);
     timeLoop->setMaxTimeStepSize(maxDt);
@@ -259,7 +254,7 @@ int main(int argc, char** argv) try
 
             // set new dt as suggested by newton solver
             const double preciceDt = PreciceWrapper::advance( timeLoop->timeStepSize() );
-            const double newDt = std::max( preciceDt, timeLoop->timeStepSize() );
+            const double newDt = std::min( preciceDt, timeLoop->timeStepSize() );
 
             timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize( newDt ));
         }
@@ -278,6 +273,8 @@ int main(int argc, char** argv) try
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
+
+    PreciceWrapper::finalize();
 
     return 0;
 } // end main
