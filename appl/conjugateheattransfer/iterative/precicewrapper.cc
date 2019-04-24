@@ -184,6 +184,16 @@ bool PreciceWrapper::isCoupledEntity(const int faceID) const
   return indexMapper_.isDumuxIdMapped( faceID );
 }
 
+std::vector<double>& PreciceWrapper::getHeatFluxToWrite()
+{
+  assert( wasCreated_ );
+  assert( heatFluxToWrite_ != HeatFluxType::UNDEFINED);
+  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
+    return freeFlowHeatFlux_;
+  else
+    return solidHeatFlux_;
+}
+
 //void PreciceWrapper::readScalarQuantitiy(const int dataID, std::vector<double> &data)
 //{
 //  assert( wasCreated_ );

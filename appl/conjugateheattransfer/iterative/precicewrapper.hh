@@ -105,6 +105,8 @@ public:
   bool isCoupledEntity( const int faceID ) const;
 
 
+  std::vector<double>& getHeatFluxToWrite();
+
 //  static void readScalarQuantitiy( const int dataID, std::vector<double>& data );
 //  static void writeScalarQuantitiy( const int dataID, std::vector<double>& data );
 
