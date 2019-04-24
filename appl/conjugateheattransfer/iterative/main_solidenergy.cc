@@ -47,6 +47,64 @@
 #include "../monolithic/problem_heat.hh"
 #include "precicewrapper.hh"
 
+template<class ThermalConductivityModel, class Problem, class FVElementGeometry, class ElementVolumeVariables>
+auto recontructBoundaryTemperature(const Problem& problem,
+                                   const typename FVElementGeometry::FVGridGeometry::GridView::template Codim<0>::Entity& element,
+                                   const FVElementGeometry& fvGeometry,
+                                   const ElementVolumeVariables& elemVolVars,
+                                   const typename FVElementGeometry::SubControlVolumeFace& scvf)
+{
+    using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
+
+    const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
+    const auto& volVars = elemVolVars[scv];
+    const Scalar cellCenterTemperature = volVars.temperature();
+    const Scalar distance = (scvf.center() - scv.center()).two_norm();
+    const Scalar insideLambda = ThermalConductivityModel::effectiveThermalConductivity(volVars,
+                                                                                       problem.spatialParams(),
+                                                                                       element,
+                                                                                       fvGeometry,
+                                                                                       scv);
+
+    const Scalar qHeat = problem.neumann(element, fvGeometry, elemVolVars, scvf);
+    // q = -lambda * (t_face - t_cc) / dx
+    // t_face = -q * dx / lambda + t_cc
+    return -qHeat * distance / insideLambda + cellCenterTemperature;
+}
+
+template<class ThermalConductivityModel, class TemperatureVector, class Problem, class GridVariables, class SolutionVector>
+void getBoundaryTemperatures(TemperatureVector& boundaryTemperature,
+                             const Problem& problem,
+                             const GridVariables& gridVars,
+                             const SolutionVector& sol)
+{
+    const auto& fvGridGeometry = problem.fvGridGeometry();
+    auto fvGeometry = localView(fvGridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+
+    for (const auto& element : elements(fvGridGeometry.gridView()))
+    {
+        fvGeometry.bindElement(element);
+        elemVolVars.bindElement(element, fvGeometry, sol);
+
+        for (const auto& scvf : scvfs(fvGeometry))
+        {
+            if (scvf.center()[1] > fvGridGeometry.bBoxMax()[1] - 1e-7) // TODO find correct faces
+            {
+                std:: cout << recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) << std::endl;
+                // TODO fill vector
+                // const auto scvfIdx = scvf.index();
+                // if (scvfIdx == ?? )
+                // {
+                    // auto coupledScvfMap = ... ;
+                    // boundaryTemperature[coupledScvfMap[scvfIdx]] = recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf);
+                // }
+            }
+        }
+    }
+}
+
+
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
@@ -186,6 +244,9 @@ int main(int argc, char** argv) try
     // the non-linear solver
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
+
+    // TODO resize
+    std::vector<Scalar> boundaryTemperature;
 
     //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
