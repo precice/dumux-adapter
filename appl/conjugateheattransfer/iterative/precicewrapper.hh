@@ -69,6 +69,7 @@ public:
                        const std::vector<int>& dumuxFaceIDs ) ;
 
   static double initialize();
+  static void finalize();
   //static void initializeData();
 
   static double advance( const double computedTimeStepLength );

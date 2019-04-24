@@ -75,6 +75,12 @@ double PreciceWrapper::initialize()
   return get().timeStepSize_;
 }
 
+void PreciceWrapper::finalize()
+{
+  assert( get().wasCreated_ );
+  get().precice_->finalize();
+}
+
 /*
 void PreciceWrapper::initializeData()
 {
@@ -224,8 +230,5 @@ void PreciceWrapper::announceAllInitialDataWritten()
 */
 PreciceWrapper::~PreciceWrapper()
 {
-  if ( !get().wasCreated_ )
-    get().initialize();
-  get().precice_->finalize();
 }
 
