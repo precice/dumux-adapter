@@ -6,6 +6,17 @@
 
 See [test case description](dumux_test_case.md#conjugate-heat-transfer) 
 
+
+We do the following now:
+
+| Solver | writes | reads |
+| ------ | ------ | ----- |
+| SolidEnergy | Temperature | Heat flux |
+| FreeFlow | Heat flux | Temperature |
+
+**Attention**
+This is the opposite way of writing things than in the OpenFOAM example! If we want to couple to OpenFOAM we have to change that.
+
 #### Problems
 
 - How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.

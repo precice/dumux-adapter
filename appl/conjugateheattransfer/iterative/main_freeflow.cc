@@ -145,7 +145,7 @@ int main(int argc, char** argv) try
       //Fill data vector
       for (int i = 0; i < vertexSize; ++i)
       {
-        //temperatureVec[i] = ??; 
+        //temperatureVec[i] = ??;
       }
        precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
        precice.fulfilledAction(precice::constants::actionWriteInitialData());

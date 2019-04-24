@@ -181,8 +181,7 @@ public:
         {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
-            //What to do here?
-            // values.setNeumann(Indices::energyEqIdx);
+            values.setNeumann(Indices::energyEqIdx);
         }
 #endif
 
@@ -223,7 +222,17 @@ public:
         const auto faceId = scvf.index();
         if ( couplingInterface.isCoupledEntity( faceId ) )
         {
-          values[Indices::energyEqIdx] = couplingInterface.getHeatFluxAtFace( faceId );
+          // Actually gets temperature
+          const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
+          const auto& volVars = elemVolVars[scv];
+          const Scalar cellCenterTemperature = volVars.temperature();
+          const Scalar distance = (scvf.center() - scv.center()).two_norm();
+          const Scalar insideLambda = volVars.effectiveThermalConductivity();
+          const Scalar boundaryTemperature = couplingInterface.getHeatFluxAtFace(faceId);
+          // q = -lambda * (t_face - t_cc) / dx
+          const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
+
+          values[Indices::energyEqIdx] = qHeat;
         }
 #endif
 

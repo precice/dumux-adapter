@@ -72,15 +72,16 @@ auto recontructBoundaryTemperature(const Problem& problem,
     return -qHeat * distance / insideLambda + cellCenterTemperature;
 }
 
-template<class ThermalConductivityModel, class TemperatureVector, class Problem, class GridVariables, class SolutionVector>
-void getBoundaryTemperatures(TemperatureVector& boundaryTemperature,
-                             const Problem& problem,
+template<class ThermalConductivityModel, class Problem, class GridVariables, class SolutionVector>
+void getBoundaryTemperatures(const Problem& problem,
                              const GridVariables& gridVars,
                              const SolutionVector& sol)
 {
     const auto& fvGridGeometry = problem.fvGridGeometry();
     auto fvGeometry = localView(fvGridGeometry);
     auto elemVolVars = localView(gridVars.curGridVolVars());
+
+    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
 
     for (const auto& element : elements(fvGridGeometry.gridView()))
     {
@@ -89,16 +90,11 @@ void getBoundaryTemperatures(TemperatureVector& boundaryTemperature,
 
         for (const auto& scvf : scvfs(fvGeometry))
         {
-            if (scvf.center()[1] > fvGridGeometry.bBoxMax()[1] - 1e-7) // TODO find correct faces
+
+            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
             {
-                std:: cout << recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) << std::endl;
-                // TODO fill vector
-                // const auto scvfIdx = scvf.index();
-                // if (scvfIdx == ?? )
-                // {
-                    // auto coupledScvfMap = ... ;
-                    // boundaryTemperature[coupledScvfMap[scvfIdx]] = recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf);
-                // }
+                //TODO: Actually writes temperature
+                couplingInterface.writeHeatFluxOnFace( scvf.index(), recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) );
             }
         }
     }
@@ -279,6 +275,9 @@ int main(int argc, char** argv) try
         solOld = sol;
         solidEnergyGridVariables->advanceTimeStep();
 
+        getBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+        couplingInterface.writeHeatFluxToOtherSolver();
+
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
@@ -300,9 +299,6 @@ int main(int argc, char** argv) try
             // Get the temperature here
             // TODO
 
-            // Write temperature to preCICe
-            // TODO: Remove // when numPoints is defined
-            //precice.writeBlockScalarData( temperatureId, numPoints, vertexIDs.data(), temperatureVec.data() );
 
             // set new dt as suggested by newton solver
             const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
