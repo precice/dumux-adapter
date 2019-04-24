@@ -96,7 +96,7 @@ public:
     : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
     HeatSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingInterface( precice_wrapper::PreciceWrapper::getInstance() )
+      : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingInterface_( precice_wrapper::PreciceWrapper::getInstance() )
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -178,9 +178,9 @@ public:
 #else
         //TODO preCICE
         const auto faceId = scvf.index();
-        if ( couplingInterface.isCoupledEntity(faceId) )
+        if ( couplingInterface_.isCoupledEntity(faceId) )
         {
-             values[Indices::energyEqIdx] = couplingInterface.getHeatFluxAtFace(faceId) ;
+             values[Indices::energyEqIdx] = couplingInterface_.getHeatFluxOnFace(faceId) ;
         }
 #endif
 
@@ -228,7 +228,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_wrapper::PreciceWrapper& couplingInterface;
+   precice_wrapper::PreciceWrapper& couplingInterface_;
 #endif
 
 };

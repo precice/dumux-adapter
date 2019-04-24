@@ -6,7 +6,7 @@ using namespace precice_wrapper;
 
 PreciceWrapper::PreciceWrapper():
   wasCreated_(false), precice_(nullptr), meshWasCreated_(false), preciceWasInitialized_(false),
-  meshID_(0), freeFlowHeatFluxID_(0), solidHeatFluxID_(0), timeStepSize_(0.), writeHeatFluxType_(UNDEFINED), readHeatFluxType_(UNDEFINED)
+  meshID_(0), heatFluxID_(0), temperatureID_(0), timeStepSize_(0.)
 {
 
 }
@@ -21,7 +21,7 @@ void PreciceWrapper::configure( const std::string& configurationFileName )
 {
   precice_->configure( configurationFileName );
 }
-
+/*
 void PreciceWrapper::announceHeatFluxToWrite(const HeatFluxType heatFluxType)
 {
   writeHeatFluxType_ = heatFluxType;
@@ -31,7 +31,7 @@ void PreciceWrapper::announceHeatFluxToRead(const HeatFluxType heatFluxType)
 {
   readHeatFluxType_ = heatFluxType;
 }
-
+*/
 void PreciceWrapper::announceSolver( const std::string& name, const int rank, const int size )
 {
   assert( precice_ == nullptr );
@@ -76,11 +76,11 @@ double PreciceWrapper::initialize()
   assert( wasCreated_ );
   assert( meshWasCreated_ );
 
-  solidHeatFluxID_ = precice_->getDataID( "Solid-Heat-Flux", meshID_ );
-  freeFlowHeatFluxID_ = precice_->getDataID( "FreeFlow-Heat-Flux", meshID_ );
+  heatFluxID_ = precice_->getDataID( "Heat-Flux", meshID_ );
+  temperatureID_ = precice_->getDataID( "Temperature", meshID_ );
 
-  freeFlowHeatFlux_.resize( getNumberOfVertices() );
-  solidHeatFlux_.resize( getNumberOfVertices() );
+  heatFlux_.resize( getNumberOfVertices() );
+  temperature_.resize( getNumberOfVertices() );
 
   timeStepSize_ = precice_->initialize();
   assert( timeStepSize_ > 0 );
@@ -127,21 +127,12 @@ size_t PreciceWrapper::getNumberOfVertices()
   return vertexIDs_.size();
 }
 
-double PreciceWrapper::getHeatFluxAtFace( const int faceID) const
+double PreciceWrapper::getHeatFluxOnFace( const int faceID) const
 {
   assert( wasCreated_ );
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert( readHeatFluxType_ != HeatFluxType::UNDEFINED );
-  if (readHeatFluxType_ == HeatFluxType::FreeFlow)
-  {
-    assert(idx < freeFlowHeatFlux_.size() );
-    return freeFlowHeatFlux_[idx];
-  }
-  else
-  {
-    assert(idx < solidHeatFlux_.size() );
-    return solidHeatFlux_[idx];
-  }
+  assert(idx < heatFlux_.size() );
+  return heatFlux_[idx];
 }
 
 void PreciceWrapper::writeHeatFluxOnFace(const int faceID,
@@ -149,38 +140,48 @@ void PreciceWrapper::writeHeatFluxOnFace(const int faceID,
 {
   assert( wasCreated_ );
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert( writeHeatFluxType_ != HeatFluxType::UNDEFINED );
-  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
-  {
-    freeFlowHeatFlux_[idx] = value;
-  }
-  else
-  {
-    solidHeatFlux_[idx] = value;
-  }
+  assert(idx < heatFlux_.size() );
+  heatFlux_[idx] = value;
+}
+
+double PreciceWrapper::getTemperatureOnFace(const int faceID) const
+{
+  assert( wasCreated_ );
+  const auto idx = indexMapper_.getPreciceId( faceID );
+  assert(idx < temperature_.size() );
+  return temperature_[idx];
+}
+
+void PreciceWrapper::writeTemperatureOnFace(const int faceID, const double value)
+{
+  assert( wasCreated_ );
+  const auto idx = indexMapper_.getPreciceId( faceID );
+  assert(idx < temperature_.size() );
+  temperature_[idx] = value;
 }
 
 void PreciceWrapper::writeHeatFluxToOtherSolver()
 {
   assert( wasCreated_ );
-  assert( writeHeatFluxType_ != HeatFluxType::UNDEFINED );
-
-  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
-    writeBlockScalarDataToPrecice( freeFlowHeatFluxID_, freeFlowHeatFlux_ );
-  else
-    writeBlockScalarDataToPrecice( solidHeatFluxID_, solidHeatFlux_ );
-
+  writeBlockScalarDataToPrecice( heatFluxID_, heatFlux_ );
 }
 
 void PreciceWrapper::readHeatFluxFromOtherSolver()
 {
   assert( wasCreated_ );
-  assert( readHeatFluxType_ != HeatFluxType::UNDEFINED );
+  readBlockScalarDataFromPrecice( heatFluxID_, heatFlux_ );
+}
 
-  if ( readHeatFluxType_ == HeatFluxType::FreeFlow )
-    readBlockScalarDataFromPrecice( freeFlowHeatFluxID_, freeFlowHeatFlux_ );
-  else
-    readBlockScalarDataFromPrecice( solidHeatFluxID_, solidHeatFlux_ );
+void PreciceWrapper::writeTemperatureToOtherSolver()
+{
+  assert( wasCreated_ );
+  writeBlockScalarDataToPrecice( temperatureID_, temperature_ );
+}
+
+void PreciceWrapper::readTemperatureFromOtherSolver()
+{
+  assert( wasCreated_ );
+  readBlockScalarDataFromPrecice( temperatureID_, temperature_ );
 }
 
 bool PreciceWrapper::isCoupledEntity(const int faceID) const
@@ -188,7 +189,7 @@ bool PreciceWrapper::isCoupledEntity(const int faceID) const
   assert( wasCreated_ );
   return indexMapper_.isDumuxIdMapped( faceID );
 }
-
+/*
 std::vector<double>& PreciceWrapper::getHeatFluxToWrite()
 {
   assert( wasCreated_ );
@@ -198,7 +199,7 @@ std::vector<double>& PreciceWrapper::getHeatFluxToWrite()
   else
     return solidHeatFlux_;
 }
-
+*/
 //void PreciceWrapper::readScalarQuantitiy(const int dataID, std::vector<double> &data)
 //{
 //  assert( wasCreated_ );
@@ -310,7 +311,7 @@ bool PreciceWrapper::hasToReadIterationCheckpoint()
 void PreciceWrapper::announceIterationCheckpointRead()
 {
   assert( wasCreated_ );
-  actionIsFulfilled( precice::constants::actionWriteIterationCheckpoint() );
+  actionIsFulfilled( precice::constants::actionReadIterationCheckpoint() );
 }
 
 bool PreciceWrapper::hasToWriteIterationCheckpoint()

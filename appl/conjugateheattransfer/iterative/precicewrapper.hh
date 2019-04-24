@@ -9,10 +9,12 @@
 
 namespace precice_wrapper{
 
+  /*
   enum HeatFluxType
   {
     UNDEFINED, FreeFlow, Solid
   };
+  */
 
 class PreciceWrapper
 {
@@ -33,18 +35,20 @@ private:
   bool preciceWasInitialized_;
   int meshID_;
   int dimension_;
-  int freeFlowHeatFluxID_;
-  int solidHeatFluxID_;
+  int heatFluxID_;
+  int temperatureID_;
 
   double timeStepSize_;
 
+  /*
   HeatFluxType writeHeatFluxType_;
   HeatFluxType readHeatFluxType_;
+  */
 
 
   std::vector<int> vertexIDs_; //should be size_t
-  std::vector<double> freeFlowHeatFlux_;
-  std::vector<double> solidHeatFlux_;
+  std::vector<double> heatFlux_;
+  std::vector<double> temperature_;
 
   DumuxPreciceIndexMapper<int> indexMapper_;
 
@@ -59,8 +63,10 @@ public:
   void announceSolver( const std::string& name, const int rank, const int size );
   void configure( const std::string& configurationFileName );
 
+  /*
   void announceHeatFluxToWrite( const HeatFluxType heatFluxType );
   void announceHeatFluxToRead( const HeatFluxType heatFluxType );
+  */
 
   int getDimensions();
   // static int getMeshID( const std::string& meshName );
@@ -99,18 +105,24 @@ public:
   size_t getNumberOfVertices();
 
 
-  double getHeatFluxAtFace( const int faceID ) const;
+  double getHeatFluxOnFace( const int faceID ) const;
   void writeHeatFluxOnFace( const int faceID, const double value );
+
+  double getTemperatureOnFace( const int faceID ) const;
+  void writeTemperatureOnFace( const int faceID, const double value );
 
   void writeHeatFluxToOtherSolver();
   void readHeatFluxFromOtherSolver();
+
+  void writeTemperatureToOtherSolver();
+  void readTemperatureFromOtherSolver();
 
 
   bool isCoupledEntity( const int faceID ) const;
 
 
 
-  std::vector<double>& getHeatFluxToWrite();
+//  std::vector<double>& getHeatFluxToWrite();
 
 //  static void readScalarQuantitiy( const int dataID, std::vector<double>& data );
 //  static void writeScalarQuantitiy( const int dataID, std::vector<double>& data );

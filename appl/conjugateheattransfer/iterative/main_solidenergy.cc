@@ -73,7 +73,7 @@ auto recontructBoundaryTemperature(const Problem& problem,
 }
 
 template<class ThermalConductivityModel, class Problem, class GridVariables, class SolutionVector>
-void getBoundaryTemperatures(const Problem& problem,
+void setBoundaryTemperatures(const Problem& problem,
                              const GridVariables& gridVars,
                              const SolutionVector& sol)
 {
@@ -94,7 +94,7 @@ void getBoundaryTemperatures(const Problem& problem,
             if ( couplingInterface.isCoupledEntity( scvf.index() ) )
             {
                 //TODO: Actually writes temperature
-                couplingInterface.writeHeatFluxOnFace( scvf.index(), recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) );
+                couplingInterface.writeTemperatureOnFace( scvf.index(), recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) );
             }
         }
     }
@@ -145,9 +145,11 @@ int main(int argc, char** argv) try
     auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
     couplingInterface.announceSolver( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
-    couplingInterface.configure( "precice-config.xml" );
-    couplingInterface.announceHeatFluxToWrite( precice_wrapper::HeatFluxType::Solid );
-    couplingInterface.announceHeatFluxToRead( precice_wrapper::HeatFluxType::FreeFlow );
+    std::string preciceConfigFilename = "precice-config.xml";
+    if (argc == 3)
+      preciceConfigFilename = argv[2];
+
+    couplingInterface.configure( preciceConfigFilename );
 
     const int dim = couplingInterface.getDimensions();
     if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))
@@ -220,12 +222,18 @@ int main(int argc, char** argv) try
 
     if ( couplingInterface.hasToWriteInitialData() )
     {
-      getBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+      setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+      couplingInterface.writeTemperatureToOtherSolver();
       couplingInterface.announceInitialDataWritten();
     }
 
     couplingInterface.initializeData();
-
+/*
+    if (couplingInterface.isInitialDataAvailable())
+    {
+      couplingInterface.readHeatFluxFromOtherSolver();
+    }
+    */
     // instantiate time loop
     using Scalar = GetPropType<SolidEnergyTypeTag, Properties::Scalar>;
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
@@ -268,6 +276,7 @@ int main(int argc, char** argv) try
         // Read heat flux from precice
         // TODO: Remove // when numPoints is defined
         // precice.readBlockScalarData( heatFluxId, numPoints, vertexIDs.data(), heatFluxVec.data() );
+        couplingInterface.readHeatFluxFromOtherSolver();
 
         // Make use of the heat flux here
         // TODO
@@ -284,8 +293,15 @@ int main(int argc, char** argv) try
         solOld = sol;
         solidEnergyGridVariables->advanceTimeStep();
 
-        getBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
-        couplingInterface.writeHeatFluxToOtherSolver();
+        setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+        couplingInterface.writeTemperatureToOtherSolver();
+
+        const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
+
+        // set new dt as suggested by newton solver
+        const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
+
+        timeLoop->setTimeStepSize( newDt );
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
@@ -309,11 +325,6 @@ int main(int argc, char** argv) try
             // TODO
 
 
-            // set new dt as suggested by newton solver
-            const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
-            const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
-
-            timeLoop->setTimeStepSize( newDt );
         }
 
     } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );

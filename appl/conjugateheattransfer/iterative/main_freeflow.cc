@@ -51,7 +51,7 @@
 
 
 template<class Problem, class GridVariables, class SolutionVector>
-void getBoundaryHeatFluxes(const Problem& problem,
+void setBoundaryHeatFluxes(const Problem& problem,
                            const GridVariables& gridVars,
                            const SolutionVector& sol)
 {
@@ -128,9 +128,11 @@ int main(int argc, char** argv) try
     auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
     couplingInterface.announceSolver( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     //couplingInterface.createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
-    couplingInterface.configure( "precice-config.xml" );
-    couplingInterface.announceHeatFluxToWrite( precice_wrapper::HeatFluxType::FreeFlow );
-    couplingInterface.announceHeatFluxToRead( precice_wrapper::HeatFluxType::Solid );
+    std::string preciceConfigFilename = "precice-config.xml";
+    if (argc == 3)
+      preciceConfigFilename = argv[2];
+
+    couplingInterface.configure( preciceConfigFilename );
 
     const int dim = couplingInterface.getDimensions();
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
@@ -210,13 +212,19 @@ int main(int argc, char** argv) try
 
     const double preciceDt = couplingInterface.initialize();
 
+    if ( couplingInterface.hasToWriteInitialData() )
+    {
+      setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
+      couplingInterface.writeHeatFluxToOtherSolver();
+      couplingInterface.announceInitialDataWritten();
+    }
     couplingInterface.initializeData();
-
+/*
     if (couplingInterface.isInitialDataAvailable())
     {
       couplingInterface.readHeatFluxFromOtherSolver();
     }
-
+*/
     // instantiate time loop
     using Scalar = GetPropType<FreeFlowTypeTag, Properties::Scalar>;
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
@@ -270,9 +278,15 @@ int main(int argc, char** argv) try
 
         // Write heatflux to wrapper
         //couplingInterface.writeHeatFluxOnFace( ... )
-        getBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
+        setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
         //Tell wrapper that all values have been written
         couplingInterface.writeHeatFluxToOtherSolver();
+
+        const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
+
+        // set new dt as suggested by newton solver
+        const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
+        timeLoop->setTimeStepSize( newDt );
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
@@ -292,11 +306,6 @@ int main(int argc, char** argv) try
             // report statistics of this time step
             timeLoop->reportTimeStep();
 
-            // set new dt as suggested by newton solver
-            const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
-            const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
-
-            timeLoop->setTimeStepSize( newDt );
         }
 
     } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing());

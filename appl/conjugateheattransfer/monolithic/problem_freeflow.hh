@@ -112,7 +112,7 @@ public:
     : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface(precice_wrapper::PreciceWrapper::getInstance())
+      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface_(precice_wrapper::PreciceWrapper::getInstance())
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -177,7 +177,7 @@ public:
 #else
         //TODO preCICE
         const auto faceId = scvf.index();
-        if ( couplingInterface.isCoupledEntity(faceId) )
+        if ( couplingInterface_.isCoupledEntity(faceId) )
         {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
@@ -220,7 +220,7 @@ public:
 #else
         // TODO preCICE
         const auto faceId = scvf.index();
-        if ( couplingInterface.isCoupledEntity( faceId ) )
+        if ( couplingInterface_.isCoupledEntity( faceId ) )
         {
           // Actually gets temperature
           const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
@@ -228,7 +228,7 @@ public:
           const Scalar cellCenterTemperature = volVars.temperature();
           const Scalar distance = (scvf.center() - scv.center()).two_norm();
           const Scalar insideLambda = volVars.effectiveThermalConductivity();
-          const Scalar boundaryTemperature = couplingInterface.getHeatFluxAtFace(faceId);
+          const Scalar boundaryTemperature = couplingInterface_.getTemperatureOnFace(faceId);
           // q = -lambda * (t_face - t_cc) / dx
           //const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
           const Scalar qHeat = insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
@@ -297,7 +297,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_wrapper::PreciceWrapper& couplingInterface;
+   precice_wrapper::PreciceWrapper& couplingInterface_;
 #endif
 
 };

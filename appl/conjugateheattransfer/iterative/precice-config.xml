@@ -8,33 +8,33 @@
 
   <solver-interface dimensions="2">
 
-    <data:scalar name="FreeFlow-Heat-Flux"/>
-    <data:scalar name="Solid-Heat-Flux"/>
+    <data:scalar name="Heat-Flux"/>
+    <data:scalar name="Temperature"/>
 
     <mesh name="FreeFlowMesh">
-      <use-data name="FreeFlow-Heat-Flux" />
-      <use-data name="Solid-Heat-Flux" />
+      <use-data name="Heat-Flux" />
+      <use-data name="Temperature" />
     </mesh>
 
     <mesh name="SolidEnergyMesh">
-      <use-data name="FreeFlow-Heat-Flux" />
-      <use-data name="Solid-Heat-Flux" />
+      <use-data name="Heat-Flux" />
+      <use-data name="Temperature" />
     </mesh>
 
     <participant name="FreeFlow">
       <use-mesh name="FreeFlowMesh" provide="yes"/>
       <use-mesh name="SolidEnergyMesh" from="SolidEnergy"/>
 
-      <write-data name="FreeFlow-Heat-Flux" mesh="FreeFlowMesh"/>
-      <read-data name="Solid-Heat-Flux" mesh="FreeFlowMesh"/>
+      <write-data name="Heat-Flux" mesh="FreeFlowMesh"/>
+      <read-data name="Temperature" mesh="FreeFlowMesh"/>
     </participant>
 
     <participant name="SolidEnergy">
       <use-mesh name="SolidEnergyMesh" provide="yes"/>
       <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       
-      <read-data name="FreeFlow-Heat-Flux" mesh="SolidEnergyMesh"/>
-      <write-data name="Solid-Heat-Flux" mesh="SolidEnergyMesh"/>
+      <read-data name="Heat-Flux" mesh="SolidEnergyMesh"/>
+      <write-data name="Temperature" mesh="SolidEnergyMesh"/>
 
 
       <mapping:nearest-neighbor direction="write" from="SolidEnergyMesh" to="FreeFlowMesh" constraint="consistent"/> 
@@ -54,8 +54,8 @@
       <max-time value="100"/>
       <timestep-length value="1" />
 
-      <exchange data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
-      <exchange data="Solid-Heat-Flux" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="true" />
+      <exchange data="Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      <exchange data="Temperature" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="true" />
            
     </coupling-scheme:parallel-explicit>
   </solver-interface>
