@@ -49,6 +49,39 @@
 #include "../monolithic/problem_freeflow.hh"
 #include "precicewrapper.hh"
 
+
+template<class Problem, class GridVariables, class SolutionVector>
+void getBoundaryHeatFluxes(const Problem& problem,
+                           const GridVariables& gridVars,
+                           const SolutionVector& sol)
+{
+    const auto& fvGridGeometry = problem.fvGridGeometry();
+    auto fvGeometry = localView(fvGridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
+
+    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
+
+    for (const auto& element : elements(fvGridGeometry.gridView()))
+    {
+        fvGeometry.bindElement(element);
+        elemVolVars.bindElement(element, fvGeometry, sol);
+        elemFaceVars.bindElement(element, fvGeometry, sol);
+
+        for (const auto& scvf : scvfs(fvGeometry))
+        {
+
+            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+            {
+                //TODO: Actually writes temperature
+              const auto heatFlux = problem.neumann( element, fvGeometry, elemVolVars, elemFaceVars, scvf )[3];
+              couplingInterface.writeHeatFluxOnFace( scvf.index(), heatFlux );
+            }
+        }
+    }
+}
+
+
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
@@ -229,6 +262,7 @@ int main(int argc, char** argv) try
 
         // Write heatflux to wrapper
         //couplingInterface.writeHeatFluxOnFace( ... )
+        getBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
         //Tell wrapper that all values have been written
         couplingInterface.writeHeatFluxToOtherSolver();
 
