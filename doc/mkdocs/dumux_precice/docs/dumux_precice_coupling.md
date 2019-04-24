@@ -35,6 +35,7 @@ See [test case description](dumux_test_case.md#conjugate-heat-transfer)
 - Write a preCICE-DuMuX-adapter
     - Couple two separate solvers with preCICE **partially**
     - Read/write temperature and heat flux
+- Move `PreciceWrapper` into a different directory.
 - Check solution of monolithic and partitioned approach
 
 #### Requirements
