@@ -38,17 +38,28 @@ class DumuxPreciceIndexMapper
       mappingWasCreated_ = true;
     }
 
-    const T getPreciceId( const T id ) const
+    bool isDumuxIdMapped( const T dumuxId ) const
     {
-      assert( mappingWasCreated_ );
-      return dumuxFaceIndexToPreciceIndex_.at(id);
+      return dumuxFaceIndexToPreciceIndex_.count( dumuxId ) == 1;
     }
 
-    const T getDumuxId( const T id ) const
+    bool isPreciceIdMapped( const T preciceId ) const
     {
-      assert( mappingWasCreated_ );
-      return preciceVertexToDumuxFaceIndex_.at(id);
+      return preciceVertexToDumuxFaceIndex_.count(preciceId) == 1;
     }
+
+    const T getPreciceId( const T dumuxId ) const
+    {
+      assert( isDumuxIdMapped( dumuxId ) );
+      return dumuxFaceIndexToPreciceIndex_.at(dumuxId);
+    }
+
+    const T getDumuxId( const T preciceId ) const
+    {
+      assert( isPreciceIdMapped(preciceId) );
+      return preciceVertexToDumuxFaceIndex_.at(preciceId);
+    }
+
 
     size_t getSize() const
     {

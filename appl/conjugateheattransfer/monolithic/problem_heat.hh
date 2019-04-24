@@ -37,6 +37,7 @@
 #include <dumux/porousmediumflow/problem.hh>
 
 #include "spatialparams.hh"
+#include "../iterative/precicewrapper.hh"
 
 namespace Dumux {
 template <class TypeTag>
@@ -95,7 +96,7 @@ public:
     : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
     HeatSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7)
+      : ParentType(fvGridGeometry, "SolidEnergy"), eps_(1e-7), couplingInterface( PreciceWrapper::getInstance() )
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -176,8 +177,11 @@ public:
             values = couplingManager().couplingData().energyCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
         //TODO preCICE
-        // if ( ... )
-            // values[Indices::energyEqIdx] = ... ;
+        const auto faceId = scvf.index();
+        if ( couplingInterface.isCoupledEntity(faceId) )
+        {
+             values[Indices::energyEqIdx] = couplingInterface.getHeatFluxAtFace(faceId) ;
+        }
 #endif
 
         return values;
@@ -223,6 +227,8 @@ private:
 
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#else
+   PreciceWrapper& couplingInterface;
 #endif
 
 };

@@ -17,9 +17,9 @@ private:
 
   PreciceWrapper();
 
-  static bool checkIfActionIsRequired( const std::string& condition );
-  static void actionIsFulfilled( const std::string& condition );
-  static bool hasToWriteInitialData();
+  bool checkIfActionIsRequired( const std::string& condition );
+  void actionIsFulfilled( const std::string& condition );
+  bool hasToWriteInitialData();
 
   bool meshWasCreated_;
   bool preciceWasInitialized_;
@@ -42,12 +42,12 @@ public:
   PreciceWrapper(const PreciceWrapper&) = delete;
   void operator=(const PreciceWrapper&) = delete;
 
-  static PreciceWrapper& get();
+  static PreciceWrapper& getInstance();
 
-  static void createInstance( const std::string& name, const int rank, const int size );
-  static void configure( const std::string& configurationFileName );
+  void announceSolver( const std::string& name, const int rank, const int size );
+  void configure( const std::string& configurationFileName );
 
-  static int getDimensions();
+  int getDimensions();
   // static int getMeshID( const std::string& meshName );
   //static void setMeshName( const std::string& meshName );
   //static int getDataID( const std::string& dataName, const int meshID );
@@ -58,31 +58,40 @@ public:
   //                                         double* const values );
   //static void announceAllInitialDataWritten();
 
-  static bool hasToReadIterationCheckpoint();
-  static void announceIterationCheckpointRead();
-  static bool hasToWriteIterationCheckpoint();
-  static void announceIterationCheckpointWritten();
+  bool hasToReadIterationCheckpoint();
+  void announceIterationCheckpointRead();
+  bool hasToWriteIterationCheckpoint();
+  void announceIterationCheckpointWritten();
 
-  static void setMesh( const std::string& meshName,
-                       const size_t numPoints,
-                       std::vector<double>& coordinates,
-                       const std::vector<int>& dumuxFaceIDs ) ;
+  void setMesh( const std::string& meshName,
+                const size_t numPoints,
+                std::vector<double>& coordinates,
+                const std::vector<int>& dumuxFaceIDs ) ;
 
-  static double initialize();
-  static void finalize();
+  double initialize();
+  void finalize();
   //static void initializeData();
 
-  static double advance( const double computedTimeStepLength );
-  static bool isCouplingOngoing();
+  double advance( const double computedTimeStepLength );
+  bool isCouplingOngoing();
 
-  static size_t getNumberOfVertices();
-
-
-  static void readScalarQuantitiy( const int dataID, std::vector<double>& data );
-  static void writeScalarQuantitiy( const int dataID, std::vector<double>& data );
+  size_t getNumberOfVertices();
 
 
-  static void print( std::ostream& os );
+  double getHeatFluxAtFace( const int faceID ) const;
+  double getTemperatureAtFace( const int faceID ) const;
+
+  void writeHeatFluxOnFace( const int faceID );
+  void writeTemperatureOnFace( const int faceID );
+
+  bool isCoupledEntity( const int faceID ) const;
+
+
+//  static void readScalarQuantitiy( const int dataID, std::vector<double>& data );
+//  static void writeScalarQuantitiy( const int dataID, std::vector<double>& data );
+
+
+  void print( std::ostream& os );
 
   /*
   static void writeSolidTemperature( std::vector<double>& temperature );

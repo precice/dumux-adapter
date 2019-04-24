@@ -88,11 +88,12 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    PreciceWrapper::createInstance( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
+    auto& couplingInterface = PreciceWrapper::getInstance();
+    couplingInterface.announceSolver( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
-    PreciceWrapper::configure( "precice-config.xml" );
+    couplingInterface.configure( "precice-config.xml" );
 
-    const int dim = PreciceWrapper::getDimensions();
+    const int dim = couplingInterface.getDimensions();
     if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
@@ -119,7 +120,7 @@ int main(int argc, char** argv) try
 
     const auto numPoints = coords.size() / dim;
 
-    PreciceWrapper::setMesh( "SolidEnergyMesh", numPoints, coords, coupledScvfIndices );
+    couplingInterface.setMesh( "SolidEnergyMesh", numPoints, coords, coupledScvfIndices );
 
     // apply initial solution for instationary problems
     solidEnergyProblem->applyInitialSolution(sol);
@@ -138,7 +139,7 @@ int main(int argc, char** argv) try
     }
     */
 
-    const double preciceDt = PreciceWrapper::initialize();
+    const double preciceDt = couplingInterface.initialize();
 
     // Read initialdata for heat-flux if available
     /*
@@ -190,11 +191,11 @@ int main(int argc, char** argv) try
     // time loop
     timeLoop->start(); do
     {
-        if ( PreciceWrapper::hasToWriteIterationCheckpoint() )
+        if ( couplingInterface.hasToWriteIterationCheckpoint() )
         {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
-            PreciceWrapper::announceIterationCheckpointWritten();
+            couplingInterface.announceIterationCheckpointWritten();
         }
         // Read heat flux from precice
         // TODO: Remove // when numPoints is defined
@@ -215,12 +216,12 @@ int main(int argc, char** argv) try
         solOld = sol;
         solidEnergyGridVariables->advanceTimeStep();
 
-        if ( PreciceWrapper::hasToReadIterationCheckpoint() )
+        if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
             sol = sol_checkpoint;
             solidEnergyGridVariables->update(sol);
-            PreciceWrapper::announceIterationCheckpointRead();
+            couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful
         {
@@ -241,13 +242,13 @@ int main(int argc, char** argv) try
             //precice.writeBlockScalarData( temperatureId, numPoints, vertexIDs.data(), temperatureVec.data() );
 
             // set new dt as suggested by newton solver
-            const double preciceDt = PreciceWrapper::advance( timeLoop->timeStepSize() );
+            const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
             const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
 
             timeLoop->setTimeStepSize( newDt );
         }
 
-    } while (!timeLoop->finished() && PreciceWrapper::isCouplingOngoing() );
+    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
 
     timeLoop->finalize(solidEnergyGridView.comm());
 
@@ -262,7 +263,7 @@ int main(int argc, char** argv) try
         DumuxMessage::print(/*firstCall=*/false);
     }
 
-    PreciceWrapper::finalize();
+    couplingInterface.finalize();
 
     return 0;
 } // end main

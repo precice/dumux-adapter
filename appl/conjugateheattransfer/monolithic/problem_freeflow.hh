@@ -38,6 +38,8 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
+#include "../iterative/precicewrapper.hh"
+
 namespace Dumux {
 template <class TypeTag>
 class FreeFlowSubProblem;
@@ -110,7 +112,7 @@ public:
     : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6)
+      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface(PreciceWrapper::getInstance())
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -174,12 +176,14 @@ public:
         }
 #else
         //TODO preCICE
-        // if ( ... )
-        // {
-            // values.setDirichlet(Indices::velocityXIdx);
-            // values.setDirichlet(Indices::velocityYIdx);
+        const auto faceId = scvf.index();
+        if ( couplingInterface.isCoupledEntity(faceId) )
+        {
+            values.setDirichlet(Indices::velocityXIdx);
+            values.setDirichlet(Indices::velocityYIdx);
+            //What to do here?
             // values.setNeumann(Indices::energyEqIdx);
-        // }
+        }
 #endif
 
         return values;
@@ -216,14 +220,16 @@ public:
             values[Indices::energyEqIdx] = couplingManager().couplingData().energyCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
 #else
         // TODO preCICE
-        // if ( ... )
-            // values[Indices::energyEqIdx] = ... ;
+        const auto faceId = scvf.index();
+        if ( couplingInterface.isCoupledEntity( faceId ) )
+        {
+          values[Indices::energyEqIdx] = couplingInterface.getHeatFluxAtFace( faceId );
+        }
 #endif
 
         return values;
     }
 
-    // \}
 
 #if ENABLEMONOLITHIC
     //! Get the coupling manager
@@ -280,6 +286,8 @@ private:
 
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#else
+   PreciceWrapper& couplingInterface;
 #endif
 
 };
