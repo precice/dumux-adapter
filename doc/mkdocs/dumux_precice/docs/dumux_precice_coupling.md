@@ -8,7 +8,8 @@ See [test case description](dumux_test_case.md#conjugate-heat-transfer)
 
 #### Problems
 
-- How do we control the adaptive time stepping?
+- How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.
+    - I have adapted the adaptive solver. I hope it works properly now!
 
 #### Work 
 
