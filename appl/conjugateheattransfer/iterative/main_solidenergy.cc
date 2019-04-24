@@ -195,7 +195,6 @@ int main(int argc, char** argv) try
     }
     */
 
-    const double preciceDt = couplingInterface.initialize();
 
     // Read initialdata for heat-flux if available
     /*
@@ -216,6 +215,16 @@ int main(int argc, char** argv) try
     VtkOutputModule<SolidEnergyGridVariables, GetPropType<SolidEnergyTypeTag, Properties::SolutionVector>> solidEnergyVtkWriter(*solidEnergyGridVariables, sol,  solidEnergyProblem->name());
     GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(solidEnergyVtkWriter);
     solidEnergyVtkWriter.write(0.0);
+
+    const double preciceDt = couplingInterface.initialize();
+
+    if ( couplingInterface.hasToWriteInitialData() )
+    {
+      getBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+      couplingInterface.announceInitialDataWritten();
+    }
+
+    couplingInterface.initializeData();
 
     // instantiate time loop
     using Scalar = GetPropType<SolidEnergyTypeTag, Properties::Scalar>;

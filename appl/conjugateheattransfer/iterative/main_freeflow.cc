@@ -187,7 +187,6 @@ int main(int argc, char** argv) try
 
     //const double preciceDt = precice.initialize();
     //precice.initializeData();
-    const double preciceDt = couplingInterface.initialize();
 
     // Read initialdata for heat-flux if available
     /*
@@ -208,6 +207,15 @@ int main(int argc, char** argv) try
     StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(sol)> freeFlowVtkWriter(*freeFlowGridVariables, sol, freeFlowProblem->name());
     GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(freeFlowVtkWriter);
     freeFlowVtkWriter.write(0.0);
+
+    const double preciceDt = couplingInterface.initialize();
+
+    couplingInterface.initializeData();
+
+    if (couplingInterface.isInitialDataAvailable())
+    {
+      couplingInterface.readHeatFluxFromOtherSolver();
+    }
 
     // instantiate time loop
     using Scalar = GetPropType<FreeFlowTypeTag, Properties::Scalar>;

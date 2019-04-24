@@ -23,17 +23,21 @@
 
     <participant name="FreeFlow">
       <use-mesh name="FreeFlowMesh" provide="yes"/>
+      <use-mesh name="SolidEnergyMesh" from="SolidEnergy"/>
+
       <write-data name="FreeFlow-Heat-Flux" mesh="FreeFlowMesh"/>
       <read-data name="Solid-Heat-Flux" mesh="FreeFlowMesh"/>
     </participant>
 
     <participant name="SolidEnergy">
-      <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       <use-mesh name="SolidEnergyMesh" provide="yes"/>
+      <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       
       <read-data name="FreeFlow-Heat-Flux" mesh="SolidEnergyMesh"/>
       <write-data name="Solid-Heat-Flux" mesh="SolidEnergyMesh"/>
 
+
+      <mapping:nearest-neighbor direction="write" from="SolidEnergyMesh" to="FreeFlowMesh" constraint="consistent"/> 
       <mapping:nearest-neighbor direction="read" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/> 
       <!--
       <mapping:nearest-projection direction="read" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/>
@@ -50,8 +54,8 @@
       <max-time value="100"/>
       <timestep-length value="1" />
 
-      <exchange data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" />
-      <exchange data="Solid-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      <exchange data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      <exchange data="Solid-Heat-Flux" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="true" />
            
     </coupling-scheme:parallel-explicit>
   </solver-interface>

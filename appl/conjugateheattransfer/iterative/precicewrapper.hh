@@ -29,8 +29,6 @@ private:
   void readBlockScalarDataFromPrecice( const int dataID, std::vector<double>& data );
   void writeBlockScalarDataToPrecice( const int dataID, std::vector<double>& data );
 
-  bool hasToWriteInitialData();
-
   bool meshWasCreated_;
   bool preciceWasInitialized_;
   int meshID_;
@@ -80,12 +78,18 @@ public:
   bool hasToWriteIterationCheckpoint();
   void announceIterationCheckpointWritten();
 
+  bool hasToWriteInitialData();
+  void announceInitialDataWritten();
+
+  bool isInitialDataAvailable();
+
   void setMesh( const std::string& meshName,
                 const size_t numPoints,
                 std::vector<double>& coordinates,
                 const std::vector<int>& dumuxFaceIDs ) ;
 
   double initialize();
+  void initializeData();
   void finalize();
   //static void initializeData();
 
@@ -103,6 +107,7 @@ public:
 
 
   bool isCoupledEntity( const int faceID ) const;
+
 
 
   std::vector<double>& getHeatFluxToWrite();

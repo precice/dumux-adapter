@@ -230,7 +230,8 @@ public:
           const Scalar insideLambda = volVars.effectiveThermalConductivity();
           const Scalar boundaryTemperature = couplingInterface.getHeatFluxAtFace(faceId);
           // q = -lambda * (t_face - t_cc) / dx
-          const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
+          //const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
+          const Scalar qHeat = insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
 
           values[Indices::energyEqIdx] = qHeat;
         }
