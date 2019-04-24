@@ -6,6 +6,12 @@
 
 See [test case description](dumux_test_case.md#conjugate-heat-transfer) 
 
+#### Problems
+
+- How do we control the adaptive time stepping?
+
+#### Work 
+
 **Done**:
 
 - Test case with heat transfer is up and running
@@ -17,12 +23,17 @@ See [test case description](dumux_test_case.md#conjugate-heat-transfer)
         - Working with dimensions
 - Set up monolithic solver
 - Set up two separate solvers
+- Set up project with preCICE
+
+**On the way**
+
+- Implementing an adapter/wrapper
 
 **Todo**:
 
-- Set up project with preCICE
 - Write a preCICE-DuMuX-adapter
-- Couple two separate solvers with preCICE
+    - Couple two separate solvers with preCICE **partially**
+    - Read/write temperature and heat flux
 - Check solution of monolithic and partitioned approach
 
 #### Requirements
