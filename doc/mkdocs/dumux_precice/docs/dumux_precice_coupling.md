@@ -19,8 +19,14 @@ This is the opposite way of writing things than in the OpenFOAM example! If we w
 
 #### Problems
 
-- How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.
+-[ ] We have to be careful with the initialization of the solvers. 
+    - **Valid case** Heat solver starts: The heat solver computes a temperature to be send, the heat flux is zero. Thus, the temperature equals the temperature in the cell center.
+    - **Invalid case** Flow solver starts: The flow solver computes a heat flux from its temperatures. However, the temperature on the interface (stored in the precice adapter) is zero! Thus, a **very high** heat flux is initialized.
+ The heat flux in the flow solver is always 0 in the beginning. Therefore, the boundary temperature is always 0
+-[x] How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.
     - I have adapted the adaptive solver. I hope it works properly now!
+    - Seems to be fine
+
 
 #### Work 
 
