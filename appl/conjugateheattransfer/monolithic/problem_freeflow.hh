@@ -38,7 +38,7 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
-#include "../iterative/precicewrapper.hh"
+#include "../iterative/preciceadapter.hh"
 
 namespace Dumux {
 template <class TypeTag>
@@ -112,7 +112,7 @@ public:
     : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface_(precice_wrapper::PreciceWrapper::getInstance())
+      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface_(precice_adapter::PreciceAdapter::getInstance())
 #endif
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
@@ -297,7 +297,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_wrapper::PreciceWrapper& couplingInterface_;
+   precice_adapter::PreciceAdapter& couplingInterface_;
 #endif
 
 };

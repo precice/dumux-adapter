@@ -45,7 +45,7 @@
 #include <dumux/nonlinear/newtonsolver.hh>
 
 #include "../monolithic/problem_heat.hh"
-#include "precicewrapper.hh"
+#include "preciceadapter.hh"
 
 template<class ThermalConductivityModel, class Problem, class FVElementGeometry, class ElementVolumeVariables>
 auto recontructBoundaryTemperature(const Problem& problem,
@@ -81,7 +81,7 @@ void setBoundaryTemperatures(const Problem& problem,
     auto fvGeometry = localView(fvGridGeometry);
     auto elemVolVars = localView(gridVars.curGridVolVars());
 
-    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
 
     for (const auto& element : elements(fvGridGeometry.gridView()))
     {
@@ -142,7 +142,7 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
     couplingInterface.announceSolver( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
     std::string preciceConfigFilename = "precice-config.xml";

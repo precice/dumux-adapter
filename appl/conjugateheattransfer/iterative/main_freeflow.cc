@@ -47,7 +47,7 @@
 #include <dumux/nonlinear/newtonsolver.hh>
 
 #include "../monolithic/problem_freeflow.hh"
-#include "precicewrapper.hh"
+#include "preciceadapter.hh"
 
 
 template<class Problem, class GridVariables, class SolutionVector>
@@ -60,7 +60,7 @@ void setBoundaryHeatFluxes(const Problem& problem,
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
-    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
 
     for (const auto& element : elements(fvGridGeometry.gridView()))
     {
@@ -125,7 +125,7 @@ int main(int argc, char** argv) try
     // - Name of solver
     // - What rank of how many ranks this instance is
     // Configure preCICE. For now the config file is hardcoded.
-    auto& couplingInterface = precice_wrapper::PreciceWrapper::getInstance();
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
     couplingInterface.announceSolver( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     //couplingInterface.createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     std::string preciceConfigFilename = "precice-config.xml";
