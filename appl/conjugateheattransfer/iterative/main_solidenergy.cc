@@ -228,12 +228,6 @@ int main(int argc, char** argv) try
     }
 
     couplingInterface.initializeData();
-/*
-    if (couplingInterface.isInitialDataAvailable())
-    {
-      couplingInterface.readHeatFluxFromOtherSolver();
-    }
-    */
     // instantiate time loop
     using Scalar = GetPropType<SolidEnergyTypeTag, Properties::Scalar>;
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
@@ -290,7 +284,6 @@ int main(int argc, char** argv) try
         // make the new solution the old solution
 
         //TODO DO WE HAVE TO MOVE THAT?
-        solOld = sol;
         solidEnergyGridVariables->advanceTimeStep();
 
         setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
@@ -307,6 +300,7 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
+            //solidEnergyGridVariables->advanceTimeStep();
             solidEnergyGridVariables->update(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
@@ -321,10 +315,7 @@ int main(int argc, char** argv) try
             // report statistics of this time step
             timeLoop->reportTimeStep();
 
-            // Get the temperature here
-            // TODO
-
-
+            solOld = sol;
         }
 
     } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );

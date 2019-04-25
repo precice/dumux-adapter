@@ -180,7 +180,8 @@ public:
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
-             values[Indices::energyEqIdx] = couplingInterface_.getHeatFluxOnFace(faceId) ;
+          // ALEX: I made the heat flux negative since the normal vectors of both solvers are different!
+          values[Indices::energyEqIdx] = - couplingInterface_.getHeatFluxOnFace(faceId) ;
         }
 #endif
 

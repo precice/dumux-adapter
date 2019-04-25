@@ -219,12 +219,7 @@ int main(int argc, char** argv) try
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
-/*
-    if (couplingInterface.isInitialDataAvailable())
-    {
-      couplingInterface.readHeatFluxFromOtherSolver();
-    }
-*/
+
     // instantiate time loop
     using Scalar = GetPropType<FreeFlowTypeTag, Properties::Scalar>;
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
@@ -263,7 +258,7 @@ int main(int argc, char** argv) try
         }
 
         // Read heat flux from precice.
-        couplingInterface.readHeatFluxFromOtherSolver();
+        couplingInterface.readTemperatureFromOtherSolver();
 
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
@@ -273,7 +268,7 @@ int main(int argc, char** argv) try
 
         // make the new solution the old solution
         //TODO DO WE HAVE TO MOVE THAT?
-        solOld = sol;
+        //solOld = sol;
         freeFlowGridVariables->advanceTimeStep();
 
         // Write heatflux to wrapper
@@ -292,6 +287,7 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
+            //freeFlowGridVariables->advanceTimeStep();
             freeFlowGridVariables->update(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
@@ -305,6 +301,8 @@ int main(int argc, char** argv) try
 
             // report statistics of this time step
             timeLoop->reportTimeStep();
+
+            solOld = sol;
 
         }
 
