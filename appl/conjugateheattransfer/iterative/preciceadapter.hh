@@ -87,7 +87,7 @@ public:
   bool hasToWriteInitialData();
   void announceInitialDataWritten();
 
-  bool isInitialDataAvailable();
+  //bool isInitialDataAvailable();
 
   void setMesh( const std::string& meshName,
                 const size_t numPoints,
