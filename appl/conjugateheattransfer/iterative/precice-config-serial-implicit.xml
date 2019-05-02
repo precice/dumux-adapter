@@ -2,39 +2,39 @@
 
 <precice-configuration>
   <log>
-    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="false" /> 
+    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="true" /> 
     <sink type="stream" output="stdout"  enabled="false" /> 
   </log> 
 
   <solver-interface dimensions="2">
 
-    <data:scalar name="FreeFlow-Heat-Flux"/>
-    <data:scalar name="Solid-Heat-Flux"/>
+    <data:scalar name="Temperature"/>
+    <data:scalar name="Heat-Flux"/>
 
     <mesh name="FreeFlowMesh">
-      <use-data name="FreeFlow-Heat-Flux" />
-      <use-data name="Solid-Heat-Flux" />
+      <use-data name="Temperature" />
+      <use-data name="Heat-Flux" />
     </mesh>
 
     <mesh name="SolidEnergyMesh">
-      <use-data name="FreeFlow-Heat-Flux" />
-      <use-data name="Solid-Heat-Flux" />
+      <use-data name="Temperature" />
+      <use-data name="Heat-Flux" />
     </mesh>
 
     <participant name="FreeFlow">
       <use-mesh name="FreeFlowMesh" provide="yes"/>
       <use-mesh name="SolidEnergyMesh" from="SolidEnergy"/>
 
-      <write-data name="FreeFlow-Heat-Flux" mesh="FreeFlowMesh"/>
-      <read-data name="Solid-Heat-Flux" mesh="FreeFlowMesh"/>
+      <write-data name="Temperature" mesh="FreeFlowMesh"/>
+      <read-data name="Heat-Flux" mesh="FreeFlowMesh"/>
     </participant>
 
     <participant name="SolidEnergy">
       <use-mesh name="SolidEnergyMesh" provide="yes"/>
       <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       
-      <read-data name="FreeFlow-Heat-Flux" mesh="SolidEnergyMesh"/>
-      <write-data name="Solid-Heat-Flux" mesh="SolidEnergyMesh"/>
+      <read-data name="Temperature" mesh="SolidEnergyMesh"/>
+      <write-data name="Heat-Flux" mesh="SolidEnergyMesh"/>
 
 
       <mapping:nearest-neighbor direction="write" from="SolidEnergyMesh" to="FreeFlowMesh" constraint="consistent"/> 
@@ -50,28 +50,41 @@
     
     
     <coupling-scheme:serial-implicit>
-      <max-time value="100"/>
+      <max-time value="1"/>
       <timestep-length value="1" />
-       <max-iterations value="25"/>
+      <max-iterations value="3"/>
 
+      <!--      
       <participants first="FreeFlow" second="SolidEnergy"/>
+      -->      
 
-      <exchange data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
-      <exchange data="Solid-Heat-Flux" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="true" />
+      <participants first="SolidEnergy" second="FreeFlow"/>
 
-       <relative-convergence-measure limit="1.0e-6" data="Solid-Heat-Flux" mesh="FreeFlowMesh"/>
+
+      <exchange data="Temperature" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="false" />
+      <exchange data="Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      
+      <!--      
+      <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="FreeFlowMesh"/>
+      -->
+       
+      <relative-convergence-measure limit="1.0e-6" data="Heat-Flux" mesh="FreeFlowMesh"/>
+
+             
        <!--
-       <relative-convergence-measure limit="1.0e-2" data="FreeFlow-Heat-Flux" mesh="FreeFlowMesh"/>
+       <relative-convergence-measure limit="1.0e-2" data="Temperature" mesh="FreeFlowMesh"/>
        -->
        
         <extrapolation-order value="0"/>
+        <!--
         <post-processing:IQN-ILS>
-            <data mesh="FreeFlowMesh" name="Solid-Heat-Flux" />
-            <initial-relaxation value="0.01" />
+            <data mesh="FreeFlowMesh" name="Temperature" />
+            <initial-relaxation value="1.00" />
             <max-used-iterations value="80" />
             <timesteps-reused value="10" />
-            <filter type="QR1" limit="1e-8" />
+            <filter type="QR1" limit="1e-3" />
         </post-processing:IQN-ILS>
+        -->
            
     </coupling-scheme:serial-implicit>
   </solver-interface>

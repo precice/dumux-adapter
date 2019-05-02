@@ -17,25 +17,14 @@ PreciceAdapter& PreciceAdapter::getInstance()
   return instance;
 }
 
-void PreciceAdapter::configure( const std::string& configurationFileName )
-{
-  precice_->configure( configurationFileName );
-}
-/*
-void PreciceAdapter::announceHeatFluxToWrite(const HeatFluxType heatFluxType)
-{
-  writeHeatFluxType_ = heatFluxType;
-}
-
-void PreciceAdapter::announceHeatFluxToRead(const HeatFluxType heatFluxType)
-{
-  readHeatFluxType_ = heatFluxType;
-}
-*/
-void PreciceAdapter::announceSolver( const std::string& name, const int rank, const int size )
+void PreciceAdapter::announceSolver( const std::string& name,
+                                     const std::string& configurationFileName,
+                                     const int rank,
+                                     const int size )
 {
   assert( precice_ == nullptr );
   precice_ = std::make_unique<precice::SolverInterface>(name, rank, size);
+  precice_->configure( configurationFileName );
   wasCreated_ = true;
 }
 
@@ -51,6 +40,7 @@ void PreciceAdapter::setMeshName(const std::string& meshName)
   meshID_ = precice_->getMeshID(meshName);
 }
 */
+/*
 void PreciceAdapter::setMesh(const std::string& meshName,
                              const size_t numPoints,
                               std::vector<double>& coordinates,
@@ -64,6 +54,7 @@ void PreciceAdapter::setMesh(const std::string& meshName,
   indexMapper_.createMapping( dumuxFaceIDs, vertexIDs_);
   meshWasCreated_ = true;
 }
+*/
 /*
 int PreciceAdapter::getDataID( const std::string& dataName, const int meshID )
 {
@@ -164,24 +155,40 @@ void PreciceAdapter::writeHeatFluxToOtherSolver()
 {
   assert( wasCreated_ );
   writeBlockScalarDataToPrecice( heatFluxID_, heatFlux_ );
+  for (auto v: heatFlux_ )
+  {
+    std::cout << "Written heat-flux is :" << v << std::endl;
+  }
 }
 
 void PreciceAdapter::readHeatFluxFromOtherSolver()
 {
   assert( wasCreated_ );
   readBlockScalarDataFromPrecice( heatFluxID_, heatFlux_ );
+  for (auto v: heatFlux_ )
+  {
+    std::cout << "Read heat-flux is :" << v << std::endl;
+  }
 }
 
 void PreciceAdapter::writeTemperatureToOtherSolver()
 {
   assert( wasCreated_ );
   writeBlockScalarDataToPrecice( temperatureID_, temperature_ );
+  for (auto v: temperature_ )
+  {
+    std::cout << "Written temperature is :" << v << std::endl;
+  }
 }
 
 void PreciceAdapter::readTemperatureFromOtherSolver()
 {
   assert( wasCreated_ );
   readBlockScalarDataFromPrecice( temperatureID_, temperature_ );
+  for (auto v: temperature_ )
+  {
+    std::cout << "Read temperature is :" << v << std::endl;
+  }
 }
 
 bool PreciceAdapter::isCoupledEntity(const int faceID) const
@@ -219,43 +226,6 @@ void PreciceAdapter::print(std::ostream& os)
   os << indexMapper_;
 }
 
-/*
-void PreciceAdapter::writeSolidTemperature(std::vector<double> &temperature)
-{
-  assert( wasCreated_ );
-  precice_->writeBlockScalarData( solidTemperatureID_, vertexIDs_.size(),
-                                       vertexIDs_.data(), temperature.data() );
-
-}
-
-void PreciceAdapter::readSolidTemperature(std::vector<double> &temperature)
-{
-  assert( wasCreated_ );
-  precice_->readBlockScalarData( solidTemperatureID_, vertexIDs_.size(),
-                                       vertexIDs_.data(), temperature.data() );
-}
-*/
-
-/*
-void PreciceAdapter::readBlockScalarData( const int dataID,
-                                          const int size,
-                                          int* const valueIndices,
-                                          double* const values )
-{
-  assert( wasCreated_ );
-  precice_->readBlockScalarData( dataID, size, valueIndices, values );
-}
-
-void PreciceAdapter::writeBlockScalarData( const int dataID,
-                                           const int size,
-                                           int* const valueIndices,
-                                           double* const values )
-{
-  assert( wasCreated_ );
-  return precice_->writeBlockScalarData( dataID, size, valueIndices, values );
-}
-*/
-
 bool PreciceAdapter::checkIfActionIsRequired( const std::string& condition )
 {
   assert( wasCreated_ );
@@ -291,17 +261,29 @@ bool PreciceAdapter::hasToWriteInitialData()
 void PreciceAdapter::announceInitialDataWritten()
 {
   assert( wasCreated_ );
-  writeHeatFluxToOtherSolver();
   precice_->fulfilledAction( precice::constants::actionWriteInitialData() );
 }
 
-/*
+double PreciceAdapter::setMeshAndInitialize(const std::string &meshName, const size_t numPoints, std::vector<double> &coordinates, const std::vector<int> &dumuxFaceIDs)
+{
+  assert( wasCreated_ );
+  assert( numPoints == dumuxFaceIDs.size() );
+  meshID_ = precice_->getMeshID(meshName);
+  vertexIDs_.resize( numPoints );
+  int tmp = numPoints;
+  precice_->setMeshVertices( meshID_, tmp, coordinates.data(), vertexIDs_.data() );
+  indexMapper_.createMapping( dumuxFaceIDs, vertexIDs_);
+  meshWasCreated_ = true;
+  return initialize();
+}
+
+
 bool PreciceAdapter::isInitialDataAvailable()
 {
   assert( wasCreated_ );
   return precice_->isReadDataAvailable();
 }
-*/
+
 
 bool PreciceAdapter::hasToReadIterationCheckpoint()
 {
@@ -351,5 +333,6 @@ void PreciceAdapter::announceAllInitialDataWritten()
 */
 PreciceAdapter::~PreciceAdapter()
 {
+  //finalize();
 }
 

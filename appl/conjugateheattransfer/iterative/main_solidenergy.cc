@@ -142,14 +142,16 @@ int main(int argc, char** argv) try
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-    couplingInterface.announceSolver( "SolidEnergy", mpiHelper.rank(), mpiHelper.size() );
     // Configure preCICE. For now the config file is hardcoded.
     std::string preciceConfigFilename = "precice-config.xml";
     if (argc == 3)
       preciceConfigFilename = argv[2];
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    couplingInterface.announceSolver( "SolidEnergy",
+                                      preciceConfigFilename,
+                                      mpiHelper.rank(),
+                                      mpiHelper.size() );
 
-    couplingInterface.configure( preciceConfigFilename );
 
     const int dim = couplingInterface.getDimensions();
     if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))
@@ -178,33 +180,13 @@ int main(int argc, char** argv) try
 
     const auto numPoints = coords.size() / dim;
 
-    couplingInterface.setMesh( "SolidEnergyMesh", numPoints, coords, coupledScvfIndices );
+    const double preciceDt = couplingInterface.setMeshAndInitialize( "SolidEnergyMesh",
+                                                                     numPoints,
+                                                                     coords,
+                                                                     coupledScvfIndices );
 
     // apply initial solution for instationary problems
     solidEnergyProblem->applyInitialSolution(sol);
-
-    //TODO: If necessary, communicate initial data to other solver
-    /*
-    if ( precice.isActionRequired(precice::constants::actionWriteInitialData()) )
-    {
-      //Fill data vector
-      for (int i = 0; i < numPoints; ++i)
-      {
-        //temperatureVec[i] = ??; 
-      }
-       precice.writeBlockScalarData( heatFluxId, numPoints, vertexIDs.data(), heatFluxVec.data() );
-       precice.fulfilledAction(precice::constants::actionWriteInitialData());
-    }
-    */
-
-
-    // Read initialdata for heat-flux if available
-    /*
-    if (precice.isReadDataAvailable())
-    {
-      precice.readBlockScalarData( temperatureId, numPoints, vertexIDs.data(), temperatureVec.data() );
-    }
-    */
 
     auto solOld = sol;
 
@@ -218,8 +200,6 @@ int main(int argc, char** argv) try
     GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(solidEnergyVtkWriter);
     solidEnergyVtkWriter.write(0.0);
 
-    const double preciceDt = couplingInterface.initialize();
-
     if ( couplingInterface.hasToWriteInitialData() )
     {
       setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
@@ -228,6 +208,14 @@ int main(int argc, char** argv) try
     }
 
     couplingInterface.initializeData();
+
+    /*
+    if ( couplingInterface.isInitialDataAvailable() )
+    {
+      couplingInterface.readHeatFluxFromOtherSolver();
+    }
+    */
+
     // instantiate time loop
     using Scalar = GetPropType<SolidEnergyTypeTag, Properties::Scalar>;
     const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
@@ -258,8 +246,13 @@ int main(int argc, char** argv) try
     //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
 
+//    setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+//    couplingInterface.writeTemperatureToOtherSolver();
+
     // time loop
-    timeLoop->start(); do
+    timeLoop->start();
+    //do
+    while ( couplingInterface.isCouplingOngoing() )
     {
         if ( couplingInterface.hasToWriteIterationCheckpoint() )
         {
@@ -267,13 +260,9 @@ int main(int argc, char** argv) try
             sol_checkpoint = sol;
             couplingInterface.announceIterationCheckpointWritten();
         }
-        // Read heat flux from precice
-        // TODO: Remove // when numPoints is defined
-        // precice.readBlockScalarData( heatFluxId, numPoints, vertexIDs.data(), heatFluxVec.data() );
-        couplingInterface.readHeatFluxFromOtherSolver();
 
-        // Make use of the heat flux here
-        // TODO
+        // Read heat flux from precice
+        couplingInterface.readHeatFluxFromOtherSolver();
 
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
@@ -293,6 +282,7 @@ int main(int argc, char** argv) try
 
         // set new dt as suggested by newton solver
         const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
+
 
         timeLoop->setTimeStepSize( newDt );
 
@@ -318,7 +308,8 @@ int main(int argc, char** argv) try
             solOld = sol;
         }
 
-    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
+    }
+//    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
 
     timeLoop->finalize(solidEnergyGridView.comm());
 

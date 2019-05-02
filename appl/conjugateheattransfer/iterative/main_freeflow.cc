@@ -81,6 +81,42 @@ void setBoundaryHeatFluxes(const Problem& problem,
     }
 }
 
+template<class Problem, class GridVariables, class SolutionVector>
+void printCellCenterTemperatures(const Problem& problem,
+                           const GridVariables& gridVars,
+                           const SolutionVector& sol)
+{
+    const auto& fvGridGeometry = problem.fvGridGeometry();
+    auto fvGeometry = localView(fvGridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
+
+    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+    for (const auto& element : elements(fvGridGeometry.gridView()))
+    {
+        fvGeometry.bindElement(element);
+        elemVolVars.bindElement(element, fvGeometry, sol);
+        elemFaceVars.bindElement(element, fvGeometry, sol);
+
+        for (const auto& scvf : scvfs(fvGeometry))
+        {
+
+            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+            {
+                //TODO: Actually writes temperature
+              const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
+              const auto& volVars = elemVolVars[scv];
+
+              std::cout << "Temperature on cell center is: " << volVars.temperature() << std::endl;
+//              const auto heatFlux = problem.neumann( element, fvGeometry, elemVolVars, elemFaceVars, scvf )[3];
+//              couplingInterface.writeHeatFluxOnFace( scvf.index(), heatFlux );
+            }
+        }
+    }
+}
+
+
 
 int main(int argc, char** argv) try
 {
@@ -125,14 +161,15 @@ int main(int argc, char** argv) try
     // - Name of solver
     // - What rank of how many ranks this instance is
     // Configure preCICE. For now the config file is hardcoded.
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-    couplingInterface.announceSolver( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     //couplingInterface.createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     std::string preciceConfigFilename = "precice-config.xml";
     if (argc == 3)
       preciceConfigFilename = argv[2];
 
-    couplingInterface.configure( preciceConfigFilename );
+    auto& couplingInterface =
+        precice_adapter::PreciceAdapter::getInstance();
+    couplingInterface.announceSolver( "FreeFlow", preciceConfigFilename, mpiHelper.rank(), mpiHelper.size() );
+//    couplingInterface.configure( preciceConfigFilename );
 
     const int dim = couplingInterface.getDimensions();
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
@@ -167,36 +204,13 @@ int main(int argc, char** argv) try
     }
 
     const auto numberOfPoints = coords.size() / dim;
-
-    couplingInterface.setMesh( "FreeFlowMesh", numberOfPoints, coords, coupledScvfIndices );
+    const double preciceDt = couplingInterface.setMeshAndInitialize( "FreeFlowMesh",
+                                                                     numberOfPoints,
+                                                                     coords,
+                                                                     coupledScvfIndices );
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
-
-    //TODO: If necessary, communicate initial data to other solver
-    /*
-    if ( precice.isActionRequired(precice::constants::actionWriteInitialData()) )
-    {
-      //Fill data vector
-      for (int i = 0; i < vertexSize; ++i)
-      {
-        //temperatureVec[i] = ??;
-      }
-       precice.writeBlockScalarData( temperatureId, vertexSize, vertexIDs.data(), temperatureVec.data() );
-       precice.fulfilledAction(precice::constants::actionWriteInitialData());
-    }
-    */
-
-    //const double preciceDt = precice.initialize();
-    //precice.initializeData();
-
-    // Read initialdata for heat-flux if available
-    /*
-    if (precice.isReadDataAvailable())
-    {
-      precice.readBlockScalarData( heatFluxId, vertexSize, vertexIDs.data(), heatFluxVec.data() );
-    }
-    */
 
     auto solOld = sol;
 
@@ -210,8 +224,6 @@ int main(int argc, char** argv) try
     GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(freeFlowVtkWriter);
     freeFlowVtkWriter.write(0.0);
 
-    const double preciceDt = couplingInterface.initialize();
-
     if ( couplingInterface.hasToWriteInitialData() )
     {
       setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
@@ -219,6 +231,13 @@ int main(int argc, char** argv) try
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
+
+    /*
+    if ( couplingInterface.isInitialDataAvailable() )
+    {
+      couplingInterface.readTemperatureFromOtherSolver();
+    }
+    */
 
     // instantiate time loop
     using Scalar = GetPropType<FreeFlowTypeTag, Properties::Scalar>;
@@ -247,8 +266,12 @@ int main(int argc, char** argv) try
     //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
 
+    double fakeTime = 0.;
+
     // time loop
-    timeLoop->start(); do
+    timeLoop->start();
+    //do
+    while ( couplingInterface.isCouplingOngoing() )
     {
         if ( couplingInterface.hasToWriteIterationCheckpoint() )
         {
@@ -272,23 +295,29 @@ int main(int argc, char** argv) try
         freeFlowGridVariables->advanceTimeStep();
 
         // Write heatflux to wrapper
-        //couplingInterface.writeHeatFluxOnFace( ... )
         setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
         //Tell wrapper that all values have been written
         couplingInterface.writeHeatFluxToOtherSolver();
-
         const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
 
         // set new dt as suggested by newton solver
         const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
+
         timeLoop->setTimeStepSize( newDt );
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
+            //printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
             sol = sol_checkpoint;
             //freeFlowGridVariables->advanceTimeStep();
             freeFlowGridVariables->update(sol);
+            printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
+
+//            freeFlowVtkWriter.write(timeLoop->time() + fakeTime);
+//            fakeTime += 1.0;
+//            std::cout << "Press key to continue! " << std::endl;
+//            getchar();
             couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful
@@ -306,7 +335,8 @@ int main(int argc, char** argv) try
 
         }
 
-    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing());
+    }
+    //while (!timeLoop->finished() && couplingInterface.isCouplingOngoing());
 
     timeLoop->finalize(freeFlowGridView.comm());
 

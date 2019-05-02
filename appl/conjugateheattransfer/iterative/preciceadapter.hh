@@ -9,13 +9,6 @@
 
 namespace precice_adapter{
 
-  /*
-  enum HeatFluxType
-  {
-    UNDEFINED, FreeFlow, Solid
-  };
-  */
-
 class PreciceAdapter
 {
 
@@ -34,17 +27,11 @@ private:
   bool meshWasCreated_;
   bool preciceWasInitialized_;
   int meshID_;
-  int dimension_;
+//  int dimension_;
   int heatFluxID_;
   int temperatureID_;
 
   double timeStepSize_;
-
-  /*
-  HeatFluxType writeHeatFluxType_;
-  HeatFluxType readHeatFluxType_;
-  */
-
 
   std::vector<int> vertexIDs_; //should be size_t
   std::vector<double> heatFlux_;
@@ -52,6 +39,9 @@ private:
 
   DumuxPreciceIndexMapper<int> indexMapper_;
 
+//  DumuxSolutionType solutionCheckpoint_;
+
+  double initialize();
 
   ~PreciceAdapter();
 public:
@@ -60,8 +50,11 @@ public:
 
   static PreciceAdapter& getInstance();
 
-  void announceSolver( const std::string& name, const int rank, const int size );
-  void configure( const std::string& configurationFileName );
+  void announceSolver( const std::string& name,
+                       const std::string& configurationFileName,
+                       const int rank,
+                       const int size );
+//  void configure( const std::string& configurationFileName );
 
   /*
   void announceHeatFluxToWrite( const HeatFluxType heatFluxType );
@@ -87,16 +80,14 @@ public:
   bool hasToWriteInitialData();
   void announceInitialDataWritten();
 
-  //bool isInitialDataAvailable();
+  bool isInitialDataAvailable();
 
-  void setMesh( const std::string& meshName,
-                const size_t numPoints,
-                std::vector<double>& coordinates,
-                const std::vector<int>& dumuxFaceIDs ) ;
+  double setMeshAndInitialize( const std::string& meshName,
+                             const size_t numPoints,
+                             std::vector<double>& coordinates,
+                             const std::vector<int>& dumuxFaceIDs ) ;
 
-  double initialize();
   void initializeData();
-  void finalize();
   //static void initializeData();
 
   double advance( const double computedTimeStepLength );
@@ -120,34 +111,9 @@ public:
 
   bool isCoupledEntity( const int faceID ) const;
 
-
-
-//  std::vector<double>& getHeatFluxToWrite();
-
-//  static void readScalarQuantitiy( const int dataID, std::vector<double>& data );
-//  static void writeScalarQuantitiy( const int dataID, std::vector<double>& data );
-
-
   void print( std::ostream& os );
 
-  /*
-  static void writeSolidTemperature( std::vector<double>& temperature );
-  static void readSolidTemperature( std::vector<double>& temperature );
-  static void writeFluidTemperature( const std::vector<double>& temperature );
-  static void readFluidTemperature( std::vector<double>& temperature );
-  */
-
-  /*
-  static void readBlockScalarData( const int dataID,
-                                   const int size,
-                                   int* const valueIndices,
-                                   double* const values );
-
-  static void writeBlockScalarData( const int dataID,
-                                    const int size,
-                                    int* const valueIndices,
-                                    double* const values );
-  */
+  void finalize();
 
 };
 
