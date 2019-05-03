@@ -58,7 +58,7 @@
     <coupling-scheme:serial-implicit>
       <max-time value="100"/>
       <timestep-length value="1" />
-      <max-iterations value="9"/>
+      <max-iterations value="120"/>
 
 
       <participants first="FreeFlow" second="SolidEnergy"/>
@@ -83,7 +83,7 @@
        -->
        
         <extrapolation-order value="0"/>
-        <!--
+
         <post-processing:IQN-ILS>
             <data mesh="SolidEnergyMesh" name="Temperature" />
             <initial-relaxation value="0.1" />
@@ -91,7 +91,6 @@
             <timesteps-reused value="20" />
             <filter type="QR2" limit="1e-3" />
         </post-processing:IQN-ILS>
-        -->
         
            
     </coupling-scheme:serial-implicit>
