@@ -313,6 +313,7 @@ int main(int argc, char** argv) try
 //    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
 
     timeLoop->finalize(solidEnergyGridView.comm());
+    couplingInterface.finalize();
 
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
@@ -324,8 +325,6 @@ int main(int argc, char** argv) try
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
-
-    couplingInterface.finalize();
 
     return 0;
 } // end main
