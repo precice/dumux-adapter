@@ -17,13 +17,37 @@ We do the following now:
 **Attention**
 This is the opposite way of writing things than in the OpenFOAM example! If we want to couple to OpenFOAM we have to change that.
 
+
+#### Code related questions
+
+What is the best way to reload a checkpoint?
+
+Saving `sol` and then
+
+1. reloading `sol` via `GridVariables->update(sol)` followed by a `GridVariables->advanceTimeStep()`.
+1. reloading `sol` via `GridVariables->init(sol)`;
+
+Codes:
+
+
+```c++
+GridVariables->update(sol);
+GridVariables->advanceTimeStep();
+```
+
+```c++
+GridVariables->init(sol)
+```
+
 #### Problems
 
--[ ] We have to be careful with the initialization of the solvers. 
+- [x] We have to be careful with the initialization of the solvers. 
     - **Valid case** Heat solver starts: The heat solver computes a temperature to be send, the heat flux is zero. Thus, the temperature equals the temperature in the cell center.
     - **Invalid case** Flow solver starts: The flow solver computes a heat flux from its temperatures. However, the temperature on the interface (stored in the precice adapter) is zero! Thus, a **very high** heat flux is initialized.
--[ ] The implicit coupling creates a solution that develops too fast.
--[x] How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.
+    - **Note**: There were some errors in the preCICE configuration file.
+- [x] The implicit coupling creates a solution that develops too fast.
+  - **Needs more testing** The checkpointing die only reload parts of the solution. In the end the Newton solver continued from its previous state, but with the initial guess being reset. 
+- [x] How do we control the adaptive time stepping? It increases above the suggested time step size which makes it impossible for preCICE to catch the solvers.
     - I have adapted the adaptive solver. I hope it works properly now!
     - Seems to be fine
 
