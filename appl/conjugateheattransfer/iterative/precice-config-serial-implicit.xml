@@ -56,9 +56,9 @@
     
     
     <coupling-scheme:serial-implicit>
-      <max-time value="20"/>
+      <max-time value="100"/>
       <timestep-length value="1" />
-      <max-iterations value="120"/>
+      <max-iterations value="9"/>
 
 
       <participants first="FreeFlow" second="SolidEnergy"/>

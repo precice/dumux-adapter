@@ -312,7 +312,7 @@ int main(int argc, char** argv) try
             sol = sol_checkpoint;
             //freeFlowGridVariables->advanceTimeStep();
             freeFlowGridVariables->update(sol);
-            printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
+            //printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
 
 //            freeFlowVtkWriter.write(timeLoop->time() + fakeTime);
 //            fakeTime += 1.0;

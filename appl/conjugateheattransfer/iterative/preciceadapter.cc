@@ -2,13 +2,22 @@
 
 #include <cassert>
 
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+
 using namespace precice_adapter;
 
 PreciceAdapter::PreciceAdapter():
-  wasCreated_(false), precice_(nullptr), meshWasCreated_(false), preciceWasInitialized_(false),
-  meshID_(0), heatFluxID_(0), temperatureID_(0), timeStepSize_(0.)
+  wasCreated_(false), meshWasCreated_(false), preciceWasInitialized_(false),
+  preciceWasFinalized_(false), precice_(nullptr), meshID_(0),
+  heatFluxID_(0), temperatureID_(0), timeStepSize_(0.)
 {
-
+#ifndef NDEBUG
+  namespace logging = boost::log;
+  logging::core::get()->set_filter(
+        logging::trivial::severity >= logging::trivial::debug );
+#endif
 }
 
 PreciceAdapter& PreciceAdapter::getInstance()
@@ -25,6 +34,7 @@ void PreciceAdapter::announceSolver( const std::string& name,
   assert( precice_ == nullptr );
   precice_ = std::make_unique<precice::SolverInterface>(name, rank, size);
   precice_->configure( configurationFileName );
+  BOOST_LOG_TRIVIAL(info) << "PreciceAdapter for solver " << name << "was announced and configured.";
   wasCreated_ = true;
 }
 
@@ -33,35 +43,7 @@ int PreciceAdapter::getDimensions()
   assert( wasCreated_ );
   return precice_->getDimensions();
 }
-/*
-void PreciceAdapter::setMeshName(const std::string& meshName)
-{
-  assert( wasCreated_ );
-  meshID_ = precice_->getMeshID(meshName);
-}
-*/
-/*
-void PreciceAdapter::setMesh(const std::string& meshName,
-                             const size_t numPoints,
-                              std::vector<double>& coordinates,
-                              const std::vector<int>& dumuxFaceIDs )
-{
-  assert( wasCreated_ );
-  assert( numPoints == dumuxFaceIDs.size() );
-  meshID_ = precice_->getMeshID(meshName);
-  vertexIDs_.resize( numPoints );
-  precice_->setMeshVertices( meshID_, numPoints, coordinates.data(), vertexIDs_.data() );
-  indexMapper_.createMapping( dumuxFaceIDs, vertexIDs_);
-  meshWasCreated_ = true;
-}
-*/
-/*
-int PreciceAdapter::getDataID( const std::string& dataName, const int meshID )
-{
-  assert( wasCreated_ );
-  return precice_->getDataID( dataName, meshID );
-}
-*/
+
 double PreciceAdapter::initialize()
 {
   assert( wasCreated_ );
@@ -77,6 +59,8 @@ double PreciceAdapter::initialize()
   assert( timeStepSize_ > 0 );
 
   preciceWasInitialized_ = true;
+
+  BOOST_LOG_TRIVIAL(info) << "PreciceAdapter initialized";
   return timeStepSize_;
 }
 
@@ -89,16 +73,13 @@ void PreciceAdapter::initializeData()
 void PreciceAdapter::finalize()
 {
   assert( wasCreated_ );
-  precice_->finalize();
+  if ( !preciceWasFinalized_ )
+  {
+    precice_->finalize();
+    preciceWasFinalized_ = true;
+    BOOST_LOG_TRIVIAL(info) << "PreciceAdapter finalized.";
+  }
 }
-
-/*
-void PreciceAdapter::initializeData()
-{
-  assert( wasCreated_ );
-  precice_->initializeData();
-}
-*/
 
 double PreciceAdapter::advance( const double computedTimeStepLength )
 {
@@ -157,7 +138,7 @@ void PreciceAdapter::writeHeatFluxToOtherSolver()
   writeBlockScalarDataToPrecice( heatFluxID_, heatFlux_ );
   for (auto v: heatFlux_ )
   {
-    std::cout << "Written heat-flux is :" << v << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Written heat-flux is :" << v;
   }
 }
 
@@ -167,7 +148,7 @@ void PreciceAdapter::readHeatFluxFromOtherSolver()
   readBlockScalarDataFromPrecice( heatFluxID_, heatFlux_ );
   for (auto v: heatFlux_ )
   {
-    std::cout << "Read heat-flux is :" << v << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Read heat-flux is :" << v;
   }
 }
 
@@ -177,7 +158,7 @@ void PreciceAdapter::writeTemperatureToOtherSolver()
   writeBlockScalarDataToPrecice( temperatureID_, temperature_ );
   for (auto v: temperature_ )
   {
-    std::cout << "Written temperature is :" << v << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Written temperature is :" << v;
   }
 }
 
@@ -187,7 +168,7 @@ void PreciceAdapter::readTemperatureFromOtherSolver()
   readBlockScalarDataFromPrecice( temperatureID_, temperature_ );
   for (auto v: temperature_ )
   {
-    std::cout << "Read temperature is :" << v << std::endl;
+    BOOST_LOG_TRIVIAL(debug) << "Read temperature is :" << v;
   }
 }
 
@@ -196,30 +177,6 @@ bool PreciceAdapter::isCoupledEntity(const int faceID) const
   assert( wasCreated_ );
   return indexMapper_.isDumuxIdMapped( faceID );
 }
-/*
-std::vector<double>& PreciceAdapter::getHeatFluxToWrite()
-{
-  assert( wasCreated_ );
-  assert( writeHeatFluxType_ != HeatFluxType::UNDEFINED);
-  if ( writeHeatFluxType_ == HeatFluxType::FreeFlow )
-    return freeFlowHeatFlux_;
-  else
-    return solidHeatFlux_;
-}
-*/
-//void PreciceAdapter::readScalarQuantitiy(const int dataID, std::vector<double> &data)
-//{
-//  assert( wasCreated_ );
-//  precice_->readBlockScalarData( dataID, vertexIDs_.size(),
-//                                       vertexIDs_.data(), data.data() );
-//}
-//
-//void PreciceAdapter::writeScalarQuantitiy(const int dataID, std::vector<double> &data)
-//{
-//  assert( wasCreated_ );
-//  precice_->writeBlockScalarData( dataID, vertexIDs_.size(),
-//                                        vertexIDs_.data(), data.data() );
-//}
 
 void PreciceAdapter::print(std::ostream& os)
 {
@@ -309,30 +266,7 @@ void PreciceAdapter::announceIterationCheckpointWritten()
   actionIsFulfilled( precice::constants::actionWriteIterationCheckpoint() );
 }
 
-/*
-void PreciceAdapter::writeInitialBlockScalarData( const int dataID,
-                                                  const int size,
-                                                  int* const valueIndices,
-                                                  double* const values )
-{
-  assert( wasCreated_ );
-  if ( hasToWriteInitialData() )
-  {
-    precice_->writeBlockScalarData( dataID, size, valueIndices, values );
-  }
-}
-
-void PreciceAdapter::announceAllInitialDataWritten()
-{
-  assert( wasCreated_ );
-  if ( hasToWriteInitialData() )
-  {
-    precice_->fulfilledAction( precice::constants::actionWriteInitialData() );
-  }
-}
-*/
 PreciceAdapter::~PreciceAdapter()
 {
-  //finalize();
 }
 

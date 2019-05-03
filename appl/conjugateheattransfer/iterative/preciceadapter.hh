@@ -14,6 +14,9 @@ class PreciceAdapter
 
 private:
   bool wasCreated_;
+  bool meshWasCreated_;
+  bool preciceWasInitialized_;
+  bool preciceWasFinalized_;
   std::unique_ptr<precice::SolverInterface> precice_;
 
   PreciceAdapter();
@@ -24,10 +27,7 @@ private:
   void readBlockScalarDataFromPrecice( const int dataID, std::vector<double>& data );
   void writeBlockScalarDataToPrecice( const int dataID, std::vector<double>& data );
 
-  bool meshWasCreated_;
-  bool preciceWasInitialized_;
   int meshID_;
-//  int dimension_;
   int heatFluxID_;
   int temperatureID_;
 
@@ -38,8 +38,6 @@ private:
   std::vector<double> temperature_;
 
   DumuxPreciceIndexMapper<int> indexMapper_;
-
-//  DumuxSolutionType solutionCheckpoint_;
 
   double initialize();
 
@@ -54,23 +52,8 @@ public:
                        const std::string& configurationFileName,
                        const int rank,
                        const int size );
-//  void configure( const std::string& configurationFileName );
-
-  /*
-  void announceHeatFluxToWrite( const HeatFluxType heatFluxType );
-  void announceHeatFluxToRead( const HeatFluxType heatFluxType );
-  */
 
   int getDimensions();
-  // static int getMeshID( const std::string& meshName );
-  //static void setMeshName( const std::string& meshName );
-  //static int getDataID( const std::string& dataName, const int meshID );
-
-  //static void writeInitialBlockScalarData( const int dataID,
-  //                                         const int size,
-  //                                         int* const valueIndices,
-  //                                         double* const values );
-  //static void announceAllInitialDataWritten();
 
   bool hasToReadIterationCheckpoint();
   void announceIterationCheckpointRead();
@@ -88,7 +71,6 @@ public:
                              const std::vector<int>& dumuxFaceIDs ) ;
 
   void initializeData();
-  //static void initializeData();
 
   double advance( const double computedTimeStepLength );
   bool isCouplingOngoing();
