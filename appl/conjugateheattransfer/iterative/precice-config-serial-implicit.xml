@@ -2,7 +2,7 @@
 
 <precice-configuration>
   <log>
-    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="true" /> 
+    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="false" /> 
     <sink type="stream" output="stdout"  enabled="false" /> 
   </log> 
 
@@ -25,20 +25,26 @@
       <use-mesh name="FreeFlowMesh" provide="yes"/>
       <use-mesh name="SolidEnergyMesh" from="SolidEnergy"/>
 
-      <write-data name="Temperature" mesh="FreeFlowMesh"/>
-      <read-data name="Heat-Flux" mesh="FreeFlowMesh"/>
+      <read-data name="Temperature" mesh="FreeFlowMesh"/>
+      <write-data name="Heat-Flux" mesh="FreeFlowMesh"/>
+      
+      <mapping:nearest-neighbor direction="read" from="SolidEnergyMesh" to="FreeFlowMesh" constraint="consistent"/> 
+      <mapping:nearest-neighbor direction="write" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/> 
+      
     </participant>
 
     <participant name="SolidEnergy">
       <use-mesh name="SolidEnergyMesh" provide="yes"/>
       <use-mesh name="FreeFlowMesh" from="FreeFlow"/>
       
+      <read-data name="Heat-Flux" mesh="SolidEnergyMesh"/>
+      <write-data name="Temperature" mesh="SolidEnergyMesh"/>
+      
+      <!--
       <read-data name="Temperature" mesh="SolidEnergyMesh"/>
       <write-data name="Heat-Flux" mesh="SolidEnergyMesh"/>
+      -->
 
-
-      <mapping:nearest-neighbor direction="write" from="SolidEnergyMesh" to="FreeFlowMesh" constraint="consistent"/> 
-      <mapping:nearest-neighbor direction="read" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/> 
       <!--
       <mapping:nearest-projection direction="read" from="FreeFlowMesh" to="SolidEnergyMesh" constraint="consistent"/>
     -->
@@ -50,25 +56,26 @@
     
     
     <coupling-scheme:serial-implicit>
-      <max-time value="1"/>
+      <max-time value="20"/>
       <timestep-length value="1" />
-      <max-iterations value="3"/>
+      <max-iterations value="120"/>
+
+
+      <participants first="FreeFlow" second="SolidEnergy"/>
 
       <!--      
-      <participants first="FreeFlow" second="SolidEnergy"/>
+      <participants first="SolidEnergy" second="FreeFlow"/>
       -->      
 
-      <participants first="SolidEnergy" second="FreeFlow"/>
-
-
-      <exchange data="Temperature" mesh="FreeFlowMesh" from="SolidEnergy" to="FreeFlow" initialize="false" />
-      <exchange data="Heat-Flux" mesh="FreeFlowMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
+      <exchange data="Temperature" mesh="SolidEnergyMesh" from="SolidEnergy" to="FreeFlow" initialize="true" />
+      <exchange data="Heat-Flux" mesh="SolidEnergyMesh" from="FreeFlow" to="SolidEnergy" initialize="false" />
       
       <!--      
       <relative-convergence-measure limit="1.0e-6" data="Temperature" mesh="FreeFlowMesh"/>
       -->
        
-      <relative-convergence-measure limit="1.0e-6" data="Heat-Flux" mesh="FreeFlowMesh"/>
+      <relative-convergence-measure limit="1.0e-5" data="Heat-Flux" mesh="SolidEnergyMesh"/>
+      <relative-convergence-measure limit="1.0e-5" data="Temperature" mesh="SolidEnergyMesh"/>
 
              
        <!--
@@ -78,13 +85,14 @@
         <extrapolation-order value="0"/>
         <!--
         <post-processing:IQN-ILS>
-            <data mesh="FreeFlowMesh" name="Temperature" />
-            <initial-relaxation value="1.00" />
-            <max-used-iterations value="80" />
-            <timesteps-reused value="10" />
-            <filter type="QR1" limit="1e-3" />
+            <data mesh="SolidEnergyMesh" name="Temperature" />
+            <initial-relaxation value="0.1" />
+            <max-used-iterations value="9" />
+            <timesteps-reused value="20" />
+            <filter type="QR2" limit="1e-3" />
         </post-processing:IQN-ILS>
         -->
+        
            
     </coupling-scheme:serial-implicit>
   </solver-interface>
