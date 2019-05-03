@@ -290,8 +290,9 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
-            //solidEnergyGridVariables->advanceTimeStep();
             solidEnergyGridVariables->update(sol);
+            solidEnergyGridVariables->advanceTimeStep();
+            //solidEnergyGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful

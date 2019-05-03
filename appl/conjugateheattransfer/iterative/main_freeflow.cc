@@ -266,8 +266,6 @@ int main(int argc, char** argv) try
     //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
 
-    double fakeTime = 0.;
-
     // time loop
     timeLoop->start();
     //do
@@ -289,11 +287,6 @@ int main(int argc, char** argv) try
         // solve the non-linear system with time step control
         nonLinearSolver.solve(sol, *timeLoop);
 
-        // make the new solution the old solution
-        //TODO DO WE HAVE TO MOVE THAT?
-        //solOld = sol;
-        freeFlowGridVariables->advanceTimeStep();
-
         // Write heatflux to wrapper
         setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
         //Tell wrapper that all values have been written
@@ -308,16 +301,10 @@ int main(int argc, char** argv) try
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
-            //printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
             sol = sol_checkpoint;
-            //freeFlowGridVariables->advanceTimeStep();
             freeFlowGridVariables->update(sol);
-            //printCellCenterTemperatures( *freeFlowProblem, *freeFlowGridVariables, sol );
-
-//            freeFlowVtkWriter.write(timeLoop->time() + fakeTime);
-//            fakeTime += 1.0;
-//            std::cout << "Press key to continue! " << std::endl;
-//            getchar();
+            freeFlowGridVariables->advanceTimeStep();
+            //freeFlowGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful
@@ -339,6 +326,7 @@ int main(int argc, char** argv) try
     //while (!timeLoop->finished() && couplingInterface.isCouplingOngoing());
 
     timeLoop->finalize(freeFlowGridView.comm());
+    couplingInterface.finalize();
 
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
@@ -350,8 +338,6 @@ int main(int argc, char** argv) try
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
-
-    couplingInterface.finalize();
 
     return 0;
 } // end main
