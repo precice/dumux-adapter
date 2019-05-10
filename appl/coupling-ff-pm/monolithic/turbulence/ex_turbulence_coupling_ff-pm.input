@@ -1,0 +1,68 @@
+[TimeLoop]
+DtInitial =  1e-1 # [s]
+MaxTimeStepSize = 43200 # [s] (12 hours)
+TEnd = 864000 # [s] (6 days)
+
+[Stokes.Grid]
+Positions0 = 0.0 0.25
+Positions1 = 0.25 0.5
+Grading0 = 1.0
+Grading1 = 1.0
+Cells0 = 15
+Cells1 = 20
+Verbosity = true
+
+[Darcy.Grid]
+Positions0 = 0.0 0.25
+Positions1 = 0.0 0.25
+Cells0 = 15
+Cells1 = 10
+Grading0 = 1.0
+Grading1 = 1.0
+Verbosity = true
+
+[Stokes.Problem]
+Name = stokes
+RefVelocity = 3.5 # [m/s]
+RefPressure = 1e5 # [Pa]
+refMoleFrac = 0 # [-]
+RefTemperature = 298.15 # [K]
+EnableInertiaTerms = true
+
+[Darcy.Problem]
+Name = darcy
+Pressure = 1e5
+Saturation = 0.5 # initial Sw
+Temperature = 298.15 # [K]
+InitPhasePresence = 3 # bothPhases
+
+[Darcy.SpatialParams]
+Porosity = 0.41
+Permeability = 2.65e-10
+AlphaBeaversJoseph = 1.0
+Swr = 0.005
+Snr = 0.01
+VgAlpha = 6.371e-4
+VgN = 6.9
+
+[Problem]
+Name = ex_coupling_turbulence_ff-pm
+EnableGravity = true
+InterfaceDiffusionCoefficientAvg = Harmonic
+
+[Vtk]
+AddVelocity = true
+WriteFaceData = false
+
+[Newton]
+MaxSteps = 12
+MaxRelativeShift = 1e-5
+
+[Assembly]
+NumericDifferenceMethod = 0
+NumericDifference.BaseEpsilon = 1e-8
+
+[Component]
+SolidDensity = 2700
+SolidThermalConductivity = 2.8
+SolidHeatCapacity = 790
