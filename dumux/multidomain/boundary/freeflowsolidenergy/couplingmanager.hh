@@ -45,10 +45,10 @@ namespace Dumux {
  */
 template<class MDTraits>
 class FreeFlowSolidEnergyCouplingManager
-: public StaggeredCouplingManagerBase<MDTraits, FreeFlowSolidEnergyCouplingManager<MDTraits>>
+: public StaggeredCouplingManager<MDTraits>
 {
     using Scalar = typename MDTraits::Scalar;
-    using ParentType = StaggeredCouplingManagerBase<MDTraits, FreeFlowSolidEnergyCouplingManager<MDTraits>>;
+    using ParentType = StaggeredCouplingManager<MDTraits>;
 
 public:
     static constexpr auto freeFlowCellCenterIdx = typename MDTraits::template SubDomain<0>::Index();
