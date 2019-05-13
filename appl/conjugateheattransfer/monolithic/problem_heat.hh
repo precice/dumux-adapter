@@ -37,7 +37,10 @@
 #include <dumux/porousmediumflow/problem.hh>
 
 #include "spatialparams.hh"
+
+#if !ENABLEMONOLITHIC
 #include "../iterative/preciceadapter.hh"
+#endif
 
 namespace Dumux {
 template <class TypeTag>
