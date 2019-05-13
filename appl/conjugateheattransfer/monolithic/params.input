@@ -34,6 +34,7 @@ OutputName = test_ch_monolithic
 [Problem]
 EnableGravity = false
 EnableInertiaTerms = false
+DiffCoeffAvgType = Harmonic
 
 [Component]
 SolidThermalConductivity = 100 # [W/(m^2*s)]

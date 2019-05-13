@@ -176,8 +176,9 @@ public:
         NumEqVector values(0.0);
 
 #if ENABLEMONOLITHIC
+        static const auto avgType = FreeFlowHeatCouplingOptions::stringToEnum(getParamFromGroup<std::string>(this->paramGroup(), "Problem.DiffCoeffAvgType", "FreeFlowOnly"));
         if (couplingManager().isCoupledEntity(CouplingManager::solidEnergyIdx, scvf))
-            values = couplingManager().couplingData().energyCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+            values = couplingManager().couplingData().energyCouplingCondition(element, fvGeometry, elemVolVars, scvf, avgType);
 #else
         //TODO preCICE
         const auto faceId = scvf.index();
