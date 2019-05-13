@@ -39,7 +39,7 @@ namespace Dumux {
  * \brief This structs holds a set of options which allow to modify the Stokes-Darcy
  *        coupling mechanism during runtime.
  */
-struct StokesDarcyCouplingOptions
+struct FreeFlowHeatCouplingOptions
 {
     /*!
      * \brief Defines which kind of averanging of diffusion coefficiencients
@@ -55,7 +55,7 @@ struct StokesDarcyCouplingOptions
      * \brief Convenience function to convert user input given as std::string to the corresponding enum class used for chosing the type
      *        of averaging of the diffusion/conduction parameter at the interface between the two domains.
      */
-    static DiffusionCoefficientAveragingType stringToEnum(DiffusionCoefficientAveragingType, const std::string& diffusionCoefficientAveragingType)
+    static DiffusionCoefficientAveragingType stringToEnum(const std::string& diffusionCoefficientAveragingType)
     {
         if (diffusionCoefficientAveragingType == "Harmonic")
             return DiffusionCoefficientAveragingType::harmonic;
@@ -63,7 +63,7 @@ struct StokesDarcyCouplingOptions
             return DiffusionCoefficientAveragingType::arithmethic;
         else if (diffusionCoefficientAveragingType == "FreeFlowOnly")
             return DiffusionCoefficientAveragingType::ffOnly;
-        else if (diffusionCoefficientAveragingType == "PorousMediumOnly")
+        else if (diffusionCoefficientAveragingType == "SolidOnly")
             return DiffusionCoefficientAveragingType::pmOnly;
         else
             DUNE_THROW(Dune::IOError, "Unknown DiffusionCoefficientAveragingType");
@@ -103,9 +103,10 @@ class FreeFlowSolidEnergyCouplingData
                   "All submodels must both be either isothermal or non-isothermal");
 
 
-    using DiffusionCoefficientAveragingType = typename StokesDarcyCouplingOptions::DiffusionCoefficientAveragingType;
 
 public:
+    using DiffusionCoefficientAveragingType = typename FreeFlowHeatCouplingOptions::DiffusionCoefficientAveragingType;
+
     FreeFlowSolidEnergyCouplingData(const CouplingManager& couplingmanager): couplingManager_(couplingmanager) {}
 
 
