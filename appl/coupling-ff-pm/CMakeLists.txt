@@ -2,4 +2,4 @@
 add_custom_target(test_exercises)
 
 add_subdirectory(monolithic)
-add_subdirectory(solution)
+add_subdirectory(iterative)

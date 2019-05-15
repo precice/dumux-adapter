@@ -24,6 +24,10 @@
 #ifndef DUMUX_DARCY_SUBPROBLEM_HH
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
+#ifndef ENABLEMONOLITHIC
+#define ENABLEMONOLITHIC 1
+#endif
+
 #include <dune/grid/yaspgrid.hh>
 
 //****** uncomment for the last exercise *****//
@@ -34,7 +38,7 @@
 #include <dumux/porousmediumflow/1p/model.hh>
 #include <dumux/porousmediumflow/problem.hh>
 
-#include "../1pspatialparams.hh"
+#include "1pspatialparams.hh"
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
@@ -109,12 +113,19 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
+#if ENABLEMONOLITHIC
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
+#endif
 
 public:
+#if ENABLEMONOLITHIC
     DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
                    std::shared_ptr<CouplingManager> couplingManager)
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
+#else
+DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
+    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7)
+#endif
     {}
 
     /*!
@@ -149,14 +160,11 @@ public:
         // set Neumann BCs to all boundaries first
         values.setAllNeumann();
 
+#if ENABLEMONOLITHIC
         // set the coupling boundary condition at the interface
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values.setAllCouplingNeumann();
-
-        // set a Dirichlet boundary condition at the bottom
-        //if (onLowerBoundary_(scvf.center()))
-        //    values.setAllDirichlet();
-
+#endif
         return values;
     }
 
@@ -196,10 +204,16 @@ public:
         // no-flow everywhere ...
         NumEqVector values(0.0);
 
+#if ENABLEMONOLITHIC
         // ... except at the coupling interface
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
-
+#else
+        // if (/*preCICE*/)
+        // {
+        //     values[Indices::conti0EqIdx] = /*mass flux from stokes*/;
+        // }
+#endif
         return values;
     }
 
@@ -242,13 +256,11 @@ public:
 
     // \}
 
-    //! Set the coupling manager
-    void setCouplingManager(std::shared_ptr<CouplingManager> cm)
-    { couplingManager_ = cm; }
-
+#if ENABLEMONOLITHIC
     //! Get the coupling manager
     const CouplingManager& couplingManager() const
     { return *couplingManager_; }
+#endif
 
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
@@ -264,7 +276,10 @@ private:
     { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
 
     Scalar eps_;
+
+#if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#endif
 };
 } //end namespace
 

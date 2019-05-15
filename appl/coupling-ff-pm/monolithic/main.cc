@@ -46,14 +46,14 @@
 
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
-#include "ex_interface_pmproblem.hh"
-#include "ex_interface_ffproblem.hh"
+#include "pmproblem.hh"
+#include "ffproblem.hh"
 
 namespace Dumux {
 namespace Properties {
 
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::StokesOneP>
+struct CouplingManager<TypeTag, TTag::FreeFlowModel>
 {
     using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::DarcyOneP>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
@@ -62,7 +62,7 @@ struct CouplingManager<TypeTag, TTag::StokesOneP>
 template<class TypeTag>
 struct CouplingManager<TypeTag, TTag::DarcyOneP>
 {
-    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesOneP, Properties::TTag::StokesOneP, TypeTag>;
+    using Traits = StaggeredMultiDomainTraits<Properties::TTag::FreeFlowModel, Properties::TTag::FreeFlowModel, TypeTag>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
 };
 
@@ -84,7 +84,7 @@ int main(int argc, char** argv) try
     Parameters::init(argc, argv);
 
     // Define the sub problem type tags
-    using StokesTypeTag = Properties::TTag::StokesOneP;
+    using StokesTypeTag = Properties::TTag::FreeFlowModel;
     using DarcyTypeTag = Properties::TTag::DarcyOneP;
 
 

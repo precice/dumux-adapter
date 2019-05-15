@@ -23,10 +23,11 @@
 #ifndef DUMUX_STOKES_SUBPROBLEM_HH
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
-#include <dune/grid/yaspgrid.hh>
+#ifndef ENABLEMONOLITHIC
+#define ENABLEMONOLITHIC 1
+#endif
 
-//****** uncomment for the last exercise *****//
-// #include <dumux/io/grid/subgridgridcreator.hh>
+#include <dune/grid/yaspgrid.hh>
 
 #include <dumux/material/fluidsystems/1pliquid.hh>
 #include <dumux/material/components/simpleh2o.hh>
@@ -44,12 +45,12 @@ namespace Properties
 {
 // Create new type tags
 namespace TTag {
-struct StokesOneP { using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>; };
+struct FreeFlowModel { using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>; };
 } // end namespace TTag
 
 // the fluid system
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::StokesOneP>
+struct FluidSystem<TypeTag, TTag::FreeFlowModel>
 {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using type = FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> > ;
@@ -57,7 +58,7 @@ struct FluidSystem<TypeTag, TTag::StokesOneP>
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::StokesOneP>
+struct Grid<TypeTag, TTag::FreeFlowModel>
 {
     static constexpr auto dim = 2;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
@@ -73,14 +74,14 @@ struct Grid<TypeTag, TTag::StokesOneP>
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::StokesOneP> { using type = Dumux::StokesSubProblem<TypeTag> ; };
+struct Problem<TypeTag, TTag::FreeFlowModel> { using type = Dumux::StokesSubProblem<TypeTag> ; };
 
 template<class TypeTag>
-struct EnableFVGridGeometryCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableFVGridGeometryCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
 template<class TypeTag>
-struct EnableGridFluxVariablesCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridFluxVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
 template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
 }
 
 /*!
@@ -109,11 +110,18 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
+#if ENABLEMONOLITHIC
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
+#endif
 
 public:
+#if ENABLEMONOLITHIC
     StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry, std::shared_ptr<CouplingManager> couplingManager)
     : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
+#else
+    StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
+    : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6)
+#endif
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.PressureDifference");
     }
@@ -162,8 +170,6 @@ public:
         // left/right wall
         if (onRightBoundary_(globalPos) || (onLeftBoundary_(globalPos)))
         {
-//            values.setDirichlet(Indices::velocityXIdx);
-//            values.setDirichlet(Indices::velocityYIdx);
           values.setDirichlet(Indices::pressureIdx);
         }
         else
@@ -173,13 +179,22 @@ public:
         }
 
         // coupling interface
+#if ENABLEMONOLITHIC
         if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
             values.setCouplingNeumann(Indices::conti0EqIdx);
             values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-//            values.setDirichlet(Indices::velocityXIdx); // assume no slip on interface
-            values.setBJS(Indices::momentumXBalanceIdx); // assume no slip on interface
+            values.setBJS(Indices::momentumXBalanceIdx);
         }
+#else
+    // // TODO do preCICE stuff in analogy to heat transfer
+    // if(/*preCice*/)
+    // {
+    //     values.setCouplingNeumann(Indices::conti0EqIdx);
+    //     values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+    //     values.setBJS(Indices::momentumXBalanceIdx);
+    // }
+#endif
 
         return values;
     }
@@ -193,18 +208,6 @@ public:
     {
         PrimaryVariables values(0.0);
         values = initialAtPos(globalPos);
-
-//        if(onUpperBoundary_(globalPos))
-//        {
-//          values[Indices::velocityXIdx] = 0.0;
-//          values[Indices::velocityYIdx] = 0.0;
-//        }
-
-//        if(onLeftBoundary_(globalPos))
-//            values[Indices::pressureIdx] = deltaP_;
-//        if(onRightBoundary_(globalPos))
-//            values[Indices::pressureIdx] = 0.0;
-
         return values;
     }
 
@@ -226,24 +229,31 @@ public:
     {
         NumEqVector values(0.0);
 
+#if ENABLEMONOLITHIC
         if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
             values[Indices::momentumYBalanceIdx] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
         }
+#else
+        // if(/*preCICE*/)
+        // {
+        //     const Scalar density = 1000; // TODO how to handle compressible fluids?
+        //     values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
+        //     values[Indices::momentumYBalanceIdx] = /*pressure from Darcy*/
+        // }
+#endif
 
         return values;
     }
 
     // \}
 
-    //! Set the coupling manager
-    void setCouplingManager(std::shared_ptr<CouplingManager> cm)
-    { couplingManager_ = cm; }
-
+#if ENABLEMONOLITHIC
     //! Get the coupling manager
     const CouplingManager& couplingManager() const
     { return *couplingManager_; }
+#endif
 
    /*!
      * \name Volume terms
@@ -272,7 +282,11 @@ public:
      */
     Scalar permeability(const Element& element, const SubControlVolumeFace& scvf) const
     {
+#if ENABLEMONOLITHIC
         return couplingManager().couplingData().darcyPermeability(element, scvf);
+#else
+        return 1e-10; // TODO transfer information or just use constant value
+#endif
     }
 
     /*!
@@ -280,7 +294,11 @@ public:
      */
     Scalar alphaBJ(const SubControlVolumeFace& scvf) const
     {
+#if ENABLEMONOLITHIC
         return couplingManager().problem(CouplingManager::darcyIdx).spatialParams().beaversJosephCoeffAtPos(scvf.center());
+#else
+        return 1.0; // TODO transfer information or just use constant value
+#endif
     }
 
     /*!
@@ -338,7 +356,9 @@ private:
     Scalar eps_;
     Scalar deltaP_;
 
+#if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#endif
 
     mutable std::vector<Scalar> analyticalVelocityX_;
 };
