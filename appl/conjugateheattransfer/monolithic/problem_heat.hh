@@ -26,7 +26,7 @@
 #define DUMUX_HEAT_SUBPROBLEM_HH
 
 #ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 1
+#define ENABLEMONOLITHIC 0
 #endif
 
 #include <dune/grid/yaspgrid.hh>
@@ -39,7 +39,7 @@
 #include "spatialparams.hh"
 
 #if !ENABLEMONOLITHIC
-#include "../iterative/preciceadapter.hh"
+#include "../common/preciceadapter.hh"
 #endif
 
 namespace Dumux {
