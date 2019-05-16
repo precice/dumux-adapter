@@ -26,7 +26,7 @@
 #define DUMUX_FREEFLOW_SUBPROBLEM_HH
 
 #ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 0
+#define ENABLEMONOLITHIC 1
 #endif
 
 #include <dune/grid/yaspgrid.hh>
