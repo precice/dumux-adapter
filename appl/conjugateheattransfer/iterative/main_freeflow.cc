@@ -47,75 +47,8 @@
 #include <dumux/nonlinear/newtonsolver.hh>
 
 #include "../monolithic/problem_freeflow.hh"
-#include "preciceadapter.hh"
-
-
-template<class Problem, class GridVariables, class SolutionVector>
-void setBoundaryHeatFluxes(const Problem& problem,
-                           const GridVariables& gridVars,
-                           const SolutionVector& sol)
-{
-    const auto& fvGridGeometry = problem.fvGridGeometry();
-    auto fvGeometry = localView(fvGridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFaceVars = localView(gridVars.curGridFaceVars());
-
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-
-    for (const auto& element : elements(fvGridGeometry.gridView()))
-    {
-        fvGeometry.bindElement(element);
-        elemVolVars.bindElement(element, fvGeometry, sol);
-        elemFaceVars.bindElement(element, fvGeometry, sol);
-
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
-
-            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-            {
-                //TODO: Actually writes temperature
-              const auto heatFlux = problem.neumann( element, fvGeometry, elemVolVars, elemFaceVars, scvf )[3];
-              couplingInterface.writeHeatFluxOnFace( scvf.index(), heatFlux );
-            }
-        }
-    }
-}
-
-template<class Problem, class GridVariables, class SolutionVector>
-void printCellCenterTemperatures(const Problem& problem,
-                           const GridVariables& gridVars,
-                           const SolutionVector& sol)
-{
-    const auto& fvGridGeometry = problem.fvGridGeometry();
-    auto fvGeometry = localView(fvGridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFaceVars = localView(gridVars.curGridFaceVars());
-
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-
-    for (const auto& element : elements(fvGridGeometry.gridView()))
-    {
-        fvGeometry.bindElement(element);
-        elemVolVars.bindElement(element, fvGeometry, sol);
-        elemFaceVars.bindElement(element, fvGeometry, sol);
-
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
-
-            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-            {
-                //TODO: Actually writes temperature
-              const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
-              const auto& volVars = elemVolVars[scv];
-
-              std::cout << "Temperature on cell center is: " << volVars.temperature() << std::endl;
-//              const auto heatFlux = problem.neumann( element, fvGeometry, elemVolVars, elemFaceVars, scvf )[3];
-//              couplingInterface.writeHeatFluxOnFace( scvf.index(), heatFlux );
-            }
-        }
-    }
-}
-
+#include "../common/preciceadapter.hh"
+#include "../common/helperfunctions.hh"
 
 
 int main(int argc, char** argv) try
@@ -226,7 +159,7 @@ int main(int argc, char** argv) try
 
     if ( couplingInterface.hasToWriteInitialData() )
     {
-      setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
+      helperfunctions::setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
       couplingInterface.writeHeatFluxToOtherSolver();
       couplingInterface.announceInitialDataWritten();
     }
@@ -288,7 +221,7 @@ int main(int argc, char** argv) try
         nonLinearSolver.solve(sol, *timeLoop);
 
         // Write heatflux to wrapper
-        setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
+        helperfunctions::setBoundaryHeatFluxes( *freeFlowProblem, *freeFlowGridVariables, sol );
         //Tell wrapper that all values have been written
         couplingInterface.writeHeatFluxToOtherSolver();
         const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );

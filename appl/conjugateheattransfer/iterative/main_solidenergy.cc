@@ -45,60 +45,8 @@
 #include <dumux/nonlinear/newtonsolver.hh>
 
 #include "../monolithic/problem_heat.hh"
-#include "preciceadapter.hh"
-
-template<class ThermalConductivityModel, class Problem, class FVElementGeometry, class ElementVolumeVariables>
-auto recontructBoundaryTemperature(const Problem& problem,
-                                   const typename FVElementGeometry::FVGridGeometry::GridView::template Codim<0>::Entity& element,
-                                   const FVElementGeometry& fvGeometry,
-                                   const ElementVolumeVariables& elemVolVars,
-                                   const typename FVElementGeometry::SubControlVolumeFace& scvf)
-{
-    using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
-
-    const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
-    const auto& volVars = elemVolVars[scv];
-    const Scalar cellCenterTemperature = volVars.temperature();
-    const Scalar distance = (scvf.center() - scv.center()).two_norm();
-    const Scalar insideLambda = ThermalConductivityModel::effectiveThermalConductivity(volVars,
-                                                                                       problem.spatialParams(),
-                                                                                       element,
-                                                                                       fvGeometry,
-                                                                                       scv);
-
-    const Scalar qHeat = problem.neumann(element, fvGeometry, elemVolVars, scvf);
-    // q = -lambda * (t_face - t_cc) / dx
-    // t_face = -q * dx / lambda + t_cc
-    return -qHeat * distance / insideLambda + cellCenterTemperature;
-}
-
-template<class ThermalConductivityModel, class Problem, class GridVariables, class SolutionVector>
-void setBoundaryTemperatures(const Problem& problem,
-                             const GridVariables& gridVars,
-                             const SolutionVector& sol)
-{
-    const auto& fvGridGeometry = problem.fvGridGeometry();
-    auto fvGeometry = localView(fvGridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-
-    for (const auto& element : elements(fvGridGeometry.gridView()))
-    {
-        fvGeometry.bindElement(element);
-        elemVolVars.bindElement(element, fvGeometry, sol);
-
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
-
-            if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-            {
-                //TODO: Actually writes temperature
-                couplingInterface.writeTemperatureOnFace( scvf.index(), recontructBoundaryTemperature<ThermalConductivityModel>(problem, element, fvGeometry, elemVolVars, scvf) );
-            }
-        }
-    }
-}
+#include "../common/preciceadapter.hh"
+#include "../common/helperfunctions.hh"
 
 
 int main(int argc, char** argv) try
@@ -202,6 +150,7 @@ int main(int argc, char** argv) try
 
     if ( couplingInterface.hasToWriteInitialData() )
     {
+      using namespace helperfunctions::heat;
       setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
       couplingInterface.writeTemperatureToOtherSolver();
       couplingInterface.announceInitialDataWritten();
@@ -275,6 +224,7 @@ int main(int argc, char** argv) try
         //TODO DO WE HAVE TO MOVE THAT?
         solidEnergyGridVariables->advanceTimeStep();
 
+        using namespace helperfunctions::heat;
         setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
         couplingInterface.writeTemperatureToOtherSolver();
 

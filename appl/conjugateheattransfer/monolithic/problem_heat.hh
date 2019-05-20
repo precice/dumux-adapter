@@ -39,7 +39,7 @@
 #include "spatialparams.hh"
 
 #if !ENABLEMONOLITHIC
-#include "../iterative/preciceadapter.hh"
+#include "../common/preciceadapter.hh"
 #endif
 
 namespace Dumux {
