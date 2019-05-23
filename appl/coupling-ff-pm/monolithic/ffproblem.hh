@@ -36,6 +36,8 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
+#include "../precice/preciceadapter.hh"
+
 namespace Dumux
 {
 template <class TypeTag>
@@ -120,10 +122,16 @@ public:
     : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6)
+      : ParentType(fvGridGeometry, "Stokes"),
+        eps_(1e-6),
+        couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
+        pressureId_(couplingInterface_.getIdFromName( "Pressure" ) ),
+        velocityId_(couplingInterface_.getIdFromName( "Velocity" ) )
 #endif
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.PressureDifference");
+//        pressureId_ =  couplingInterface_.getIdFromName( "Pressure" );
+//        velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
     }
 
    /*!
@@ -188,12 +196,14 @@ public:
         }
 #else
     // // TODO do preCICE stuff in analogy to heat transfer
-    // if(/*preCice*/)
-    // {
-    //     values.setCouplingNeumann(Indices::conti0EqIdx);
-    //     values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-    //     values.setBJS(Indices::momentumXBalanceIdx);
-    // }
+        const auto faceId = scvf.index();
+        if ( couplingInterface_.isCoupledEntity(faceId) )
+        {
+          //TODO What do I want to do here?
+          //     values.setCouplingNeumann(Indices::conti0EqIdx);
+          //     values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+          //     values.setBJS(Indices::momentumXBalanceIdx);
+        }
 #endif
 
         return values;
@@ -236,6 +246,13 @@ public:
             values[Indices::momentumYBalanceIdx] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
         }
 #else
+        const auto faceId = scvf.index();
+        if( couplingInterface_.isCoupledEntity( faceId ) )
+        {
+          const Scalar density = 1000; // TODO how to handle compressible fluids?
+          values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
+          values[Indices::momentumYBalanceIdx] = couplingInterface_.getQuantityOnFace( pressureId_, faceId );
+        }
         // if(/*preCICE*/)
         // {
         //     const Scalar density = 1000; // TODO how to handle compressible fluids?
@@ -358,6 +375,10 @@ private:
 
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#else
+   precice_adapter::PreciceAdapter& couplingInterface_;
+   const size_t pressureId_;
+   const size_t velocityId_;
 #endif
 
     mutable std::vector<Scalar> analyticalVelocityX_;

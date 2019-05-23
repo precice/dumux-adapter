@@ -2,6 +2,29 @@
 
 ## Milestones
 
+### Free flow and poious media flow coupling
+
+We plan to do the following
+
+| Solver | writes | reads |
+| ------ | ------ | ----- |
+| FreeFlow | Pressure | Velocity |
+| Darcy | Velocity | Pressure |
+
+The data is then incorporated into the BJS boundary conditions. Hopefully in a smart way.
+
+#### Questions
+
+In FreeFlow `ffproblem.hh`
+
+- Should alphaBJ and permeability be transfered? I thought they would be constant?
+
+In Darcy
+
+- Do we receive mass flux or velocity?
+- How to reconstruct certain things some stuff?!
+
+
 ### Conjugate heat transfer problem 
 
 See [test case description](dumux_test_case.md#conjugate-heat-transfer) 

@@ -43,6 +43,8 @@
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
+#include "../precice/preciceadapter.hh"
+
 namespace Dumux
 {
 template <class TypeTag>
@@ -124,7 +126,10 @@ public:
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
 DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7)
+    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7),
+      couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
+      pressureId_(couplingInterface_.getIdFromName( "Pressure" ) ),
+      velocityId_(couplingInterface_.getIdFromName( "Velocity" ) )
 #endif
     {}
 
@@ -209,6 +214,11 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
+        const auto faceId = scvf.index();
+        if ( couplingInterface_.isCoupledEntity(faceId) )
+        {
+          values[Indices::conti0EqIdx] = - couplingInterface_.getQuantityOnFace( velocityId_, faceId );
+        }
         // if (/*preCICE*/)
         // {
         //     values[Indices::conti0EqIdx] = /*mass flux from stokes*/;
@@ -279,6 +289,10 @@ private:
 
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
+#else
+   precice_adapter::PreciceAdapter& couplingInterface_;
+   const size_t pressureId_;
+   const size_t velocityId_;
 #endif
 };
 } //end namespace

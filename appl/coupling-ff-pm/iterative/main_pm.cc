@@ -21,35 +21,37 @@
  *
  * \brief A test problem for the coupled Stokes/Darcy problem (1p)
  */
- #include <config.h>
+#include <config.h>
 
- #include <ctime>
- #include <iostream>
+#include <ctime>
+#include <iostream>
 
- #include <dune/common/parallel/mpihelper.hh>
- #include <dune/common/timer.hh>
- #include <dune/grid/io/file/dgfparser/dgfexception.hh>
- #include <dune/grid/io/file/vtk.hh>
- #include <dune/istl/io.hh>
+#include <dune/common/parallel/mpihelper.hh>
+#include <dune/common/timer.hh>
+#include <dune/grid/io/file/dgfparser/dgfexception.hh>
+#include <dune/grid/io/file/vtk.hh>
+#include <dune/istl/io.hh>
 
- #include <dumux/common/properties.hh>
- #include <dumux/common/parameters.hh>
- #include <dumux/common/valgrind.hh>
- #include <dumux/common/dumuxmessage.hh>
- #include <dumux/common/defaultusagemessage.hh>
+#include <dumux/common/properties.hh>
+#include <dumux/common/parameters.hh>
+#include <dumux/common/valgrind.hh>
+#include <dumux/common/dumuxmessage.hh>
+#include <dumux/common/defaultusagemessage.hh>
 
- #include <dumux/linear/amgbackend.hh>
- #include <dumux/nonlinear/newtonsolver.hh>
+#include <dumux/linear/amgbackend.hh>
+#include <dumux/nonlinear/newtonsolver.hh>
 
- #include <dumux/assembly/fvassembler.hh>
- #include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/assembly/diffmethod.hh>
 
- #include <dumux/discretization/method.hh>
+#include <dumux/discretization/method.hh>
 
- #include <dumux/io/vtkoutputmodule.hh>
- #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/io/grid/gridmanager.hh>
 
- #include "../monolithic/pmproblem.hh"
+#include "../monolithic/pmproblem.hh"
+
+#include "../precice/preciceadapter.hh"
 
  /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
@@ -82,6 +84,37 @@
 
     return (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
            + ccPressure;
+ }
+
+ template<class Problem, class GridVariables, class SolutionVector>
+ void setBoundaryHeatFluxes(const Problem& problem,
+                            const GridVariables& gridVars,
+                            const SolutionVector& sol)
+ {
+   const auto& fvGridGeometry = problem.fvGridGeometry();
+   auto fvGeometry = localView(fvGridGeometry);
+   auto elemVolVars = localView(gridVars.curGridVolVars());
+   auto elemFaceVars = localView(gridVars.curGridFaceVars());
+
+   auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+   for (const auto& element : elements(fvGridGeometry.gridView()))
+   {
+     fvGeometry.bindElement(element);
+     elemVolVars.bindElement(element, fvGeometry, sol);
+     elemFaceVars.bindElement(element, fvGeometry, sol);
+
+     for (const auto& scvf : scvfs(fvGeometry))
+     {
+
+       if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+       {
+         //TODO: What to do here?
+//         couplingInterface.pressureAtInterface( problem, element, scvf, elemVolVars, ??? );
+       }
+     }
+   }
+
  }
 
 int main(int argc, char** argv) try
@@ -119,6 +152,62 @@ int main(int argc, char** argv) try
     GetPropType<DarcyTypeTag, Properties::SolutionVector> sol;
     sol.resize(darcyFvGridGeometry->numDofs());
 
+    // Initialize preCICE.Tell preCICE about:
+    // - Name of solver
+    // - What rank of how many ranks this instance is
+    // Configure preCICE. For now the config file is hardcoded.
+    //couplingInterface.createInstance( "darcy", mpiHelper.rank(), mpiHelper.size() );
+    std::string preciceConfigFilename = "precice-config.xml";
+    if (argc == 3)
+      preciceConfigFilename = argv[2];
+
+    auto& couplingInterface =
+        precice_adapter::PreciceAdapter::getInstance();
+    couplingInterface.announceSolver( "Darcy", preciceConfigFilename,
+                                      mpiHelper.rank(), mpiHelper.size() );
+
+    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
+    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
+
+    const int dim = couplingInterface.getDimensions();
+    std::cout << dim << "  " << int(DarcyFVGridGeometry::GridView::dimension) << std::endl;
+    if (dim != int(DarcyFVGridGeometry::GridView::dimension))
+        DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
+
+    // GET mesh corodinates
+    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0")[0];
+    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0").back();
+    std::vector<double> coords; //( dim * vertexSize );
+    std::vector<int> coupledScvfIndices;
+
+    for (const auto& element : elements(darcyGridView))
+    {
+        auto fvGeometry = localView(*darcyFvGridGeometry);
+        fvGeometry.bindElement(element);
+
+        for (const auto& scvf : scvfs(fvGeometry))
+        {
+            static constexpr auto eps = 1e-7;
+            const auto& pos = scvf.center();
+            if (pos[1] < darcyFvGridGeometry->bBoxMin()[1] + eps)
+            {
+                if (pos[0] > xMin - eps && pos[0] < xMax + eps)
+                {
+                  coupledScvfIndices.push_back(scvf.index());
+                    for (const auto p : pos)
+                        coords.push_back(p);
+                }
+            }
+        }
+    }
+
+    const auto numberOfPoints = coords.size() / dim;
+    const double preciceDt = couplingInterface.setMeshAndInitialize( "darcyMesh",
+                                                                     numberOfPoints,
+                                                                     coords,
+                                                                     coupledScvfIndices );
+
+
     darcyProblem->applyInitialSolution(sol);
 
     // the grid variables
@@ -135,6 +224,16 @@ int main(int argc, char** argv) try
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
+
+    if ( couplingInterface.hasToWriteInitialData() )
+    {
+      //TODO
+      //couplingInterface.writeQuantityVector(velocityId);
+      couplingInterface.writeQuantityToOtherSolver( velocityId );
+      couplingInterface.announceInitialDataWritten();
+    }
+    couplingInterface.initializeData();
+
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
     auto assembler = std::make_shared<Assembler>(darcyProblem, darcyFvGridGeometry, darcyGridVariables);
@@ -147,11 +246,51 @@ int main(int argc, char** argv) try
     using NewtonSolver = Dumux::NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
-    // solve the non-linear system
-    nonLinearSolver.solve(sol);
+    auto dt = preciceDt;
+    auto sol_checkpoint = sol;
 
+    while ( couplingInterface.isCouplingOngoing() )
+    {
+        if ( couplingInterface.hasToWriteIterationCheckpoint() )
+        {
+            //DO CHECKPOINTING
+            sol_checkpoint = sol;
+            couplingInterface.announceIterationCheckpointWritten();
+        }
+
+        // TODO
+        couplingInterface.readQuantityFromOtherSolver( pressureId );
+
+        // solve the non-linear system
+        nonLinearSolver.solve(sol);
+        // TODO
+        // FILL DATA vector
+        //      couplingInterface.writeQuantityVector( pressureId );
+        couplingInterface.writeQuantityToOtherSolver( velocityId );
+
+        const double preciceDt = couplingInterface.advance( dt );
+        dt = std::min( preciceDt, dt );
+
+        if ( couplingInterface.hasToReadIterationCheckpoint() )
+        {
+            //Read checkpoint
+            sol = sol_checkpoint;
+            //darcyGridVariables->update(sol);
+            //darcyGridVariables->advanceTimeStep();
+            darcyGridVariables->init(sol);
+            couplingInterface.announceIterationCheckpointRead();
+        }
+        else // coupling successful
+        {
+          // write vtk output
+          darcyVtkWriter.write(1.0);
+        }
+
+    }
     // write vtk output
     darcyVtkWriter.write(1.0);
+
+    couplingInterface.finalize();
 
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
