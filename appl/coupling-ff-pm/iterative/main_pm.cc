@@ -166,9 +166,6 @@ int main(int argc, char** argv) try
     couplingInterface.announceSolver( "Darcy", preciceConfigFilename,
                                       mpiHelper.rank(), mpiHelper.size() );
 
-    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
-    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
-
     const int dim = couplingInterface.getDimensions();
     std::cout << dim << "  " << int(DarcyFVGridGeometry::GridView::dimension) << std::endl;
     if (dim != int(DarcyFVGridGeometry::GridView::dimension))
@@ -202,11 +199,15 @@ int main(int argc, char** argv) try
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    const double preciceDt = couplingInterface.setMeshAndInitialize( "darcyMesh",
+    const double preciceDt = couplingInterface.setMeshAndInitialize( "DarcyMesh",
                                                                      numberOfPoints,
                                                                      coords,
                                                                      coupledScvfIndices );
 
+    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
+    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
+
+    darcyProblem->updatePreciceDataIds();
 
     darcyProblem->applyInitialSolution(sol);
 

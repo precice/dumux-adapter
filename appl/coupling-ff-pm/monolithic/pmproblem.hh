@@ -128,8 +128,9 @@ public:
 DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7),
       couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
-      pressureId_(couplingInterface_.getIdFromName( "Pressure" ) ),
-      velocityId_(couplingInterface_.getIdFromName( "Velocity" ) )
+      pressureId_(0),
+      velocityId_(0),
+      dataIdsWereSet_(false)
 #endif
     {}
 
@@ -214,6 +215,7 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
+        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
@@ -266,6 +268,15 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
 
     // \}
 
+#if !ENABLEMONOLITHIC
+    void updatePreciceDataIds()
+    {
+      pressureId_ = couplingInterface_.getIdFromName( "Pressure" );
+      velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
+      dataIdsWereSet_ = true;
+    }
+#endif
+
 #if ENABLEMONOLITHIC
     //! Get the coupling manager
     const CouplingManager& couplingManager() const
@@ -291,8 +302,10 @@ private:
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
    precice_adapter::PreciceAdapter& couplingInterface_;
-   const size_t pressureId_;
-   const size_t velocityId_;
+   size_t pressureId_;
+   size_t velocityId_;
+   bool dataIdsWereSet_;
+
 #endif
 };
 } //end namespace

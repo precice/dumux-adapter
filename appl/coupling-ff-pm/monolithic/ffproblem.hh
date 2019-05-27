@@ -125,8 +125,9 @@ public:
       : ParentType(fvGridGeometry, "Stokes"),
         eps_(1e-6),
         couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
-        pressureId_(couplingInterface_.getIdFromName( "Pressure" ) ),
-        velocityId_(couplingInterface_.getIdFromName( "Velocity" ) )
+        pressureId_(0),
+        velocityId_(0),
+        dataIdsWereSet_(false)
 #endif
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.PressureDifference");
@@ -196,6 +197,7 @@ public:
         }
 #else
     // // TODO do preCICE stuff in analogy to heat transfer
+        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
@@ -246,6 +248,7 @@ public:
             values[Indices::momentumYBalanceIdx] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
         }
 #else
+        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
         if( couplingInterface_.isCoupledEntity( faceId ) )
         {
@@ -355,6 +358,15 @@ public:
         return analyticalVelocityX_;
     }
 
+#if !ENABLEMONOLITHIC
+    void updatePreciceDataIds()
+    {
+      pressureId_ = couplingInterface_.getIdFromName( "Pressure" );
+      velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
+      dataIdsWereSet_ = true;
+    }
+#endif
+
     // \}
 
 private:
@@ -377,8 +389,9 @@ private:
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
    precice_adapter::PreciceAdapter& couplingInterface_;
-   const size_t pressureId_;
-   const size_t velocityId_;
+   size_t pressureId_;
+   size_t velocityId_;
+   bool dataIdsWereSet_;
 #endif
 
     mutable std::vector<Scalar> analyticalVelocityX_;

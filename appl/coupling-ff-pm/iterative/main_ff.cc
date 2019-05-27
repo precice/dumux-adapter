@@ -105,9 +105,6 @@ int main(int argc, char** argv) try
     couplingInterface.announceSolver( "FreeFlow", preciceConfigFilename,
                                       mpiHelper.rank(), mpiHelper.size() );
 
-    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
-    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
-
     const int dim = couplingInterface.getDimensions();
     std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
     if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
@@ -146,6 +143,10 @@ int main(int argc, char** argv) try
                                                                      coords,
                                                                      coupledScvfIndices );
 
+    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
+    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
+
+    freeFlowProblem->updatePreciceDataIds();
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
