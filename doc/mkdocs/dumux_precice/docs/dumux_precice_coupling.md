@@ -13,6 +13,10 @@ We plan to do the following
 
 The data is then incorporated into the BJS boundary conditions. Hopefully in a smart way.
 
+- Let's try a `shared_ptr` concept instead of the singleton approach!
+    - Does not prevent user to create more than one instance what is somewhat bad!
+    - Does not really work. So forget about that now. Cannot pass it properly to our hacky helper functions.
+
 #### Questions
 
 In FreeFlow `ffproblem.hh`
@@ -22,7 +26,8 @@ In FreeFlow `ffproblem.hh`
 In Darcy
 
 - Do we receive mass flux or velocity?
-- How to reconstruct certain things some stuff?!
+- How to reconstruct certain things?!
+- What happens when `values.setBJS` is called? Is it callable with preCICE running?
 
 
 ### Conjugate heat transfer problem 
