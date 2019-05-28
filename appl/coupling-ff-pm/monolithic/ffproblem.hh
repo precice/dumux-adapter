@@ -24,7 +24,7 @@
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
 #ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 1
+#define ENABLEMONOLITHIC 0
 #endif
 
 #include <dune/grid/yaspgrid.hh>
@@ -122,7 +122,7 @@ public:
     : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
 #else
     StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "Stokes"),
+      : ParentType(fvGridGeometry, "FreeFlow"),
         eps_(1e-6),
         couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
         pressureId_(0),
@@ -202,9 +202,9 @@ public:
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
           //TODO What do I want to do here?
-          //     values.setCouplingNeumann(Indices::conti0EqIdx);
-          //     values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-          //     values.setBJS(Indices::momentumXBalanceIdx);
+          values.setCouplingNeumann(Indices::conti0EqIdx);
+          values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+          values.setBJS(Indices::momentumXBalanceIdx);
         }
 #endif
 
@@ -254,14 +254,8 @@ public:
         {
           const Scalar density = 1000; // TODO how to handle compressible fluids?
           values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
-          values[Indices::momentumYBalanceIdx] = couplingInterface_.getQuantityOnFace( pressureId_, faceId );
+          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
-        // if(/*preCICE*/)
-        // {
-        //     const Scalar density = 1000; // TODO how to handle compressible fluids?
-        //     values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
-        //     values[Indices::momentumYBalanceIdx] = /*pressure from Darcy*/
-        // }
 #endif
 
         return values;

@@ -25,7 +25,7 @@
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
 #ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 1
+#define ENABLEMONOLITHIC 0
 #endif
 
 #include <dune/grid/yaspgrid.hh>
@@ -219,12 +219,9 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
-          values[Indices::conti0EqIdx] = - couplingInterface_.getQuantityOnFace( velocityId_, faceId );
+          const Scalar density = 1000.;
+          values[Indices::conti0EqIdx] = density * couplingInterface_.getQuantityOnFace( velocityId_, faceId );
         }
-        // if (/*preCICE*/)
-        // {
-        //     values[Indices::conti0EqIdx] = /*mass flux from stokes*/;
-        // }
 #endif
         return values;
     }
@@ -263,7 +260,8 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      */
     PrimaryVariables initial(const Element &element) const
     {
-        return PrimaryVariables(0.0);
+        static const Scalar p = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.InitialP");
+        return PrimaryVariables(p);
     }
 
     // \}

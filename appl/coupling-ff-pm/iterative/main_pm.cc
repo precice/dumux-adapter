@@ -32,6 +32,7 @@
 #include <dune/grid/io/file/vtk.hh>
 #include <dune/istl/io.hh>
 
+#include <dumux/common/math.hh>
 #include <dumux/common/properties.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/valgrind.hh>
@@ -56,14 +57,17 @@
  /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
   */
- template<class Problem, class Element, class SubControlVolumeFace, class VolumeVariables, class Scalar>
- Scalar pressureAtInterface(const Problem& problem,
+ template<class Problem, class Element, class FVElementGeometry, class ElementVolumeVariables, class SubControlVolumeFace>
+ auto pressureAtInterface(const Problem& problem,
                             const Element& element,
-                            const SubControlVolumeFace& scvf,
-                            const VolumeVariables& volVars,
-                            const Scalar boundaryFlux)
+                            const FVElementGeometry& fvGeometry,
+                            const ElementVolumeVariables& elemVolVars,
+                            const SubControlVolumeFace& scvf)
  {
-     const Scalar cellCenterPressure = volVars.pressure();
+     using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
+     const auto& volVars = elemVolVars[scvf.insideScvIdx()];
+
+     const Scalar boundaryFlux = problem.neumann(element, fvGeometry, elemVolVars, scvf);
 
      // v = -K/mu * (gradP + rho*g)
      auto velocity = scvf.unitOuterNormal();
@@ -75,34 +79,32 @@
     const auto K = volVars.permeability();
 
     // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
-
-    const auto alpha = vtmv(scvf.unitOuterNormal(), K, problem().spatialParams.gravity(scvf.center()));
+    const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, problem.gravity() );
 
     auto distanceVector = scvf.center() - element.geometry().center();
     distanceVector /= distanceVector.two_norm2();
-    const Scalar ti = vtmv(distanceVector, K, scvf.unitOuterNormal());
+    const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
 
     return (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
            + ccPressure;
  }
 
  template<class Problem, class GridVariables, class SolutionVector>
- void setBoundaryHeatFluxes(const Problem& problem,
+ void setInterfacePressures(const Problem& problem,
                             const GridVariables& gridVars,
                             const SolutionVector& sol)
  {
    const auto& fvGridGeometry = problem.fvGridGeometry();
    auto fvGeometry = localView(fvGridGeometry);
    auto elemVolVars = localView(gridVars.curGridVolVars());
-   auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+   const auto pressureId = couplingInterface.getIdFromName( "Pressure" );
 
    for (const auto& element : elements(fvGridGeometry.gridView()))
    {
      fvGeometry.bindElement(element);
      elemVolVars.bindElement(element, fvGeometry, sol);
-     elemFaceVars.bindElement(element, fvGeometry, sol);
 
      for (const auto& scvf : scvfs(fvGeometry))
      {
@@ -110,7 +112,8 @@
        if ( couplingInterface.isCoupledEntity( scvf.index() ) )
        {
          //TODO: What to do here?
-//         couplingInterface.pressureAtInterface( problem, element, scvf, elemVolVars, ??? );
+         const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
+         couplingInterface.writeQuantityOnFace( pressureId, scvf.index(), p );
        }
      }
    }
@@ -186,7 +189,7 @@ int main(int argc, char** argv) try
         {
             static constexpr auto eps = 1e-7;
             const auto& pos = scvf.center();
-            if (pos[1] < darcyFvGridGeometry->bBoxMin()[1] + eps)
+            if (pos[1] > darcyFvGridGeometry->bBoxMax()[1] - eps)
             {
                 if (pos[0] > xMin - eps && pos[0] < xMax + eps)
                 {
@@ -219,7 +222,7 @@ int main(int argc, char** argv) try
     // intialize the vtk output module
     const auto darcyName = getParam<std::string>("Problem.Name") + "_" + darcyProblem->name();
 
-    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol, darcyName);
+    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol, darcyProblem->name());
     using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
     darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
@@ -230,7 +233,8 @@ int main(int argc, char** argv) try
     {
       //TODO
       //couplingInterface.writeQuantityVector(velocityId);
-      couplingInterface.writeQuantityToOtherSolver( velocityId );
+      setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
+      couplingInterface.writeQuantityToOtherSolver( pressureId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
@@ -260,14 +264,12 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readQuantityFromOtherSolver( pressureId );
+        couplingInterface.readQuantityFromOtherSolver( velocityId );
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
-        // TODO
-        // FILL DATA vector
-        //      couplingInterface.writeQuantityVector( pressureId );
-        couplingInterface.writeQuantityToOtherSolver( velocityId );
+        setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
+        couplingInterface.writeQuantityToOtherSolver( pressureId );
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );

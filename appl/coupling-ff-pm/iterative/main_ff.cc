@@ -52,6 +52,50 @@
 //TODO
 // Helper function to put pressure on interface
 
+template<class ElementFaceVariables, class SubControlVolumeFace>
+auto velocityAtInterface(const ElementFaceVariables& elemFaceVars,
+                         const SubControlVolumeFace& scvf)
+{
+    const double scalarVelocity = elemFaceVars[scvf].velocitySelf();
+    auto velocity = scvf.unitOuterNormal();
+    velocity[scvf.directionIndex()] = scalarVelocity;
+    return velocity;
+ }
+
+template<class Problem, class GridVariables, class SolutionVector>
+void setInterfaceVelocities(const Problem& problem,
+                            const GridVariables& gridVars,
+                            const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFaceVars = localView(gridVars.curGridFaceVars());
+
+  auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+  const auto velocityId = couplingInterface.getIdFromName( "Velocity" );
+
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bindElement(element);
+    elemVolVars.bindElement(element, fvGeometry, sol);
+    elemFaceVars.bindElement(element, fvGeometry, sol);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+      {
+        //TODO: What to do here?
+        const auto v = velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
+        couplingInterface.writeQuantityOnFace( velocityId, scvf.index(), v );
+      }
+    }
+  }
+
+}
+
+
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
@@ -166,7 +210,8 @@ int main(int argc, char** argv) try
     {
       //TODO
 //      couplingInterface.writeQuantityVector( pressureId );
-      couplingInterface.writeQuantityToOtherSolver( pressureId );
+      setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
+      couplingInterface.writeQuantityToOtherSolver( velocityId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
@@ -197,15 +242,14 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readQuantityFromOtherSolver( velocityId );
+        couplingInterface.readQuantityFromOtherSolver( pressureId );
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
-        // FILL DATA vector
-        //      couplingInterface.writeQuantityVector( pressureId );
-        couplingInterface.writeQuantityToOtherSolver( pressureId );
+        setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
+        couplingInterface.writeQuantityToOtherSolver( velocityId );
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );
