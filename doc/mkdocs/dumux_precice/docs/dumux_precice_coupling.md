@@ -4,18 +4,22 @@
 
 ### Free flow and poious media flow coupling
 
+
+
 We plan to do the following
 
 | Solver | writes | reads |
 | ------ | ------ | ----- |
-| FreeFlow | Pressure | Velocity |
-| Darcy | Velocity | Pressure |
+| Darcy | Pressure | Velocity |
+| FreeFlow | Velocity | Pressure |
 
 The data is then incorporated into the BJS boundary conditions. Hopefully in a smart way.
 
 - Let's try a `shared_ptr` concept instead of the singleton approach!
     - Does not prevent user to create more than one instance what is somewhat bad!
     - Does not really work. So forget about that now. Cannot pass it properly to our hacky helper functions.
+
+- We need to set the initial pressure in the Darcy problem back to 0.
 
 #### Questions
 
