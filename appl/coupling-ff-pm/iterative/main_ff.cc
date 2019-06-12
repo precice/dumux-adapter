@@ -88,7 +88,7 @@ void setInterfaceVelocities(const Problem& problem,
       {
         //TODO: What to do here?
         const auto v = velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
-        couplingInterface.writeQuantityOnFace( velocityId, scvf.index(), v );
+        couplingInterface.writeScalarQuantityOnFace( velocityId, scvf.index(), v );
       }
     }
   }
@@ -184,8 +184,8 @@ int main(int argc, char** argv) try
     const auto numberOfPoints = coords.size() / dim;
     const double preciceDt = couplingInterface.setMeshAndInitialize( "FreeFlowMesh",
                                                                      numberOfPoints,
-                                                                     coords,
-                                                                     coupledScvfIndices );
+                                                                     coords);
+    couplingInterface.createIndexMapping( coupledScvfIndices );
 
     const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
     const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
@@ -211,7 +211,7 @@ int main(int argc, char** argv) try
       //TODO
 //      couplingInterface.writeQuantityVector( pressureId );
       setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
-      couplingInterface.writeQuantityToOtherSolver( velocityId );
+      couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
@@ -242,14 +242,14 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readQuantityFromOtherSolver( pressureId );
+        couplingInterface.readScalarQuantityFromOtherSolver( pressureId );
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
         setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
-        couplingInterface.writeQuantityToOtherSolver( velocityId );
+        couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );

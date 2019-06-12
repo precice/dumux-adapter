@@ -113,7 +113,7 @@
        {
          //TODO: What to do here?
          const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
-         couplingInterface.writeQuantityOnFace( pressureId, scvf.index(), p );
+         couplingInterface.writeScalarQuantityOnFace( pressureId, scvf.index(), p );
        }
      }
    }
@@ -204,8 +204,8 @@ int main(int argc, char** argv) try
     const auto numberOfPoints = coords.size() / dim;
     const double preciceDt = couplingInterface.setMeshAndInitialize( "DarcyMesh",
                                                                      numberOfPoints,
-                                                                     coords,
-                                                                     coupledScvfIndices );
+                                                                     coords);
+    couplingInterface.createIndexMapping( coupledScvfIndices );
 
     const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
     const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
@@ -234,7 +234,7 @@ int main(int argc, char** argv) try
       //TODO
       //couplingInterface.writeQuantityVector(velocityId);
       setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
-      couplingInterface.writeQuantityToOtherSolver( pressureId );
+      couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
@@ -264,12 +264,12 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readQuantityFromOtherSolver( velocityId );
+        couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
         setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
-        couplingInterface.writeQuantityToOtherSolver( pressureId );
+        couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );

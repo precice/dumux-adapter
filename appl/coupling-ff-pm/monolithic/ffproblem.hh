@@ -254,7 +254,7 @@ public:
         {
           const Scalar density = 1000; // TODO how to handle compressible fluids?
           values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
-          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
+          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
 #endif
 

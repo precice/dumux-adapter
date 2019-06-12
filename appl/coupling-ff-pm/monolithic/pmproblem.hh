@@ -220,7 +220,7 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
           const Scalar density = 1000.;
-          values[Indices::conti0EqIdx] = density * couplingInterface_.getQuantityOnFace( velocityId_, faceId );
+          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
         }
 #endif
         return values;
