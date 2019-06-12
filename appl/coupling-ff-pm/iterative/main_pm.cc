@@ -52,7 +52,7 @@
 
 #include "../monolithic/pmproblem.hh"
 
-#include "../precice/preciceadapter.hh"
+#include "../../precice-adapter/include/preciceadapter.hh"
 
  /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
@@ -278,9 +278,9 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
-            //darcyGridVariables->update(sol);
-            //darcyGridVariables->advanceTimeStep();
-            darcyGridVariables->init(sol);
+            darcyGridVariables->update(sol);
+            darcyGridVariables->advanceTimeStep();
+            //darcyGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful

@@ -43,7 +43,7 @@
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
-#include "../precice/preciceadapter.hh"
+#include "../../precice-adapter/include/preciceadapter.hh"
 
 namespace Dumux
 {

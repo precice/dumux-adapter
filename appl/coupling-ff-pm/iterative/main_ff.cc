@@ -47,7 +47,7 @@
 
 #include "../monolithic/ffproblem.hh"
 
-#include "../precice/preciceadapter.hh"
+#include "../../precice-adapter/include/preciceadapter.hh"
 
 //TODO
 // Helper function to put pressure on interface
@@ -258,9 +258,9 @@ int main(int argc, char** argv) try
         {
             //Read checkpoint
             sol = sol_checkpoint;
-            //freeFlowGridVariables->update(sol);
-            //freeFlowGridVariables->advanceTimeStep();
-            freeFlowGridVariables->init(sol);
+            freeFlowGridVariables->update(sol);
+            freeFlowGridVariables->advanceTimeStep();
+            //freeFlowGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
         }
         else // coupling successful

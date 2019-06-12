@@ -36,7 +36,7 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
-#include "../precice/preciceadapter.hh"
+#include "../../precice-adapter/include/preciceadapter.hh"
 
 namespace Dumux
 {

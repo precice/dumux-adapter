@@ -1,0 +1,3 @@
+[submodule "appl/precice-adapter"]
+	path = appl/precice-adapter
+	url = git@gitlab-sgs.informatik.uni-stuttgart.de:jaustar/dumux-precice-wrapper.git
