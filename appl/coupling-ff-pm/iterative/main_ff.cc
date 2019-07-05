@@ -154,6 +154,7 @@ int main(int argc, char** argv) try
     if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
+
     // GET mesh corodinates
     const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0")[0];
     const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0").back();
@@ -243,6 +244,12 @@ int main(int argc, char** argv) try
 
         // TODO
         couplingInterface.readScalarQuantityFromOtherSolver( pressureId );
+//        // For testing
+//        {
+//          const auto v = couplingInterface.getQuantityVector( pressureId );
+//          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+//          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
+//        }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);

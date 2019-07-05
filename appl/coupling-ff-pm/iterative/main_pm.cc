@@ -265,6 +265,12 @@ int main(int argc, char** argv) try
 
         // TODO
         couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
+//        // For testing
+//        {
+//          const auto v = couplingInterface.getQuantityVector( velocityId );
+//          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+//          std::cout << "Sum of fluxes over boundary to pm: \n" << sum << std::endl;
+//        }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
