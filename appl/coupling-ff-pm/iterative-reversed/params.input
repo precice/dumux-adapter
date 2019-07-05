@@ -1,0 +1,38 @@
+
+
+[FreeFlow.Grid]
+Verbosity = true
+Positions0 = 0.0 1.0
+Positions1 = 1.0 2.0
+Cells0 = 20
+Cells1 = 100
+Grading1 = 1
+
+[Darcy.Grid]
+Verbosity = true
+Positions0 = 0.0 1.0
+Positions1 = 0.0 1.0
+Cells0 = 20
+Cells1 = 20
+Grading1 = 1
+
+[FreeFlow.Problem]
+Name = stokes
+PressureDifference = 1e-9
+EnableInertiaTerms = false
+
+[Darcy.Problem]
+Name = darcy
+InitialP = 0.0e-9
+
+[Darcy.SpatialParams]
+Permeability = 1e-6 # m^2
+Porosity = 0.4
+AlphaBeaversJoseph = 1.0
+
+[Problem]
+Name = ex_ff-pm-interface
+EnableGravity = false
+
+[Vtk]
+AddVelocity = 1
