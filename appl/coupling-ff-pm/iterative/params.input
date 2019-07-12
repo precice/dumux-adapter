@@ -18,8 +18,8 @@ Grading1 = 1
 
 [FreeFlow.Problem]
 Name = stokes
-PressureDifference = 1e-9
-EnableInertiaTerms = false
+PressureDifference = 1e-5
+EnableInertiaTerms = true
 
 [Darcy.Problem]
 Name = darcy
@@ -30,9 +30,13 @@ Permeability = 1e-6 # m^2
 Porosity = 0.4
 AlphaBeaversJoseph = 1.0
 
+[Newton]
+MaxSteps = 20
+
 [Problem]
 Name = ex_ff-pm-interface
 EnableGravity = false
 
 [Vtk]
 AddVelocity = 1
+WriteFaceData = 1

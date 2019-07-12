@@ -206,7 +206,7 @@ public:
           values.setNeumann(Indices::momentumYBalanceIdx);
           //values.setCouplingNeumann(Indices::conti0EqIdx);
           //values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-          //values.setBJS(Indices::momentumXBalanceIdx);
+          values.setBJS(Indices::momentumXBalanceIdx);
         }
 #endif
 
@@ -258,22 +258,23 @@ public:
           const auto velocity = couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
           const auto& volVars = elemVolVars[scvf.insideScvIdx()];
 
-//          const Scalar ccPressure = volVars.pressure();
-//          const Scalar mobility = volVars.mobility();
+          const Scalar ccPressure = volVars.pressure();
+          const Scalar mobility = volVars.mobility();
           const Scalar density = volVars.density();
-//          const auto K = volVars.permeability();
+          const auto K = volVars.permeability();
 
-//          // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
-//          const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, this->gravity() );
+          // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
+          const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, this->gravity() );
 
-//          auto distanceVector = scvf.center() - element.geometry().center();
-//          distanceVector /= distanceVector.two_norm2();
-//          const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
+          auto distanceVector = scvf.center() - element.geometry().center();
+          distanceVector /= distanceVector.two_norm2();
+          const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
 
-//          const Scalar pressure = (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
-//              + ccPressure;
+          const Scalar pressure = (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
+              + ccPressure;
 
           values[Indices::conti0EqIdx] = velocity * density;
+          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * ( pressure - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
 //          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * ( pressure - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
 #endif

@@ -62,6 +62,62 @@ auto velocityAtInterface(const ElementFaceVariables& elemFaceVars,
     return velocity;
  }
 
+template<class FluxVariables,
+         class Problem,
+         class Element,
+         class SubControlVolumeFace,
+         class FVElementGeometry,
+         class ElementVolumeVariables,
+         class ElementFaceVariables,
+         class ElementFluxVariablesCache>
+auto pressureAtInterface(const Problem& problem,
+                         const Element& element,
+                         const SubControlVolumeFace& scvf,
+                         const FVElementGeometry& fvGeometry,
+                         const ElementVolumeVariables& elemVolVars,
+                         const ElementFaceVariables& elemFaceVars,
+                         const ElementFluxVariablesCache& elemFluxVarsCache)
+{
+  FluxVariables fluxVars;
+  return fluxVars.computeMomentumFlux(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache.gridFluxVarsCache()) /scvf.area();
+}
+
+template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
+void setInterfacePressures(const Problem& problem,
+                            const GridVariables& gridVars,
+                            const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFaceVars = localView(gridVars.curGridFaceVars());
+  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+  auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+  const auto pressureId = couplingInterface.getIdFromName( "Pressure" );
+
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+    elemVolVars.bind(element, fvGeometry, sol);
+    elemFaceVars.bind(element, fvGeometry, sol);
+    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+      {
+        //TODO: What to do here?
+        const auto p = pressureAtInterface<FluxVariables>(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache);
+        couplingInterface.writeScalarQuantityOnFace( pressureId, scvf.index(), p );
+      }
+    }
+  }
+
+}
+
+
 template<class Problem, class GridVariables, class SolutionVector>
 void setInterfaceVelocities(const Problem& problem,
                             const GridVariables& gridVars,
@@ -207,12 +263,23 @@ int main(int argc, char** argv) try
     freeFlowVtkWriter.addField(freeFlowProblem->getAnalyticalVelocityX(), "analyticalV_x");
     freeFlowVtkWriter.write(0.0);
 
+     using FluxVariables = GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
+
     if ( couplingInterface.hasToWriteInitialData() )
     {
       //TODO
 //      couplingInterface.writeQuantityVector( pressureId );
-      setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
-      couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
+
+      setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
+      //For testing
+      {
+        std::cout << "Pressures to be sent to pm" << std::endl;
+        const auto p = couplingInterface.getQuantityVector( pressureId );
+        for (size_t i = 0; i < p.size(); ++i) {
+          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
+        }
+      }
+      couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
@@ -233,6 +300,8 @@ int main(int argc, char** argv) try
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
+    double vtkTime = 1.0;
+
     while ( couplingInterface.isCouplingOngoing() )
     {
         if ( couplingInterface.hasToWriteIterationCheckpoint() )
@@ -243,27 +312,43 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readScalarQuantityFromOtherSolver( pressureId );
-//        // For testing
-//        {
-//          const auto v = couplingInterface.getQuantityVector( pressureId );
-//          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-//          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
-//        }
+        couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
+        // For testing
+        {
+          const auto v = couplingInterface.getQuantityVector( velocityId );
+          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
+        }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
-        setInterfaceVelocities( *freeFlowProblem, *freeFlowGridVariables, sol );
-        couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
+        setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
+        // For testing
+        {
+          const auto p = couplingInterface.getQuantityVector( pressureId );
+          const double sum = std::accumulate( p.begin(), p.end(), 0. );
+          std::cout << "Pressures to be sent to pm" << std::endl;
+          for (size_t i = 0; i < p.size(); ++i) {
+            std::cout << "p[" << i << "]=" << p[i] << std::endl;
+          }
+          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
+        }
+        couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
 
+
+        //Read checkpoint
+        freeFlowVtkWriter.write(vtkTime);
+        vtkTime += 1.;
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
-            //Read checkpoint
+//            //Read checkpoint
+//            freeFlowVtkWriter.write(vtkTime);
+//            vtkTime += 1.;
             sol = sol_checkpoint;
             freeFlowGridVariables->update(sol);
             freeFlowGridVariables->advanceTimeStep();
@@ -273,7 +358,7 @@ int main(int argc, char** argv) try
         else // coupling successful
         {
           // write vtk output
-          freeFlowVtkWriter.write(1.0);
+          freeFlowVtkWriter.write(vtkTime);
         }
 
     }

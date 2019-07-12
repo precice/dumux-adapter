@@ -27,11 +27,12 @@ Grading1 = 1
 
 [Stokes.Problem]
 Name = stokes
-PressureDifference = 1e-9
-EnableInertiaTerms = false
+PressureDifference = 1e2
+EnableInertiaTerms = true
 
 [Darcy.Problem]
 Name = darcy
+InitialP = 0.5e-9
 
 [Darcy.SpatialParams]
 Permeability = 1e-6 # m^2

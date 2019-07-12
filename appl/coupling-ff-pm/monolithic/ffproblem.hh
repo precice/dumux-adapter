@@ -202,8 +202,12 @@ public:
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
           //TODO What do I want to do here?
-          values.setCouplingNeumann(Indices::conti0EqIdx);
-          values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+        //  values.setCouplingNeumann(Indices::conti0EqIdx);
+        //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+          values.setDirichlet(Indices::velocityYIdx);
+
+//          values.setNeumann(Indices::conti0EqIdx);
+//          values.setNeumann(Indices::momentumYBalanceIdx);
           values.setBJS(Indices::momentumXBalanceIdx);
         }
 #endif
@@ -216,10 +220,21 @@ public:
      *
      * \param globalPos The global position
      */
-    PrimaryVariables dirichletAtPos(const GlobalPosition& globalPos) const
+    using ParentType::dirichlet;
+    PrimaryVariables dirichlet(const Element& element, const SubControlVolumeFace& scvf) const
     {
         PrimaryVariables values(0.0);
-        values = initialAtPos(globalPos);
+        values = initialAtPos(scvf.center());
+
+        const auto faceId = scvf.index();
+        if( couplingInterface_.isCoupledEntity( faceId ) )
+        {
+          values[Indices::velocityYIdx] =
+              couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+        }
+
+
+
         return values;
     }
 
@@ -253,7 +268,9 @@ public:
         if( couplingInterface_.isCoupledEntity( faceId ) )
         {
           const Scalar density = 1000; // TODO how to handle compressible fluids?
-          values[Indices::conti0EqIdx] = elemFaceVars[scvf].velocitySelf() * scvf.directionSign() * density;
+          const auto& volVars = elemVolVars[scvf.insideScvIdx()];
+          const Scalar density_ = volVars.density();
+          values[Indices::conti0EqIdx] = density * elemFaceVars[scvf].velocitySelf() * scvf.directionSign();
           values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
 #endif

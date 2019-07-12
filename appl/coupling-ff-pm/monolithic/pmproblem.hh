@@ -170,6 +170,10 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         // set the coupling boundary condition at the interface
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values.setAllCouplingNeumann();
+#else
+        const auto faceId = scvf.index();
+        if ( couplingInterface_.isCoupledEntity(faceId) )
+          values.setAllDirichlet();
 #endif
         return values;
     }
@@ -187,6 +191,10 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
         values = initial(element);
+
+        const auto faceId = scvf.index();
+        if ( couplingInterface_.isCoupledEntity(faceId) )
+          values = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
 
         return values;
     }
@@ -221,6 +229,7 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         {
           const Scalar density = 1000.;
           values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
         }
 #endif
         return values;
