@@ -202,10 +202,12 @@ public:
         if ( couplingInterface_.isCoupledEntity(faceId) )
         {
           //TODO What do I want to do here?
-          values.setNeumann(Indices::conti0EqIdx);
-          values.setNeumann(Indices::momentumYBalanceIdx);
-          //values.setCouplingNeumann(Indices::conti0EqIdx);
-          //values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+        //  values.setCouplingNeumann(Indices::conti0EqIdx);
+        //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+          values.setDirichlet(Indices::velocityYIdx);
+
+//          values.setNeumann(Indices::conti0EqIdx);
+//          values.setNeumann(Indices::momentumYBalanceIdx);
           values.setBJS(Indices::momentumXBalanceIdx);
         }
 #endif
@@ -218,10 +220,21 @@ public:
      *
      * \param globalPos The global position
      */
-    PrimaryVariables dirichletAtPos(const GlobalPosition& globalPos) const
+    using ParentType::dirichlet;
+    PrimaryVariables dirichlet(const Element& element, const SubControlVolumeFace& scvf) const
     {
         PrimaryVariables values(0.0);
-        values = initialAtPos(globalPos);
+        values = initialAtPos(scvf.center());
+
+        const auto faceId = scvf.index();
+        if( couplingInterface_.isCoupledEntity( faceId ) )
+        {
+          values[Indices::velocityYIdx] =
+              couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+        }
+
+
+
         return values;
     }
 
@@ -254,28 +267,11 @@ public:
         const auto faceId = scvf.index();
         if( couplingInterface_.isCoupledEntity( faceId ) )
         {
-          //const Scalar density = 1000; // TODO how to handle compressible fluids?
-          const auto velocity = couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+          const Scalar density = 1000; // TODO how to handle compressible fluids?
           const auto& volVars = elemVolVars[scvf.insideScvIdx()];
-
-          const Scalar ccPressure = volVars.pressure();
-          const Scalar mobility = volVars.mobility();
-          const Scalar density = volVars.density();
-          const auto K = volVars.permeability();
-
-          // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
-          const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, this->gravity() );
-
-          auto distanceVector = scvf.center() - element.geometry().center();
-          distanceVector /= distanceVector.two_norm2();
-          const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
-
-          const Scalar pressure = (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
-              + ccPressure;
-
-          values[Indices::conti0EqIdx] = velocity * density;
-          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * ( pressure - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
-//          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * ( pressure - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
+          const Scalar density_ = volVars.density();
+          values[Indices::conti0EqIdx] = density * elemFaceVars[scvf].velocitySelf() * scvf.directionSign();
+          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
 #endif
 

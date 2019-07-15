@@ -171,16 +171,9 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values.setAllCouplingNeumann();
 #else
-    // // TODO do preCICE stuff in analogy to heat transfer
-        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
-        {
-          //TODO What do I want to do here?
-          values.setCouplingNeumann(Indices::conti0EqIdx);
-          values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-          values.setBJS(Indices::momentumXBalanceIdx);
-        }
+          values.setAllDirichlet();
 #endif
         return values;
     }
@@ -198,6 +191,10 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
         values = initial(element);
+
+        const auto faceId = scvf.index();
+        if ( couplingInterface_.isCoupledEntity(faceId) )
+          values = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
 
         return values;
     }
@@ -226,34 +223,13 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
-        zassert( dataIdsWereSet_ );
+        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
-        if( couplingInterface_.isCoupledEntity( faceId ) )
+        if ( couplingInterface_.isCoupledEntity(faceId) )
         {
-          const Scalar densityOnFace = 1000; // TODO how to handle compressible fluids?
-
-          const Scalar pressure = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
-
-          const auto& volVars = elemVolVars[scvf.insideScvIdx()];
-
-          const Scalar ccPressure = volVars.pressure();
-          const Scalar mobility = volVars.mobility();
-          const Scalar density = volVars.density();
-          const auto K = volVars.permeability();
-
-          // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
-          const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, this->gravity() );
-
-          auto distanceVector = scvf.center() - element.geometry().center();
-          distanceVector /= distanceVector.two_norm2();
-          const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
-
-//          const Scalar pressure = (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti + ccPressure;
-//          mobility * ( (pressure - ccPressure) * ti - + density * alpha ) / scvf.unitOuterNormal()= velocity  ;
-          const Scalar velocity = mobility * ( (pressure - ccPressure) * ti - + density * alpha ) / scvf.unitOuterNormal();
-
-          values[Indices::conti0EqIdx] = velocity * scvf.directionSign() * densityOnFace;
-          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
+          const Scalar density = 1000.;
+          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
         }
 #endif
         return values;

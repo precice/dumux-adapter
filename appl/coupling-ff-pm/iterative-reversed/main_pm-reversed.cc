@@ -69,14 +69,15 @@
 
      const Scalar boundaryFlux = problem.neumann(element, fvGeometry, elemVolVars, scvf);
 
+     const auto K = volVars.permeability();
+     const Scalar ccPressure = volVars.pressure();
+     const Scalar mobility = volVars.mobility();
+     const Scalar density = volVars.density();
+
      // v = -K/mu * (gradP + rho*g)
      auto velocity = scvf.unitOuterNormal();
      velocity *= boundaryFlux; // TODO check sign
-
-    const Scalar ccPressure = volVars.pressure();
-    const Scalar mobility = volVars.mobility();
-    const Scalar density = volVars.density();
-    const auto K = volVars.permeability();
+     velocity /= density;
 
     // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
     const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, problem.gravity() );
@@ -114,6 +115,60 @@
          //TODO: What to do here?
          const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
          couplingInterface.writeScalarQuantityOnFace( pressureId, scvf.index(), p );
+       }
+     }
+   }
+
+ }
+
+ /*!
+  * \brief Returns the pressure at the interface using Darcy's law for reconstruction
+  */
+ template<class FluxVariables, class Problem, class Element, class FVElementGeometry,
+          class ElementVolumeVariables, class SubControlVolumeFace,
+          class ElementFluxVariablesCache>
+ auto velocityAtInterface(const Problem& problem,
+                            const Element& element,
+                            const FVElementGeometry& fvGeometry,
+                            const ElementVolumeVariables& elemVolVars,
+                            const SubControlVolumeFace& scvf,
+                            const ElementFluxVariablesCache& elemFluxVarsCache)
+ {
+   const int phaseIdx = 0;
+   FluxVariables fluxVars;
+   fluxVars.init(problem, element, fvGeometry, elemVolVars, scvf, elemFluxVarsCache);
+   auto upwindTerm = [phaseIdx](const auto& volVars) { return volVars.mobility(phaseIdx); };
+   const auto scalarVelocity = fluxVars.advectiveFlux(phaseIdx, upwindTerm)/scvf.area();
+   return scalarVelocity;
+ }
+
+ template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
+ void setInterfaceVelocities(const Problem& problem,
+                            const GridVariables& gridVars,
+                            const SolutionVector& sol)
+ {
+   const auto& fvGridGeometry = problem.fvGridGeometry();
+   auto fvGeometry = localView(fvGridGeometry);
+   auto elemVolVars = localView(gridVars.curGridVolVars());
+   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+   auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+   const auto velocityId = couplingInterface.getIdFromName( "Velocity" );
+
+   for (const auto& element : elements(fvGridGeometry.gridView()))
+   {
+     fvGeometry.bind(element);
+     elemVolVars.bind(element, fvGeometry, sol);
+     elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+     for (const auto& scvf : scvfs(fvGeometry))
+     {
+
+       if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+       {
+         //TODO: What to do here?
+         const double v = velocityAtInterface<FluxVariables>(problem, element, fvGeometry, elemVolVars, scvf, elemFluxVarsCache);
+         couplingInterface.writeScalarQuantityOnFace( velocityId, scvf.index(), v );
        }
      }
    }
@@ -228,12 +283,20 @@ int main(int argc, char** argv) try
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
-
+    using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
     if ( couplingInterface.hasToWriteInitialData() )
     {
       //TODO
       //couplingInterface.writeQuantityVector(velocityId);
-      setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
+      setInterfaceVelocities<FluxVariables>( *darcyProblem, *darcyGridVariables, sol );
+      // For testing
+      {
+        const auto v = couplingInterface.getQuantityVector( velocityId );
+        std::cout << "velocities to be sent to ff" << std::endl;
+        for (size_t i = 0; i < v.size(); ++i) {
+          std::cout << "v[" << i << "]=" << v[i] << std::endl;
+        }
+      }
       couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
       couplingInterface.announceInitialDataWritten();
     }
@@ -254,6 +317,8 @@ int main(int argc, char** argv) try
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
+    double vtkTime = 1.0;
+
     while ( couplingInterface.isCouplingOngoing() )
     {
         if ( couplingInterface.hasToWriteIterationCheckpoint() )
@@ -264,18 +329,32 @@ int main(int argc, char** argv) try
         }
 
         // TODO
-        couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
+        couplingInterface.readScalarQuantityFromOtherSolver( pressureId );
         // For testing
         {
-          const auto v = couplingInterface.getQuantityVector( velocityId );
-          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-          std::cout << "Sum of fluxes over boundary to pm: \n" << sum << std::endl;
+          const auto p = couplingInterface.getQuantityVector( pressureId );
+          const double sum = std::accumulate( p.begin(), p.end(), 0. );
+          std::cout << "Sum of pressures over boundary to ff: \n" << sum << std::endl;
+          std::cout << "Pressure received from ff" << std::endl;
+          for (size_t i = 0; i < p.size(); ++i) {
+            std::cout << "p[" << i << "]=" << p[i] << std::endl;
+          }
         }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
-        setInterfacePressures( *darcyProblem, *darcyGridVariables, sol );
-        couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
+        setInterfaceVelocities<FluxVariables>( *darcyProblem, *darcyGridVariables, sol );
+        // For testing
+        {
+          const auto v = couplingInterface.getQuantityVector( velocityId );
+          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+          std::cout << "Velocities to be sent to ff" << std::endl;
+          for (size_t i = 0; i < v.size(); ++i) {
+            std::cout << "v[" << i << "]=" << v[i] << std::endl;
+          }
+          std::cout << "Sum of velocities over boundary to ff: \n" << sum << std::endl;
+        }
+        couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );
@@ -283,6 +362,8 @@ int main(int argc, char** argv) try
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {
             //Read checkpoint
+            darcyVtkWriter.write(vtkTime);
+            vtkTime += 1.;
             sol = sol_checkpoint;
             darcyGridVariables->update(sol);
             darcyGridVariables->advanceTimeStep();
@@ -292,7 +373,7 @@ int main(int argc, char** argv) try
         else // coupling successful
         {
           // write vtk output
-          darcyVtkWriter.write(1.0);
+          darcyVtkWriter.write(vtkTime);
         }
 
     }

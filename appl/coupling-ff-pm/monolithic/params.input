@@ -27,8 +27,8 @@ Grading1 = 1
 
 [Stokes.Problem]
 Name = stokes
-PressureDifference = 1e2
-EnableInertiaTerms = true
+PressureDifference = 1e-9
+EnableInertiaTerms = false
 
 [Darcy.Problem]
 Name = darcy
