@@ -168,7 +168,7 @@ void writeVelocitiesOnInterfaceToFile( const std::string& filename,
   ofs << "x,y,";
   if ( couplingInterface.getDimensions() == 3 )
     ofs << "z,";
-  ofs << "velocity" << "\n";
+  ofs << "velocityY" << "\n";
   for (const auto& element : elements(fvGridGeometry.gridView()))
   {
     fvGeometry.bind(element);
@@ -185,7 +185,8 @@ void writeVelocitiesOnInterfaceToFile( const std::string& filename,
         {
           ofs << pos[i] << ",";
         }
-        const double v = velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
+        const double v = problem.dirichlet( element, scvf )[1];
+            //velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
         ofs << v << "\n";
       }
     }

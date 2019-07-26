@@ -194,7 +194,7 @@
    ofs << "x,y,";
    if ( couplingInterface.getDimensions() == 3 )
      ofs << "z,";
-   ofs << "velocity" << "\n";
+   ofs << "velocityY" << "\n";
    for (const auto& element : elements(fvGridGeometry.gridView()))
    {
      fvGeometry.bind(element);
