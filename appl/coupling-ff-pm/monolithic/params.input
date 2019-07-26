@@ -26,12 +26,14 @@ Cells1 = 20
 Grading1 = 1
 
 [Stokes.Problem]
-Name = stokes
-PressureDifference = 1e-9
+Name = stokes-monolithic
 EnableInertiaTerms = false
+#Name = navier-stokes-monolithic
+#EnableInertiaTerms = true
+PressureDifference = 1e-9
 
 [Darcy.Problem]
-Name = darcy
+Name = darcy-monolithic
 InitialP = 0.5e-9
 
 [Darcy.SpatialParams]

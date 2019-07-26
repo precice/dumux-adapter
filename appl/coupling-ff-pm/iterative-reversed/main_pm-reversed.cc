@@ -24,7 +24,9 @@
 #include <config.h>
 
 #include <ctime>
+#include <fstream>
 #include <iostream>
+#include <string>
 
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/timer.hh>
@@ -118,11 +120,10 @@
        }
      }
    }
-
  }
 
  /*!
-  * \brief Returns the pressure at the interface using Darcy's law for reconstruction
+  * \brief Returns the velocity at the interface using Darcy's law for reconstruction
   */
  template<class FluxVariables, class Problem, class Element, class FVElementGeometry,
           class ElementVolumeVariables, class SubControlVolumeFace,
@@ -173,6 +174,95 @@
      }
    }
 
+ }
+
+
+ template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
+ void writeVelocitiesOnInterfaceToFile( const std::string& filename,
+                                        const Problem& problem,
+                                        const GridVariables& gridVars,
+                                        const SolutionVector& sol)
+ {
+   const auto& fvGridGeometry = problem.fvGridGeometry();
+   auto fvGeometry = localView(fvGridGeometry);
+   auto elemVolVars = localView(gridVars.curGridVolVars());
+   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+   const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+   std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+   ofs << "x,y,";
+   if ( couplingInterface.getDimensions() == 3 )
+     ofs << "z,";
+   ofs << "velocity" << "\n";
+   for (const auto& element : elements(fvGridGeometry.gridView()))
+   {
+     fvGeometry.bind(element);
+     elemVolVars.bind(element, fvGeometry, sol);
+     elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+     for (const auto& scvf : scvfs(fvGeometry))
+     {
+
+       if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+       {
+         const auto& pos = scvf.center();
+         for (int i = 0; i < couplingInterface.getDimensions(); ++i )
+         {
+           ofs << pos[i] << ",";
+         }
+         const double v = velocityAtInterface<FluxVariables>(problem, element, fvGeometry, elemVolVars, scvf, elemFluxVarsCache);
+         ofs << v << "\n";
+       }
+     }
+   }
+
+   ofs.close();
+ }
+
+
+
+ template<class Problem, class GridVariables, class SolutionVector>
+ void writePressuresOnInterfaceToFile( const std::string& filename,
+                                       const Problem& problem,
+                                       const GridVariables& gridVars,
+                                       const SolutionVector& sol)
+ {
+   const auto& fvGridGeometry = problem.fvGridGeometry();
+   auto fvGeometry = localView(fvGridGeometry);
+   auto elemVolVars = localView(gridVars.curGridVolVars());
+   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+   const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+   std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+   ofs << "x,y,";
+   if ( couplingInterface.getDimensions() == 3 )
+     ofs << "z,";
+   ofs << "pressure" << "\n";
+   for (const auto& element : elements(fvGridGeometry.gridView()))
+   {
+     fvGeometry.bind(element);
+     elemVolVars.bind(element, fvGeometry, sol);
+     elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+     for (const auto& scvf : scvfs(fvGeometry))
+     {
+
+       if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+       {
+         const auto& pos = scvf.center();
+         for (int i = 0; i < couplingInterface.getDimensions(); ++i )
+         {
+           ofs << pos[i] << ",";
+         }
+         const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
+         ofs << p << "\n";
+       }
+     }
+   }
+
+   ofs.close();
  }
 
 int main(int argc, char** argv) try
@@ -283,6 +373,8 @@ int main(int argc, char** argv) try
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
+
+
     using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
     if ( couplingInterface.hasToWriteInitialData() )
     {
@@ -294,7 +386,11 @@ int main(int argc, char** argv) try
         const auto v = couplingInterface.getQuantityVector( velocityId );
         std::cout << "velocities to be sent to ff" << std::endl;
         for (size_t i = 0; i < v.size(); ++i) {
-          std::cout << "v[" << i << "]=" << v[i] << std::endl;
+          for (size_t d = 0; d < dim; ++d )
+          {
+            std::cout << coords[i*dim+d] << " ";
+          }
+          std::cout << "| v[" << i << "]=" << v[i] << std::endl;
         }
       }
       couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
@@ -333,12 +429,19 @@ int main(int argc, char** argv) try
         // For testing
         {
           const auto p = couplingInterface.getQuantityVector( pressureId );
+          for (size_t i = 0; i < p.size(); ++i) {
+            for (size_t d = 0; d < dim; ++d )
+            {
+              std::cout << coords[i*dim+d] << " ";
+            }
+            std::cout << "| p[" << i << "]=" << p[i] << std::endl;
+          }
           const double sum = std::accumulate( p.begin(), p.end(), 0. );
           std::cout << "Sum of pressures over boundary to ff: \n" << sum << std::endl;
           std::cout << "Pressure received from ff" << std::endl;
-          for (size_t i = 0; i < p.size(); ++i) {
-            std::cout << "p[" << i << "]=" << p[i] << std::endl;
-          }
+//          for (size_t i = 0; i < p.size(); ++i) {
+//            std::cout << "p[" << i << "]=" << p[i] << std::endl;
+//          }
         }
 
         // solve the non-linear system
@@ -347,11 +450,19 @@ int main(int argc, char** argv) try
         // For testing
         {
           const auto v = couplingInterface.getQuantityVector( velocityId );
+          for (size_t i = 0; i < v.size(); ++i) {
+            for (size_t d = 0; d < dim; ++d )
+            {
+              std::cout << coords[i*dim+d] << " ";
+            }
+            std::cout << "| v[" << i << "]=" << v[i] << std::endl;
+          }
+
           const double sum = std::accumulate( v.begin(), v.end(), 0. );
           std::cout << "Velocities to be sent to ff" << std::endl;
-          for (size_t i = 0; i < v.size(); ++i) {
-            std::cout << "v[" << i << "]=" << v[i] << std::endl;
-          }
+//          for (size_t i = 0; i < v.size(); ++i) {
+//            std::cout << "v[" << i << "]=" << v[i] << std::endl;
+//          }
           std::cout << "Sum of velocities over boundary to ff: \n" << sum << std::endl;
         }
         couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
@@ -379,6 +490,21 @@ int main(int argc, char** argv) try
     }
     // write vtk output
     darcyVtkWriter.write(1.0);
+
+    {
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
+      writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
+                                                       *darcyProblem,
+                                                       *darcyGridVariables,
+                                                       sol );
+    }
+    {
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
+      writePressuresOnInterfaceToFile( filename,
+                                       *darcyProblem,
+                                       *darcyGridVariables,
+                                       sol );
+    }
 
     couplingInterface.finalize();
 

@@ -223,14 +223,14 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
-        assert( dataIdsWereSet_ );
-        const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-        {
-          const Scalar density = 1000.;
-          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
-          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
-        }
+//        assert( dataIdsWereSet_ );
+//        const auto faceId = scvf.index();
+//        if ( couplingInterface_.isCoupledEntity(faceId) )
+//        {
+//          const Scalar density = 1000.;
+//          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+//          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
+//        }
 #endif
         return values;
     }

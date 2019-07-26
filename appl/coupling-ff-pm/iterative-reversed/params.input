@@ -4,7 +4,7 @@
 Verbosity = true
 Positions0 = 0.0 1.0
 Positions1 = 1.0 2.0
-Cells0 = 57
+Cells0 = 20
 Cells1 = 100
 Grading1 = 1
 
@@ -17,12 +17,15 @@ Cells1 = 20
 Grading1 = 1
 
 [FreeFlow.Problem]
-Name = stokes
-PressureDifference = 1e-9
+Name = stokes-iterative
 EnableInertiaTerms = false
+#Name = navier-stokes-iterative
+#EnableInertiaTerms = true
+PressureDifference = 1e-9
+
 
 [Darcy.Problem]
-Name = darcy
+Name = darcy-iterative
 InitialP = 0.0e-9
 
 [Darcy.SpatialParams]

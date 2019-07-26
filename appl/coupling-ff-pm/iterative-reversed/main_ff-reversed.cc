@@ -151,6 +151,95 @@ void setInterfaceVelocities(const Problem& problem,
 
 }
 
+template<class Problem, class GridVariables, class SolutionVector>
+void writeVelocitiesOnInterfaceToFile( const std::string& filename,
+                                       const Problem& problem,
+                                       const GridVariables& gridVars,
+                                       const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFaceVars = localView(gridVars.curGridFaceVars());
+
+  const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  ofs << "x,y,";
+  if ( couplingInterface.getDimensions() == 3 )
+    ofs << "z,";
+  ofs << "velocity" << "\n";
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+    elemVolVars.bind(element, fvGeometry, sol);
+    elemFaceVars.bindElement(element, fvGeometry, sol);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+      {
+        const auto& pos = scvf.center();
+        for (int i = 0; i < couplingInterface.getDimensions(); ++i )
+        {
+          ofs << pos[i] << ",";
+        }
+        const double v = velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
+        ofs << v << "\n";
+      }
+    }
+  }
+
+  ofs.close();
+}
+
+
+
+template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
+void writePressuresOnInterfaceToFile( const std::string& filename,
+                                      const Problem& problem,
+                                      const GridVariables& gridVars,
+                                      const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFaceVars = localView(gridVars.curGridFaceVars());
+  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+  const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+
+  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  ofs << "x,y,";
+  if ( couplingInterface.getDimensions() == 3 )
+    ofs << "z,";
+  ofs << "pressure" << "\n";
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+    elemVolVars.bind(element, fvGeometry, sol);
+    elemFaceVars.bind(element, fvGeometry, sol);
+    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
+      {
+        const auto& pos = scvf.center();
+        for (int i = 0; i < couplingInterface.getDimensions(); ++i )
+        {
+          ofs << pos[i] << ",";
+        }
+        const double p = pressureAtInterface<FluxVariables>(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache);
+        ofs << p << "\n";
+      }
+    }
+  }
+
+  ofs.close();
+}
 
 int main(int argc, char** argv) try
 {
@@ -272,13 +361,13 @@ int main(int argc, char** argv) try
 
       setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
       //For testing
-      {
-        std::cout << "Pressures to be sent to pm" << std::endl;
-        const auto p = couplingInterface.getQuantityVector( pressureId );
-        for (size_t i = 0; i < p.size(); ++i) {
-          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
-        }
-      }
+//      {
+//        std::cout << "Pressures to be sent to pm" << std::endl;
+//        const auto p = couplingInterface.getQuantityVector( pressureId );
+//        for (size_t i = 0; i < p.size(); ++i) {
+//          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
+//        }
+//      }
       couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
       couplingInterface.announceInitialDataWritten();
     }
@@ -313,12 +402,12 @@ int main(int argc, char** argv) try
 
         // TODO
         couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
-        // For testing
-        {
-          const auto v = couplingInterface.getQuantityVector( velocityId );
-          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
-        }
+//        // For testing
+//        {
+//          const auto v = couplingInterface.getQuantityVector( velocityId );
+//          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+//          std::cout << "Sum of velocities over boundary to pm: \n" << sum << std::endl;
+//        }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
@@ -326,15 +415,15 @@ int main(int argc, char** argv) try
         // TODO
         setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
         // For testing
-        {
-          const auto p = couplingInterface.getQuantityVector( pressureId );
-          const double sum = std::accumulate( p.begin(), p.end(), 0. );
-          std::cout << "Pressures to be sent to pm" << std::endl;
-          for (size_t i = 0; i < p.size(); ++i) {
-            std::cout << "p[" << i << "]=" << p[i] << std::endl;
-          }
-          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
-        }
+//        {
+//          const auto p = couplingInterface.getQuantityVector( pressureId );
+//          const double sum = std::accumulate( p.begin(), p.end(), 0. );
+//          std::cout << "Pressures to be sent to pm" << std::endl;
+////          for (size_t i = 0; i < p.size(); ++i) {
+////            std::cout << "p[" << i << "]=" << p[i] << std::endl;
+////          }
+//          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
+//        }
         couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
 
 
@@ -365,6 +454,21 @@ int main(int argc, char** argv) try
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
     ////////////////////////////////////////////////////////////
+
+    {
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-velocity";
+      writeVelocitiesOnInterfaceToFile( filename,
+                                        *freeFlowProblem,
+                                        *freeFlowGridVariables,
+                                        sol );
+    }
+    {
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-pressure";
+      writePressuresOnInterfaceToFile<FluxVariables>( filename,
+                                                      *freeFlowProblem,
+                                                      *freeFlowGridVariables,
+                                                      sol );
+    }
 
     couplingInterface.finalize();
 
