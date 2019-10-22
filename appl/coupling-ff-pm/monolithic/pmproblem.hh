@@ -192,10 +192,12 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         PrimaryVariables values(0.0);
         values = initial(element);
 
+#if ENABLEMONOLITHIC
+#else
         const auto faceId = scvf.index();
         if ( couplingInterface_.isCoupledEntity(faceId) )
           values = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
-
+#endif
         return values;
     }
 

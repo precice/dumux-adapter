@@ -69,6 +69,106 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP>
 } // end namespace Properties
 } // end namespace Dumux
 
+
+/*!
+ * \brief Returns the velocity at the interface using Darcy's law for reconstruction
+ */
+template<class FluxVariables, class Problem, class Element, class FVElementGeometry,
+         class ElementVolumeVariables, class SubControlVolumeFace,
+         class ElementFluxVariablesCache>
+auto velocityAtInterface(const Problem& problem,
+                           const Element& element,
+                           const FVElementGeometry& fvGeometry,
+                           const ElementVolumeVariables& elemVolVars,
+                           const SubControlVolumeFace& scvf,
+                           const ElementFluxVariablesCache& elemFluxVarsCache)
+{
+  const int phaseIdx = 0;
+  FluxVariables fluxVars;
+  fluxVars.init(problem, element, fvGeometry, elemVolVars, scvf, elemFluxVarsCache);
+  auto upwindTerm = [phaseIdx](const auto& volVars) { return volVars.mobility(phaseIdx); };
+  const auto scalarVelocity = fluxVars.advectiveFlux(phaseIdx, upwindTerm)/scvf.area();
+  return scalarVelocity;
+}
+
+template<class FluxVariables, class CouplingManager, class Problem, class GridVariables, class SolutionVector>
+void writeVelocitiesOnInterfaceToFile( const std::string& filename,
+                                       const CouplingManager& couplingManager,
+                                       const Problem& problem,
+                                       const GridVariables& gridVars,
+                                       const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+
+
+  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  ofs << "x,y,";
+  ofs << "velocityY" << "\n";
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+    elemVolVars.bind(element, fvGeometry, sol);
+    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if (couplingManager.isCoupledEntity(CouplingManager::darcyIdx, scvf))
+      {
+        const auto& pos = scvf.center();
+        for (int i = 0; i < 2; ++i )
+        {
+          ofs << pos[i] << ",";
+        }
+        const double v = couplingManager.couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+        ofs << v / 1e3 << "\n";
+      }
+    }
+  }
+
+  ofs.close();
+}
+
+template<class CouplingManager, class Problem, class SolutionVector>
+void writeStokesVelocitiesOnInterfaceToFile( const std::string& filename,
+                                       const CouplingManager& couplingManager,
+                                       const Problem& problem,
+                                       const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  using FVGridGeometry = std::decay_t<decltype (fvGridGeometry)>;
+
+  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  ofs << "x,y,";
+  ofs << "velocityY" << "\n";
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      if (couplingManager.isCoupledEntity(CouplingManager::stokesIdx, scvf))
+      {
+        const auto& pos = scvf.center();
+        for (int i = 0; i < 2; ++i )
+        {
+          ofs << pos[i] << ",";
+        }
+        const double v = sol[scvf.dofIndex()];
+        ofs << v << "\n";
+      }
+    }
+  }
+
+  ofs.close();
+}
+
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
@@ -240,6 +340,26 @@ int main(int argc, char** argv) try
     // write vtk output
     stokesVtkWriter.write(1.0);
     darcyVtkWriter.write(1.0);
+
+    {
+      using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
+      writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
+                                                       *couplingManager,
+                                                       *darcyProblem,
+                                                       *darcyGridVariables,
+                                                       sol[darcyIdx] );
+    }
+
+    //TODO make freeflow
+    {
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + stokesProblem->name() + "-interface-velocity";
+      writeStokesVelocitiesOnInterfaceToFile( filename,
+                                              *couplingManager,
+                                              *stokesProblem,
+                                              sol[stokesFaceIdx] );
+    }
+
 
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye

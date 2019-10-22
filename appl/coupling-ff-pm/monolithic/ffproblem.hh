@@ -226,13 +226,15 @@ public:
         PrimaryVariables values(0.0);
         values = initialAtPos(scvf.center());
 
+#if ENABLEMONOLITHIC
+#else
         const auto faceId = scvf.index();
         if( couplingInterface_.isCoupledEntity( faceId ) )
         {
           values[Indices::velocityYIdx] =
               couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
         }
-
+#endif
 
 
         return values;

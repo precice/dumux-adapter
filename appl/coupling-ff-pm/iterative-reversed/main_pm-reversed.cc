@@ -28,6 +28,8 @@
 #include <iostream>
 #include <string>
 
+bool printstuff = false;
+
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/timer.hh>
 #include <dune/grid/io/file/dgfparser/dgfexception.hh>
@@ -109,6 +111,7 @@
      fvGeometry.bindElement(element);
      elemVolVars.bindElement(element, fvGeometry, sol);
 
+     //sstd::cout << "Pressure by reconstruction" << std::endl;
      for (const auto& scvf : scvfs(fvGeometry))
      {
 
@@ -393,7 +396,7 @@ int main(int argc, char** argv) try
           std::cout << "| v[" << i << "]=" << v[i] << std::endl;
         }
       }
-      couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
+      couplingInterface.writeScalarQuantityToOtherSolver( velocityId );
       couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();

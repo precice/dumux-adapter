@@ -14,7 +14,7 @@ Verbosity = true
 Positions0 = 0.0 1.0
 Positions1 = 1.0 2.0
 Cells0 = 20
-Cells1 = 100
+Cells1 = 20
 Grading1 = 1
 
 [Darcy.Grid]

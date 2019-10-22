@@ -175,32 +175,29 @@ public:
         BoundaryTypes values;
 
         const auto& globalPos = scvf.dofPosition();
+        const auto faceId = scvf.index();
 
         // left/right wall
         if (onRightBoundary_(globalPos) || (onLeftBoundary_(globalPos)))
         {
           values.setDirichlet(Indices::pressureIdx);
         }
-        else
-        {
-            values.setDirichlet(Indices::velocityXIdx);
-            values.setDirichlet(Indices::velocityYIdx);
-        }
+
 
         // coupling interface
 #if ENABLEMONOLITHIC
-        if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
+        else if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
             values.setCouplingNeumann(Indices::conti0EqIdx);
             values.setCouplingNeumann(Indices::momentumYBalanceIdx);
             values.setBJS(Indices::momentumXBalanceIdx);
         }
 #else
-    // // TODO do preCICE stuff in analogy to heat transfer
-        assert( dataIdsWereSet_ );
-        const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
+
+        else if ( couplingInterface_.isCoupledEntity(faceId) )
         {
+        // // TODO do preCICE stuff in analogy to heat transfer
+            assert( dataIdsWereSet_ );
           //TODO What do I want to do here?
         //  values.setCouplingNeumann(Indices::conti0EqIdx);
         //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
@@ -211,6 +208,11 @@ public:
           values.setBJS(Indices::momentumXBalanceIdx);
         }
 #endif
+        else
+        {
+            values.setDirichlet(Indices::velocityXIdx);
+            values.setDirichlet(Indices::velocityYIdx);
+        }
 
         return values;
     }
