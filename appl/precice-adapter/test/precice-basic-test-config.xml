@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+  <log>
+    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="false" /> 
+    <sink type="stream" output="stdout"  enabled="false" /> 
+  </log> 
+
+  <solver-interface dimensions="2">
+
+    <data:scalar name="Foo"/>
+    <data:scalar name="Bar"/>
+
+    <mesh name="SolverAMesh">
+      <use-data name="Foo" />
+      <use-data name="Bar" />
+    </mesh>
+
+    <mesh name="SolverBMesh">
+      <use-data name="Foo" />
+      <use-data name="Bar" />
+    </mesh>
+
+    <participant name="SolverA">
+      <use-mesh name="SolverAMesh" provide="yes"/>
+      <use-mesh name="SolverBMesh" from="SolverB"/>
+
+      <write-data name="Foo" mesh="SolverAMesh"/>
+      <read-data name="Bar" mesh="SolverAMesh"/>
+    </participant>
+
+    <participant name="SolverB">
+      <use-mesh name="SolverBMesh" provide="yes"/>
+      <use-mesh name="SolverAMesh" from="SolverA"/>
+      
+      <read-data name="Foo" mesh="SolverBMesh"/>
+      <write-data name="Bar" mesh="SolverBMesh"/>
+
+      <mapping:nearest-neighbor direction="write" from="SolverBMesh" to="SolverAMesh" constraint="consistent"/> 
+      <mapping:nearest-neighbor direction="read" from="SolverAMesh" to="SolverBMesh" constraint="consistent"/> 
+
+    </participant>
+
+    <m2n:sockets from="SolverA" to="SolverB" distribution-type="gather-scatter" network="lo" exchange-directory="." />
+        
+    <coupling-scheme:serial-explicit>
+      <participants first="SolverA" second="SolverB"/>
+      <max-time value="1"/>
+      <timestep-length value="1" />
+
+      <exchange data="Foo" mesh="SolverAMesh" from="SolverA" to="SolverB" initialize="false" />
+      <exchange data="Bar" mesh="SolverAMesh" from="SolverB" to="SolverA" initialize="false" />
+           
+    </coupling-scheme:serial-explicit>
+  </solver-interface>
+</precice-configuration>
+
