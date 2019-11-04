@@ -48,3 +48,11 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+
+*.cmake
+DartConfiguration.tcl
+CMakeDoxyfile.in
+FC.h
+*.txt.user
+dumux-precice.pc
+

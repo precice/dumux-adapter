@@ -357,6 +357,7 @@ int main(int argc, char** argv) try
 
     const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
     const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
+    const auto velocityVectorId = couplingInterface.announceVectorQuantity<2>( "VelocityVector" );
 
     darcyProblem->updatePreciceDataIds();
 

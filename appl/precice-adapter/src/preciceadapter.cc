@@ -31,17 +31,7 @@ void PreciceAdapter::announceSolver(const std::string &name, const std::string c
 
 size_t PreciceAdapter::announceQuantity(const std::string &name)
 {
-  assert( meshWasCreated_ );
-  auto it = std::find(dataNames_.begin(), dataNames_.end(), name);
-  if ( it != dataNames_.end() )
-  {
-    throw( std::runtime_error(" Error! Duplicate quantity announced! ") );
-  }
-  dataNames_.push_back( name );
-  preciceDataID_.push_back( precice_->getDataID( name, meshID_ ) );
-  dataVectors_.push_back( std::vector<double>( vertexIDs_.size() )  );
-
-  return getNumberOfQuantities()-1;
+  return announceQuantity<1>( name );
 }
 
 int PreciceAdapter::getDimensions() const

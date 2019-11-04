@@ -5,124 +5,195 @@
 #include<ostream>
 #include<precice/SolverInterface.hpp>
 
+#include <dune/common/fvector.hh>
+
 #include "../src/dumuxpreciceindexwrapper.hh"
+
 
 namespace precice_adapter{
 
-class PreciceAdapter
-{
+  template<unsigned DIM>
+  using VectorXd = Dune::DenseVector<Dune::FieldVector<double, DIM>>;
 
-private:
-  bool wasCreated_;
-  std::unique_ptr<precice::SolverInterface> precice_;
+  class PreciceAdapter
+  {
 
-  PreciceAdapter();
+    private:
+      bool wasCreated_;
+      std::unique_ptr<precice::SolverInterface> precice_;
 
-  bool checkIfActionIsRequired( const std::string& condition );
-  void actionIsFulfilled( const std::string& condition );
+      PreciceAdapter();
 
-  void readBlockScalarDataFromPrecice( const int dataID, std::vector<double>& data );
-  void writeBlockScalarDataToPrecice( const int dataID, std::vector<double>& data );
+      bool checkIfActionIsRequired( const std::string& condition );
+      void actionIsFulfilled( const std::string& condition );
 
-  size_t numberOfQuantities() const { return dataNames_.size(); }
+      void readBlockScalarDataFromPrecice( const int dataID, std::vector<double>& data );
+      void writeBlockScalarDataToPrecice( const int dataID, std::vector<double>& data );
 
-  bool meshWasCreated_;
-  bool preciceWasInitialized_;
-  bool hasIndexMapper_;
-  int meshID_;
+      size_t numberOfQuantities() const { return dataNames_.size(); }
 
-  double timeStepSize_;
+      bool meshWasCreated_;
+      bool preciceWasInitialized_;
+      bool hasIndexMapper_;
+      int meshID_;
 
-  std::vector< std::string > dataNames_;
-  std::vector< int > preciceDataID_;
-  std::vector< std::vector< double > > dataVectors_;
+      double timeStepSize_;
 
-  std::vector<int> vertexIDs_; //should be size_t
+      std::vector< std::string > dataNames_;
+      std::vector< int > preciceDataID_;
+      std::vector< std::vector< double > > dataVectors_;
 
-  DumuxPreciceIndexMapper<int> indexMapper_;
+      std::vector<int> vertexIDs_; //should be size_t
 
-  size_t getNumberOfQuantities() const { return dataNames_.size(); }
+      DumuxPreciceIndexMapper<int> indexMapper_;
 
-  static constexpr size_t reserveSize_ = 4;
+      size_t getNumberOfQuantities() const { return dataNames_.size(); }
 
-  ~PreciceAdapter();
-public:
-  PreciceAdapter(const PreciceAdapter&) = delete;
-  void operator=(const PreciceAdapter&) = delete;
+      static constexpr size_t reserveSize_ = 4;
 
-  static PreciceAdapter& getInstance();
+      template<unsigned DIM>
+      size_t announceQuantity( const std::string& name );
 
-  void announceSolver( const std::string& name,
-                       const std::string configurationFileName,
-                       const int rank,
-                       const int size );
+      ~PreciceAdapter();
+    public:
+      PreciceAdapter(const PreciceAdapter&) = delete;
+      void operator=(const PreciceAdapter&) = delete;
 
-  size_t announceQuantity( const std::string& name );
+      static PreciceAdapter& getInstance();
 
-  int getDimensions() const;
+      void announceSolver( const std::string& name,
+                           const std::string configurationFileName,
+                           const int rank,
+                           const int size );
 
-  bool hasToReadIterationCheckpoint();
-  void announceIterationCheckpointRead();
-  bool hasToWriteIterationCheckpoint();
-  void announceIterationCheckpointWritten();
+      [[deprecated("Please use annoucScalarQuantity or annountVectorQuantity<DIM>!")]]
+      size_t announceQuantity( const std::string& name );
 
-  bool hasToWriteInitialData();
-  void announceInitialDataWritten();
+      size_t announceScalarQuantity( const std::string& name ) {
+        return announceQuantity<1>( name );
+      }
 
-  void setMesh( const std::string& meshName,
-                const size_t numPoints,
-                std::vector<double>& coordinates );
+      template<unsigned DIM>
+      size_t announceVectorQuantity( const std::string& name ) {
+        return announceQuantity<DIM>( name );
+      }
 
-  double initialize();
+      int getDimensions() const;
+
+      bool hasToReadIterationCheckpoint();
+      void announceIterationCheckpointRead();
+      bool hasToWriteIterationCheckpoint();
+      void announceIterationCheckpointWritten();
+
+      bool hasToWriteInitialData();
+      void announceInitialDataWritten();
+
+      void setMesh( const std::string& meshName,
+                    const size_t numPoints,
+                    std::vector<double>& coordinates );
+
+      double initialize();
 
 
-  void createIndexMapping( const std::vector<int>& dumuxFaceIDs );
+      void createIndexMapping( const std::vector<int>& dumuxFaceIDs );
 
-  double setMeshAndInitialize( const std::string& meshName,
-                               const size_t numPoints,
-                               std::vector<double>& coordinates) ;
+      double setMeshAndInitialize( const std::string& meshName,
+                                   const size_t numPoints,
+                                   std::vector<double>& coordinates) ;
 
-  void initializeData();
-  void finalize();
+      void initializeData();
+      void finalize();
 
-  double advance( const double computedTimeStepLength );
-  bool isCouplingOngoing();
+      double advance( const double computedTimeStepLength );
+      bool isCouplingOngoing();
 
-  size_t getNumberOfVertices();
+      size_t getNumberOfVertices();
 
 
-  double getScalarQuantityOnFace( const size_t dataID, const int faceID ) const;
+      double getScalarQuantityOnFace( const size_t dataID, const int faceID ) const;
 
-  const std::vector<double>& getVectorScalarQuantityOnFace( const size_t dataID, const int faceID ) const;
+      template<unsigned DIM>
+      const VectorXd<DIM>& getVectorScalarQuantityOnFace( const size_t dataID, const int faceID ) const;
 
-  void writeScalarQuantityOnFace( const size_t dataID,
-                                  const int faceID,
-                                  const double value );
+      void writeScalarQuantityOnFace( const size_t dataID,
+                                      const int faceID,
+                                      const double value );
 
-//  void writeVectorQuantityOnFace( const size_t dataID,
-//                                  const int faceID,
-//                                  const double* value,
-//                                  const size_t size );
+      template<unsigned DIM>
+      void writeVectorQuantityOnFace( const size_t dataID,
+                                      const int faceID,
+                                      const VectorXd<DIM>& value );
 
-  std::vector<double>& getQuantityVector( const size_t dataID );
+      std::vector<double>& getQuantityVector( const size_t dataID );
 
-  const std::vector<double>& getQuantityVector( const size_t dataID ) const;
+      const std::vector<double>& getQuantityVector( const size_t dataID ) const;
 
-  void writeScalarQuantityVector( const size_t dataID,
-                                  std::vector<double>& values );
+      void writeScalarQuantityVector( const size_t dataID,
+                                      std::vector<double>& values );
 
-  void writeScalarQuantityToOtherSolver( const size_t dataID );
-  void readScalarQuantityFromOtherSolver( const size_t dataID );
+      void writeScalarQuantityToOtherSolver( const size_t dataID );
+      void readScalarQuantityFromOtherSolver( const size_t dataID );
 
-  bool isCoupledEntity( const int faceID ) const;
+      bool isCoupledEntity( const int faceID ) const;
 
-  size_t getIdFromName( const std::string& dataName) const;
+      size_t getIdFromName( const std::string& dataName) const;
 
-  std::string getNameFromId( const size_t dataID ) const;
+      std::string getNameFromId( const size_t dataID ) const;
 
-  void print( std::ostream& os );
-};
+      void print( std::ostream& os );
+  };
 
+
+  template<unsigned DIM>
+  size_t PreciceAdapter::announceQuantity( const std::string& name ) {
+    assert( meshWasCreated_ );
+    auto it = std::find(dataNames_.begin(), dataNames_.end(), name);
+    if ( it != dataNames_.end() )
+    {
+      throw( std::runtime_error(" Error! Duplicate quantity announced! ") );
+    }
+    dataNames_.push_back( name );
+    preciceDataID_.push_back( precice_->getDataID( name, meshID_ ) );
+    dataVectors_.push_back( std::vector<double>( vertexIDs_.size() * DIM )  );
+
+    return getNumberOfQuantities()-1;
+  }
+
+  template<unsigned DIM>
+  const VectorXd<DIM>& PreciceAdapter::getVectorScalarQuantityOnFace( const size_t dataID,
+                                                                      const int faceID ) const {
+    //TODO
+    assert( DIM == getDimensions() );
+    const auto idx = indexMapper_.getPreciceId( faceID );
+    assert( dataID < dataVectors_.size() );
+    const std::vector<double>& quantityVector = dataVectors_[ dataID ];
+    assert(idx < quantityVector.size() );
+
+    VectorXd<DIM> vector;
+    assert( idx*DIM+DIM-1 < quantityVector.size() );
+    std::copy( quantityVector[idx*DIM], quantityVector[idx*DIM+DIM-1], vector );
+    return vector;
+  }
+
+  template<unsigned DIM>
+  void PreciceAdapter::writeVectorQuantityOnFace( const size_t dataID,
+                                                  const int faceID,
+                                                  const VectorXd<DIM>& value ) {
+    assert( wasCreated_ );
+    assert( hasIndexMapper_ );
+    if ( !hasIndexMapper_ )
+    {
+      throw std::runtime_error("Writing quantity using faceID, but index mapping was not created!");
+    }
+
+    const auto idx = indexMapper_.getPreciceId( faceID );
+    assert( dataID < dataVectors_.size() );
+    std::vector<double>& quantityVector = dataVectors_[ dataID ];
+    assert( idx < quantityVector.size() );
+
+    assert( idx*DIM + DIM - 1 < quantityVector.size() );
+    std::copy( value.begin(), value.end(), quantityVector[idx*DIM] );
+  }
 
 
 }
