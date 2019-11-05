@@ -15,6 +15,22 @@ namespace precice_adapter{
   template<unsigned DIM>
   using VectorXd = Dune::DenseVector<Dune::FieldVector<double, DIM>>;
 
+  struct DataContainer {
+      const std::string name;
+      const int preciceDataID;
+      std::vector<double> data;
+      const bool isVectorData;
+
+      DataContainer( const std::string& name,
+                     const int dataID,
+                     const size_t dataSize,
+                     const bool isVectorData ) : name(name), preciceDataID( dataID ), isVectorData( isVectorData )
+      {
+        data.resize( dataSize );
+      }
+
+  };
+
   class PreciceAdapter
   {
 
@@ -30,8 +46,6 @@ namespace precice_adapter{
       void readBlockScalarDataFromPrecice( const int dataID, std::vector<double>& data );
       void writeBlockScalarDataToPrecice( const int dataID, std::vector<double>& data );
 
-      size_t numberOfQuantities() const { return dataNames_.size(); }
-
       bool meshWasCreated_;
       bool preciceWasInitialized_;
       bool hasIndexMapper_;
@@ -39,15 +53,22 @@ namespace precice_adapter{
 
       double timeStepSize_;
 
-      std::vector< std::string > dataNames_;
-      std::vector< int > preciceDataID_;
-      std::vector< std::vector< double > > dataVectors_;
+      //      std::vector< int > preciceDataID_;
+//      std::vector< std::vector< double > > dataVectors_;
+
+      std::vector< DataContainer > interfaceData_;
 
       std::vector<int> vertexIDs_; //should be size_t
 
       DumuxPreciceIndexMapper<int> indexMapper_;
 
-      size_t getNumberOfQuantities() const { return dataNames_.size(); }
+      size_t getNumberOfQuantities() const { return interfaceData_.size(); }
+
+      auto getDataIterator( const std::string& name ) const {
+        auto dataName = [name](const DataContainer& item) { return item.name == name; };
+        auto it = std::find_if( interfaceData_.begin(), interfaceData_.end(), dataName );
+        return it;
+      }
 
       static constexpr size_t reserveSize_ = 4;
 
@@ -147,14 +168,19 @@ namespace precice_adapter{
   template<unsigned DIM>
   size_t PreciceAdapter::announceQuantity( const std::string& name ) {
     assert( meshWasCreated_ );
-    auto it = std::find(dataNames_.begin(), dataNames_.end(), name);
-    if ( it != dataNames_.end() )
+    // Check if data is already announced
+    auto it = getDataIterator( name );
+    if ( it != interfaceData_.end() )
     {
       throw( std::runtime_error(" Error! Duplicate quantity announced! ") );
     }
-    dataNames_.push_back( name );
-    preciceDataID_.push_back( precice_->getDataID( name, meshID_ ) );
-    dataVectors_.push_back( std::vector<double>( vertexIDs_.size() * DIM )  );
+
+    interfaceData_.push_back( DataContainer(name,
+                                            precice_->getDataID( name, meshID_ ),
+                                            vertexIDs_.size() * DIM,
+                                            DIM == getDimensions() )
+                              );
+
 
     return getNumberOfQuantities()-1;
   }
@@ -165,8 +191,9 @@ namespace precice_adapter{
     //TODO
     assert( DIM == getDimensions() );
     const auto idx = indexMapper_.getPreciceId( faceID );
-    assert( dataID < dataVectors_.size() );
-    const std::vector<double>& quantityVector = dataVectors_[ dataID ];
+    assert( dataID < interfaceData_.size() );
+    assert( interfaceData_[dataID].isVectorData );
+    const std::vector<double>& quantityVector = interfaceData_[ dataID ].data;
     assert(idx < quantityVector.size() );
 
     VectorXd<DIM> vector;
@@ -187,8 +214,9 @@ namespace precice_adapter{
     }
 
     const auto idx = indexMapper_.getPreciceId( faceID );
-    assert( dataID < dataVectors_.size() );
-    std::vector<double>& quantityVector = dataVectors_[ dataID ];
+    assert( dataID < interfaceData_.size() );
+    assert( interfaceData_[dataID].isVectorData );
+    std::vector<double>& quantityVector = interfaceData_[ dataID ].data;
     assert( idx < quantityVector.size() );
 
     assert( idx*DIM + DIM - 1 < quantityVector.size() );

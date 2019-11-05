@@ -10,9 +10,7 @@ PreciceAdapter::PreciceAdapter():
   wasCreated_(false), precice_(nullptr), meshWasCreated_(false), preciceWasInitialized_(false), hasIndexMapper_(false),
   meshID_(0), timeStepSize_(0.)
 {
-  preciceDataID_.reserve(reserveSize_);
-  dataNames_.reserve(reserveSize_);
-  dataVectors_.reserve(reserveSize_);
+  interfaceData_.reserve(reserveSize_);
 }
 
 PreciceAdapter& PreciceAdapter::getInstance()
@@ -127,8 +125,8 @@ double PreciceAdapter::getScalarQuantityOnFace(const size_t dataID, const int fa
     throw std::runtime_error("Reading quantity using faceID, but index mapping was not created!");
   }
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert( dataID < dataVectors_.size() );
-  const std::vector<double>& quantityVector = dataVectors_[ dataID ];
+  assert( dataID < interfaceData_.size() );
+  const std::vector<double>& quantityVector = interfaceData_[ dataID ].data;
   assert(idx < quantityVector.size() );
   return quantityVector[idx];
 }
@@ -142,8 +140,8 @@ void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID, const int fa
     throw std::runtime_error("Writing quantity using faceID, but index mapping was not created!");
   }
   const auto idx = indexMapper_.getPreciceId( faceID );
-  assert( dataID < dataVectors_.size() );
-  std::vector<double>& quantityVector = dataVectors_[ dataID ];
+  assert( dataID < interfaceData_.size() );
+  std::vector<double>& quantityVector = interfaceData_[ dataID ].data;
   assert( idx < quantityVector.size() );
   quantityVector[idx] = value;
 }
@@ -161,8 +159,8 @@ void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID, const int fa
 //    throw std::runtime_error("Writing quantity using faceID, but index mapping was not created!");
 //  }
 //  const auto idx = indexMapper_.getPreciceId( faceID ) * size;
-//  assert( dataID < dataVectors_.size() );
-//  std::vector<double>& quantityVector = dataVectors_[ dataID ];
+//  assert( dataID < interfaceData_.size() );
+//  std::vector<double>& quantityVector = interfaceData_[ dataID ].data;
 //  assert( idx < quantityVector.size() );
 //  //quantityVector[idx] = value;
 //  std::copy_n( value, size, quantityVector[idx] );
@@ -171,8 +169,8 @@ void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID, const int fa
 std::vector<double>& PreciceAdapter::getQuantityVector(const size_t dataID )
 {
   assert( wasCreated_ );
-  assert( dataID < dataVectors_.size() );
-  return dataVectors_[dataID];
+  assert( dataID < interfaceData_.size() );
+  return interfaceData_[dataID].data;
 }
 
 const std::vector<double> &PreciceAdapter::getQuantityVector(const size_t dataID ) const
@@ -185,27 +183,25 @@ void PreciceAdapter::writeScalarQuantityVector(const size_t dataID,
                                                std::vector<double> &values)
 {
  assert( wasCreated_);
- assert( dataID < dataVectors_.size() );
- assert( dataVectors_[dataID].size() == values.size() );
- dataVectors_[dataID] = values;
+ assert( dataID < interfaceData_.size() );
+ assert( interfaceData_[dataID].data.size() == values.size() );
+ interfaceData_[dataID].data = values;
 }
 
 void PreciceAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
 {
   assert( wasCreated_ );
-  assert( dataID < dataVectors_.size() );
-  assert( dataID < preciceDataID_.size() );
+  assert( dataID < interfaceData_.size() );
   assert( dataID < std::numeric_limits<int>::max() );
-  writeBlockScalarDataToPrecice( preciceDataID_[dataID], dataVectors_[dataID] );
+  writeBlockScalarDataToPrecice( interfaceData_[dataID].preciceDataID, interfaceData_[dataID].data );
 }
 
 void PreciceAdapter::readScalarQuantityFromOtherSolver(const size_t dataID)
 {
   assert( wasCreated_ );
-  assert( dataID < dataVectors_.size() );
-  assert( dataID < preciceDataID_.size() );
+  assert( dataID < interfaceData_.size() );
   assert( dataID < std::numeric_limits<int>::max() );
-  readBlockScalarDataFromPrecice( preciceDataID_[dataID], dataVectors_[dataID] );
+  readBlockScalarDataFromPrecice( interfaceData_[dataID].preciceDataID, interfaceData_[dataID].data );
 }
 
 bool PreciceAdapter::isCoupledEntity(const int faceID) const
@@ -217,12 +213,13 @@ bool PreciceAdapter::isCoupledEntity(const int faceID) const
 size_t PreciceAdapter::getIdFromName(const std::string &dataName) const
 {
   assert( wasCreated_ );
-  const auto it = std::find( dataNames_.begin(), dataNames_.end(), dataName );
-  if ( it == dataNames_.end() )
+  // Check if data is actually there
+  const auto it = getDataIterator( dataName );
+  if ( it == interfaceData_.end() )
   {
     throw( std::runtime_error(" Error! Name of data not found! ") );
   }
-  const auto idx = std::distance( dataNames_.begin(), it );
+  const auto idx = std::distance( interfaceData_.begin(), it );
   assert( idx > -1 );
   return size_t(idx);
 }
@@ -230,8 +227,8 @@ size_t PreciceAdapter::getIdFromName(const std::string &dataName) const
 std::string PreciceAdapter::getNameFromId(const size_t dataID) const
 {
   assert( wasCreated_ );
-  assert( dataID < dataNames_.size() );
-  return dataNames_[dataID];
+  assert( dataID < interfaceData_.size() );
+  return interfaceData_[dataID].name;
 }
 
 void PreciceAdapter::print(std::ostream& os)

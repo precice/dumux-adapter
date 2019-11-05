@@ -501,6 +501,10 @@ catch (Dune::Exception &e)
     std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
     return 3;
 }
+catch (std::runtime_error &e) {
+  std::cerr << "Most likely preCICE reported an error: " << e.what() << " ---> Abort!" << std::endl;
+  return 5;
+}
 catch (...)
 {
     std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
