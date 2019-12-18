@@ -35,32 +35,24 @@
 
     <participant name="Darcy">
       <use-mesh name="DarcyMesh" provide="yes"/>
+     
       <read-data name="Pressure" mesh="DarcyMesh"/>
       <write-data name="Velocity" mesh="DarcyMesh"/>
     </participant>
 
-    <m2n:sockets from="FreeFlow" to="Darcy" distribution-type="gather-scatter" network="lo" exchange-directory="/tmp/coupling" />
+    <m2n:sockets from="FreeFlow" to="Darcy" distribution-type="gather-scatter" network="lo" />
     
     
     <coupling-scheme:serial-implicit>
-      <max-time value="100"/>
+      <max-time value="1"/>
       <timestep-length value="1" />
       <max-iterations value="100"/>
 
 
       <participants first="FreeFlow" second="Darcy"/>
-
-      <!--      
-      <participants first="Darcy" second="FreeFlow"/>
-      -->      
-
-      <exchange data="Pressure" mesh="FreeFlowMesh" from="FreeFlow" to="Darcy" initialize="false" />
-      <exchange data="Velocity" mesh="FreeFlowMesh" from="Darcy" to="FreeFlow" initialize="true" />
+      <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />
+      <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="true" />
       
-      <!--      
-      <relative-convergence-measure limit="1.0e-6" data="Velocity" mesh="FreeFlowMesh"/>
-      -->
-       
       <relative-convergence-measure limit="1.0e-8" data="Pressure" mesh="DarcyMesh"/>
       <relative-convergence-measure limit="1.0e-8" data="Velocity" mesh="DarcyMesh"/>
 
