@@ -52,6 +52,8 @@
 #include "problem_darcy.hh"
 #include "problem_stokes.hh"
 
+#include "../common/outputhelper.hh"
+
 namespace Dumux {
 namespace Properties {
 
@@ -75,6 +77,7 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP>
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
+    using namespace outputhelper::monolithic;
 
     // initialize MPI, finalize is done automatically on exit
     const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
@@ -148,9 +151,9 @@ int main(int argc, char** argv) try
     auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
     darcyGridVariables->init(sol[darcyIdx]);
 
-    couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
-                                                      stokesGridVariables->faceGridVariablesPtr(),
-                                                      darcyGridVariables));
+//    couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
+//                                                      stokesGridVariables->faceGridVariablesPtr(),
+//                                                      darcyGridVariables));
 
     // intialize the vtk output module
     StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesProblem->name());
@@ -189,50 +192,89 @@ int main(int argc, char** argv) try
     stokesVtkWriter.write(1.0);
     darcyVtkWriter.write(1.0);
 
-    for (const auto& element : elements(darcyGridView))
+//    for (const auto& element : elements(darcyGridView))
+//    {
+//        auto fvGeometry = localView(*darcyFvGridGeometry);
+//        fvGeometry.bind(element);
+
+//        for (const auto& scvf : scvfs(fvGeometry))
+//        {
+//            if (couplingManager->isCoupledEntity(CouplingManager::darcyIdx, scvf))
+//            {
+//                std::ostream tmp(std::cout.rdbuf());
+
+//                tmp << std::scientific << "Interface pressure ff at " << scvf.center() << " is " << couplingManager->couplingData().freeFlowInterfacePressure(element, scvf) << std::endl;
+//            }
+//        }
+//    }
+
+//    for (const auto& element : elements(stokesGridView))
+//    {
+//        auto fvGeometry = localView(*stokesFvGridGeometry);
+//        auto elemVolVars = localView(stokesGridVariables->cellCenterGridVariablesPtr()->curGridVolVars());
+//        auto elemFaceVars = localView(stokesGridVariables->faceGridVariablesPtr()->curGridFaceVars());
+//        // auto elemFluxVarsCache = localView(gridVars_(stokesIdx).gridFluxVarsCache());
+
+//        fvGeometry.bind(element);
+//        elemVolVars.bind(element, fvGeometry, sol[stokesCellCenterIdx]);
+//        elemFaceVars.bind(element, fvGeometry, sol[stokesFaceIdx]);
+
+
+//        for (const auto& scvf : scvfs(fvGeometry))
+//        {
+//            if (couplingManager->isCoupledEntity(CouplingManager::stokesIdx, scvf))
+//            {
+//                std::ostream tmp(std::cout.rdbuf());
+//                tmp << std::scientific << "Interface pressure pm at " << scvf.center() << " is " << stokesProblem->neumann(element,
+//                                    fvGeometry,
+//                                    elemVolVars,
+//                                    elemFaceVars,
+//                                    scvf)[scvf.directionIndex()] << ", vself " << elemFaceVars[scvf].velocitySelf() << ", vDarcy " << couplingManager->couplingData().darcyInterfaceVelocity(element,
+//                                                                  fvGeometry,
+//                                                                  elemVolVars,
+//                                                                  elemFaceVars,
+//                                                                  scvf)  << std::endl;
+//            }
+//        }
+//    }
+
     {
-        auto fvGeometry = localView(*darcyFvGridGeometry);
-        fvGeometry.bind(element);
-
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
-            if (couplingManager->isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            {
-                std::ostream tmp(std::cout.rdbuf());
-
-                tmp << std::scientific << "Interface pressure ff at " << scvf.center() << " is " << couplingManager->couplingData().freeFlowInterfacePressure(element, scvf) << std::endl;
-            }
-        }
+      double min = std::numeric_limits<double>::max();
+      double max = std::numeric_limits<double>::min();
+      double sum = 0.;
+      using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
+      std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
+                                                                                *couplingManager,
+                                                                                *darcyProblem,
+                                                                                *darcyGridVariables,
+                                                                                sol[darcyIdx] );
+      const int prec = std::cout.precision();
+      std::cout << "Velocity statistics:" << std::endl
+                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << "  min: " << min << std::endl
+                << "  max: " << max << std::endl
+                << "  sum: " << sum << std::endl;
+      std::cout.precision( prec );
     }
 
-    for (const auto& element : elements(stokesGridView))
+    //TODO make freeflow
     {
-        auto fvGeometry = localView(*stokesFvGridGeometry);
-        auto elemVolVars = localView(stokesGridVariables->cellCenterGridVariablesPtr()->curGridVolVars());
-        auto elemFaceVars = localView(stokesGridVariables->faceGridVariablesPtr()->curGridFaceVars());
-        // auto elemFluxVarsCache = localView(gridVars_(stokesIdx).gridFluxVarsCache());
-
-        fvGeometry.bind(element);
-        elemVolVars.bind(element, fvGeometry, sol[stokesCellCenterIdx]);
-        elemFaceVars.bind(element, fvGeometry, sol[stokesFaceIdx]);
-
-
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
-            if (couplingManager->isCoupledEntity(CouplingManager::stokesIdx, scvf))
-            {
-                std::ostream tmp(std::cout.rdbuf());
-                tmp << std::scientific << "Interface pressure pm at " << scvf.center() << " is " << stokesProblem->neumann(element,
-                                    fvGeometry,
-                                    elemVolVars,
-                                    elemFaceVars,
-                                    scvf)[scvf.directionIndex()] << ", vself " << elemFaceVars[scvf].velocitySelf() << ", vDarcy " << couplingManager->couplingData().darcyInterfaceVelocity(element,
-                                                                  fvGeometry,
-                                                                  elemVolVars,
-                                                                  elemFaceVars,
-                                                                  scvf)  << std::endl;
-            }
-        }
+      double min = std::numeric_limits<double>::max();
+      double max = std::numeric_limits<double>::min();
+      double sum = 0.;
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + stokesProblem->name() + "-interface-velocity";
+      std::tie(min, max, sum) = writeStokesVelocitiesOnInterfaceToFile( filename,
+                                                                       *couplingManager,
+                                                                       *stokesProblem,
+                                                                       sol[stokesFaceIdx] );
+      const int prec = std::cout.precision();
+      std::cout << "Velocity statistics:" << std::endl
+                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << "  min: " << min << std::endl
+                << "  max: " << max << std::endl
+                << "  sum: " << sum << std::endl;
+      std::cout.precision( prec );
     }
 
     ////////////////////////////////////////////////////////////
