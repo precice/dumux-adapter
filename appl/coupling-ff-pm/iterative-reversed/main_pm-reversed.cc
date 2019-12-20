@@ -181,7 +181,7 @@ bool printstuff = false;
 
 
  template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
- void writeVelocitiesOnInterfaceToFile( const std::string& filename,
+ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::string& filename,
                                         const Problem& problem,
                                         const GridVariables& gridVars,
                                         const SolutionVector& sol)
@@ -198,6 +198,10 @@ bool printstuff = false;
    if ( couplingInterface.getDimensions() == 3 )
      ofs << "z,";
    ofs << "velocityY" << "\n";
+
+   double min = std::numeric_limits<double>::max();
+   double max = std::numeric_limits<double>::min();
+   double sum = 0.;
    for (const auto& element : elements(fvGridGeometry.gridView()))
    {
      fvGeometry.bind(element);
@@ -215,12 +219,18 @@ bool printstuff = false;
            ofs << pos[i] << ",";
          }
          const double v = velocityAtInterface<FluxVariables>(problem, element, fvGeometry, elemVolVars, scvf, elemFluxVarsCache);
-         ofs << v << "\n";
+         max = std::max( v, max );
+         min = std::min( v, min );
+         sum += v;
+         const int prec = ofs.precision();
+         ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1) << v << "\n";
+         ofs.precision( prec );
        }
      }
    }
 
    ofs.close();
+   return std::make_tuple(min, max, sum);
  }
 
 
@@ -495,11 +505,21 @@ int main(int argc, char** argv) try
     darcyVtkWriter.write(1.0);
 
     {
+      double min = std::numeric_limits<double>::max();
+      double max = std::numeric_limits<double>::min();
+      double sum = 0.;
       const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
-      writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
+      std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
                                                        *darcyProblem,
                                                        *darcyGridVariables,
                                                        sol );
+      const int prec = std::cout.precision();
+      std::cout << "Velocity statistics:" << std::endl
+                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << "  min: " << min << std::endl
+                << "  max: " << max << std::endl
+                << "  sum: " << sum << std::endl;
+      std::cout.precision( prec );
     }
     {
       const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
