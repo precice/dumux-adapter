@@ -36,8 +36,10 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
+#ifdef ENABLEMONOLITHIC
+#else
 #include "../../precice-adapter/include/preciceadapter.hh"
-
+#endif
 namespace Dumux
 {
 template <class TypeTag>
