@@ -152,7 +152,7 @@ void setInterfaceVelocities(const Problem& problem,
 }
 
 template<class Problem, class GridVariables, class SolutionVector>
-void writeVelocitiesOnInterfaceToFile( const std::string& filename,
+std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::string& filename,
                                        const Problem& problem,
                                        const GridVariables& gridVars,
                                        const SolutionVector& sol)
@@ -169,6 +169,11 @@ void writeVelocitiesOnInterfaceToFile( const std::string& filename,
   if ( couplingInterface.getDimensions() == 3 )
     ofs << "z,";
   ofs << "velocityY" << "\n";
+
+
+  double min = std::numeric_limits<double>::max();
+  double max = std::numeric_limits<double>::min();
+  double sum = 0.;
   for (const auto& element : elements(fvGridGeometry.gridView()))
   {
     fvGeometry.bind(element);
@@ -186,13 +191,20 @@ void writeVelocitiesOnInterfaceToFile( const std::string& filename,
           ofs << pos[i] << ",";
         }
         const double v = problem.dirichlet( element, scvf )[1];
+        max = std::max( v, max );
+        min = std::min( v, min );
+        sum += v;
             //velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
-        ofs << v << "\n";
+        const int prec = ofs.precision();
+        ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1) << v << "\n";
+        ofs.precision( prec );
       }
     }
   }
 
   ofs.close();
+
+  return std::make_tuple(min, max, sum);
 }
 
 
@@ -457,11 +469,21 @@ int main(int argc, char** argv) try
     ////////////////////////////////////////////////////////////
 
     {
+      double min = std::numeric_limits<double>::max();
+      double max = std::numeric_limits<double>::min();
+      double sum = 0.;
       const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-velocity";
-      writeVelocitiesOnInterfaceToFile( filename,
+      std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile( filename,
                                         *freeFlowProblem,
                                         *freeFlowGridVariables,
                                         sol );
+      const int prec = std::cout.precision();
+      std::cout << "Velocity statistics:" << std::endl
+                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << "  min: " << min << std::endl
+                << "  max: " << max << std::endl
+                << "  sum: " << sum << std::endl;
+      std::cout.precision( prec );
     }
     {
       const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-pressure";
