@@ -26,3 +26,12 @@ target_link_libraries(test_pm_reversed PRIVATE ${Boost_LIBRARIES} ${PRECICE_LIB}
 target_include_directories(test_pm_reversed PRIVATE ${Boost_INCLUDE_DIRS})
 # add a symlink for each input file
 add_input_file_links()
+
+macro(add_precice_file_links)
+  FILE(GLOB precice_files *.xml)
+  foreach(VAR ${input_files})
+    get_filename_component(file_name ${VAR} NAME)
+    dune_symlink_to_source_files(FILES ${file_name})
+  endforeach()
+endmacro()
+add_precice_file_links()
