@@ -289,7 +289,7 @@ int main(int argc, char** argv) try
                 << "  sum: " << sum << std::endl;
       std::cout.precision( prec );
       {
-        const std::string filenameFlow="free-flow-statistics.txt";
+        const std::string filenameFlow="free-flow-statistics";
         std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
         const auto prec = ofs.precision();
         ofs << "Velocity statistics (free flow):" << std::endl
