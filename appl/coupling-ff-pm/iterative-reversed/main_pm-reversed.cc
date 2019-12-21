@@ -319,8 +319,10 @@ int main(int argc, char** argv) try
     // Configure preCICE. For now the config file is hardcoded.
     //couplingInterface.createInstance( "darcy", mpiHelper.rank(), mpiHelper.size() );
     std::string preciceConfigFilename = "precice-config.xml";
-    if (argc == 3)
-      preciceConfigFilename = argv[2];
+//    if (argc == 3)
+//      preciceConfigFilename = argv[2];
+    if (argc > 2)
+      preciceConfigFilename = argv[argc-1];
 
     auto& couplingInterface =
         precice_adapter::PreciceAdapter::getInstance();
