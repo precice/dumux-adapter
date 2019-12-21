@@ -151,9 +151,9 @@ int main(int argc, char** argv) try
     auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
     darcyGridVariables->init(sol[darcyIdx]);
 
-//    couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
-//                                                      stokesGridVariables->faceGridVariablesPtr(),
-//                                                      darcyGridVariables));
+    couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
+                                                      stokesGridVariables->faceGridVariablesPtr(),
+                                                      darcyGridVariables));
 
     // intialize the vtk output module
     StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesProblem->name());
@@ -249,13 +249,26 @@ int main(int argc, char** argv) try
                                                                                 *darcyProblem,
                                                                                 *darcyGridVariables,
                                                                                 sol[darcyIdx] );
-      const int prec = std::cout.precision();
-      std::cout << "Velocity statistics:" << std::endl
+      const auto prec = std::cout.precision();
+      std::cout << "Velocity statistics (Darcy):" << std::endl
                 << std::setprecision(std::numeric_limits<double>::digits10 + 1)
                 << "  min: " << min << std::endl
                 << "  max: " << max << std::endl
                 << "  sum: " << sum << std::endl;
       std::cout.precision( prec );
+
+      {
+        const std::string filenameDarcy="darcy-flow-statistics.txt";
+        std::ofstream ofs( filenameDarcy+".txt", std::ofstream::out | std::ofstream::trunc);
+        const auto prec = ofs.precision();
+        ofs << "Velocity statistics (Darcy):" << std::endl
+                  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                  << "  min: " << min << std::endl
+                  << "  max: " << max << std::endl
+                  << "  sum: " << sum << std::endl;
+        ofs.precision( prec );
+        ofs.close();
+      }
     }
 
     //TODO make freeflow
@@ -268,13 +281,25 @@ int main(int argc, char** argv) try
                                                                        *couplingManager,
                                                                        *stokesProblem,
                                                                        sol[stokesFaceIdx] );
-      const int prec = std::cout.precision();
-      std::cout << "Velocity statistics:" << std::endl
+      const auto prec = std::cout.precision();
+      std::cout << "Velocity statistics (free flow):" << std::endl
                 << std::setprecision(std::numeric_limits<double>::digits10 + 1)
                 << "  min: " << min << std::endl
                 << "  max: " << max << std::endl
                 << "  sum: " << sum << std::endl;
       std::cout.precision( prec );
+      {
+        const std::string filenameFlow="free-flow-statistics.txt";
+        std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
+        const auto prec = ofs.precision();
+        ofs << "Velocity statistics (free flow):" << std::endl
+            << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+            << "  min: " << min << std::endl
+            << "  max: " << max << std::endl
+            << "  sum: " << sum << std::endl;
+        ofs.precision( prec );
+        ofs.close();
+      }
     }
 
     ////////////////////////////////////////////////////////////

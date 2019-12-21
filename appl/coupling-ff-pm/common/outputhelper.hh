@@ -52,7 +52,7 @@ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::st
         const int prec = ofs.precision();
         ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1) << v << "\n";
         ofs.precision( prec );
-        ofs << v / 1e3 << "\n";
+//        ofs << v / 1e3 << "\n";
       }
     }
   }
