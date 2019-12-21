@@ -1,0 +1,30 @@
+[Darcy.Grid]
+UpperRight = 1 1
+Cells = MESHSIZE MESHSIZE
+
+[Stokes.Grid]
+LowerLeft = 0 1
+UpperRight = 1 2
+Cells = MESHSIZE MESHSIZE
+
+[Stokes.Problem]
+Name = FLOWPROBLEMNAME
+PressureDifference = PRESSUREDIFF
+
+[Darcy.Problem]
+Name = darcy
+
+[Darcy.SpatialParams]
+Permeability = PERM # m^2
+AlphaBeaversJoseph = ALPHA
+
+[Vtk]
+OutputName = CASENAME
+
+[Problem]
+Name = "fvca-monolithic"
+EnableGravity = false
+EnableInertiaTerms = HASINERTIATERMS
+
+[Vtk]
+AddVelocity = 1
