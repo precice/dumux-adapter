@@ -25,6 +25,10 @@ inputTemplate="fvca-monolithic-base.input"
 
 #configurations="configs-${testcase}.txt"
 
+# Initial clean up
+
+rm -f *.csv *.pvd *.vtu *.log *.txt
+
 #echo "" > ${configurations}
 basedir="${PWD}"
 for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
@@ -44,10 +48,6 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
           # Generate name of test case and create directories
           casename="${flowProblemName}-${mesh}-${alpha}-${permeability}-${dp}"
           echo "${casename}"
-          mkdir -p "${casename}"
-          cd ${casename}
-#          ln -s "../${solver}" "${solver}"
-          cp "../${solver}" .
 
           # Setting up input file          
           inputFile="${casename}.input"
@@ -58,7 +58,7 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
               -e "s/ALPHA/${alpha}/g" \
               -e "s/HASINERTIATERMS/${hasInertiaTerms}/g" \
               -e "s/CASENAME/${casename}/g" \
-              "../${inputTemplate}" > ${inputFile}
+              "${inputTemplate}" > ${inputFile}
               
           # Running simulation
           solverCmd="./${solver} ${inputFile}"
@@ -67,6 +67,18 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
 #           $(${solverCmd} > solver.log)                   
           $(time ./${solver} "${inputFile}" > solver.log)
 #          $(./${solverCmd} ${inputFile} > solver.log)
+
+
+          mkdir -p "${casename}"
+          mv *.csv ${casename}
+          mv *.vtu ${casename}
+          mv *.pvd ${casename}
+          mv *.log ${casename}
+          mv *.txt ${casename}
+          mv "${inputFile}" ${casename} 
+          #cd ${casename}
+#          ln -s "../${solver}" "${solver}"
+          #cp "../${solver}" .
 
           # Go back to root dir
           cd "${basedir}"
