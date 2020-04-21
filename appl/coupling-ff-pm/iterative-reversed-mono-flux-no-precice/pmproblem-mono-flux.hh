@@ -28,6 +28,8 @@
 #define ENABLEMONOLITHIC 0
 #endif
 
+#include<algorithm>
+
 #include <dune/grid/yaspgrid.hh>
 
 //****** uncomment for the last exercise *****//
@@ -43,7 +45,7 @@
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include "monolithicdata.hh"
 
 namespace Dumux
 {
@@ -126,11 +128,7 @@ public:
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
 DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7),
-      couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
-      pressureId_(0),
-      velocityId_(0),
-      dataIdsWereSet_(false)
+    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7)
 #endif
     {}
 
@@ -172,7 +170,14 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
             values.setAllCouplingNeumann();
 #else
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
+
+
+        const bool isCoupledEntity
+            = std::find( MonolithicSolution::pressureFaceIdx.begin(),
+                        MonolithicSolution::pressureFaceIdx.end(), faceId )
+              != MonolithicSolution::pressureFaceIdx.end();
+
+        if( isCoupledEntity )
           values.setAllDirichlet();
 #endif
         return values;
@@ -193,8 +198,17 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         values = initial(element);
 
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-          values = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
+
+        const bool isCoupledEntity
+            = std::find( MonolithicSolution::pressureFaceIdx.begin(),
+                        MonolithicSolution::pressureFaceIdx.end(), faceId )
+              != MonolithicSolution::pressureFaceIdx.end();
+
+        if ( isCoupledEntity )
+        {
+          const int arrayIdx = (faceId-1523) / 4;
+          values = MonolithicSolution::pressure[arrayIdx];
+        }
 
         return values;
     }
@@ -223,14 +237,7 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
 #else
-//        assert( dataIdsWereSet_ );
-//        const auto faceId = scvf.index();
-//        if ( couplingInterface_.isCoupledEntity(faceId) )
-//        {
-//          const Scalar density = 1000.;
-//          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
-//          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
-//        }
+
 #endif
         return values;
     }
@@ -275,15 +282,6 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
 
     // \}
 
-#if !ENABLEMONOLITHIC
-    void updatePreciceDataIds()
-    {
-      pressureId_ = couplingInterface_.getIdFromName( "Pressure" );
-      velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
-      dataIdsWereSet_ = true;
-    }
-#endif
-
 #if ENABLEMONOLITHIC
     //! Get the coupling manager
     const CouplingManager& couplingManager() const
@@ -308,10 +306,6 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_adapter::PreciceAdapter& couplingInterface_;
-   size_t pressureId_;
-   size_t velocityId_;
-   bool dataIdsWereSet_;
 
 #endif
 };
