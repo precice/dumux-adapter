@@ -29,6 +29,31 @@ static const std::array<double, 20> velocity =
         2.142947374771422e-12
 };
 
+
+static const std::array<int, 20> velocityFaceIdx =
+    {
+        2,
+        6,
+        10,
+        14,
+        18,
+        22,
+        26,
+        30,
+        34,
+        38,
+        42,
+        46,
+        50,
+        54,
+        58,
+        62,
+        66,
+        70,
+        74,
+        78
+};
+
 static const std::array<double, 20> pressure = {
     9.749674884723169e-10,
     9.249954142532818e-10,

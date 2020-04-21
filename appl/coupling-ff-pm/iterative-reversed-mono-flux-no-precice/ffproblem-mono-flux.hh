@@ -27,6 +27,8 @@
 #define ENABLEMONOLITHIC 0
 #endif
 
+#include<algorithm>
+
 #include <dune/grid/yaspgrid.hh>
 
 #include <dumux/material/fluidsystems/1pliquid.hh>
@@ -36,7 +38,7 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include "monolithicdata.hh"
 
 namespace Dumux
 {
@@ -123,16 +125,10 @@ public:
 #else
     StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
       : ParentType(fvGridGeometry, "FreeFlow"),
-        eps_(1e-6),
-        couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
-        pressureId_(0),
-        velocityId_(0),
-        dataIdsWereSet_(false)
+        eps_(1e-6)
 #endif
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.PressureDifference");
-//        pressureId_ =  couplingInterface_.getIdFromName( "Pressure" );
-//        velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
     }
 
    /*!
@@ -177,6 +173,12 @@ public:
         const auto& globalPos = scvf.dofPosition();
         const auto faceId = scvf.index();
 
+
+        const bool isCoupledEntity
+            = std::find( MonolithicSolution::velocityFaceIdx.begin(),
+                        MonolithicSolution::velocityFaceIdx.end(), faceId )
+              != MonolithicSolution::velocityFaceIdx.end();
+
         // left/right wall
         if (onRightBoundary_(globalPos) || (onLeftBoundary_(globalPos)))
         {
@@ -194,10 +196,8 @@ public:
         }
 #else
 
-        else if ( couplingInterface_.isCoupledEntity(faceId) )
+        else if ( isCoupledEntity )
         {
-        // // TODO do preCICE stuff in analogy to heat transfer
-            assert( dataIdsWereSet_ );
           //TODO What do I want to do here?
         //  values.setCouplingNeumann(Indices::conti0EqIdx);
         //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
@@ -229,10 +229,16 @@ public:
         values = initialAtPos(scvf.center());
 
         const auto faceId = scvf.index();
-        if( couplingInterface_.isCoupledEntity( faceId ) )
+
+
+        const bool isCoupledEntity
+            = std::find( MonolithicSolution::velocityFaceIdx.begin(),
+                        MonolithicSolution::velocityFaceIdx.end(), faceId )
+              != MonolithicSolution::velocityFaceIdx.end();
+        if( isCoupledEntity )
         {
-          values[Indices::velocityYIdx] =
-              couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+          const int arrayIdx = (faceId-2) / 4;
+          values[Indices::velocityYIdx] = MonolithicSolution::velocity[arrayIdx];
         }
 
 
@@ -258,6 +264,8 @@ public:
     {
         NumEqVector values(0.0);
 
+        throw std::runtime_error("You are not suppoed to call neumann boundary condition!");
+
 #if ENABLEMONOLITHIC
         if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
@@ -265,15 +273,21 @@ public:
             values[Indices::momentumYBalanceIdx] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
         }
 #else
-        assert( dataIdsWereSet_ );
         const auto faceId = scvf.index();
-        if( couplingInterface_.isCoupledEntity( faceId ) )
+
+        const bool isCoupledEntity
+            = std::find( MonolithicSolution::velocityFaceIdx.begin(),
+                        MonolithicSolution::velocityFaceIdx.end(), faceId )
+              != MonolithicSolution::velocityFaceIdx.end();
+
+        if( isCoupledEntity )
         {
+          const int arrayIdx = (faceId-2) / 4;
           const Scalar density = 1000; // TODO how to handle compressible fluids?
           const auto& volVars = elemVolVars[scvf.insideScvIdx()];
           const Scalar density_ = volVars.density();
           values[Indices::conti0EqIdx] = density * elemFaceVars[scvf].velocitySelf() * scvf.directionSign();
-          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * (couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId ) - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
+          values[Indices::momentumYBalanceIdx] = scvf.directionSign() * ( MonolithicSolution::pressure[arrayIdx] - initialAtPos(scvf.center())[Indices::pressureIdx]) ;
         }
 #endif
 
@@ -371,16 +385,6 @@ public:
         return analyticalVelocityX_;
     }
 
-#if !ENABLEMONOLITHIC
-    void updatePreciceDataIds()
-    {
-      pressureId_ = couplingInterface_.getIdFromName( "Pressure" );
-      velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
-      dataIdsWereSet_ = true;
-    }
-#endif
-
-    // \}
 
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
@@ -401,10 +405,7 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_adapter::PreciceAdapter& couplingInterface_;
-   size_t pressureId_;
-   size_t velocityId_;
-   bool dataIdsWereSet_;
+
 #endif
 
     mutable std::vector<Scalar> analyticalVelocityX_;
