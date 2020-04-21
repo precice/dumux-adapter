@@ -405,6 +405,7 @@ int main(int argc, char** argv) try
     auto sol_checkpoint = sol;
 
     double vtkTime = 1.0;
+    size_t iter = 0;
 
     while ( couplingInterface.isCouplingOngoing() )
     {
@@ -447,6 +448,45 @@ int main(int argc, char** argv) try
         vtkTime += 1.;
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );
+
+        //
+        {
+          double min = std::numeric_limits<double>::max();
+          double max = std::numeric_limits<double>::min();
+          double sum = 0.;
+          const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-velocity-" + std::to_string(iter);
+          std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile( filename,
+                                                                     *freeFlowProblem,
+                                                                     *freeFlowGridVariables,
+                                                                     sol );
+          const int prec = std::cout.precision();
+          std::cout << "Velocity statistics:" << std::endl
+                    << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                    << "  min: " << min << std::endl
+                    << "  max: " << max << std::endl
+                    << "  sum: " << sum << std::endl;
+          std::cout.precision( prec );
+          {
+            const std::string filenameFlow="free-flow-statistics-" + std::to_string(iter);
+            std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
+            const auto prec = ofs.precision();
+            ofs << "Velocity statistics (free flow):" << std::endl
+                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                << "  min: " << min << std::endl
+                << "  max: " << max << std::endl
+                << "  sum: " << sum << std::endl;
+            ofs.precision( prec );
+            ofs.close();
+          }
+        }
+        {
+          const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-pressure-" + std::to_string(iter);
+          writePressuresOnInterfaceToFile<FluxVariables>( filename,
+                                                         *freeFlowProblem,
+                                                         *freeFlowGridVariables,
+                                                         sol );
+        }
+        ++iter;
 
         if ( couplingInterface.hasToReadIterationCheckpoint() )
         {

@@ -49,9 +49,9 @@
       <max-iterations value="10"/>
 
 
-      <participants first="FreeFlow" second="Darcy"/>
-      <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />
-      <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="true" />
+      <participants first="Darcy" second="FreeFlow"/>
+      <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="true" />
+      <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="false" />
       
       <relative-convergence-measure limit="1.0e-4" data="Pressure" mesh="DarcyMesh"/>
       <relative-convergence-measure limit="1.0e-4" data="Velocity" mesh="DarcyMesh"/>
