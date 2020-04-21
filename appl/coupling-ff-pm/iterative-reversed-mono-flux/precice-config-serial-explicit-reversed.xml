@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<precice-configuration>
+  <log>
+    <sink type="stream" output="stdout"  filter= "(%Severity% > debug) or (%Severity% >= trace and %Module% contains SolverInterfaceImpl)"  enabled="false" /> 
+    <sink type="stream" output="stdout"  enabled="false" /> 
+  </log> 
+
+  <solver-interface dimensions="2">
+
+    <data:scalar name="Velocity"/>
+    <data:scalar name="Pressure"/>
+
+    <mesh name="FreeFlowMesh">
+      <use-data name="Velocity" />
+      <use-data name="Pressure" />
+    </mesh>
+
+    <mesh name="DarcyMesh">
+      <use-data name="Velocity" />
+      <use-data name="Pressure" />
+    </mesh>
+
+    <participant name="FreeFlow">
+      <use-mesh name="FreeFlowMesh" provide="yes"/>
+      <use-mesh name="DarcyMesh" from="Darcy"/>
+
+      <read-data name="Velocity" mesh="FreeFlowMesh"/>
+      <write-data name="Pressure" mesh="FreeFlowMesh"/>
+
+      <mapping:nearest-neighbor direction="write" from="FreeFlowMesh" to="DarcyMesh" constraint="consistent"/>       
+      <mapping:nearest-neighbor direction="read" from="DarcyMesh" to="FreeFlowMesh" constraint="consistent"/> 
+      
+    </participant>
+
+    <participant name="Darcy">
+      <use-mesh name="DarcyMesh" provide="yes"/>
+     
+      <read-data name="Pressure" mesh="DarcyMesh"/>
+      <write-data name="Velocity" mesh="DarcyMesh"/>
+    </participant>
+
+    <m2n:sockets from="FreeFlow" to="Darcy" distribution-type="gather-scatter" network="lo" />
+    
+    
+    <coupling-scheme:serial-explicit>
+      <max-time value="1"/>
+      <timestep-length value="1" />
+
+      <participants first="FreeFlow" second="Darcy"/>
+      <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />
+      <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="true" />
+
+    </coupling-scheme:serial-explicit>
+  </solver-interface>
+</precice-configuration>
+
