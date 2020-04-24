@@ -40,12 +40,12 @@
       <write-data name="Velocity" mesh="DarcyMesh"/>
     </participant>
 
-    <m2n:sockets from="FreeFlow" to="Darcy" distribution-type="gather-scatter" network="lo" />
+    <m2n:sockets from="FreeFlow" to="Darcy" network="lo" />
     
     
     <coupling-scheme:serial-explicit>
       <max-time value="1"/>
-      <timestep-length value="1" />
+      <time-window-size value="1" />
 
       <participants first="FreeFlow" second="Darcy"/>
       <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />

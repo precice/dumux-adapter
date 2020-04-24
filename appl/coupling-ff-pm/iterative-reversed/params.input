@@ -33,6 +33,9 @@ Permeability = 1e-6 # m^2
 Porosity = 0.4
 AlphaBeaversJoseph = 1.0
 
+[preCICE]
+writeCSV = false
+
 [Problem]
 Name = ex_ff-pm-interface
 EnableGravity = false

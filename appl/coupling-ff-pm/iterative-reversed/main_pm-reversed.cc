@@ -425,6 +425,9 @@ int main(int argc, char** argv) try
     using NewtonSolver = Dumux::NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    // Check whether we have to write the CSV containing data on the interface
+    const bool writeInterfaceDataToCSV = getParamFromGroup<bool>("preCICE", "writeCSV");
+
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
@@ -485,7 +488,7 @@ int main(int argc, char** argv) try
 
         const double preciceDt = couplingInterface.advance( dt );
         dt = std::min( preciceDt, dt );
-
+        if ( writeInterfaceDataToCSV )
         {
           double min = std::numeric_limits<double>::max();
           double max = std::numeric_limits<double>::min();
@@ -515,6 +518,7 @@ int main(int argc, char** argv) try
             ofs.close();
           }
         }
+        if ( writeInterfaceDataToCSV )
         {
           const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure-" + std::to_string(iter);
           writePressuresOnInterfaceToFile( filename,
@@ -544,7 +548,7 @@ int main(int argc, char** argv) try
     }
     // write vtk output
     darcyVtkWriter.write(1.0);
-
+    if ( writeInterfaceDataToCSV )
     {
       double min = std::numeric_limits<double>::max();
       double max = std::numeric_limits<double>::min();
@@ -574,6 +578,7 @@ int main(int argc, char** argv) try
         ofs.close();
       }
     }
+    if ( writeInterfaceDataToCSV )
     {
       const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
       writePressuresOnInterfaceToFile( filename,
