@@ -23,6 +23,7 @@ dune_project()
 dune_enable_all_packages()
 
 add_subdirectory(appl)
+add_subdirectory(postprocessing)
 add_subdirectory(doc)
 add_subdirectory(dumux)
 add_subdirectory(cmake/modules)
