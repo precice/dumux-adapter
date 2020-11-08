@@ -18,8 +18,8 @@ parser.add_argument('-f', '--files', nargs='+', help="Pairs of file names (first
 parser.add_argument('-r', '--relative', type=float, default=1e-2, help='maximum relative error (default=1e-2) when using fuzzy comparison')
 parser.add_argument('-a', '--absolute', type=float, default=1.5e-7, help='maximum absolute error (default=1.5e-7) when using fuzzy comparison')
 parser.add_argument('-z', '--zeroThreshold', type=json.loads, default='{}', help='Thresholds for treating numbers as zero for a parameter as a python dict e.g. {"vel":1e-7,"delP":1.0}')
-parser.add_argument('-dpf', '--dumux-param-file', nargs=1, type=str, default='params.input', help='DuMuX parameter file (required)', required=True)
-parser.add_argument('-pcf', '--precice-config-file', nargs=1, type=str, default='precice-config.xml', help='preCICE configuration file (required)', required=True)
+parser.add_argument('-dpf', '--dumux-param-file', type=str, default='params.input', help='DuMuX parameter file (required)', required=True)
+parser.add_argument('-pcf', '--precice-config-file', type=str, default='precice-config.xml', help='preCICE configuration file (required)', required=True)
 args = vars(parser.parse_args())
 print(args)
 
@@ -41,8 +41,8 @@ except:
     print("no directory \"precice-run/\" to delete")
 
 # Start thread for Biot solver in background
-ff_proc, ff_output = run_solver("test_ff_reversed", args['dumux_param_file'][0], args['precice_config_file'][0] )
-pm_proc, pm_output = run_solver("test_pm_reversed", args['dumux_param_file'][0], args['precice_config_file'][0] )
+ff_proc, ff_output = run_solver("test_ff_reversed", args['dumux_param_file'], args['precice_config_file'] )
+pm_proc, pm_output = run_solver("test_pm_reversed", args['dumux_param_file'], args['precice_config_file'] )
 
 # Wait for solvers to finish
 pm_proc.wait()
