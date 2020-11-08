@@ -65,6 +65,7 @@ dune_symlink_to_source_files(FILES run-iterative-simulation-test.sh)
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_stokes
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
@@ -80,6 +81,7 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first_stokes PRO
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_darcy
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
@@ -96,6 +98,7 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first_darcy PROP
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_stokes
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
@@ -111,6 +114,7 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first_stokes PROP
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_darcy
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
@@ -126,6 +130,7 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first_darcy PROPE
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_stokes
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
@@ -141,6 +146,7 @@ set_tests_properties(test_ff_pm_coupling_parallel_implicit_stokes PROPERTIES
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_darcy
               TARGET test_ff_reversed test_pm_reversed
               LABELS freeflow stokes precice darcy
+              TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
@@ -154,6 +160,15 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_darcy
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
 set_tests_properties(test_ff_pm_coupling_parallel_implicit_darcy PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+
+
+# Setting test dependencies
+# preCICE tests cannot be run in parallel as the preCICE initialization may be messed up.
+set_property(TEST test_ff_pm_coupling_serial_implicit_stokes_first_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first_stokes)
+set_property(TEST test_ff_pm_coupling_serial_implicit_darcy_first_stokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first_darcy)
+set_property(TEST test_ff_pm_coupling_serial_implicit_darcy_first_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first_stokes)
+set_property(TEST test_ff_pm_coupling_parallel_implicit_stokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first_darcy)
+set_property(TEST test_ff_pm_coupling_parallel_implicit_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_parallel_implicit_stokes)
 
 
 #CMD_ARGS       --script fuzzy
