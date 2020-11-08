@@ -21,14 +21,6 @@ precice_config_file=$2
 
 echo "Dumux parameter file: ${dumux_param_file}"
 echo "preCICE configuration file: ${precice_config_file}"
-            
-# Check if Stokes or Navier-Stokes        
-flowProblemName="stokes"
-#          echo ${hasInertiaTerms}
-if [[ "${hasInertiaTerms}" == "true" ]]; then
-    flowProblemName="navier-stokes"
-fi
-
 
 rm -rf "precice-run/"
 ff_cmd="./${ff_solver} ${dumux_param_file} - ${precice_config_file}"
@@ -50,6 +42,7 @@ if [ $? -ne 0 ] || [ "$(grep -c -E "error:" ${ff_solver}.log)" -ne 0 ] || [ "$(g
 else
     echo ""
     echo "The simulation completed!"
+    rm -rf precice-run/
 fi
 
 
