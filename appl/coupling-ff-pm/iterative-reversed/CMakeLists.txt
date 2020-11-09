@@ -40,139 +40,74 @@ add_precice_file_links()
 
 dune_symlink_to_source_files(FILES run-iterative-simulation-test.sh)
 
-#dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
-#              TARGET test_ff_reversed test_pm_reversed
-#              LABELS freeflow stokes precice darcy
-#              CMAKE_GUARD HAVE_UMFPACK
-#              COMMAND run-iterative-simulation-test.sh
-#              CMD_ARGS ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/params.input ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/precice-config.xml)
 
-#dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
-#              TARGET test_ff_reversed test_pm_reversed
-#              LABELS freeflow stokes precice darcy
-#              CMAKE_GUARD HAVE_UMFPACK
-#              COMMAND run-iterative-simulation-test.sh
-#              CMD_ARGS ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/params.input ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/precice-config.xml)
-
-#dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
-#              TARGET test_ff_reversed test_pm_reversed
-#              LABELS freeflow stokes precice darcy
-#              CMAKE_GUARD HAVE_UMFPACK
-#              COMMAND run-iterative-simulation-test.sh
-#              CMD_ARGS ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml)              
-
-
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_stokes
-              TARGET test_ff_reversed test_pm_reversed
+dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
+              TARGET test_ff_reversed 
+              TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
               TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
-              --relative 1e-6
-              --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
-)
-set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first_stokes PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
-
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_darcy
-              TARGET test_ff_reversed test_pm_reversed
-              LABELS freeflow stokes precice darcy
-              TIMEOUT 10
-              CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
               --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
               --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first_darcy PROPERTIES
+set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_stokes
-              TARGET test_ff_reversed test_pm_reversed
+dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
+              TARGET test_ff_reversed 
+              TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
               TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
-              --relative 1e-6
-              --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
-)
-set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first_stokes PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
-
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_darcy
-              TARGET test_ff_reversed test_pm_reversed
-              LABELS freeflow stokes precice darcy
-              TIMEOUT 10
-              CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
               --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
               --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first_darcy PROPERTIES
+set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
-dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_stokes
-              TARGET test_ff_reversed test_pm_reversed
+
+dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
+              TARGET test_ff_reversed 
+              TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
               TIMEOUT 10
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00008.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
-              --relative 1e-6
-              --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
-)
-set_tests_properties(test_ff_pm_coupling_parallel_implicit_stokes PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
-
-dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_darcy
-              TARGET test_ff_reversed test_pm_reversed
-              LABELS freeflow stokes precice darcy
-              TIMEOUT 10
-              CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00008.vtu
               --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
               --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
+set_tests_properties(test_ff_pm_coupling_parallel_implicit PROPERTIES
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+
 
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
-set_tests_properties(test_ff_pm_coupling_parallel_implicit_darcy PROPERTIES
+set_tests_properties(test_ff_pm_coupling_parallel_implicit PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 
 # Setting test dependencies
 # preCICE tests cannot be run in parallel as the preCICE initialization may be messed up.
-set_property(TEST test_ff_pm_coupling_serial_implicit_stokes_first_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first_stokes)
-set_property(TEST test_ff_pm_coupling_serial_implicit_darcy_first_stokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first_darcy)
-set_property(TEST test_ff_pm_coupling_serial_implicit_darcy_first_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first_stokes)
-set_property(TEST test_ff_pm_coupling_parallel_implicit_stokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first_darcy)
-set_property(TEST test_ff_pm_coupling_parallel_implicit_darcy APPEND PROPERTY DEPENDS test_ff_pm_coupling_parallel_implicit_stokes)
+set_property(TEST test_ff_pm_coupling_serial_implicit_darcy_first APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first)
+set_property(TEST test_ff_pm_coupling_parallel_implicit APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first)
 
-
-#CMD_ARGS       --script fuzzy
-#                             --files ${CMAKE_SOURCE_DIR}/test/references/test_ff_stokes_channel-reference.vtu
-#                                     ${CMAKE_CURRENT_BINARY_DIR}/test_ff_stokes_channel_outflow-00002.vtu
-#                             --command "${CMAKE_CURRENT_BINARY_DIR}/test_ff_channel params.input -Problem.OutletCondition Outflow
-                             #-Problem.Name test_ff_stokes_channel_outflow"
