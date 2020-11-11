@@ -74,6 +74,107 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP>
 } // end namespace Properties
 } // end namespace Dumux
 
+
+/*!
+  * \brief Returns the pressure at the interface using Darcy's law for reconstruction
+  */
+//template<class Problem,
+//          class Element,
+//          class FVElementGeometry,
+//          class ElementVolumeVariables,
+//          class SubControlVolumeFace,
+//          class ElementFluxVariablesCache>
+//auto pressureAtInterface(const Problem& problem,
+//                         const Element& element,
+//                         const FVElementGeometry& fvGeometry,
+//                         const ElementVolumeVariables& elemVolVars,
+//                         const SubControlVolumeFace& scvf,
+//                         const ElementFluxVariablesCache& elemFluxVarsCache)
+//{
+//  using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
+//  const auto& volVars = elemVolVars[scvf.insideScvIdx()];
+
+//  const Scalar boundaryFlux = problem.neumann(element,
+//                                              fvGeometry,
+//                                              elemVolVars,
+//                                              elemFluxVarsCache,
+//                                              scvf);
+
+//  const auto K = volVars.permeability();
+//  const Scalar ccPressure = volVars.pressure();
+//  const Scalar mobility = volVars.mobility();
+//  const Scalar density = volVars.density();
+
+//  // v = -K/mu * (gradP + rho*g)
+//  auto velocity = scvf.unitOuterNormal();
+//  velocity *= boundaryFlux; // TODO check sign
+//  velocity /= density;
+
+//  // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
+//  const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, problem.gravity() );
+
+//  auto distanceVector = scvf.center() - element.geometry().center();
+//  distanceVector /= distanceVector.two_norm2();
+//  const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
+
+//  return (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
+//         + ccPressure;
+//}
+
+template<class Problem, class GridVariables, class SolutionVector>
+std::tuple<double,double,double> writePressuresOnInterfaceToFile( const std::string& filename,
+                                                                   const Problem& problem,
+                                                                   const GridVariables& gridVars,
+                                                                   const SolutionVector& sol)
+{
+  const auto& fvGridGeometry = problem.fvGridGeometry();
+  auto fvGeometry = localView(fvGridGeometry);
+  auto elemVolVars = localView(gridVars.curGridVolVars());
+  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  ofs << "x,y,";
+  ofs << "pressure" << "\n";
+
+
+  double pMin = std::numeric_limits<double>::max();
+  double pMax = std::numeric_limits<double>::min();
+  double pSum = 0.;
+  for (const auto& element : elements(fvGridGeometry.gridView()))
+  {
+    fvGeometry.bind(element);
+    elemVolVars.bind(element, fvGeometry, sol);
+    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+    for (const auto& scvf : scvfs(fvGeometry))
+    {
+
+      const auto& pos = scvf.center();
+      if ( std::fabs(pos[1] - 1.) < 1e-14 )
+      {
+        for (int i = 0; i < 2; ++i )
+        {
+          ofs << pos[i] << ",";
+        }
+        //const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf, elemFluxVarsCache);
+        const double p  = problem.dirichlet( element, scvf );
+        pMax = std::max( p, pMax );
+        pMin = std::min( p, pMin );
+        pSum += p;
+        const auto prec = ofs.precision();
+        ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1);
+        ofs << p << "\n";
+        ofs.precision( prec );
+      }
+    }
+  }
+
+  ofs.close();
+
+  return std::make_tuple( pMin, pMax, pSum );
+}
+
+
 int main(int argc, char** argv) try
 {
     using namespace Dumux;
@@ -268,6 +369,25 @@ int main(int argc, char** argv) try
                   << "  sum: " << sum << std::endl;
         ofs.precision( prec );
         ofs.close();
+      }
+
+      {
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::min();
+        double sum = 0.;
+        const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
+        std::tie(min, max, sum) = writePressuresOnInterfaceToFile(filename,
+                                                                  *darcyProblem,
+                                                                  *darcyGridVariables,
+                                                                  sol[darcyIdx] );
+        const auto prec = std::cout.precision();
+        std::cout << "Pressure statistics (Darcy):" << std::endl
+                  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+                  << "  min: " << min << std::endl
+                  << "  max: " << max << std::endl
+                  << "  sum: " << sum << std::endl;
+        std::cout.precision( prec );
+
       }
     }
 
