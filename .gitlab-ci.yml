@@ -9,7 +9,7 @@ build:
     - cd build-cmake/appl/coupling-ff-pm/iterative-reversed/
     - make -j2 test_ff_reversed test_pm_reversed
   artifacts:
-    expire: 3 days
+    expire_in: 3 days
     paths:
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/test_ff_reversed
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/test_pm_reversed
