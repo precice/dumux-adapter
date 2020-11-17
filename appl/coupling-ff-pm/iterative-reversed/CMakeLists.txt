@@ -1,5 +1,10 @@
 # executables for the iterative case
-string(REPLACE ":" ";" LIBRARY_DIRS $ENV{LD_LIBRARY_PATH})
+set(LIBRARY_DIRS "")
+if(DEFINED ENV{LD_LIBRARY_PATH})
+    message(STATUS "LD_LIBRARY_PATH is set. Use it for hinting")
+    string(REPLACE ":" ";" LIBRARY_DIRS $ENV{LD_LIBRARY_PATH} )
+endif()
+message(STATUS "LIBRARY_DIRS: ${LIBRARY_DIRS}")
 find_library(PRECICE_LIB NAMES precice HINTS ${LIBRARY_DIRS})
 find_package(Boost 1.65.1 REQUIRED COMPONENTS log system) #Require same version as preCICE
 
@@ -45,7 +50,7 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
               TARGET test_ff_reversed 
               TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
-              TIMEOUT 10
+              TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
@@ -65,7 +70,7 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
               TARGET test_ff_reversed 
               TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
-              TIMEOUT 10
+              TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
@@ -85,7 +90,7 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
               TARGET test_ff_reversed 
               TARGET test_pm_reversed
               LABELS freeflow stokes precice darcy
-              TIMEOUT 10
+              TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
