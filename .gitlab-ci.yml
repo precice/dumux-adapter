@@ -18,7 +18,6 @@ build:
 
 test:
   stage: test
-  needs: build
   script:
     - cd dumux-precice/build-cmake/
     - ctest
