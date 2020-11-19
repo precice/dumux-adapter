@@ -3,16 +3,16 @@ EnableUnsymmetrizedVelocityGradientForBeaversJoseph = false
 
 [FreeFlow.Grid]
 Verbosity = true
-Positions0 = 0.0 1.0
-Positions1 = 1.0 2.0
+LowerLeft = 0 1
+UpperRight = 1 2
 Cells0 = 40
 Cells1 = 40
 Grading1 = 1
 
 [Darcy.Grid]
 Verbosity = true
-Positions0 = 0.0 1.0
-Positions1 = 0.0 1.0
+LowerLeft = 0 1
+UpperRight = 1 1
 Cells0 = 40
 Cells1 = 40
 Grading1 = 1

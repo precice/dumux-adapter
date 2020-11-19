@@ -2,18 +2,16 @@
 
 [FreeFlow.Grid]
 Verbosity = true
-Positions0 = 0.0 1.0
-Positions1 = 1.0 2.0
-Cells0 = 20
-Cells1 = 20
+LowerLeft = 0 1
+UpperRight = 1 2
+Cells = 40 40
 Grading1 = 1
 
 [Darcy.Grid]
 Verbosity = true
-Positions0 = 0.0 1.0
-Positions1 = 0.0 1.0
-Cells0 = 20
-Cells1 = 20
+LowerLeft = 0 0
+UpperRight = 1 1
+Cells = 40 40
 Grading1 = 1
 
 [FreeFlow.Problem]
