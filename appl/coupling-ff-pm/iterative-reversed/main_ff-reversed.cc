@@ -87,8 +87,8 @@ void setInterfacePressures(const Problem& problem,
                             const GridVariables& gridVars,
                             const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFaceVars = localView(gridVars.curGridFaceVars());
   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
@@ -96,7 +96,7 @@ void setInterfacePressures(const Problem& problem,
   auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
   const auto pressureId = couplingInterface.getIdFromName( "Pressure" );
 
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
     elemVolVars.bind(element, fvGeometry, sol);
@@ -123,15 +123,15 @@ void setInterfaceVelocities(const Problem& problem,
                             const GridVariables& gridVars,
                             const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
   auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
   const auto velocityId = couplingInterface.getIdFromName( "Velocity" );
 
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bindElement(element);
     elemVolVars.bindElement(element, fvGeometry, sol);
@@ -157,8 +157,8 @@ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::st
                                        const GridVariables& gridVars,
                                        const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
@@ -174,7 +174,7 @@ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::st
   double min = std::numeric_limits<double>::max();
   double max = std::numeric_limits<double>::min();
   double sum = 0.;
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
     elemVolVars.bind(element, fvGeometry, sol);
@@ -215,8 +215,8 @@ void writePressuresOnInterfaceToFile( const std::string& filename,
                                       const GridVariables& gridVars,
                                       const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFaceVars = localView(gridVars.curGridFaceVars());
   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
@@ -228,7 +228,7 @@ void writePressuresOnInterfaceToFile( const std::string& filename,
   if ( couplingInterface.getDimensions() == 3 )
     ofs << "z,";
   ofs << "pressure" << "\n";
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
     elemVolVars.bind(element, fvGeometry, sol);
@@ -280,18 +280,18 @@ int main(int argc, char** argv) try
     const auto& freeFlowGridView = freeFlowGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using FreeFlowFVGridGeometry = GetPropType<FreeFlowTypeTag, Properties::FVGridGeometry>;
-    auto freeFlowFvGridGeometry = std::make_shared<FreeFlowFVGridGeometry>(freeFlowGridView);
-    freeFlowFvGridGeometry->update();
+    using FreeFlowGridGeometry = GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
+    auto freeFlowGridGeometry = std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
+    freeFlowGridGeometry->update();
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
-    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(freeFlowFvGridGeometry);
+    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(freeFlowGridGeometry);
 
     // the solution vector
     GetPropType<FreeFlowTypeTag, Properties::SolutionVector> sol;
-    sol[FreeFlowFVGridGeometry::cellCenterIdx()].resize(freeFlowFvGridGeometry->numCellCenterDofs());
-    sol[FreeFlowFVGridGeometry::faceIdx()].resize(freeFlowFvGridGeometry->numFaceDofs());
+    sol[FreeFlowGridGeometry::cellCenterIdx()].resize(freeFlowGridGeometry->numCellCenterDofs());
+    sol[FreeFlowGridGeometry::faceIdx()].resize(freeFlowGridGeometry->numFaceDofs());
 
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
@@ -310,27 +310,27 @@ int main(int argc, char** argv) try
                                       mpiHelper.rank(), mpiHelper.size() );
 
     const int dim = couplingInterface.getDimensions();
-    std::cout << dim << "  " << int(FreeFlowFVGridGeometry::GridView::dimension) << std::endl;
-    if (dim != int(FreeFlowFVGridGeometry::GridView::dimension))
+    std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension) << std::endl;
+    if (dim != int(FreeFlowGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
 
     // GET mesh corodinates
-    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0")[0];
-    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0").back();
+    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.LowerLeft")[0];
+    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords; //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
 
     for (const auto& element : elements(freeFlowGridView))
     {
-        auto fvGeometry = localView(*freeFlowFvGridGeometry);
+        auto fvGeometry = localView(*freeFlowGridGeometry);
         fvGeometry.bindElement(element);
 
         for (const auto& scvf : scvfs(fvGeometry))
         {
             static constexpr auto eps = 1e-7;
             const auto& pos = scvf.center();
-            if (pos[1] < freeFlowFvGridGeometry->bBoxMin()[1] + eps)
+            if (pos[1] < freeFlowGridGeometry->bBoxMin()[1] + eps)
             {
                 if (pos[0] > xMin - eps && pos[0] < xMax + eps)
                 {
@@ -358,7 +358,7 @@ int main(int argc, char** argv) try
 
     // the grid variables
     using FreeFlowGridVariables = GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
-    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(freeFlowProblem, freeFlowFvGridGeometry);
+    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(freeFlowProblem, freeFlowGridGeometry);
     freeFlowGridVariables->init(sol);
 
     // intialize the vtk output module
@@ -390,7 +390,7 @@ int main(int argc, char** argv) try
 
     // the assembler for a stationary problem
     using Assembler = StaggeredFVAssembler<FreeFlowTypeTag, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(freeFlowProblem, freeFlowFvGridGeometry, freeFlowGridVariables);
+    auto assembler = std::make_shared<Assembler>(freeFlowProblem, freeFlowGridGeometry, freeFlowGridVariables);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;

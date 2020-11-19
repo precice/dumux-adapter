@@ -60,31 +60,19 @@ struct FluidSystem<TypeTag, TTag::FreeFlowModel>
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::FreeFlowModel>
-{
-    static constexpr auto dim = 2;
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
-
-//****** comment out for the last exercise *****//
-    using type = TensorGrid;
-
-//****** uncomment for the last exercise *****//
-    // using HostGrid = TensorGrid;
-    // using type = Dune::SubGrid<dim, HostGrid>;
-};
+struct Grid<TypeTag, TTag::FreeFlowModel> { using type = Dune::YaspGrid<2, Dune::EquidistantOffsetCoordinates<GetPropType<TypeTag, Properties::Scalar>, 2> >; };
 
 // Set the problem property
 template<class TypeTag>
 struct Problem<TypeTag, TTag::FreeFlowModel> { using type = Dumux::StokesSubProblem<TypeTag> ; };
 
 template<class TypeTag>
-struct EnableFVGridGeometryCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
+struct EnableGridGeometryCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
 template<class TypeTag>
 struct EnableGridFluxVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
 template<class TypeTag>
 struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
-}
+} // end namespace Properties
 
 /*!
  * \brief The free flow sub problem
@@ -94,15 +82,15 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 {
     using ParentType = NavierStokesProblem<TypeTag>;
 
-    using GridView = GetPropType<TypeTag, Properties::GridView>;
+    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
+    using GridView = typename GridGeometry::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
 
     using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
 
-    using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
-    using FVElementGeometry = typename FVGridGeometry::LocalView;
+    using FVElementGeometry = typename GridGeometry::LocalView;
     using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
     using Element = typename GridView::template Codim<0>::Entity;
 
@@ -118,11 +106,11 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
 public:
 #if ENABLEMONOLITHIC
-    StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry, std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
+    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry, std::shared_ptr<CouplingManager> couplingManager)
+    : ParentType(gridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
 #else
-    StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "FreeFlow"),
+    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
+      : ParentType(gridGeometry, "FreeFlow"),
         eps_(1e-6),
         couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
         pressureId_(0),
@@ -190,7 +178,7 @@ public:
         {
             values.setCouplingNeumann(Indices::conti0EqIdx);
             values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-            values.setBJS(Indices::momentumXBalanceIdx);
+            values.setBeaversJoseph(Indices::momentumXBalanceIdx);
         }
 #else
 
@@ -205,7 +193,7 @@ public:
 
 //          values.setNeumann(Indices::conti0EqIdx);
 //          values.setNeumann(Indices::momentumYBalanceIdx);
-          values.setBJS(Indices::momentumXBalanceIdx);
+          values.setBeaversJoseph(Indices::momentumXBalanceIdx);
         }
 #endif
         else
@@ -301,7 +289,7 @@ public:
     PrimaryVariables initialAtPos(const GlobalPosition &globalPos) const
     {
         PrimaryVariables values(0.0);
-        //values[Indices::velocityYIdx] = -1e-6 * globalPos[0] * (this->fvGridGeometry().bBoxMax()[0] - globalPos[0]);
+        //values[Indices::velocityYIdx] = -1e-6 * globalPos[0] * (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
         if(onLeftBoundary_(globalPos))
           values[Indices::pressureIdx] = deltaP_;
         if(onRightBoundary_(globalPos))
@@ -339,22 +327,22 @@ public:
      */
     void calculateAnalyticalVelocityX() const
     {
-        analyticalVelocityX_.resize(this->fvGridGeometry().gridView().size(0));
+        analyticalVelocityX_.resize(this->gridGeometry().gridView().size(0));
 
         using std::sqrt;
-        const Scalar dPdX = -deltaP_ / (this->fvGridGeometry().bBoxMax()[0] - this->fvGridGeometry().bBoxMin()[0]);
+        const Scalar dPdX = -deltaP_ / (this->gridGeometry().bBoxMax()[0] - this->gridGeometry().bBoxMin()[0]);
         static const Scalar mu = FluidSystem::viscosity(temperature(), 1e5);
         static const Scalar alpha = getParam<Scalar>("Darcy.SpatialParams.AlphaBeaversJoseph");
         static const Scalar K = getParam<Scalar>("Darcy.SpatialParams.Permeability");
         static const Scalar sqrtK = sqrt(K);
-        const Scalar sigma = (this->fvGridGeometry().bBoxMax()[1] - this->fvGridGeometry().bBoxMin()[1])/sqrtK;
+        const Scalar sigma = (this->gridGeometry().bBoxMax()[1] - this->gridGeometry().bBoxMin()[1])/sqrtK;
 
         const Scalar uB =  -K/(2.0*mu) * ((sigma*sigma + 2.0*alpha*sigma) / (1.0 + alpha*sigma)) * dPdX;
 
-        for (const auto& element : elements(this->fvGridGeometry().gridView()))
+        for (const auto& element : elements(this->gridGeometry().gridView()))
         {
-            const auto eIdx = this->fvGridGeometry().gridView().indexSet().index(element);
-            const Scalar y = element.geometry().center()[1] - this->fvGridGeometry().bBoxMin()[1];
+            const auto eIdx = this->gridGeometry().gridView().indexSet().index(element);
+            const Scalar y = element.geometry().center()[1] - this->gridGeometry().bBoxMin()[1];
 
             const Scalar u = uB*(1.0 + alpha/sqrtK*y) + 1.0/(2.0*mu) * (y*y + 2*alpha*y*sqrtK) * dPdX;
             analyticalVelocityX_[eIdx] = u;
@@ -384,16 +372,16 @@ public:
 
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_; }
+    { return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_; }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_; }
+    { return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_; }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    { return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_; }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
+    { return globalPos[1] > this->gridGeometry().bBoxMax()[1] - eps_; }
 
     Scalar eps_;
     Scalar deltaP_;

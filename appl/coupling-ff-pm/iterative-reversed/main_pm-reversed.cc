@@ -61,17 +61,18 @@ bool printstuff = false;
  /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
   */
- template<class Problem, class Element, class FVElementGeometry, class ElementVolumeVariables, class SubControlVolumeFace>
+ template<class Problem, class Element, class FVElementGeometry, class ElementVolumeVariables, class SubControlVolumeFace, class ElementFluxVariablesCache>
  auto pressureAtInterface(const Problem& problem,
                             const Element& element,
                             const FVElementGeometry& fvGeometry,
                             const ElementVolumeVariables& elemVolVars,
-                            const SubControlVolumeFace& scvf)
+                            const SubControlVolumeFace& scvf,
+                            const ElementFluxVariablesCache& elemFluxVarsCache )
  {
      using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
      const auto& volVars = elemVolVars[scvf.insideScvIdx()];
 
-     const Scalar boundaryFlux = problem.neumann(element, fvGeometry, elemVolVars, scvf);
+     const Scalar boundaryFlux = problem.neumann(element, fvGeometry, elemVolVars, elemFluxVarsCache, scvf);
 
      const auto K = volVars.permeability();
      const Scalar ccPressure = volVars.pressure();
@@ -99,14 +100,15 @@ bool printstuff = false;
                             const GridVariables& gridVars,
                             const SolutionVector& sol)
  {
-   const auto& fvGridGeometry = problem.fvGridGeometry();
-   auto fvGeometry = localView(fvGridGeometry);
+   const auto& gridGeometry = problem.gridGeometry();
+   auto fvGeometry = localView(gridGeometry);
    auto elemVolVars = localView(gridVars.curGridVolVars());
+   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
    const auto pressureId = couplingInterface.getIdFromName( "Pressure" );
 
-   for (const auto& element : elements(fvGridGeometry.gridView()))
+   for (const auto& element : elements(gridGeometry.gridView()))
    {
      fvGeometry.bindElement(element);
      elemVolVars.bindElement(element, fvGeometry, sol);
@@ -118,7 +120,7 @@ bool printstuff = false;
        if ( couplingInterface.isCoupledEntity( scvf.index() ) )
        {
          //TODO: What to do here?
-         const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
+         const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
          couplingInterface.writeScalarQuantityOnFace( pressureId, scvf.index(), p );
        }
      }
@@ -151,15 +153,15 @@ bool printstuff = false;
                             const GridVariables& gridVars,
                             const SolutionVector& sol)
  {
-   const auto& fvGridGeometry = problem.fvGridGeometry();
-   auto fvGeometry = localView(fvGridGeometry);
+   const auto& gridGeometry = problem.gridGeometry();
+   auto fvGeometry = localView(gridGeometry);
    auto elemVolVars = localView(gridVars.curGridVolVars());
    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
    const auto velocityId = couplingInterface.getIdFromName( "Velocity" );
 
-   for (const auto& element : elements(fvGridGeometry.gridView()))
+   for (const auto& element : elements(gridGeometry.gridView()))
    {
      fvGeometry.bind(element);
      elemVolVars.bind(element, fvGeometry, sol);
@@ -186,8 +188,8 @@ bool printstuff = false;
                                         const GridVariables& gridVars,
                                         const SolutionVector& sol)
  {
-   const auto& fvGridGeometry = problem.fvGridGeometry();
-   auto fvGeometry = localView(fvGridGeometry);
+   const auto& gridGeometry = problem.gridGeometry();
+   auto fvGeometry = localView(gridGeometry);
    auto elemVolVars = localView(gridVars.curGridVolVars());
    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
@@ -202,7 +204,7 @@ bool printstuff = false;
    double min = std::numeric_limits<double>::max();
    double max = std::numeric_limits<double>::min();
    double sum = 0.;
-   for (const auto& element : elements(fvGridGeometry.gridView()))
+   for (const auto& element : elements(gridGeometry.gridView()))
    {
      fvGeometry.bind(element);
      elemVolVars.bind(element, fvGeometry, sol);
@@ -241,8 +243,8 @@ bool printstuff = false;
                                        const GridVariables& gridVars,
                                        const SolutionVector& sol)
  {
-   const auto& fvGridGeometry = problem.fvGridGeometry();
-   auto fvGeometry = localView(fvGridGeometry);
+   const auto& gridGeometry = problem.gridGeometry();
+   auto fvGeometry = localView(gridGeometry);
    auto elemVolVars = localView(gridVars.curGridVolVars());
    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
@@ -253,7 +255,7 @@ bool printstuff = false;
    if ( couplingInterface.getDimensions() == 3 )
      ofs << "z,";
    ofs << "pressure" << "\n";
-   for (const auto& element : elements(fvGridGeometry.gridView()))
+   for (const auto& element : elements(gridGeometry.gridView()))
    {
      fvGeometry.bind(element);
      elemVolVars.bind(element, fvGeometry, sol);
@@ -269,7 +271,7 @@ bool printstuff = false;
          {
            ofs << pos[i] << ",";
          }
-         const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf);
+         const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
          ofs << p << "\n";
        }
      }
@@ -302,16 +304,16 @@ int main(int argc, char** argv) try
     const auto& darcyGridView = darcyGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using DarcyFVGridGeometry = GetPropType<DarcyTypeTag, Properties::FVGridGeometry>;
-    auto darcyFvGridGeometry = std::make_shared<DarcyFVGridGeometry>(darcyGridView);
-    darcyFvGridGeometry->update();
+    using DarcyGridGeometry = GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+    auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+    darcyGridGeometry->update();
 
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
-    auto darcyProblem = std::make_shared<DarcyProblem>(darcyFvGridGeometry);
+    auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry);
 
     // the solution vector
     GetPropType<DarcyTypeTag, Properties::SolutionVector> sol;
-    sol.resize(darcyFvGridGeometry->numDofs());
+    sol.resize(darcyGridGeometry->numDofs());
 
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
@@ -330,26 +332,26 @@ int main(int argc, char** argv) try
                                       mpiHelper.rank(), mpiHelper.size() );
 
     const int dim = couplingInterface.getDimensions();
-    std::cout << dim << "  " << int(DarcyFVGridGeometry::GridView::dimension) << std::endl;
-    if (dim != int(DarcyFVGridGeometry::GridView::dimension))
+    std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension) << std::endl;
+    if (dim != int(DarcyGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
     // GET mesh corodinates
-    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0")[0];
-    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.Positions0").back();
+    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.LowerLeft")[0];
+    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords; //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
 
     for (const auto& element : elements(darcyGridView))
     {
-        auto fvGeometry = localView(*darcyFvGridGeometry);
+        auto fvGeometry = localView(*darcyGridGeometry);
         fvGeometry.bindElement(element);
 
         for (const auto& scvf : scvfs(fvGeometry))
         {
             static constexpr auto eps = 1e-7;
             const auto& pos = scvf.center();
-            if (pos[1] > darcyFvGridGeometry->bBoxMax()[1] - eps)
+            if (pos[1] > darcyGridGeometry->bBoxMax()[1] - eps)
             {
                 if (pos[0] > xMin - eps && pos[0] < xMax + eps)
                 {
@@ -376,7 +378,7 @@ int main(int argc, char** argv) try
 
     // the grid variables
     using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
+    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
     darcyGridVariables->init(sol);
 
     // intialize the vtk output module
@@ -415,7 +417,7 @@ int main(int argc, char** argv) try
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(darcyProblem, darcyFvGridGeometry, darcyGridVariables);
+    auto assembler = std::make_shared<Assembler>(darcyProblem, darcyGridGeometry, darcyGridVariables);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;

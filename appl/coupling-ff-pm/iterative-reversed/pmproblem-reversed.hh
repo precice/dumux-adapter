@@ -71,23 +71,11 @@ struct FluidSystem<TypeTag, TTag::DarcyOneP>
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::DarcyOneP>
-{
-    static constexpr auto dim = 2;
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
-
-//****** comment out for the last exercise *****//
-    using type = TensorGrid;
-
-//****** uncomment for the last exercise *****//
-    // using HostGrid = TensorGrid;
-    // using type = Dune::SubGrid<dim, HostGrid>;
-};
+struct Grid<TypeTag, TTag::DarcyOneP> { using type = Dune::YaspGrid<2>; };
 
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOneP> {
-    using type = OnePSpatialParams<GetPropType<TypeTag, FVGridGeometry>, GetPropType<TypeTag, Scalar>>;
+    using type = OnePSpatialParams<GetPropType<TypeTag, GridGeometry>, GetPropType<TypeTag, Scalar>>;
 };
 
 } // end namespace Properties
@@ -99,16 +87,16 @@ template <class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
-    using GridView = GetPropType<TypeTag, Properties::GridView>;
+    using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
+    using FVElementGeometry = typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
     using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
-    using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
+    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
 
     using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
@@ -121,11 +109,11 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
 public:
 #if ENABLEMONOLITHIC
-    DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
+    DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry,
                    std::shared_ptr<CouplingManager> couplingManager)
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
 #else
-DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
+DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry)
     : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7),
       couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
       pressureId_(0),
@@ -209,10 +197,11 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      *
      * For this method, the \a values variable stores primary variables.
      */
-    template<class ElementVolumeVariables>
+    template<class ElementVolumeVariables, class ElementFluxVarsCache>
     NumEqVector neumann(const Element& element,
                         const FVElementGeometry& fvGeometry,
                         const ElementVolumeVariables& elemVolVars,
+                        const ElementFluxVarsCache& elemFluxVarsCache,
                         const SubControlVolumeFace& scvf) const
     {
         // no-flow everywhere ...
@@ -258,6 +247,16 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
     { return NumEqVector(0.0); }
 
     // \}
+
+    /*!
+     * \brief Return gravity vector of model used
+     *
+     * \param element The element
+     *
+     * This is an auxilary function
+     */
+    //NumEqVector gravity() const
+    //{ return gravity_; } 
 
     /*!
      * \brief Evaluate the initial value for a control volume.
