@@ -1,4 +1,5 @@
-image: dumux-precice:3.1-1.6.1
+image: dumux-precice:3.3git-iterative-pr-1.6.1
+#image: dumux-precice:3.1-1.6.1
 
 build:
   stage: build
