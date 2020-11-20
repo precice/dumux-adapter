@@ -54,26 +54,27 @@
 
 #include "../common/outputhelper.hh"
 
-namespace Dumux {
-namespace Properties {
-
-template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::StokesOneP>
+namespace Dumux
 {
-    using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::DarcyOneP>;
-    using type = Dumux::StokesDarcyCouplingManager<Traits>;
-};
+  namespace Properties
+  {
 
-template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::DarcyOneP>
-{
-    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesOneP, Properties::TTag::StokesOneP, TypeTag>;
-    using type = Dumux::StokesDarcyCouplingManager<Traits>;
-};
+    template <class TypeTag>
+    struct CouplingManager<TypeTag, TTag::StokesOneP>
+    {
+      using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::DarcyOneP>;
+      using type = Dumux::StokesDarcyCouplingManager<Traits>;
+    };
 
-} // end namespace Properties
+    template <class TypeTag>
+    struct CouplingManager<TypeTag, TTag::DarcyOneP>
+    {
+      using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesOneP, Properties::TTag::StokesOneP, TypeTag>;
+      using type = Dumux::StokesDarcyCouplingManager<Traits>;
+    };
+
+  } // end namespace Properties
 } // end namespace Dumux
-
 
 /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
@@ -121,341 +122,363 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP>
 //         + ccPressure;
 //}
 
-template<class Problem, class GridVariables, class SolutionVector>
-std::tuple<double,double,double> writePressuresOnInterfaceToFile( const std::string& filename,
-                                                                   const Problem& problem,
-                                                                   const GridVariables& gridVars,
-                                                                   const SolutionVector& sol)
+template <class Problem, class GridVariables, class SolutionVector>
+std::tuple<double, double, double> writePressuresOnInterfaceToFile(const std::string &filename,
+                                                                   const Problem &problem,
+                                                                   const GridVariables &gridVars,
+                                                                   const SolutionVector &sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto &gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
+  std::ofstream ofs(filename + ".csv", std::ofstream::out | std::ofstream::trunc);
   ofs << "x,y,";
-  ofs << "pressure" << "\n";
-
+  ofs << "pressure"
+      << "\n";
 
   double pMin = std::numeric_limits<double>::max();
   double pMax = std::numeric_limits<double>::min();
   double pSum = 0.;
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto &element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
     elemVolVars.bind(element, fvGeometry, sol);
     elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
 
-    for (const auto& scvf : scvfs(fvGeometry))
+    for (const auto &scvf : scvfs(fvGeometry))
     {
 
-      const auto& pos = scvf.center();
-      if ( std::fabs(pos[1] - 1.) < 1e-14 )
+      const auto &pos = scvf.center();
+      if (std::fabs(pos[1] - 1.) < 1e-14)
       {
-        for (int i = 0; i < 2; ++i )
+        for (int i = 0; i < 2; ++i)
         {
           ofs << pos[i] << ",";
         }
-        //const double p = pressureAtInterface(problem, element, fvGridGeometry, elemVolVars, scvf, elemFluxVarsCache);
-        const double p  = problem.dirichlet( element, scvf );
-        pMax = std::max( p, pMax );
-        pMin = std::min( p, pMin );
+        //const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
+        const double p = problem.dirichlet(element, scvf);
+        pMax = std::max(p, pMax);
+        pMin = std::min(p, pMin);
         pSum += p;
         const auto prec = ofs.precision();
         ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1);
         ofs << p << "\n";
-        ofs.precision( prec );
+        ofs.precision(prec);
       }
     }
   }
 
   ofs.close();
 
-  return std::make_tuple( pMin, pMax, pSum );
+  return std::make_tuple(pMin, pMax, pSum);
 }
 
-
-int main(int argc, char** argv) try
+int main(int argc, char **argv)
+try
 {
-    using namespace Dumux;
-    using namespace outputhelper::monolithic;
+  using namespace Dumux;
+  using namespace outputhelper::monolithic;
 
-    // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+  // initialize MPI, finalize is done automatically on exit
+  const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
-    // print dumux start message
-    if (mpiHelper.rank() == 0)
-        DumuxMessage::print(/*firstCall=*/true);
+  // print dumux start message
+  if (mpiHelper.rank() == 0)
+    DumuxMessage::print(/*firstCall=*/true);
 
-    // parse command line arguments and input file
-    Parameters::init(argc, argv);
+  // parse command line arguments and input file
+  Parameters::init(argc, argv);
 
-    // Define the sub problem type tags
-    using StokesTypeTag = Properties::TTag::StokesOneP;
-    using DarcyTypeTag = Properties::TTag::DarcyOneP;
+  // Define the sub problem type tags
+  using StokesTypeTag = Properties::TTag::StokesOneP;
+  using DarcyTypeTag = Properties::TTag::DarcyOneP;
 
-    // try to create a grid (from the given grid file or the input file)
-    // for both sub-domains
-    using DarcyGridManager = Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
-    DarcyGridManager darcyGridManager;
-    darcyGridManager.init("Darcy"); // pass parameter group
+  // try to create a grid (from the given grid file or the input file)
+  // for both sub-domains
+  using DarcyGridManager = Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
+  DarcyGridManager darcyGridManager;
+  darcyGridManager.init("Darcy"); // pass parameter group
 
-    using StokesGridManager = Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
-    StokesGridManager stokesGridManager;
-    stokesGridManager.init("Stokes"); // pass parameter group
+  using StokesGridManager = Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
+  StokesGridManager stokesGridManager;
+  stokesGridManager.init("Stokes"); // pass parameter group
 
-    // we compute on the leaf grid view
-    const auto& darcyGridView = darcyGridManager.grid().leafGridView();
-    const auto& stokesGridView = stokesGridManager.grid().leafGridView();
+  // we compute on the leaf grid view
+  const auto &darcyGridView = darcyGridManager.grid().leafGridView();
+  const auto &stokesGridView = stokesGridManager.grid().leafGridView();
 
-    // create the finite volume grid geometry
-    using StokesFVGridGeometry = GetPropType<StokesTypeTag, Properties::FVGridGeometry>;
-    auto stokesFvGridGeometry = std::make_shared<StokesFVGridGeometry>(stokesGridView);
-    stokesFvGridGeometry->update();
-    using DarcyFVGridGeometry = GetPropType<DarcyTypeTag, Properties::FVGridGeometry>;
-    auto darcyFvGridGeometry = std::make_shared<DarcyFVGridGeometry>(darcyGridView);
-    darcyFvGridGeometry->update();
+  // create the finite volume grid geometry
+  using StokesGridGeometry = GetPropType<StokesTypeTag, Properties::GridGeometry>;
+  auto stokesGridGeometry = std::make_shared<StokesGridGeometry>(stokesGridView);
+  stokesGridGeometry->update();
+  using DarcyGridGeometry = GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+  auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+  darcyGridGeometry->update();
 
-    using Traits = StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
+  using Traits = StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
 
-    // the coupling manager
-    using CouplingManager = StokesDarcyCouplingManager<Traits>;
-    auto couplingManager = std::make_shared<CouplingManager>(stokesFvGridGeometry, darcyFvGridGeometry);
+  // the coupling manager
+  using CouplingManager = StokesDarcyCouplingManager<Traits>;
+  auto couplingManager = std::make_shared<CouplingManager>(stokesGridGeometry, darcyGridGeometry);
 
-    // the indices
-    constexpr auto stokesCellCenterIdx = CouplingManager::stokesCellCenterIdx;
-    constexpr auto stokesFaceIdx = CouplingManager::stokesFaceIdx;
-    constexpr auto darcyIdx = CouplingManager::darcyIdx;
+  // the indices
+  constexpr auto stokesCellCenterIdx = CouplingManager::stokesCellCenterIdx;
+  constexpr auto stokesFaceIdx = CouplingManager::stokesFaceIdx;
+  constexpr auto darcyIdx = CouplingManager::darcyIdx;
 
-    // the problem (initial and boundary conditions)
-    using StokesProblem = GetPropType<StokesTypeTag, Properties::Problem>;
-    auto stokesProblem = std::make_shared<StokesProblem>(stokesFvGridGeometry, couplingManager);
-    using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
-    auto darcyProblem = std::make_shared<DarcyProblem>(darcyFvGridGeometry, couplingManager);
+  // the problem (initial and boundary conditions)
+  using StokesProblem = GetPropType<StokesTypeTag, Properties::Problem>;
+  auto stokesProblem = std::make_shared<StokesProblem>(stokesGridGeometry, couplingManager);
+  using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
+  auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry, couplingManager);
 
-    // the solution vector
-    Traits::SolutionVector sol;
-    sol[stokesCellCenterIdx].resize(stokesFvGridGeometry->numCellCenterDofs());
-    sol[stokesFaceIdx].resize(stokesFvGridGeometry->numFaceDofs());
-    sol[darcyIdx].resize(darcyFvGridGeometry->numDofs());
+  // the solution vector
+  Traits::SolutionVector sol;
+  //sol[stokesCellCenterIdx].resize(stokesGridGeometry->numCellCenterDofs());
+  //sol[stokesFaceIdx].resize(stokesGridGeometry->numFaceDofs());
+  //sol[darcyIdx].resize(darcyGridGeometry->numDofs());
+  sol[stokesCellCenterIdx].resize(stokesGridGeometry->numCellCenterDofs());
+  sol[stokesFaceIdx].resize(stokesGridGeometry->numFaceDofs());
+  sol[darcyIdx].resize(darcyGridGeometry->numDofs());
 
-    // get a solution vector storing references to the two Stokes solution vectors
-    auto stokesSol = partial(sol, stokesCellCenterIdx, stokesFaceIdx);
+  // get a solution vector storing references to the two Stokes solution vectors
+  auto stokesSol = partial(sol, stokesFaceIdx, stokesCellCenterIdx);
 
-    couplingManager->init(stokesProblem, darcyProblem, sol);
+  // the grid variables
+  using StokesGridVariables = GetPropType<StokesTypeTag, Properties::GridVariables>;
+  auto stokesGridVariables = std::make_shared<StokesGridVariables>(stokesProblem, stokesGridGeometry);
+  stokesGridVariables->init(stokesSol);
+  using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
+  auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
+  darcyGridVariables->init(sol[darcyIdx]);
 
-    // the grid variables
-    using StokesGridVariables = GetPropType<StokesTypeTag, Properties::GridVariables>;
-    auto stokesGridVariables = std::make_shared<StokesGridVariables>(stokesProblem, stokesFvGridGeometry);
-    stokesGridVariables->init(stokesSol);
-    using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
-    darcyGridVariables->init(sol[darcyIdx]);
+  /*
+  const auto couplingMode = [] {
+    const auto mode = getParam<std::string>("Problem.CouplingMode", "ReconstructPorousMediumPressure");
+    if (mode == "ReconstructPorousMediumPressure")
+      return CouplingManager::CouplingMode::reconstructPorousMediumPressure;
+    else if (mode == "ReconstructFreeFlowNormalStress")
+      return CouplingManager::CouplingMode::reconstructFreeFlowNormalStress;
+    else
+      DUNE_THROW(Dune::InvalidStateException, mode << " is not a valid coupling mode. Use ReconstructPorousMediumPressure or ReconstructFreeFlowNormalStress");
+  }();
+  */
 
-    couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
-                                                      stokesGridVariables->faceGridVariablesPtr(),
-                                                      darcyGridVariables));
+  //couplingManager->init(stokesProblem, darcyProblem, sol);
 
-    // intialize the vtk output module
-    StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesProblem->name());
-    GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(stokesVtkWriter);
-    stokesVtkWriter.write(0.0);
+  // initialize the coupling manager
+  couplingManager->init(stokesProblem, darcyProblem,
+                        std::make_tuple(stokesGridVariables->faceGridVariablesPtr(),
+                                        stokesGridVariables->cellCenterGridVariablesPtr(),
+                                        darcyGridVariables),
+                        sol, CouplingManager::CouplingMode::reconstructFreeFlowNormalStress);
 
-    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol[darcyIdx],  darcyProblem->name());
-    using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
-    darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
-    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
-    darcyVtkWriter.write(0.0);
+  //couplingManager->setGridVariables(std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
+  //                                                  stokesGridVariables->faceGridVariablesPtr(),
+  //                                                  darcyGridVariables));
 
-    // the assembler for a stationary problem
-    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
-                                                 std::make_tuple(stokesFvGridGeometry->cellCenterFVGridGeometryPtr(),
-                                                                 stokesFvGridGeometry->faceFVGridGeometryPtr(),
-                                                                 darcyFvGridGeometry),
-                                                 std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
-                                                                 stokesGridVariables->faceGridVariablesPtr(),
-                                                                 darcyGridVariables),
-                                                 couplingManager);
+  // intialize the vtk output module
+  StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesProblem->name());
+  GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(stokesVtkWriter);
+  stokesVtkWriter.write(0.0);
 
-    // the linear solver
-    using LinearSolver = UMFPackBackend;
-    auto linearSolver = std::make_shared<LinearSolver>();
+  VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol[darcyIdx], darcyProblem->name());
+  using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
+  darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
+  GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
+  darcyVtkWriter.write(0.0);
 
-    // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
-    NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
+  // the assembler for a stationary problem
+  using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+  auto assembler = std::make_shared<Assembler>(std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
+                                               std::make_tuple(stokesGridGeometry->faceFVGridGeometryPtr(),
+                                                               stokesGridGeometry->cellCenterFVGridGeometryPtr(),
+                                                               darcyGridGeometry),
+                                               std::make_tuple(stokesGridVariables->faceGridVariablesPtr(),
+                                                               stokesGridVariables->cellCenterGridVariablesPtr(),
+                                                               darcyGridVariables),
+                                               couplingManager);
 
-    // solve the non-linear system
-    nonLinearSolver.solve(sol);
+  // the linear solver
+  using LinearSolver = UMFPackBackend;
+  auto linearSolver = std::make_shared<LinearSolver>();
 
-    // write vtk output
-    stokesVtkWriter.write(1.0);
-    darcyVtkWriter.write(1.0);
+  // the non-linear solver
+  using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+  NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
-//    for (const auto& element : elements(darcyGridView))
-//    {
-//        auto fvGeometry = localView(*darcyFvGridGeometry);
-//        fvGeometry.bind(element);
+  // solve the non-linear system
+  nonLinearSolver.solve(sol);
 
-//        for (const auto& scvf : scvfs(fvGeometry))
-//        {
-//            if (couplingManager->isCoupledEntity(CouplingManager::darcyIdx, scvf))
-//            {
-//                std::ostream tmp(std::cout.rdbuf());
+  // write vtk output
+  stokesVtkWriter.write(1.0);
+  darcyVtkWriter.write(1.0);
 
-//                tmp << std::scientific << "Interface pressure ff at " << scvf.center() << " is " << couplingManager->couplingData().freeFlowInterfacePressure(element, scvf) << std::endl;
-//            }
-//        }
-//    }
+  //    for (const auto& element : elements(darcyGridView))
+  //    {
+  //        auto fvGeometry = localView(*darcyGridGeometry);
+  //        fvGeometry.bind(element);
 
-//    for (const auto& element : elements(stokesGridView))
-//    {
-//        auto fvGeometry = localView(*stokesFvGridGeometry);
-//        auto elemVolVars = localView(stokesGridVariables->cellCenterGridVariablesPtr()->curGridVolVars());
-//        auto elemFaceVars = localView(stokesGridVariables->faceGridVariablesPtr()->curGridFaceVars());
-//        // auto elemFluxVarsCache = localView(gridVars_(stokesIdx).gridFluxVarsCache());
+  //        for (const auto& scvf : scvfs(fvGeometry))
+  //        {
+  //            if (couplingManager->isCoupledEntity(CouplingManager::darcyIdx, scvf))
+  //            {
+  //                std::ostream tmp(std::cout.rdbuf());
 
-//        fvGeometry.bind(element);
-//        elemVolVars.bind(element, fvGeometry, sol[stokesCellCenterIdx]);
-//        elemFaceVars.bind(element, fvGeometry, sol[stokesFaceIdx]);
+  //                tmp << std::scientific << "Interface pressure ff at " << scvf.center() << " is " << couplingManager->couplingData().freeFlowInterfacePressure(element, scvf) << std::endl;
+  //            }
+  //        }
+  //    }
+
+  //    for (const auto& element : elements(stokesGridView))
+  //    {
+  //        auto fvGeometry = localView(*stokesGridGeometry);
+  //        auto elemVolVars = localView(stokesGridVariables->cellCenterGridVariablesPtr()->curGridVolVars());
+  //        auto elemFaceVars = localView(stokesGridVariables->faceGridVariablesPtr()->curGridFaceVars());
+  //        // auto elemFluxVarsCache = localView(gridVars_(stokesIdx).gridFluxVarsCache());
+
+  //        fvGeometry.bind(element);
+  //        elemVolVars.bind(element, fvGeometry, sol[stokesCellCenterIdx]);
+  //        elemFaceVars.bind(element, fvGeometry, sol[stokesFaceIdx]);
+
+  //        for (const auto& scvf : scvfs(fvGeometry))
+  //        {
+  //            if (couplingManager->isCoupledEntity(CouplingManager::stokesIdx, scvf))
+  //            {
+  //                std::ostream tmp(std::cout.rdbuf());
+  //                tmp << std::scientific << "Interface pressure pm at " << scvf.center() << " is " << stokesProblem->neumann(element,
+  //                                    fvGeometry,
+  //                                    elemVolVars,
+  //                                    elemFaceVars,
+  //                                    scvf)[scvf.directionIndex()] << ", vself " << elemFaceVars[scvf].velocitySelf() << ", vDarcy " << couplingManager->couplingData().darcyInterfaceVelocity(element,
+  //                                                                  fvGeometry,
+  //                                                                  elemVolVars,
+  //                                                                  elemFaceVars,
+  //                                                                  scvf)  << std::endl;
+  //            }
+  //        }
+  //    }
 
 
-//        for (const auto& scvf : scvfs(fvGeometry))
-//        {
-//            if (couplingManager->isCoupledEntity(CouplingManager::stokesIdx, scvf))
-//            {
-//                std::ostream tmp(std::cout.rdbuf());
-//                tmp << std::scientific << "Interface pressure pm at " << scvf.center() << " is " << stokesProblem->neumann(element,
-//                                    fvGeometry,
-//                                    elemVolVars,
-//                                    elemFaceVars,
-//                                    scvf)[scvf.directionIndex()] << ", vself " << elemFaceVars[scvf].velocitySelf() << ", vDarcy " << couplingManager->couplingData().darcyInterfaceVelocity(element,
-//                                                                  fvGeometry,
-//                                                                  elemVolVars,
-//                                                                  elemFaceVars,
-//                                                                  scvf)  << std::endl;
-//            }
-//        }
-//    }
+/*
+  {
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
+    double sum = 0.;
+    using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
+    const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
+    std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile<FluxVariables>(filename,
+                                                                              *couplingManager,
+                                                                              *darcyProblem,
+                                                                              *darcyGridVariables,
+                                                                              sol[darcyIdx]);
+    const auto prec = std::cout.precision();
+    std::cout << "Velocity statistics (Darcy):" << std::endl
+              << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+              << "  min: " << min << std::endl
+              << "  max: " << max << std::endl
+              << "  sum: " << sum << std::endl;
+    std::cout.precision(prec);
+
+    {
+      const std::string filenameDarcy = "darcy-flow-statistics.txt";
+      std::ofstream ofs(filenameDarcy + ".txt", std::ofstream::out | std::ofstream::trunc);
+      const auto prec = ofs.precision();
+      ofs << "Velocity statistics (Darcy):" << std::endl
+          << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+          << "  min: " << min << std::endl
+          << "  max: " << max << std::endl
+          << "  sum: " << sum << std::endl;
+      ofs.precision(prec);
+      ofs.close();
+    }
 
     {
       double min = std::numeric_limits<double>::max();
       double max = std::numeric_limits<double>::min();
       double sum = 0.;
-      using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
-      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-velocity";
-      std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile<FluxVariables>( filename,
-                                                                                *couplingManager,
-                                                                                *darcyProblem,
-                                                                                *darcyGridVariables,
-                                                                                sol[darcyIdx] );
+      const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
+      std::tie(min, max, sum) = writePressuresOnInterfaceToFile(filename,
+                                                                *darcyProblem,
+                                                                *darcyGridVariables,
+                                                                sol[darcyIdx]);
       const auto prec = std::cout.precision();
-      std::cout << "Velocity statistics (Darcy):" << std::endl
+      std::cout << "Pressure statistics (Darcy):" << std::endl
                 << std::setprecision(std::numeric_limits<double>::digits10 + 1)
                 << "  min: " << min << std::endl
                 << "  max: " << max << std::endl
                 << "  sum: " << sum << std::endl;
-      std::cout.precision( prec );
-
-      {
-        const std::string filenameDarcy="darcy-flow-statistics.txt";
-        std::ofstream ofs( filenameDarcy+".txt", std::ofstream::out | std::ofstream::trunc);
-        const auto prec = ofs.precision();
-        ofs << "Velocity statistics (Darcy):" << std::endl
-                  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                  << "  min: " << min << std::endl
-                  << "  max: " << max << std::endl
-                  << "  sum: " << sum << std::endl;
-        ofs.precision( prec );
-        ofs.close();
-      }
-
-      {
-        double min = std::numeric_limits<double>::max();
-        double max = std::numeric_limits<double>::min();
-        double sum = 0.;
-        const std::string filename = getParam<std::string>("Problem.Name") + "-" + darcyProblem->name() + "-interface-pressure";
-        std::tie(min, max, sum) = writePressuresOnInterfaceToFile(filename,
-                                                                  *darcyProblem,
-                                                                  *darcyGridVariables,
-                                                                  sol[darcyIdx] );
-        const auto prec = std::cout.precision();
-        std::cout << "Pressure statistics (Darcy):" << std::endl
-                  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                  << "  min: " << min << std::endl
-                  << "  max: " << max << std::endl
-                  << "  sum: " << sum << std::endl;
-        std::cout.precision( prec );
-
-      }
+      std::cout.precision(prec);
     }
+  }
 
-    //TODO make freeflow
+  //TODO make freeflow
+  {
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
+    double sum = 0.;
+    const std::string filename = getParam<std::string>("Problem.Name") + "-" + stokesProblem->name() + "-interface-velocity";
+    std::tie(min, max, sum) = writeStokesVelocitiesOnInterfaceToFile(filename,
+                                                                     *couplingManager,
+                                                                     *stokesProblem,
+                                                                     sol[stokesFaceIdx]);
+    const auto prec = std::cout.precision();
+    std::cout << "Velocity statistics (free flow):" << std::endl
+              << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+              << "  min: " << min << std::endl
+              << "  max: " << max << std::endl
+              << "  sum: " << sum << std::endl;
+    std::cout.precision(prec);
     {
-      double min = std::numeric_limits<double>::max();
-      double max = std::numeric_limits<double>::min();
-      double sum = 0.;
-      const std::string filename = getParam<std::string>("Problem.Name") + "-" + stokesProblem->name() + "-interface-velocity";
-      std::tie(min, max, sum) = writeStokesVelocitiesOnInterfaceToFile( filename,
-                                                                       *couplingManager,
-                                                                       *stokesProblem,
-                                                                       sol[stokesFaceIdx] );
-      const auto prec = std::cout.precision();
-      std::cout << "Velocity statistics (free flow):" << std::endl
-                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                << "  min: " << min << std::endl
-                << "  max: " << max << std::endl
-                << "  sum: " << sum << std::endl;
-      std::cout.precision( prec );
-      {
-        const std::string filenameFlow="free-flow-statistics";
-        std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
-        const auto prec = ofs.precision();
-        ofs << "Velocity statistics (free flow):" << std::endl
-            << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-            << "  min: " << min << std::endl
-            << "  max: " << max << std::endl
-            << "  sum: " << sum << std::endl;
-        ofs.precision( prec );
-        ofs.close();
-      }
+      const std::string filenameFlow = "free-flow-statistics";
+      std::ofstream ofs(filenameFlow + ".txt", std::ofstream::out | std::ofstream::trunc);
+      const auto prec = ofs.precision();
+      ofs << "Velocity statistics (free flow):" << std::endl
+          << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+          << "  min: " << min << std::endl
+          << "  max: " << max << std::endl
+          << "  sum: " << sum << std::endl;
+      ofs.precision(prec);
+      ofs.close();
     }
+  }
+*/
+  ////////////////////////////////////////////////////////////
+  // finalize, print dumux message to say goodbye
+  ////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////
-    // finalize, print dumux message to say goodbye
-    ////////////////////////////////////////////////////////////
+  // print dumux end message
+  if (mpiHelper.rank() == 0)
+  {
+    Parameters::print();
+    DumuxMessage::print(/*firstCall=*/false);
+  }
 
-    // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
-        Parameters::print();
-        DumuxMessage::print(/*firstCall=*/false);
-    }
-
-    return 0;
+  return 0;
 } // end main
 catch (Dumux::ParameterException &e)
 {
-    std::cerr << std::endl << e << " ---> Abort!" << std::endl;
-    return 1;
+  std::cerr << std::endl
+            << e << " ---> Abort!" << std::endl;
+  return 1;
 }
-catch (Dune::DGFException & e)
+catch (Dune::DGFException &e)
 {
-    std::cerr << "DGF exception thrown (" << e <<
-                 "). Most likely, the DGF file name is wrong "
-                 "or the DGF file is corrupted, "
-                 "e.g. missing hash at end of file or wrong number (dimensions) of entries."
-                 << " ---> Abort!" << std::endl;
-    return 2;
+  std::cerr << "DGF exception thrown (" << e << "). Most likely, the DGF file name is wrong "
+                                                "or the DGF file is corrupted, "
+                                                "e.g. missing hash at end of file or wrong number (dimensions) of entries."
+            << " ---> Abort!" << std::endl;
+  return 2;
 }
 catch (Dune::Exception &e)
 {
-    std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
-    return 3;
+  std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
+  return 3;
 }
 catch (...)
 {
-    std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
-    return 4;
+  std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
+  return 4;
 }

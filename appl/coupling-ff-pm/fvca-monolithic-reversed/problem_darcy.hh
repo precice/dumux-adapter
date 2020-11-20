@@ -66,9 +66,9 @@ struct Grid<TypeTag, TTag::DarcyOneP> { using type = Dune::YaspGrid<2>; };
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOneP>
 {
-    using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
+    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = OnePSpatialParams<FVGridGeometry, Scalar>;
+    using type = OnePSpatialParams<GridGeometry, Scalar>;
 };
 } // end namespace Properties
 
@@ -76,16 +76,16 @@ template <class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
-    using GridView = GetPropType<TypeTag, Properties::GridView>;
+    using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
+    using FVElementGeometry = typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
     using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
-    using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
+    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
 
     using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
@@ -95,9 +95,9 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
 public:
-    DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
+    DarcySubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
                    std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
+    : ParentType(gridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
 
@@ -168,7 +168,17 @@ public:
     {
         PrimaryVariables values = initial(element);
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values = couplingManager().couplingData().freeFlowInterfacePressure(element, scvf);
+        {
+            //const auto& darcyContext = couplingManager().darcyCouplingContext(element, scvf);
+            //const auto& freeFlowScvf = darcyContext.getStokesScvf();
+            //const auto& freeFlowElemVolVars = darcyContext.volVars;
+
+            //using FluxVariables = GetPropType<TypeTag, Properties::FluxVariables>;
+            //FluxVariables fluxVars;
+            
+            //values = couplingManager().couplingData().freeFlowInterfacePressure(element, scvf);
+            values = couplingManager().couplingData().freeFlowInterfaceStress(element, scvf);
+        }
 
         return values;
     }
@@ -245,7 +255,7 @@ public:
 private:
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    { return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_; }
 
     Scalar eps_;
     std::shared_ptr<CouplingManager> couplingManager_;

@@ -61,7 +61,7 @@ template<class TypeTag>
 struct Problem<TypeTag, TTag::StokesOneP> { using type = Dumux::StokesSubProblem<TypeTag> ; };
 
 template<class TypeTag>
-struct EnableFVGridGeometryCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridGeometryCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
 template<class TypeTag>
 struct EnableGridFluxVariablesCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
 template<class TypeTag>
@@ -78,29 +78,26 @@ template <class TypeTag>
 class StokesSubProblem : public NavierStokesProblem<TypeTag>
 {
     using ParentType = NavierStokesProblem<TypeTag>;
-
-    using GridView = GetPropType<TypeTag, Properties::GridView>;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
-
-    using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
-
-    using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
-    using FVElementGeometry = typename FVGridGeometry::LocalView;
+    using BoundaryTypes = Dumux::NavierStokesBoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
+    using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
+    using GridView = typename GridGeometry::GridView;
+    using FVElementGeometry = typename GridGeometry::LocalView;
     using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolume = typename FVElementGeometry::SubControlVolume;
     using Element = typename GridView::template Codim<0>::Entity;
-
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
-
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+    using ModelTraits = GetPropType<TypeTag, Properties::ModelTraits>;
 
-    using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
+        using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
 public:
-    StokesSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry, std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
+    using Indices = typename ModelTraits::Indices;
+
+    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry, std::shared_ptr<CouplingManager> couplingManager)
+    : ParentType(gridGeometry, "Stokes"), eps_(1e-6), couplingManager_(couplingManager)
     {
         problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
 
@@ -186,12 +183,23 @@ public:
 
         }
 
-        if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
+        
+        //if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
+        //{
+        //    values.setCouplingDirichlet(Indices::velocityYIdx);
+        //    // values.setCouplingNeumann(Indices::conti0EqIdx);
+        //    // values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+        //    values.setBJS(Indices::momentumXBalanceIdx);
+        //}
+
+
+        if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
+            assert(couplingManager().couplingMode() != CouplingManager::CouplingMode::reconstructPorousMediumPressure);
+
             values.setCouplingDirichlet(Indices::velocityYIdx);
-            // values.setCouplingNeumann(Indices::conti0EqIdx);
-            // values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-            values.setBJS(Indices::momentumXBalanceIdx);
+            values.setBeaversJoseph(Indices::momentumXBalanceIdx);
+
         }
 
         return values;
@@ -204,6 +212,28 @@ public:
     {
         return initialAtPos(globalPos);
     }
+
+   
+    PrimaryVariables dirichlet(const Element& element, const SubControlVolume& scv) const
+    {
+        return initialAtPos(scv.center());
+    }
+
+
+    PrimaryVariables dirichlet(const Element& element, const SubControlVolumeFace& scvf) const
+    {
+        if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
+        {
+            PrimaryVariables values(0.0);
+            values[Indices::velocityYIdx] = couplingManager().couplingData().porousMediumInterfaceVelocity(element, scvf);
+            return values;
+        }
+        else
+            return initialAtPos(scvf.center());
+    }
+    
+
+    
 
     // /*!
     //  * \brief Evaluates the boundary conditions for a Neumann control volume.
@@ -247,6 +277,9 @@ public:
     {
         NumEqVector values(0.0);
 
+
+        std::cout << "Neumann BC: " << values << std::endl;
+
         if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
         {
             // std::cout << "vel is " << elemFaceVars[scvf].velocitySelf() << std::endl;
@@ -268,8 +301,6 @@ public:
             //                                     elemVolVars,
             //                                     elemFaceVars,
             //                                     gridFluxVarsCache) << std::endl;
-
-
         }
         return values;
     }
@@ -297,7 +328,7 @@ public:
         if (verticalFlow_)
         {
             static const Scalar inletVelocity = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.Velocity");
-            values[Indices::velocityYIdx] = inletVelocity * globalPos[0] * (this->fvGridGeometry().bBoxMax()[0] - globalPos[0]);
+            values[Indices::velocityYIdx] = inletVelocity * globalPos[0] * (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
         }
         else // horizontal flow
         {
@@ -331,16 +362,16 @@ public:
 
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_; }
+    { return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_; }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_; }
+    { return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_; }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    { return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_; }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
+    { return globalPos[1] > this->gridGeometry().bBoxMax()[1] - eps_; }
 
     Scalar eps_;
     std::string problemName_;

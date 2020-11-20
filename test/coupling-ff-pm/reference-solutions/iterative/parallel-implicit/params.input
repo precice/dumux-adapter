@@ -35,6 +35,7 @@ AlphaBeaversJoseph = 1.0
 [Problem]
 Name = fvca-iterative
 EnableGravity = false
+CouplingMode = ReconstructFreeFlowNormalStress
 
 [Vtk]
 AddVelocity = 1

@@ -15,8 +15,8 @@ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::st
                                                                     const GridVariables& gridVars,
                                                                     const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
   auto elemVolVars = localView(gridVars.curGridVolVars());
   auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
@@ -28,7 +28,7 @@ std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::st
   double min = std::numeric_limits<double>::max();
   double max = std::numeric_limits<double>::min();
   double sum = 0.;
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
     elemVolVars.bind(element, fvGeometry, sol);
@@ -67,9 +67,9 @@ std::tuple<double,double,double> writeStokesVelocitiesOnInterfaceToFile( const s
                                                                           const Problem& problem,
                                                                           const SolutionVector& sol)
 {
-  const auto& fvGridGeometry = problem.fvGridGeometry();
-  auto fvGeometry = localView(fvGridGeometry);
-  using FVGridGeometry = std::decay_t<decltype (fvGridGeometry)>;
+  const auto& gridGeometry = problem.gridGeometry();
+  auto fvGeometry = localView(gridGeometry);
+  using GridGeometry = std::decay_t<decltype (gridGeometry)>;
 
   std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
   ofs << "x,y,";
@@ -78,7 +78,7 @@ std::tuple<double,double,double> writeStokesVelocitiesOnInterfaceToFile( const s
   double min = std::numeric_limits<double>::max();
   double max = std::numeric_limits<double>::min();
   double sum = 0.;
-  for (const auto& element : elements(fvGridGeometry.gridView()))
+  for (const auto& element : elements(gridGeometry.gridView()))
   {
     fvGeometry.bind(element);
 
