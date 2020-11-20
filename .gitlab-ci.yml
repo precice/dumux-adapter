@@ -3,6 +3,7 @@ image: dumux-precice:3.1-1.6.1
 build:
   stage: build
   script:
+    - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - echo $DUNE_CONTROL_PATH
     - pwd
