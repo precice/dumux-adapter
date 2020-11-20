@@ -5,6 +5,8 @@ build:
   script:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - echo $DUNE_CONTROL_PATH
+    - pwd
+    - ls
     - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux-3.1/dumux/cmake.opts  all
     - cd build-cmake/appl/coupling-ff-pm/iterative-reversed/
     - make -j2 test_ff_reversed test_pm_reversed
