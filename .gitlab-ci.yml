@@ -29,5 +29,5 @@ test:
   artifacts:
     expire_in: 5 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile/Temporary/LastTestsFailed.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Temporary/LastTest.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Temporary/LastTestsFailed.log
