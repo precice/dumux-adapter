@@ -36,7 +36,8 @@
 #include <dumux/discretization/cctpfa.hh>
 
 #include <dumux/porousmediumflow/1p/model.hh>
-#include <dumux/porousmediumflow/problem.hh>
+//#include <dumux/porousmediumflow/problem.hh>
+#include "../common/porousmediumflowproblemwithgravity.hh"
 
 #include "1pspatialparams.hh"
 
@@ -84,9 +85,9 @@ struct SpatialParams<TypeTag, TTag::DarcyOneP> {
  * \brief The porous medium flow sub problem
  */
 template <class TypeTag>
-class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
+class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
 {
-    using ParentType = PorousMediumFlowProblem<TypeTag>;
+    using ParentType = PorousMediumFlowProblemWithGravity<TypeTag>;
     using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
