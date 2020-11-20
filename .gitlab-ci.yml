@@ -1,7 +1,7 @@
 image: dumux-precice:3.3git-iterative-pr-1.6.1
 #image: dumux-precice:3.1-1.6.1
 
-build:
+build:iterative-coupling:
   stage: build
   script:
     - cd ..
@@ -21,7 +21,7 @@ build:
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/CTestTestfile.cmake
 
-test:
+test:iterative-coupling:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/iterative-reversed/
@@ -29,5 +29,7 @@ test:
   artifacts:
     expire_in: 5 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Temporary/LastTestsFailed.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Testing/Temporary/LastTest.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Testing/Temporary/LastTestsFailed.log
+  needs:
+    - build:iterative-coupling
