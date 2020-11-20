@@ -18,9 +18,16 @@ build:
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/test_pm_reversed
       - build-cmake/CMakeFiles/CMakeError.log
       - build-cmake/CMakeFiles/CMakeOutput.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/CTestTestfile.cmake
 
 test:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/iterative-reversed/
     - ctest
+  artifacts:
+    expire_in: 5 days
+    paths:
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile/Temporary/LastTest.log
+      - build-cmake/appl/coupling-ff-pm/iterative-reversed/Makefile/Temporary/LastTestsFailed.log
