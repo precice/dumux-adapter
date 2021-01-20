@@ -11,6 +11,16 @@ The reference solutions are based on the data used for publication at FVCA IX
 - Porosity 0.4
 - AlphaBeaversJoseph 1.0
 
+There are two ways to exchange data:
+
+1. Has no extra identifier
+  - Pressure: Porous medium -> Free flow
+  - Normal velocity/Mass flux: Free flow -> Porous medium
+  - **Note** This does not work at the moment and has not been used in the paper.
+2. Partially referred to as "reverse" in the current repository
+  - Pressure: Free flow -> Porous medium
+  - Normal velocity/Mass flux: Porous medium -> Free flow
+
 ## Iterative coupling
 
 - Coupling convergence limit: 1e-8
