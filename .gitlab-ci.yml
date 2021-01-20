@@ -33,3 +33,35 @@ test:iterative-coupling:
       - build-cmake/appl/coupling-ff-pm/iterative-reversed/Testing/Temporary/LastTestsFailed.log
   needs:
     - build:iterative-coupling
+
+build:monolithic-coupling:
+  stage: build
+  script:
+    - cd ..
+    - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
+    - cd dumux-precice/
+    - echo $DUNE_CONTROL_PATH
+    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed
+    - make -j2 fvca-monolithic-reversed
+  artifacts:
+    expire_in: 3 days
+    paths:
+      - build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/fvca-monolithic-reversed
+      - build-cmake/CMakeFiles/CMakeError.log
+      - build-cmake/CMakeFiles/CMakeOutput.log
+      - build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/Makefile
+      - build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/CTestTestfile.cmake
+
+test:monolithic-coupling:
+  stage: test
+  script:
+    - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/
+    - ctest
+  artifacts:
+    expire_in: 5 days
+    paths:
+      - build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/Testing/Temporary/LastTest.log
+      - build-cmake/appl/coupling-ff-pm/fvca-monolithic-reversed/Testing/Temporary/LastTestsFailed.log
+  needs:
+    - build:monolithic-coupling
