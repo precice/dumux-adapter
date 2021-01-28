@@ -26,8 +26,8 @@
 
 #include <dumux/common/fvproblem.hh>
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \ingroup PorousmediumflowModels
  * \brief Base class for all fully implicit porous media problems.
@@ -39,12 +39,10 @@ class PorousMediumFlowProblemWithGravity : public FVProblem<TypeTag>
 {
     using ParentType = FVProblem<TypeTag>;
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
-    using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
+    using GridView =
+        typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
 
-    enum {
-        dim = GridView::dimension,
-        dimWorld = GridView::dimensionworld
-    };
+    enum { dim = GridView::dimension, dimWorld = GridView::dimensionworld };
 
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using Element = typename GridView::template Codim<0>::Entity;
@@ -52,8 +50,7 @@ class PorousMediumFlowProblemWithGravity : public FVProblem<TypeTag>
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
     using GravityVector = Dune::FieldVector<Scalar, dimWorld>;
 
-
-public:
+   public:
     //! Export spatial parameter type
     using SpatialParams = GetPropType<TypeTag, Properties::SpatialParams>;
 
@@ -64,16 +61,18 @@ public:
      * \param spatialParams The spatial parameter class
      * \param paramGroup The parameter group in which to look for runtime parameters first (default is "")
      */
-    PorousMediumFlowProblemWithGravity(std::shared_ptr<const GridGeometry> gridGeometry,
-                            std::shared_ptr<SpatialParams> spatialParams,
-                            const std::string& paramGroup = "")
-    : ParentType(gridGeometry, paramGroup)
-    , gravity_(0.0)
-    , spatialParams_(spatialParams)
+    PorousMediumFlowProblemWithGravity(
+        std::shared_ptr<const GridGeometry> gridGeometry,
+        std::shared_ptr<SpatialParams> spatialParams,
+        const std::string &paramGroup = "")
+        : ParentType(gridGeometry, paramGroup),
+          gravity_(0.0),
+          spatialParams_(spatialParams)
     {
-        const bool enableGravity = getParamFromGroup<bool>(paramGroup, "Problem.EnableGravity");
+        const bool enableGravity =
+            getParamFromGroup<bool>(paramGroup, "Problem.EnableGravity");
         if (enableGravity)
-            gravity_[dimWorld-1]  = -9.81;
+            gravity_[dimWorld - 1] = -9.81;
     }
 
     /*!
@@ -82,12 +81,15 @@ public:
      * \param gridGeometry The finite volume grid geometry
      * \param paramGroup The parameter group in which to look for runtime parameters first (default is "")
      */
-    PorousMediumFlowProblemWithGravity(std::shared_ptr<const GridGeometry> gridGeometry,
-                            const std::string& paramGroup = "")
-    : PorousMediumFlowProblemWithGravity(gridGeometry,
-                              std::make_shared<SpatialParams>(gridGeometry),
-                              paramGroup)
-    {}
+    PorousMediumFlowProblemWithGravity(
+        std::shared_ptr<const GridGeometry> gridGeometry,
+        const std::string &paramGroup = "")
+        : PorousMediumFlowProblemWithGravity(
+              gridGeometry,
+              std::make_shared<SpatialParams>(gridGeometry),
+              paramGroup)
+    {
+    }
 
     /*!
      * \name Physical parameters for porous media problems
@@ -103,7 +105,9 @@ public:
      * \param globalPos The position in global coordinates where the temperature should be specified.
      */
     Scalar temperatureAtPos(const GlobalPosition &globalPos) const
-    { return this->asImp_().temperature(); }
+    {
+        return this->asImp_().temperature();
+    }
 
     /*!
      * \brief Returns the temperature \f$\mathrm{[K]}\f$ for an isothermal problem.
@@ -114,27 +118,25 @@ public:
      */
     Scalar temperature() const
     {
-        DUNE_THROW(Dune::NotImplemented, "temperature() method not implemented by the user problem");
+        DUNE_THROW(Dune::NotImplemented,
+                   "temperature() method not implemented by the user problem");
     }
 
     /*!
      * \brief Returns the spatial parameters object.
      */
-    SpatialParams &spatialParams()
-    { return *spatialParams_; }
+    SpatialParams &spatialParams() { return *spatialParams_; }
 
     /*!
      * \brief Returns the spatial parameters object.
      */
-    const SpatialParams &spatialParams() const
-    { return *spatialParams_; }
+    const SpatialParams &spatialParams() const { return *spatialParams_; }
 
-    const GravityVector &gravity() const
-    { return gravity_; }
+    const GravityVector &gravity() const { return gravity_; }
 
     // \}
 
-protected:
+   protected:
     //! The gravity acceleration vector
     GravityVector gravity_;
 
@@ -142,6 +144,6 @@ protected:
     std::shared_ptr<SpatialParams> spatialParams_;
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

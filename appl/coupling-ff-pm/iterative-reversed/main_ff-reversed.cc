@@ -21,29 +21,29 @@
  *
  * \brief A test problem for the coupled Stokes/Darcy problem (1p)
  */
- #include <config.h>
+#include <config.h>
 
- #include <ctime>
- #include <iostream>
+#include <ctime>
+#include <iostream>
 
- #include <dune/common/parallel/mpihelper.hh>
- #include <dune/common/timer.hh>
- #include <dune/istl/io.hh>
+#include <dune/common/parallel/mpihelper.hh>
+#include <dune/common/timer.hh>
+#include <dune/istl/io.hh>
 
- #include <dumux/common/properties.hh>
- #include <dumux/common/parameters.hh>
- #include <dumux/common/partial.hh>
- #include <dumux/common/dumuxmessage.hh>
- #include <dumux/linear/seqsolverbackend.hh>
- #include <dumux/assembly/fvassembler.hh>
- #include <dumux/assembly/diffmethod.hh>
- #include <dumux/discretization/method.hh>
- #include <dumux/io/vtkoutputmodule.hh>
- #include <dumux/io/staggeredvtkoutputmodule.hh>
- #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
+#include <dumux/common/parameters.hh>
+#include <dumux/common/partial.hh>
+#include <dumux/common/properties.hh>
+#include <dumux/discretization/method.hh>
+#include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
- #include <dumux/assembly/staggeredfvassembler.hh>
- #include <dumux/nonlinear/newtonsolver.hh>
+#include <dumux/assembly/staggeredfvassembler.hh>
+#include <dumux/nonlinear/newtonsolver.hh>
 
 #include "ffproblem-reversed.hh"
 
@@ -53,14 +53,14 @@
 // Helper function to put pressure on interface
 
 template<class ElementFaceVariables, class SubControlVolumeFace>
-auto velocityAtInterface(const ElementFaceVariables& elemFaceVars,
-                         const SubControlVolumeFace& scvf)
+auto velocityAtInterface(const ElementFaceVariables &elemFaceVars,
+                         const SubControlVolumeFace &scvf)
 {
     const double scalarVelocity = elemFaceVars[scvf].velocitySelf();
     auto velocity = scvf.unitOuterNormal();
     velocity[scvf.directionIndex()] = scalarVelocity;
     return velocity;
- }
+}
 
 template<class FluxVariables,
          class Problem,
@@ -70,196 +70,197 @@ template<class FluxVariables,
          class ElementVolumeVariables,
          class ElementFaceVariables,
          class ElementFluxVariablesCache>
-auto pressureAtInterface(const Problem& problem,
-                         const Element& element,
-                         const SubControlVolumeFace& scvf,
-                         const FVElementGeometry& fvGeometry,
-                         const ElementVolumeVariables& elemVolVars,
-                         const ElementFaceVariables& elemFaceVars,
-                         const ElementFluxVariablesCache& elemFluxVarsCache)
+auto pressureAtInterface(const Problem &problem,
+                         const Element &element,
+                         const SubControlVolumeFace &scvf,
+                         const FVElementGeometry &fvGeometry,
+                         const ElementVolumeVariables &elemVolVars,
+                         const ElementFaceVariables &elemFaceVars,
+                         const ElementFluxVariablesCache &elemFluxVarsCache)
 {
-  FluxVariables fluxVars;
-  return fluxVars.computeMomentumFlux(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache.gridFluxVarsCache()) /scvf.area();
+    FluxVariables fluxVars;
+    return fluxVars.computeMomentumFlux(problem, element, scvf, fvGeometry,
+                                        elemVolVars, elemFaceVars,
+                                        elemFluxVarsCache.gridFluxVarsCache()) /
+           scvf.area();
 }
 
-template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
-void setInterfacePressures(const Problem& problem,
-                            const GridVariables& gridVars,
-                            const SolutionVector& sol)
+template<class FluxVariables,
+         class Problem,
+         class GridVariables,
+         class SolutionVector>
+void setInterfacePressures(const Problem &problem,
+                           const GridVariables &gridVars,
+                           const SolutionVector &sol)
 {
-  const auto& gridGeometry = problem.gridGeometry();
-  auto fvGeometry = localView(gridGeometry);
-  auto elemVolVars = localView(gridVars.curGridVolVars());
-  auto elemFaceVars = localView(gridVars.curGridFaceVars());
-  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
+    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-  auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-  const auto pressureId = couplingInterface.getIdFromName( "Pressure" );
+    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    const auto pressureId = couplingInterface.getIdFromName("Pressure");
 
-  for (const auto& element : elements(gridGeometry.gridView()))
-  {
-    fvGeometry.bind(element);
-    elemVolVars.bind(element, fvGeometry, sol);
-    elemFaceVars.bind(element, fvGeometry, sol);
-    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bind(element);
+        elemVolVars.bind(element, fvGeometry, sol);
+        elemFaceVars.bind(element, fvGeometry, sol);
+        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
 
-    for (const auto& scvf : scvfs(fvGeometry))
-    {
-
-      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-      {
-        //TODO: What to do here?
-        const auto p = pressureAtInterface<FluxVariables>(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache);
-        couplingInterface.writeScalarQuantityOnFace( pressureId, scvf.index(), p );
-      }
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingInterface.isCoupledEntity(scvf.index())) {
+                //TODO: What to do here?
+                const auto p = pressureAtInterface<FluxVariables>(
+                    problem, element, scvf, fvGeometry, elemVolVars,
+                    elemFaceVars, elemFluxVarsCache);
+                couplingInterface.writeScalarQuantityOnFace(pressureId,
+                                                            scvf.index(), p);
+            }
+        }
     }
-  }
-
-}
-
-
-template<class Problem, class GridVariables, class SolutionVector>
-void setInterfaceVelocities(const Problem& problem,
-                            const GridVariables& gridVars,
-                            const SolutionVector& sol)
-{
-  const auto& gridGeometry = problem.gridGeometry();
-  auto fvGeometry = localView(gridGeometry);
-  auto elemVolVars = localView(gridVars.curGridVolVars());
-  auto elemFaceVars = localView(gridVars.curGridFaceVars());
-
-  auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-  const auto velocityId = couplingInterface.getIdFromName( "Velocity" );
-
-  for (const auto& element : elements(gridGeometry.gridView()))
-  {
-    fvGeometry.bindElement(element);
-    elemVolVars.bindElement(element, fvGeometry, sol);
-    elemFaceVars.bindElement(element, fvGeometry, sol);
-
-    for (const auto& scvf : scvfs(fvGeometry))
-    {
-
-      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-      {
-        //TODO: What to do here?
-        const auto v = velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
-        couplingInterface.writeScalarQuantityOnFace( velocityId, scvf.index(), v );
-      }
-    }
-  }
-
 }
 
 template<class Problem, class GridVariables, class SolutionVector>
-std::tuple<double,double,double> writeVelocitiesOnInterfaceToFile( const std::string& filename,
-                                       const Problem& problem,
-                                       const GridVariables& gridVars,
-                                       const SolutionVector& sol)
+void setInterfaceVelocities(const Problem &problem,
+                            const GridVariables &gridVars,
+                            const SolutionVector &sol)
 {
-  const auto& gridGeometry = problem.gridGeometry();
-  auto fvGeometry = localView(gridGeometry);
-  auto elemVolVars = localView(gridVars.curGridVolVars());
-  auto elemFaceVars = localView(gridVars.curGridFaceVars());
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
-  const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    const auto velocityId = couplingInterface.getIdFromName("Velocity");
 
-  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
-  ofs << "x,y,";
-  if ( couplingInterface.getDimensions() == 3 )
-    ofs << "z,";
-  ofs << "velocityY" << "\n";
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bindElement(element);
+        elemVolVars.bindElement(element, fvGeometry, sol);
+        elemFaceVars.bindElement(element, fvGeometry, sol);
 
-
-  double min = std::numeric_limits<double>::max();
-  double max = std::numeric_limits<double>::min();
-  double sum = 0.;
-  for (const auto& element : elements(gridGeometry.gridView()))
-  {
-    fvGeometry.bind(element);
-    elemVolVars.bind(element, fvGeometry, sol);
-    elemFaceVars.bindElement(element, fvGeometry, sol);
-
-    for (const auto& scvf : scvfs(fvGeometry))
-    {
-
-      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-      {
-        const auto& pos = scvf.center();
-        for (int i = 0; i < couplingInterface.getDimensions(); ++i )
-        {
-          ofs << pos[i] << ",";
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingInterface.isCoupledEntity(scvf.index())) {
+                //TODO: What to do here?
+                const auto v = velocityAtInterface(elemFaceVars,
+                                                   scvf)[scvf.directionIndex()];
+                couplingInterface.writeScalarQuantityOnFace(velocityId,
+                                                            scvf.index(), v);
+            }
         }
-        const double v = problem.dirichlet( element, scvf )[1];
-        max = std::max( v, max );
-        min = std::min( v, min );
-        sum += v;
-            //velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
-        const int prec = ofs.precision();
-        ofs << std::setprecision(std::numeric_limits<double>::digits10 + 1) << v << "\n";
-        ofs.precision( prec );
-      }
     }
-  }
-
-  ofs.close();
-
-  return std::make_tuple(min, max, sum);
 }
 
-
-
-template<class FluxVariables, class Problem, class GridVariables, class SolutionVector>
-void writePressuresOnInterfaceToFile( const std::string& filename,
-                                      const Problem& problem,
-                                      const GridVariables& gridVars,
-                                      const SolutionVector& sol)
+template<class Problem, class GridVariables, class SolutionVector>
+std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
+    const std::string &filename,
+    const Problem &problem,
+    const GridVariables &gridVars,
+    const SolutionVector &sol)
 {
-  const auto& gridGeometry = problem.gridGeometry();
-  auto fvGeometry = localView(gridGeometry);
-  auto elemVolVars = localView(gridVars.curGridVolVars());
-  auto elemFaceVars = localView(gridVars.curGridFaceVars());
-  auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
-  const auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    const auto &couplingInterface =
+        precice_adapter::PreciceAdapter::getInstance();
 
-  std::ofstream ofs( filename+".csv", std::ofstream::out | std::ofstream::trunc);
-  ofs << "x,y,";
-  if ( couplingInterface.getDimensions() == 3 )
-    ofs << "z,";
-  ofs << "pressure" << "\n";
-  for (const auto& element : elements(gridGeometry.gridView()))
-  {
-    fvGeometry.bind(element);
-    elemVolVars.bind(element, fvGeometry, sol);
-    elemFaceVars.bind(element, fvGeometry, sol);
-    elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+    std::ofstream ofs(filename + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    ofs << "x,y,";
+    if (couplingInterface.getDimensions() == 3)
+        ofs << "z,";
+    ofs << "velocityY"
+        << "\n";
 
-    for (const auto& scvf : scvfs(fvGeometry))
-    {
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
+    double sum = 0.;
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bind(element);
+        elemVolVars.bind(element, fvGeometry, sol);
+        elemFaceVars.bindElement(element, fvGeometry, sol);
 
-      if ( couplingInterface.isCoupledEntity( scvf.index() ) )
-      {
-        const auto& pos = scvf.center();
-        for (int i = 0; i < couplingInterface.getDimensions(); ++i )
-        {
-          ofs << pos[i] << ",";
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingInterface.isCoupledEntity(scvf.index())) {
+                const auto &pos = scvf.center();
+                for (int i = 0; i < couplingInterface.getDimensions(); ++i) {
+                    ofs << pos[i] << ",";
+                }
+                const double v = problem.dirichlet(element, scvf)[1];
+                max = std::max(v, max);
+                min = std::min(v, min);
+                sum += v;
+                //velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
+                const int prec = ofs.precision();
+                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
+                                         1)
+                    << v << "\n";
+                ofs.precision(prec);
+            }
         }
-        const double p = pressureAtInterface<FluxVariables>(problem, element, scvf, fvGeometry, elemVolVars, elemFaceVars, elemFluxVarsCache);
-        ofs << p << "\n";
-      }
     }
-  }
 
-  ofs.close();
+    ofs.close();
+
+    return std::make_tuple(min, max, sum);
 }
 
-int main(int argc, char** argv) try
+template<class FluxVariables,
+         class Problem,
+         class GridVariables,
+         class SolutionVector>
+void writePressuresOnInterfaceToFile(const std::string &filename,
+                                     const Problem &problem,
+                                     const GridVariables &gridVars,
+                                     const SolutionVector &sol)
 {
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFaceVars = localView(gridVars.curGridFaceVars());
+    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+    const auto &couplingInterface =
+        precice_adapter::PreciceAdapter::getInstance();
+
+    std::ofstream ofs(filename + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    ofs << "x,y,";
+    if (couplingInterface.getDimensions() == 3)
+        ofs << "z,";
+    ofs << "pressure"
+        << "\n";
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bind(element);
+        elemVolVars.bind(element, fvGeometry, sol);
+        elemFaceVars.bind(element, fvGeometry, sol);
+        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingInterface.isCoupledEntity(scvf.index())) {
+                const auto &pos = scvf.center();
+                for (int i = 0; i < couplingInterface.getDimensions(); ++i) {
+                    ofs << pos[i] << ",";
+                }
+                const double p = pressureAtInterface<FluxVariables>(
+                    problem, element, scvf, fvGeometry, elemVolVars,
+                    elemFaceVars, elemFluxVarsCache);
+                ofs << p << "\n";
+            }
+        }
+    }
+
+    ofs.close();
+}
+
+int main(int argc, char **argv)
+try {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -272,26 +273,32 @@ int main(int argc, char** argv) try
     using FreeFlowTypeTag = Properties::TTag::FreeFlowModel;
 
     // try to create a grid (from the given grid file or the input file)
-    using FreeFlowGridManager = Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
+    using FreeFlowGridManager =
+        Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
     FreeFlowGridManager freeFlowGridManager;
-    freeFlowGridManager.init("FreeFlow"); // pass parameter group
+    freeFlowGridManager.init("FreeFlow");  // pass parameter group
 
     // we compute on the leaf grid view
-    const auto& freeFlowGridView = freeFlowGridManager.grid().leafGridView();
+    const auto &freeFlowGridView = freeFlowGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using FreeFlowGridGeometry = GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
-    auto freeFlowGridGeometry = std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
+    using FreeFlowGridGeometry =
+        GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
+    auto freeFlowGridGeometry =
+        std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
     freeFlowGridGeometry->update();
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
-    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(freeFlowGridGeometry);
+    auto freeFlowProblem =
+        std::make_shared<FreeFlowProblem>(freeFlowGridGeometry);
 
     // the solution vector
     GetPropType<FreeFlowTypeTag, Properties::SolutionVector> sol;
-    sol[FreeFlowGridGeometry::cellCenterIdx()].resize(freeFlowGridGeometry->numCellCenterDofs());
-    sol[FreeFlowGridGeometry::faceIdx()].resize(freeFlowGridGeometry->numFaceDofs());
+    sol[FreeFlowGridGeometry::cellCenterIdx()].resize(
+        freeFlowGridGeometry->numCellCenterDofs());
+    sol[FreeFlowGridGeometry::faceIdx()].resize(
+        freeFlowGridGeometry->numFaceDofs());
 
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
@@ -299,42 +306,39 @@ int main(int argc, char** argv) try
     // Configure preCICE. For now the config file is hardcoded.
     //couplingInterface.createInstance( "FreeFlow", mpiHelper.rank(), mpiHelper.size() );
     std::string preciceConfigFilename = "precice-config.xml";
-//    if (argc == 3)
-//      preciceConfigFilename = argv[2];
+    //    if (argc == 3)
+    //      preciceConfigFilename = argv[2];
     if (argc > 2)
-      preciceConfigFilename = argv[argc-1];
+        preciceConfigFilename = argv[argc - 1];
 
-    auto& couplingInterface =
-        precice_adapter::PreciceAdapter::getInstance();
-    couplingInterface.announceSolver( "FreeFlow", preciceConfigFilename,
-                                      mpiHelper.rank(), mpiHelper.size() );
+    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    couplingInterface.announceSolver("FreeFlow", preciceConfigFilename,
+                                     mpiHelper.rank(), mpiHelper.size());
 
     const int dim = couplingInterface.getDimensions();
-    std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension) << std::endl;
+    std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
+              << std::endl;
     if (dim != int(FreeFlowGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
-
     // GET mesh corodinates
-    const double xMin = getParamFromGroup<std::vector<double>>("Darcy", "Grid.LowerLeft")[0];
-    const double xMax = getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
-    std::vector<double> coords; //( dim * vertexSize );
+    const double xMin =
+        getParamFromGroup<std::vector<double>>("Darcy", "Grid.LowerLeft")[0];
+    const double xMax =
+        getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
+    std::vector<double> coords;  //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
 
-    for (const auto& element : elements(freeFlowGridView))
-    {
+    for (const auto &element : elements(freeFlowGridView)) {
         auto fvGeometry = localView(*freeFlowGridGeometry);
         fvGeometry.bindElement(element);
 
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
+        for (const auto &scvf : scvfs(fvGeometry)) {
             static constexpr auto eps = 1e-7;
-            const auto& pos = scvf.center();
-            if (pos[1] < freeFlowGridGeometry->bBoxMin()[1] + eps)
-            {
-                if (pos[0] > xMin - eps && pos[0] < xMax + eps)
-                {
-                  coupledScvfIndices.push_back(scvf.index());
+            const auto &pos = scvf.center();
+            if (pos[1] < freeFlowGridGeometry->bBoxMin()[1] + eps) {
+                if (pos[0] > xMin - eps && pos[0] < xMax + eps) {
+                    coupledScvfIndices.push_back(scvf.index());
                     for (const auto p : pos)
                         coords.push_back(p);
                 }
@@ -343,13 +347,12 @@ int main(int argc, char** argv) try
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    const double preciceDt = couplingInterface.setMeshAndInitialize( "FreeFlowMesh",
-                                                                     numberOfPoints,
-                                                                     coords);
-    couplingInterface.createIndexMapping( coupledScvfIndices );
+    const double preciceDt = couplingInterface.setMeshAndInitialize(
+        "FreeFlowMesh", numberOfPoints, coords);
+    couplingInterface.createIndexMapping(coupledScvfIndices);
 
-    const auto velocityId = couplingInterface.announceQuantity( "Velocity" );
-    const auto pressureId = couplingInterface.announceQuantity( "Pressure" );
+    const auto velocityId = couplingInterface.announceQuantity("Velocity");
+    const auto pressureId = couplingInterface.announceQuantity("Pressure");
 
     freeFlowProblem->updatePreciceDataIds();
 
@@ -357,40 +360,48 @@ int main(int argc, char** argv) try
     freeFlowProblem->applyInitialSolution(sol);
 
     // the grid variables
-    using FreeFlowGridVariables = GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
-    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(freeFlowProblem, freeFlowGridGeometry);
+    using FreeFlowGridVariables =
+        GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
+    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(
+        freeFlowProblem, freeFlowGridGeometry);
     freeFlowGridVariables->init(sol);
 
     // intialize the vtk output module
-    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(sol)> freeFlowVtkWriter(*freeFlowGridVariables, sol, freeFlowProblem->name());
-    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(freeFlowVtkWriter);
-    freeFlowVtkWriter.addField(freeFlowProblem->getAnalyticalVelocityX(), "analyticalV_x");
+    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(sol)>
+        freeFlowVtkWriter(*freeFlowGridVariables, sol, freeFlowProblem->name());
+    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(
+        freeFlowVtkWriter);
+    freeFlowVtkWriter.addField(freeFlowProblem->getAnalyticalVelocityX(),
+                               "analyticalV_x");
     freeFlowVtkWriter.write(0.0);
 
-     using FluxVariables = GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
+    using FluxVariables =
+        GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
-    if ( couplingInterface.hasToWriteInitialData() )
-    {
-      //TODO
-//      couplingInterface.writeQuantityVector( pressureId );
+    if (couplingInterface.hasToWriteInitialData()) {
+        //TODO
+        //      couplingInterface.writeQuantityVector( pressureId );
 
-      setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
-      //For testing
-//      {
-//        std::cout << "Pressures to be sent to pm" << std::endl;
-//        const auto p = couplingInterface.getQuantityVector( pressureId );
-//        for (size_t i = 0; i < p.size(); ++i) {
-//          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
-//        }
-//      }
-      couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
-      couplingInterface.announceInitialDataWritten();
+        setInterfacePressures<FluxVariables>(*freeFlowProblem,
+                                             *freeFlowGridVariables, sol);
+        //For testing
+        //      {
+        //        std::cout << "Pressures to be sent to pm" << std::endl;
+        //        const auto p = couplingInterface.getQuantityVector( pressureId );
+        //        for (size_t i = 0; i < p.size(); ++i) {
+        //          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
+        //        }
+        //      }
+        couplingInterface.writeScalarQuantityToOtherSolver(pressureId);
+        couplingInterface.announceInitialDataWritten();
     }
     couplingInterface.initializeData();
 
     // the assembler for a stationary problem
-    using Assembler = StaggeredFVAssembler<FreeFlowTypeTag, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(freeFlowProblem, freeFlowGridGeometry, freeFlowGridVariables);
+    using Assembler =
+        StaggeredFVAssembler<FreeFlowTypeTag, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        freeFlowProblem, freeFlowGridGeometry, freeFlowGridVariables);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
@@ -400,185 +411,180 @@ int main(int argc, char** argv) try
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
-
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
     double vtkTime = 1.0;
     size_t iter = 0;
 
-    while ( couplingInterface.isCouplingOngoing() )
-    {
-        if ( couplingInterface.hasToWriteIterationCheckpoint() )
-        {
+    while (couplingInterface.isCouplingOngoing()) {
+        if (couplingInterface.hasToWriteIterationCheckpoint()) {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
             couplingInterface.announceIterationCheckpointWritten();
         }
 
         // TODO
-        couplingInterface.readScalarQuantityFromOtherSolver( velocityId );
-//        // For testing
-//        {
-//          const auto v = couplingInterface.getQuantityVector( velocityId );
-//          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-//          std::cout << "Sum of velocities over boundary to pm: \n" << sum << std::endl;
-//        }
+        couplingInterface.readScalarQuantityFromOtherSolver(velocityId);
+        //        // For testing
+        //        {
+        //          const auto v = couplingInterface.getQuantityVector( velocityId );
+        //          const double sum = std::accumulate( v.begin(), v.end(), 0. );
+        //          std::cout << "Sum of velocities over boundary to pm: \n" << sum << std::endl;
+        //        }
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
-        setInterfacePressures<FluxVariables>( *freeFlowProblem, *freeFlowGridVariables, sol );
+        setInterfacePressures<FluxVariables>(*freeFlowProblem,
+                                             *freeFlowGridVariables, sol);
         // For testing
-//        {
-//          const auto p = couplingInterface.getQuantityVector( pressureId );
-//          const double sum = std::accumulate( p.begin(), p.end(), 0. );
-//          std::cout << "Pressures to be sent to pm" << std::endl;
-////          for (size_t i = 0; i < p.size(); ++i) {
-////            std::cout << "p[" << i << "]=" << p[i] << std::endl;
-////          }
-//          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
-//        }
-        couplingInterface.writeScalarQuantityToOtherSolver( pressureId );
-
+        //        {
+        //          const auto p = couplingInterface.getQuantityVector( pressureId );
+        //          const double sum = std::accumulate( p.begin(), p.end(), 0. );
+        //          std::cout << "Pressures to be sent to pm" << std::endl;
+        ////          for (size_t i = 0; i < p.size(); ++i) {
+        ////            std::cout << "p[" << i << "]=" << p[i] << std::endl;
+        ////          }
+        //          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
+        //        }
+        couplingInterface.writeScalarQuantityToOtherSolver(pressureId);
 
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
-        const double preciceDt = couplingInterface.advance( dt );
-        dt = std::min( preciceDt, dt );
+        const double preciceDt = couplingInterface.advance(dt);
+        dt = std::min(preciceDt, dt);
 
         //
         {
-          double min = std::numeric_limits<double>::max();
-          double max = std::numeric_limits<double>::min();
-          double sum = 0.;
-          const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-velocity-" + std::to_string(iter);
-          std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile( filename,
-                                                                     *freeFlowProblem,
-                                                                     *freeFlowGridVariables,
-                                                                     sol );
-          const int prec = std::cout.precision();
-          std::cout << "Velocity statistics:" << std::endl
-                    << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+            double min = std::numeric_limits<double>::max();
+            double max = std::numeric_limits<double>::min();
+            double sum = 0.;
+            const std::string filename = getParam<std::string>("Problem.Name") +
+                                         "-" + freeFlowProblem->name() +
+                                         "-interface-velocity-" +
+                                         std::to_string(iter);
+            std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile(
+                filename, *freeFlowProblem, *freeFlowGridVariables, sol);
+            const int prec = std::cout.precision();
+            std::cout << "Velocity statistics:" << std::endl
+                      << std::setprecision(
+                             std::numeric_limits<double>::digits10 + 1)
+                      << "  min: " << min << std::endl
+                      << "  max: " << max << std::endl
+                      << "  sum: " << sum << std::endl;
+            std::cout.precision(prec);
+            {
+                const std::string filenameFlow =
+                    "free-flow-statistics-" + std::to_string(iter);
+                std::ofstream ofs(filenameFlow + ".txt",
+                                  std::ofstream::out | std::ofstream::trunc);
+                const auto prec = ofs.precision();
+                ofs << "Velocity statistics (free flow):" << std::endl
+                    << std::setprecision(std::numeric_limits<double>::digits10 +
+                                         1)
                     << "  min: " << min << std::endl
                     << "  max: " << max << std::endl
                     << "  sum: " << sum << std::endl;
-          std::cout.precision( prec );
-          {
-            const std::string filenameFlow="free-flow-statistics-" + std::to_string(iter);
-            std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
-            const auto prec = ofs.precision();
-            ofs << "Velocity statistics (free flow):" << std::endl
-                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                << "  min: " << min << std::endl
-                << "  max: " << max << std::endl
-                << "  sum: " << sum << std::endl;
-            ofs.precision( prec );
-            ofs.close();
-          }
+                ofs.precision(prec);
+                ofs.close();
+            }
         }
         {
-          const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-pressure-" + std::to_string(iter);
-          writePressuresOnInterfaceToFile<FluxVariables>( filename,
-                                                         *freeFlowProblem,
-                                                         *freeFlowGridVariables,
-                                                         sol );
+            const std::string filename = getParam<std::string>("Problem.Name") +
+                                         "-" + freeFlowProblem->name() +
+                                         "-interface-pressure-" +
+                                         std::to_string(iter);
+            writePressuresOnInterfaceToFile<FluxVariables>(
+                filename, *freeFlowProblem, *freeFlowGridVariables, sol);
         }
         ++iter;
 
-        if ( couplingInterface.hasToReadIterationCheckpoint() )
-        {
-//            //Read checkpoint
-//            freeFlowVtkWriter.write(vtkTime);
-//            vtkTime += 1.;
+        if (couplingInterface.hasToReadIterationCheckpoint()) {
+            //            //Read checkpoint
+            //            freeFlowVtkWriter.write(vtkTime);
+            //            vtkTime += 1.;
             sol = sol_checkpoint;
             freeFlowGridVariables->update(sol);
             freeFlowGridVariables->advanceTimeStep();
             //freeFlowGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
-        }
-        else // coupling successful
+        } else  // coupling successful
         {
-          // write vtk output
-          freeFlowVtkWriter.write(vtkTime);
+            // write vtk output
+            freeFlowVtkWriter.write(vtkTime);
         }
-
     }
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
     ////////////////////////////////////////////////////////////
 
     {
-      double min = std::numeric_limits<double>::max();
-      double max = std::numeric_limits<double>::min();
-      double sum = 0.;
-      const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-velocity";
-      std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile( filename,
-                                        *freeFlowProblem,
-                                        *freeFlowGridVariables,
-                                        sol );
-      const int prec = std::cout.precision();
-      std::cout << "Velocity statistics:" << std::endl
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::min();
+        double sum = 0.;
+        const std::string filename = getParam<std::string>("Problem.Name") +
+                                     "-" + freeFlowProblem->name() +
+                                     "-interface-velocity";
+        std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile(
+            filename, *freeFlowProblem, *freeFlowGridVariables, sol);
+        const int prec = std::cout.precision();
+        std::cout << "Velocity statistics:" << std::endl
+                  << std::setprecision(std::numeric_limits<double>::digits10 +
+                                       1)
+                  << "  min: " << min << std::endl
+                  << "  max: " << max << std::endl
+                  << "  sum: " << sum << std::endl;
+        std::cout.precision(prec);
+        {
+            const std::string filenameFlow = "free-flow-statistics";
+            std::ofstream ofs(filenameFlow + ".txt",
+                              std::ofstream::out | std::ofstream::trunc);
+            const auto prec = ofs.precision();
+            ofs << "Velocity statistics (free flow):" << std::endl
                 << std::setprecision(std::numeric_limits<double>::digits10 + 1)
                 << "  min: " << min << std::endl
                 << "  max: " << max << std::endl
                 << "  sum: " << sum << std::endl;
-      std::cout.precision( prec );
-      {
-        const std::string filenameFlow="free-flow-statistics";
-        std::ofstream ofs( filenameFlow+".txt", std::ofstream::out | std::ofstream::trunc);
-        const auto prec = ofs.precision();
-        ofs << "Velocity statistics (free flow):" << std::endl
-            << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-            << "  min: " << min << std::endl
-            << "  max: " << max << std::endl
-            << "  sum: " << sum << std::endl;
-        ofs.precision( prec );
-        ofs.close();
-      }
+            ofs.precision(prec);
+            ofs.close();
+        }
     }
     {
-      const std::string filename = getParam<std::string>("Problem.Name") + "-" + freeFlowProblem->name() + "-interface-pressure";
-      writePressuresOnInterfaceToFile<FluxVariables>( filename,
-                                                      *freeFlowProblem,
-                                                      *freeFlowGridVariables,
-                                                      sol );
+        const std::string filename = getParam<std::string>("Problem.Name") +
+                                     "-" + freeFlowProblem->name() +
+                                     "-interface-pressure";
+        writePressuresOnInterfaceToFile<FluxVariables>(
+            filename, *freeFlowProblem, *freeFlowGridVariables, sol);
     }
 
     couplingInterface.finalize();
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
-catch (Dumux::ParameterException &e)
-{
+}  // end main
+catch (Dumux::ParameterException &e) {
     std::cerr << std::endl << e << " ---> Abort!" << std::endl;
     return 1;
-}
-catch (Dune::DGFException & e)
-{
-    std::cerr << "DGF exception thrown (" << e <<
-                 "). Most likely, the DGF file name is wrong "
+} catch (Dune::DGFException &e) {
+    std::cerr << "DGF exception thrown (" << e
+              << "). Most likely, the DGF file name is wrong "
                  "or the DGF file is corrupted, "
-                 "e.g. missing hash at end of file or wrong number (dimensions) of entries."
-                 << " ---> Abort!" << std::endl;
+                 "e.g. missing hash at end of file or wrong number "
+                 "(dimensions) of entries."
+              << " ---> Abort!" << std::endl;
     return 2;
-}
-catch (Dune::Exception &e)
-{
+} catch (Dune::Exception &e) {
     std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
     return 3;
-}
-catch (...)
-{
+} catch (...) {
     std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
     return 4;
 }

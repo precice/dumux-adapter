@@ -50,55 +50,61 @@
 
 namespace Dumux
 {
-template <class TypeTag>
+template<class TypeTag>
 class DarcySubProblem;
 
 namespace Properties
 {
 // Create new type tags
-namespace TTag {
-struct DarcyOneP { using InheritsFrom = std::tuple<OneP, CCTpfaModel>; };
-} // end namespace TTag
+namespace TTag
+{
+struct DarcyOneP {
+    using InheritsFrom = std::tuple<OneP, CCTpfaModel>;
+};
+}  // end namespace TTag
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::DarcyOneP> { using type = Dumux::DarcySubProblem<TypeTag>; };
+struct Problem<TypeTag, TTag::DarcyOneP> {
+    using type = Dumux::DarcySubProblem<TypeTag>;
+};
 
 // the fluid system
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::DarcyOneP>
-{
+struct FluidSystem<TypeTag, TTag::DarcyOneP> {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> > ;
+    using type =
+        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar>>;
 };
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::DarcyOneP>
-{
+struct Grid<TypeTag, TTag::DarcyOneP> {
     static constexpr auto dim = 2;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
+    using TensorGrid =
+        Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim>>;
 
-//****** comment out for the last exercise *****//
+    //****** comment out for the last exercise *****//
     using type = TensorGrid;
 
-//****** uncomment for the last exercise *****//
+    //****** uncomment for the last exercise *****//
     // using HostGrid = TensorGrid;
     // using type = Dune::SubGrid<dim, HostGrid>;
 };
 
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOneP> {
-    using type = OnePSpatialParams<GetPropType<TypeTag, FVGridGeometry>, GetPropType<TypeTag, Scalar>>;
+    using type = OnePSpatialParams<GetPropType<TypeTag, FVGridGeometry>,
+                                   GetPropType<TypeTag, Scalar>>;
 };
 
-} // end namespace Properties
+}  // end namespace Properties
 
 /*!
  * \brief The porous medium flow sub problem
  */
-template <class TypeTag>
+template<class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
@@ -108,12 +114,15 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
+    using FVElementGeometry =
+        typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
-    using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolumeFace =
+        typename FVElementGeometry::SubControlVolumeFace;
     using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
 
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using Indices =
+        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
@@ -122,20 +131,24 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-public:
+   public:
 #if ENABLEMONOLITHIC
     DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
-                   std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
+                    std::shared_ptr<CouplingManager> couplingManager)
+        : ParentType(fvGridGeometry, "Darcy"),
+          eps_(1e-7),
+          couplingManager_(couplingManager)
 #else
-DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7),
-      couplingInterface_(precice_adapter::PreciceAdapter::getInstance() ),
-      pressureId_(0),
-      velocityId_(0),
-      dataIdsWereSet_(false)
+    DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
+        : ParentType(fvGridGeometry, "Darcy"),
+          eps_(1e-7),
+          couplingInterface_(precice_adapter::PreciceAdapter::getInstance()),
+          pressureId_(0),
+          velocityId_(0),
+          dataIdsWereSet_(false)
 #endif
-    {}
+    {
+    }
 
     /*!
      * \name Simulation steering
@@ -146,8 +159,7 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      * \brief Return the temperature within the domain in [K].
      *
      */
-    Scalar temperature() const
-    { return 273.15 + 10; } // 10°C
+    Scalar temperature() const { return 273.15 + 10; }  // 10°C
     // \}
 
     /*!
@@ -162,7 +174,8 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
       * \param element The element
       * \param scvf The boundary sub control volume face
       */
-    BoundaryTypes boundaryTypes(const Element &element, const SubControlVolumeFace &scvf) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolumeFace &scvf) const
     {
         BoundaryTypes values;
 
@@ -175,13 +188,13 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
             values.setAllCouplingNeumann();
 #else
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-          values.setAllDirichlet();
+        if (couplingInterface_.isCoupledEntity(faceId))
+            values.setAllDirichlet();
 #endif
         return values;
     }
 
-        /*!
+    /*!
      * \brief Evaluate the boundary conditions for a Dirichlet control volume.
      *
      * \param element The element for which the Dirichlet boundary condition is set
@@ -189,7 +202,8 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      *
      * For this method, the \a values parameter stores primary variables.
      */
-    PrimaryVariables dirichlet(const Element &element, const SubControlVolumeFace &scvf) const
+    PrimaryVariables dirichlet(const Element &element,
+                               const SubControlVolumeFace &scvf) const
     {
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
@@ -198,8 +212,9 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
 #if ENABLEMONOLITHIC
 #else
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-          values = couplingInterface_.getScalarQuantityOnFace( pressureId_, faceId );
+        if (couplingInterface_.isCoupledEntity(faceId))
+            values =
+                couplingInterface_.getScalarQuantityOnFace(pressureId_, faceId);
 #endif
         return values;
     }
@@ -215,10 +230,10 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      * For this method, the \a values variable stores primary variables.
      */
     template<class ElementVolumeVariables>
-    NumEqVector neumann(const Element& element,
-                        const FVElementGeometry& fvGeometry,
-                        const ElementVolumeVariables& elemVolVars,
-                        const SubControlVolumeFace& scvf) const
+    NumEqVector neumann(const Element &element,
+                        const FVElementGeometry &fvGeometry,
+                        const ElementVolumeVariables &elemVolVars,
+                        const SubControlVolumeFace &scvf) const
     {
         // no-flow everywhere ...
         NumEqVector values(0.0);
@@ -226,15 +241,19 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
 #if ENABLEMONOLITHIC
         // ... except at the coupling interface
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+            values[Indices::conti0EqIdx] =
+                couplingManager().couplingData().massCouplingCondition(
+                    element, fvGeometry, elemVolVars, scvf);
 #else
-        assert( dataIdsWereSet_ );
+        assert(dataIdsWereSet_);
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-        {
-          const Scalar density = 1000.;
-          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
-          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
+        if (couplingInterface_.isCoupledEntity(faceId)) {
+            const Scalar density = 1000.;
+            values[Indices::conti0EqIdx] =
+                density *
+                couplingInterface_.getScalarQuantityOnFace(velocityId_, faceId);
+            std::cout << "pm: values[Indices::conti0EqIdx] = " << values
+                      << std::endl;
         }
 #endif
         return values;
@@ -257,10 +276,12 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      */
     template<class ElementVolumeVariables>
     NumEqVector source(const Element &element,
-                       const FVElementGeometry& fvGeometry,
-                       const ElementVolumeVariables& elemVolVars,
+                       const FVElementGeometry &fvGeometry,
+                       const ElementVolumeVariables &elemVolVars,
                        const SubControlVolume &scv) const
-    { return NumEqVector(0.0); }
+    {
+        return NumEqVector(0.0);
+    }
 
     // \}
 
@@ -274,7 +295,8 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
      */
     PrimaryVariables initial(const Element &element) const
     {
-        static const Scalar p = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.InitialP");
+        static const Scalar p =
+            getParamFromGroup<Scalar>(this->paramGroup(), "Problem.InitialP");
         return PrimaryVariables(p);
     }
 
@@ -283,43 +305,50 @@ DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
 #if !ENABLEMONOLITHIC
     void updatePreciceDataIds()
     {
-      pressureId_ = couplingInterface_.getIdFromName( "Pressure" );
-      velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
-      dataIdsWereSet_ = true;
+        pressureId_ = couplingInterface_.getIdFromName("Pressure");
+        velocityId_ = couplingInterface_.getIdFromName("Velocity");
+        dataIdsWereSet_ = true;
     }
 #endif
 
 #if ENABLEMONOLITHIC
     //! Get the coupling manager
-    const CouplingManager& couplingManager() const
-    { return *couplingManager_; }
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
 #endif
 
-private:
+   private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_; }
+    {
+        return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_;
+    }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_; }
+    {
+        return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_;
+    }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    {
+        return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_;
+    }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
+    {
+        return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_;
+    }
 
     Scalar eps_;
 
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_adapter::PreciceAdapter& couplingInterface_;
-   size_t pressureId_;
-   size_t velocityId_;
-   bool dataIdsWereSet_;
+    precice_adapter::PreciceAdapter &couplingInterface_;
+    size_t pressureId_;
+    size_t velocityId_;
+    bool dataIdsWereSet_;
 
 #endif
 };
-} //end namespace
+}  // namespace Dumux
 
-#endif //DUMUX_DARCY_SUBPROBLEM_HH
+#endif  //DUMUX_DARCY_SUBPROBLEM_HH

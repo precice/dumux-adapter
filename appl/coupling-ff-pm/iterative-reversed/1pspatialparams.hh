@@ -26,8 +26,8 @@
 
 #include <dumux/material/spatialparams/fv1p.hh>
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \ingroup OnePModel
  *
@@ -36,20 +36,25 @@ namespace Dumux {
  */
 template<class FVGridGeometry, class Scalar>
 class OnePSpatialParams
-: public FVSpatialParamsOneP<FVGridGeometry, Scalar, OnePSpatialParams<FVGridGeometry, Scalar>>
+    : public FVSpatialParamsOneP<FVGridGeometry,
+                                 Scalar,
+                                 OnePSpatialParams<FVGridGeometry, Scalar>>
 {
     using GridView = typename FVGridGeometry::GridView;
-    using ParentType = FVSpatialParamsOneP<FVGridGeometry, Scalar, OnePSpatialParams<FVGridGeometry, Scalar>>;
+    using ParentType =
+        FVSpatialParamsOneP<FVGridGeometry,
+                            Scalar,
+                            OnePSpatialParams<FVGridGeometry, Scalar>>;
 
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
-public:
+   public:
     // export permeability type
     using PermeabilityType = Scalar;
 
     OnePSpatialParams(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry)
+        : ParentType(fvGridGeometry)
     {
         permeability_ = getParam<Scalar>("Darcy.SpatialParams.Permeability");
         porosity_ = getParam<Scalar>("Darcy.SpatialParams.Porosity");
@@ -62,30 +67,35 @@ public:
      * \param globalPos The global position
      * \return the intrinsic permeability
      */
-    PermeabilityType permeabilityAtPos(const GlobalPosition& globalPos) const
-    { return permeability_; }
+    PermeabilityType permeabilityAtPos(const GlobalPosition &globalPos) const
+    {
+        return permeability_;
+    }
 
     /*! \brief Define the porosity in [-].
      *
      * \param globalPos The global position
      */
-    Scalar porosityAtPos(const GlobalPosition& globalPos) const
-    { return porosity_; }
+    Scalar porosityAtPos(const GlobalPosition &globalPos) const
+    {
+        return porosity_;
+    }
 
     /*! \brief Define the Beavers-Joseph coefficient in [-].
      *
      * \param globalPos The global position
      */
-    Scalar beaversJosephCoeffAtPos(const GlobalPosition& globalPos) const
-    { return alphaBJ_; }
+    Scalar beaversJosephCoeffAtPos(const GlobalPosition &globalPos) const
+    {
+        return alphaBJ_;
+    }
 
-
-private:
+   private:
     Scalar permeability_;
     Scalar porosity_;
     Scalar alphaBJ_;
 };
 
-} // end namespace
+}  // namespace Dumux
 
 #endif

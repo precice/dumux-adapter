@@ -29,7 +29,6 @@
 
 namespace Dumux
 {
-
 /*!
  * \ingroup BoundaryTests
  * \brief The spatial parameters class for the test problem using the
@@ -37,17 +36,20 @@ namespace Dumux
  */
 template<class FVGridGeometry, class Scalar>
 class OnePSpatialParams
-: public FVSpatialParamsOneP<FVGridGeometry, Scalar,
-                             OnePSpatialParams<FVGridGeometry, Scalar>>
+    : public FVSpatialParamsOneP<FVGridGeometry,
+                                 Scalar,
+                                 OnePSpatialParams<FVGridGeometry, Scalar>>
 {
     using GridView = typename FVGridGeometry::GridView;
-    using ParentType = FVSpatialParamsOneP<FVGridGeometry, Scalar,
-                                           OnePSpatialParams<FVGridGeometry, Scalar>>;
+    using ParentType =
+        FVSpatialParamsOneP<FVGridGeometry,
+                            Scalar,
+                            OnePSpatialParams<FVGridGeometry, Scalar>>;
 
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
-public:
+   public:
     // export permeability type
     using PermeabilityType = Scalar;
 
@@ -64,29 +66,31 @@ public:
      * \param globalPos The global position
      * \return the intrinsic permeability
      */
-    PermeabilityType permeabilityAtPos(const GlobalPosition& globalPos) const
-    { return permeability_; }
+    PermeabilityType permeabilityAtPos(const GlobalPosition &globalPos) const
+    {
+        return permeability_;
+    }
 
     /*! \brief Defines the porosity in [-].
      *
      * \param globalPos The global position
      */
-    Scalar porosityAtPos(const GlobalPosition& globalPos) const
-    { return 0.4; }
+    Scalar porosityAtPos(const GlobalPosition &globalPos) const { return 0.4; }
 
     /*! \brief Defines the Beavers-Joseph coefficient in [-].
      *
      * \param globalPos The global position
      */
-    Scalar beaversJosephCoeffAtPos(const GlobalPosition& globalPos) const
-    { return alphaBJ_; }
+    Scalar beaversJosephCoeffAtPos(const GlobalPosition &globalPos) const
+    {
+        return alphaBJ_;
+    }
 
-
-private:
+   private:
     Scalar permeability_;
     Scalar alphaBJ_;
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

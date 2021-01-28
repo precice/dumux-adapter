@@ -28,9 +28,9 @@
 
 #include <dumux/discretization/cctpfa.hh>
 #include <dumux/io/gnuplotinterface.hh>
+#include <dumux/material/fluidmatrixinteractions/diffusivityconstanttortuosity.hh>
 #include <dumux/material/fluidsystems/1padapter.hh>
 #include <dumux/material/fluidsystems/h2oair.hh>
-#include <dumux/material/fluidmatrixinteractions/diffusivityconstanttortuosity.hh>
 
 #include <dumux/porousmediumflow/problem.hh>
 
@@ -44,29 +44,36 @@
 
 namespace Dumux
 {
-template <class TypeTag>
+template<class TypeTag>
 class DarcySubProblem;
 
 namespace Properties
 {
 // Create new type tags
-namespace TTag {
+namespace TTag
+{
 #if EXNUMBER >= 1
-struct DarcyOnePNC { using InheritsFrom = std::tuple<TwoPNC, CCTpfaModel>; };
+struct DarcyOnePNC {
+    using InheritsFrom = std::tuple<TwoPNC, CCTpfaModel>;
+};
 #else
-struct DarcyOnePNC { using InheritsFrom = std::tuple<OnePNC, CCTpfaModel>; };
+struct DarcyOnePNC {
+    using InheritsFrom = std::tuple<OnePNC, CCTpfaModel>;
+};
 #endif
-} // end namespace TTag
+}  // end namespace TTag
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::DarcyOnePNC> { using type = Dumux::DarcySubProblem<TypeTag>; };
+struct Problem<TypeTag, TTag::DarcyOnePNC> {
+    using type = Dumux::DarcySubProblem<TypeTag>;
+};
 
 // The fluid system
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::DarcyOnePNC>
-{
-    using H2OAir = FluidSystems::H2OAir<GetPropType<TypeTag, Properties::Scalar>>;
+struct FluidSystem<TypeTag, TTag::DarcyOnePNC> {
+    using H2OAir =
+        FluidSystems::H2OAir<GetPropType<TypeTag, Properties::Scalar>>;
 #if EXNUMBER == 0
     using type = FluidSystems::OnePAdapter<H2OAir, H2OAir::gasPhaseIdx>;
 #else
@@ -76,43 +83,54 @@ struct FluidSystem<TypeTag, TTag::DarcyOnePNC>
 
 // Use moles
 template<class TypeTag>
-struct UseMoles<TypeTag, TTag::DarcyOnePNC> { static constexpr bool value = true; };
+struct UseMoles<TypeTag, TTag::DarcyOnePNC> {
+    static constexpr bool value = true;
+};
 
 // Do not replace one equation with a total mass balance
 template<class TypeTag>
-struct ReplaceCompEqIdx<TypeTag, TTag::DarcyOnePNC> { static constexpr int value = 3; };
+struct ReplaceCompEqIdx<TypeTag, TTag::DarcyOnePNC> {
+    static constexpr int value = 3;
+};
 
 //! Use a model with constant tortuosity for the effective diffusivity
 template<class TypeTag>
-struct EffectiveDiffusivityModel<TypeTag, TTag::DarcyOnePNC>
-{ using type = DiffusivityConstantTortuosity<GetPropType<TypeTag, Properties::Scalar>>; };
+struct EffectiveDiffusivityModel<TypeTag, TTag::DarcyOnePNC> {
+    using type =
+        DiffusivityConstantTortuosity<GetPropType<TypeTag, Properties::Scalar>>;
+};
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::DarcyOnePNC> { using type = Dune::YaspGrid<2>; };
+struct Grid<TypeTag, TTag::DarcyOnePNC> {
+    using type = Dune::YaspGrid<2>;
+};
 
 #if EXNUMBER >= 1
 //! Set the default formulation to pw-Sn: This can be over written in the problem.
 template<class TypeTag>
-struct Formulation<TypeTag, TTag::DarcyOnePNC>
-{ static constexpr auto value = TwoPFormulation::p1s0; };
+struct Formulation<TypeTag, TTag::DarcyOnePNC> {
+    static constexpr auto value = TwoPFormulation::p1s0;
+};
 #endif
 
 // Set the spatial paramaters type
 #if EXNUMBER >= 1
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOnePNC> {
-    using type = TwoPSpatialParams<GetPropType<TypeTag, FVGridGeometry>, GetPropType<TypeTag, Scalar>>;
+    using type = TwoPSpatialParams<GetPropType<TypeTag, FVGridGeometry>,
+                                   GetPropType<TypeTag, Scalar>>;
 };
 #else
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOnePNC> {
-    using type = OnePSpatialParams<GetPropType<TypeTag, FVGridGeometry>, GetPropType<TypeTag, Scalar>>;
+    using type = OnePSpatialParams<GetPropType<TypeTag, FVGridGeometry>,
+                                   GetPropType<TypeTag, Scalar>>;
 };
 #endif
 
-} // end namespace Properties
+}  // end namespace Properties
 
-template <class TypeTag>
+template<class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
@@ -122,13 +140,16 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
+    using FVElementGeometry =
+        typename GetPropType<TypeTag, Properties::FVGridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
-    using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolumeFace =
+        typename FVElementGeometry::SubControlVolumeFace;
     using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
 
     // copy some indices for convenience
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using Indices =
+        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
     enum {
         // grid and world dimension
         dim = GridView::dimension,
@@ -154,27 +175,36 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
     using TimeLoopPtr = std::shared_ptr<TimeLoop<Scalar>>;
 
-public:
+   public:
     DarcySubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
-                   std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
+                    std::shared_ptr<CouplingManager> couplingManager)
+        : ParentType(fvGridGeometry, "Darcy"),
+          eps_(1e-7),
+          couplingManager_(couplingManager)
     {
 #if EXNUMBER >= 3
-        saturation_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.Saturation");
+        saturation_ =
+            getParamFromGroup<Scalar>(this->paramGroup(), "Problem.Saturation");
 #else
-        moleFraction_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.MoleFraction");
+        moleFraction_ = getParamFromGroup<Scalar>(this->paramGroup(),
+                                                  "Problem.MoleFraction");
 #endif
 
         // initialize output file
-        plotFluxes_ = getParamFromGroup<bool>(this->paramGroup(), "Problem.PlotFluxes", false);
-        plotStorage_ = getParamFromGroup<bool>(this->paramGroup(), "Problem.PlotStorage", false);
-        storageFileName_ = "storage_" + getParam<std::string>("Problem.Name") + "_" + this->name() + ".csv";
+        plotFluxes_ = getParamFromGroup<bool>(this->paramGroup(),
+                                              "Problem.PlotFluxes", false);
+        plotStorage_ = getParamFromGroup<bool>(this->paramGroup(),
+                                               "Problem.PlotStorage", false);
+        storageFileName_ = "storage_" + getParam<std::string>("Problem.Name") +
+                           "_" + this->name() + ".csv";
         storageFile_.open(storageFileName_);
-        storageFile_ << "#Time[s]" << ";"
-                     << "WaterMass[kg]" << ";"
-                     << "WaterMassLoss[kg]" << ";"
-                     << "EvaporationRate[mm/d]"
-                     << std::endl;
+        storageFile_ << "#Time[s]"
+                     << ";"
+                     << "WaterMass[kg]"
+                     << ";"
+                     << "WaterMassLoss[kg]"
+                     << ";"
+                     << "EvaporationRate[mm/d]" << std::endl;
     }
 
     /*!
@@ -186,18 +216,18 @@ public:
      * \brief Initialize the problem.
      */
     template<class SolutionVector, class GridVariables>
-    void init(const SolutionVector& curSol,
-              const GridVariables& gridVariables)
+    void init(const SolutionVector &curSol, const GridVariables &gridVariables)
     {
 #if EXNUMBER >= 2
-        initialWaterContent_ = evaluateWaterMassStorageTerm(curSol, gridVariables);
+        initialWaterContent_ =
+            evaluateWaterMassStorageTerm(curSol, gridVariables);
         lastWaterMass_ = initialWaterContent_;
 #endif
     }
 
     template<class SolutionVector, class GridVariables>
-    void postTimeStep(const SolutionVector& curSol,
-                      const GridVariables& gridVariables)
+    void postTimeStep(const SolutionVector &curSol,
+                      const GridVariables &gridVariables)
 
     {
         evaluateWaterMassStorageTerm(curSol, gridVariables);
@@ -212,38 +242,42 @@ public:
         gnuplotStorage_.setOption("set y2label 'cumulative mass loss'");
         gnuplotStorage_.setOption("set y2range [0.0:0.5]");
         gnuplotStorage_.setOption("set y2range [0.0:0.5]");
-        gnuplotStorage_.addFileToPlot(storageFileName_, "using 1:4 with lines title 'evaporation rate'");
-        gnuplotStorage_.addFileToPlot(storageFileName_, "using 1:3 axes x1y2 with lines title 'cumulative mass loss'");
+        gnuplotStorage_.addFileToPlot(
+            storageFileName_, "using 1:4 with lines title 'evaporation rate'");
+        gnuplotStorage_.addFileToPlot(
+            storageFileName_,
+            "using 1:3 axes x1y2 with lines title 'cumulative mass loss'");
         if (plotStorage_)
             gnuplotStorage_.plot("temp");
     }
 
     template<class SolutionVector, class GridVariables>
-    Scalar evaluateWaterMassStorageTerm(const SolutionVector& curSol,
-                                        const GridVariables& gridVariables)
+    Scalar evaluateWaterMassStorageTerm(const SolutionVector &curSol,
+                                        const GridVariables &gridVariables)
 
     {
         // compute the mass in the entire domain
         Scalar waterMass = 0.0;
 
-        for (const auto& element : elements(this->fvGridGeometry().gridView()))
-        {
+        for (const auto &element :
+             elements(this->fvGridGeometry().gridView())) {
             auto fvGeometry = localView(this->fvGridGeometry());
             fvGeometry.bindElement(element);
 
             auto elemVolVars = localView(gridVariables.curGridVolVars());
             elemVolVars.bindElement(element, fvGeometry, curSol);
 
-            for (auto&& scv : scvs(fvGeometry))
-            {
-                for(int phaseIdx = 0; phaseIdx < FluidSystem::numPhases; ++phaseIdx)
-                {
+            for (auto &&scv : scvs(fvGeometry)) {
+                for (int phaseIdx = 0; phaseIdx < FluidSystem::numPhases;
+                     ++phaseIdx) {
                     // insert calculation of the water mass here
 #if EXNUMBER >= 2
-                    const auto& volVars = elemVolVars[scv];
-                    waterMass += volVars.massFraction(phaseIdx, FluidSystem::H2OIdx) * volVars.density(phaseIdx)
-                                 * volVars.saturation(phaseIdx) * volVars.porosity()
-                                 * scv.volume() * volVars.extrusionFactor();
+                    const auto &volVars = elemVolVars[scv];
+                    waterMass +=
+                        volVars.massFraction(phaseIdx, FluidSystem::H2OIdx) *
+                        volVars.density(phaseIdx) *
+                        volVars.saturation(phaseIdx) * volVars.porosity() *
+                        scv.volume() * volVars.extrusionFactor();
 #else
                     waterMass += 0.0;
 #endif
@@ -255,45 +289,46 @@ public:
 #endif
 
         Scalar cumMassLoss = initialWaterContent_ - waterMass;
-        Scalar evaporationRate = (lastWaterMass_ - waterMass) * 86400
-                                 / (this->fvGridGeometry().bBoxMax()[0] - this->fvGridGeometry().bBoxMin()[0])
-                                 / timeLoop_->timeStepSize();
+        Scalar evaporationRate = (lastWaterMass_ - waterMass) * 86400 /
+                                 (this->fvGridGeometry().bBoxMax()[0] -
+                                  this->fvGridGeometry().bBoxMin()[0]) /
+                                 timeLoop_->timeStepSize();
         lastWaterMass_ = waterMass;
 
-        storageFile_ << timeLoop_->time() << ";"
-                     << waterMass << ";"
-                     << cumMassLoss << ";"
-                     << evaporationRate
-                     << std::endl;
+        storageFile_ << timeLoop_->time() << ";" << waterMass << ";"
+                     << cumMassLoss << ";" << evaporationRate << std::endl;
 
         return waterMass;
     }
 
     template<class SolutionVector, class GridVariables>
-    void evaluateInterfaceFluxes(const SolutionVector& curSol,
-                                 const GridVariables& gridVariables)
+    void evaluateInterfaceFluxes(const SolutionVector &curSol,
+                                 const GridVariables &gridVariables)
 
     {
         std::vector<Scalar> x;
         std::vector<Scalar> y;
 
-        for (const auto& element : elements(this->fvGridGeometry().gridView()))
-        {
+        for (const auto &element :
+             elements(this->fvGridGeometry().gridView())) {
             auto fvGeometry = localView(this->fvGridGeometry());
             fvGeometry.bindElement(element);
 
             auto elemVolVars = localView(gridVariables.curGridVolVars());
             elemVolVars.bindElement(element, fvGeometry, curSol);
 
-            for (auto&& scvf : scvfs(fvGeometry))
-            {
-                if (!couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
+            for (auto &&scvf : scvfs(fvGeometry)) {
+                if (!couplingManager().isCoupledEntity(
+                        CouplingManager::darcyIdx, scvf))
                     continue;
 
 #if EXNUMBER >= 2
-                NumEqVector flux = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+                NumEqVector flux =
+                    couplingManager().couplingData().massCouplingCondition(
+                        element, fvGeometry, elemVolVars, scvf);
 #else
-                NumEqVector flux(0.0); // add "massCouplingCondition" from the couplingManager here
+                NumEqVector flux(
+                    0.0);  // add "massCouplingCondition" from the couplingManager here
 #endif
 
                 x.push_back(scvf.center()[0]);
@@ -303,15 +338,21 @@ public:
 
         gnuplotInterfaceFluxes_.resetPlot();
         gnuplotInterfaceFluxes_.setXlabel("x-position [m]");
-        gnuplotInterfaceFluxes_.setXRange(this->fvGridGeometry().bBoxMin()[0], this->fvGridGeometry().bBoxMax()[0]);
+        gnuplotInterfaceFluxes_.setXRange(this->fvGridGeometry().bBoxMin()[0],
+                                          this->fvGridGeometry().bBoxMax()[0]);
         gnuplotInterfaceFluxes_.setYlabel("flux [kg/(m^2 s)]");
         gnuplotInterfaceFluxes_.setYRange(-5e-4, 0.0);
-        gnuplotInterfaceFluxes_.setOption("set label 'time: " + std::to_string(timeLoop_->time()/86400.) + "d' at graph 0.8,0.8 ");
-        std::string fluxFileName = "flux_" + std::to_string(timeLoop_->timeStepIndex()) +
-                                   "_" + getParam<std::string>("Problem.Name") + "_" + this->name() + ".csv";
-        gnuplotInterfaceFluxes_.addDataSetToPlot(x, y, fluxFileName, "with lines title 'water mass flux'");
+        gnuplotInterfaceFluxes_.setOption(
+            "set label 'time: " + std::to_string(timeLoop_->time() / 86400.) +
+            "d' at graph 0.8,0.8 ");
+        std::string fluxFileName =
+            "flux_" + std::to_string(timeLoop_->timeStepIndex()) + "_" +
+            getParam<std::string>("Problem.Name") + "_" + this->name() + ".csv";
+        gnuplotInterfaceFluxes_.addDataSetToPlot(
+            x, y, fluxFileName, "with lines title 'water mass flux'");
         if (plotFluxes_)
-            gnuplotInterfaceFluxes_.plot("flux_" + std::to_string(timeLoop_->timeStepIndex()));
+            gnuplotInterfaceFluxes_.plot(
+                "flux_" + std::to_string(timeLoop_->timeStepIndex()));
     }
 
     /*!
@@ -323,8 +364,7 @@ public:
      * \brief Return the temperature within the domain in [K].
      *
      */
-    Scalar temperature() const
-    { return 293.15; }
+    Scalar temperature() const { return 293.15; }
     // \}
 
     /*!
@@ -339,7 +379,8 @@ public:
       * \param element The element
       * \param scvf The boundary sub control volume face
       */
-    BoundaryTypes boundaryTypes(const Element& element, const SubControlVolumeFace& scvf) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolumeFace &scvf) const
     {
         BoundaryTypes values;
         values.setAllNeumann();
@@ -361,15 +402,16 @@ public:
      * For this method, the \a values variable stores primary variables.
      */
     template<class ElementVolumeVariables>
-    NumEqVector neumann(const Element& element,
-                        const FVElementGeometry& fvGeometry,
-                        const ElementVolumeVariables& elemVolVars,
-                        const SubControlVolumeFace& scvf) const
+    NumEqVector neumann(const Element &element,
+                        const FVElementGeometry &fvGeometry,
+                        const ElementVolumeVariables &elemVolVars,
+                        const SubControlVolumeFace &scvf) const
     {
         NumEqVector values(0.0);
 
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+            values = couplingManager().couplingData().massCouplingCondition(
+                element, fvGeometry, elemVolVars, scvf);
 
         return values;
     }
@@ -390,11 +432,13 @@ public:
      * \param scv The subcontrolvolume
      */
     template<class ElementVolumeVariables>
-    NumEqVector source(const Element& element,
-                       const FVElementGeometry& fvGeometry,
-                       const ElementVolumeVariables& elemVolVars,
-                       const SubControlVolume& scv) const
-    { return NumEqVector(0.0); }
+    NumEqVector source(const Element &element,
+                       const FVElementGeometry &fvGeometry,
+                       const ElementVolumeVariables &elemVolVars,
+                       const SubControlVolume &scv) const
+    {
+        return NumEqVector(0.0);
+    }
 
     // \}
 
@@ -406,16 +450,17 @@ public:
      * For this method, the \a priVars parameter stores primary
      * variables.
      */
-    PrimaryVariables initialAtPos(const GlobalPosition& globalPos) const
+    PrimaryVariables initialAtPos(const GlobalPosition &globalPos) const
     {
-        static const Scalar stokesPressure = getParamFromGroup<Scalar>("Stokes", "Problem.Pressure");
+        static const Scalar stokesPressure =
+            getParamFromGroup<Scalar>("Stokes", "Problem.Pressure");
 
         PrimaryVariables values(0.0);
 #if EXNUMBER >= 3
-        values.setState(3/*bothPhases*/);
+        values.setState(3 /*bothPhases*/);
         values[saturationIdx] = saturation_;
 #elif EXNUMBER >= 1
-        values.setState(2/*secondPhaseOnly*/);
+        values.setState(2 /*secondPhaseOnly*/);
         values[transportCompIdx] = moleFraction_;
 #else
         values[transportCompIdx] = moleFraction_;
@@ -428,27 +473,35 @@ public:
 
     //! Set the coupling manager
     void setCouplingManager(std::shared_ptr<CouplingManager> cm)
-    { couplingManager_ = cm; }
+    {
+        couplingManager_ = cm;
+    }
 
     //! Get the coupling manager
-    const CouplingManager& couplingManager() const
-    { return *couplingManager_; }
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
 
-    void setTimeLoop(TimeLoopPtr timeLoop)
-    { timeLoop_ = timeLoop; }
+    void setTimeLoop(TimeLoopPtr timeLoop) { timeLoop_ = timeLoop; }
 
-private:
+   private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_; }
+    {
+        return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_;
+    }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_; }
+    {
+        return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_;
+    }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    {
+        return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_;
+    }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
+    {
+        return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_;
+    }
 
     Scalar eps_;
 #if EXNUMBER >= 3
@@ -470,6 +523,6 @@ private:
     Dumux::GnuplotInterface<Scalar> gnuplotInterfaceFluxes_;
     Dumux::GnuplotInterface<Scalar> gnuplotStorage_;
 };
-} //end namespace Dumux
+}  //end namespace Dumux
 
-#endif //DUMUX_DARCY_SUBPROBLEM_HH
+#endif  //DUMUX_DARCY_SUBPROBLEM_HH

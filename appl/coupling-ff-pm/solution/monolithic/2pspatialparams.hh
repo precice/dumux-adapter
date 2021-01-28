@@ -24,13 +24,13 @@
 #ifndef DUMUX_TWOPHASE_SPATIAL_PARAMS_HH
 #define DUMUX_TWOPHASE_SPATIAL_PARAMS_HH
 
-#include <dumux/material/spatialparams/fv.hh>
 #include <dumux/material/fluidmatrixinteractions/2p/efftoabslaw.hh>
 #include <dumux/material/fluidmatrixinteractions/2p/regularizedvangenuchten.hh>
 #include <dumux/material/fluidmatrixinteractions/2p/thermalconductivitysomerton.hh>
+#include <dumux/material/spatialparams/fv.hh>
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \ingroup TwoPModel
  *
@@ -38,24 +38,29 @@ namespace Dumux {
  */
 template<class FVGridGeometry, class Scalar>
 class TwoPSpatialParams
-: public FVSpatialParams<FVGridGeometry, Scalar, TwoPSpatialParams<FVGridGeometry, Scalar>>
+    : public FVSpatialParams<FVGridGeometry,
+                             Scalar,
+                             TwoPSpatialParams<FVGridGeometry, Scalar>>
 {
     using GridView = typename FVGridGeometry::GridView;
     using Element = typename GridView::template Codim<0>::Entity;
     using FVElementGeometry = typename FVGridGeometry::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
-    using ParentType = FVSpatialParams<FVGridGeometry, Scalar, TwoPSpatialParams<FVGridGeometry, Scalar>>;
+    using ParentType =
+        FVSpatialParams<FVGridGeometry,
+                        Scalar,
+                        TwoPSpatialParams<FVGridGeometry, Scalar>>;
 
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
     using EffectiveLaw = RegularizedVanGenuchten<Scalar>;
 
-public:
+   public:
     using MaterialLaw = EffToAbsLaw<EffectiveLaw>;
     using MaterialLawParams = typename MaterialLaw::Params;
     using PermeabilityType = Scalar;
 
     TwoPSpatialParams(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-    : ParentType(fvGridGeometry)
+        : ParentType(fvGridGeometry)
     {
         permeability_ = getParam<Scalar>("Darcy.SpatialParams.Permeability");
         porosity_ = getParam<Scalar>("Darcy.SpatialParams.Porosity");
@@ -67,8 +72,8 @@ public:
         // parameters for the vanGenuchten law
         params_.setVgAlpha(getParam<Scalar>("Darcy.SpatialParams.VgAlpha"));
         params_.setVgn(getParam<Scalar>("Darcy.SpatialParams.VgN"));
-        params_.setPcLowSw(params_.swr()*5.0);
-        params_.setPcHighSw(1.0-params_.snr()*5.0);
+        params_.setPcLowSw(params_.swr() * 5.0);
+        params_.setPcHighSw(1.0 - params_.snr() * 5.0);
     }
 
     /*!
@@ -77,22 +82,28 @@ public:
      * \param globalPos The global position
      * \return the intrinsic permeability
      */
-    PermeabilityType permeabilityAtPos(const GlobalPosition& globalPos) const
-    { return permeability_; }
+    PermeabilityType permeabilityAtPos(const GlobalPosition &globalPos) const
+    {
+        return permeability_;
+    }
 
     /*! \brief Define the porosity in [-].
      *
      * \param globalPos The global position
      */
-    Scalar porosityAtPos(const GlobalPosition& globalPos) const
-    { return porosity_; }
+    Scalar porosityAtPos(const GlobalPosition &globalPos) const
+    {
+        return porosity_;
+    }
 
     /*! \brief Define the Beavers-Joseph coefficient in [-].
      *
      * \param globalPos The global position
      */
-    Scalar beaversJosephCoeffAtPos(const GlobalPosition& globalPos) const
-    { return alphaBJ_; }
+    Scalar beaversJosephCoeffAtPos(const GlobalPosition &globalPos) const
+    {
+        return alphaBJ_;
+    }
 
     /*!
      * \brief Returns the parameter object for the Brooks-Corey material law.
@@ -104,10 +115,13 @@ public:
      * \return the material parameters object
      */
     template<class ElementSolutionVector>
-    const MaterialLawParams& materialLawParams(const Element& element,
-                                               const SubControlVolume& scv,
-                                               const ElementSolutionVector& elemSol) const
-    { return params_; }
+    const MaterialLawParams &materialLawParams(
+        const Element &element,
+        const SubControlVolume &scv,
+        const ElementSolutionVector &elemSol) const
+    {
+        return params_;
+    }
 
     /*!
      * \brief Function for defining which phase is to be considered as the wetting phase.
@@ -116,10 +130,12 @@ public:
      * \param globalPos The global position
      */
     template<class FluidSystem>
-    int wettingPhaseAtPos(const GlobalPosition& globalPos) const
-    { return FluidSystem::phase0Idx; }
+    int wettingPhaseAtPos(const GlobalPosition &globalPos) const
+    {
+        return FluidSystem::phase0Idx;
+    }
 
-private:
+   private:
     Scalar permeability_;
     Scalar porosity_;
     Scalar alphaBJ_;
@@ -127,6 +143,6 @@ private:
     static constexpr Scalar eps_ = 1.0e-7;
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

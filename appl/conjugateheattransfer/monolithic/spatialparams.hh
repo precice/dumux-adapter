@@ -29,7 +29,6 @@
 
 namespace Dumux
 {
-
 /*!
  * \ingroup BoundaryTests
  * \brief The spatial parameters class for the test problem using the
@@ -37,28 +36,35 @@ namespace Dumux
  */
 template<class FVGridGeometry, class Scalar>
 class OnePSpatialParams
-: public FVSpatialParamsOneP<FVGridGeometry, Scalar,
-                             OnePSpatialParams<FVGridGeometry, Scalar>>
+    : public FVSpatialParamsOneP<FVGridGeometry,
+                                 Scalar,
+                                 OnePSpatialParams<FVGridGeometry, Scalar>>
 {
-    using ParentType = FVSpatialParamsOneP<FVGridGeometry, Scalar,
-                                           OnePSpatialParams<FVGridGeometry, Scalar>>;
-public:
+    using ParentType =
+        FVSpatialParamsOneP<FVGridGeometry,
+                            Scalar,
+                            OnePSpatialParams<FVGridGeometry, Scalar>>;
+
+   public:
     // export permeability type
     using PermeabilityType = Scalar;
 
     OnePSpatialParams(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
         : ParentType(fvGridGeometry)
-    {}
+    {
+    }
 
     /*! \brief Defines the porosity in [-].
      *
      * \param globalPos The global position
      */
     template<class GlobalPosition>
-    Scalar porosityAtPos(const GlobalPosition& globalPos) const
-    { return 0.0; }
+    Scalar porosityAtPos(const GlobalPosition &globalPos) const
+    {
+        return 0.0;
+    }
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

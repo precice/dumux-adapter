@@ -1,6 +1,23 @@
 image: dumux-precice:3.3git-iterative-pr-1.6.1
 #image: dumux-precice:3.1-1.6.1
 
+stages:
+    - check
+    - build
+    - test
+    
+check-style:
+    stage: check
+    script:
+        - ./scripts/format/run-clang-format.sh
+        - git diff > style-patch.diff
+        - if [ -s style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run ./scripts/format/run-clang-format.sh and commit again."; false; fi
+    needs: []
+    artifacts:
+        paths:
+            - style-patch.diff
+        expire_in: 7 day
+
 build:iterative-coupling:
   stage: build
   script:

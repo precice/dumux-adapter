@@ -25,20 +25,20 @@
 #ifndef DUMUX_BADPOROUSMEDIUMFLOW_VELOCITYOUTPUT_HH
 #define DUMUX_BADPOROUSMEDIUMFLOW_VELOCITYOUTPUT_HH
 
-#include <memory>
 #include <dune/common/float_cmp.hh>
 #include <dune/geometry/referenceelements.hh>
+#include <memory>
 
-#include <dumux/common/parameters.hh>
 #include <dumux/common/deprecated.hh>
-#include <dumux/io/velocityoutput.hh>
-#include <dumux/discretization/method.hh>
+#include <dumux/common/parameters.hh>
 #include <dumux/discretization/elementsolution.hh>
+#include <dumux/discretization/method.hh>
+#include <dumux/io/velocityoutput.hh>
 //#include <dumux/porousmediumflow/velocity.hh>
 #include "badporousmediavelocity.hh"
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \ingroup PorousmediumflowModels
  * \brief Velocity output policy for implicit (porous media) models.
@@ -54,7 +54,8 @@ class BadPorousMediumFlowVelocityOutput : public VelocityOutput<GridVariables>
     using GridView = typename GridGeometry::GridView;
     using Element = typename GridView::template Codim<0>::Entity;
     using GridVolumeVariables = typename GridVariables::GridVolumeVariables;
-    using ElementFluxVarsCache = typename GridVariables::GridFluxVariablesCache::LocalView;
+    using ElementFluxVarsCache =
+        typename GridVariables::GridFluxVariablesCache::LocalView;
     using VolumeVariables = typename GridVariables::VolumeVariables;
     using ElementVolumeVariables = typename GridVolumeVariables::LocalView;
     using FluidSystem = typename VolumeVariables::FluidSystem;
@@ -62,17 +63,20 @@ class BadPorousMediumFlowVelocityOutput : public VelocityOutput<GridVariables>
 
     static constexpr int dim = GridView::dimension;
     static constexpr int dimWorld = GridView::dimensionworld;
-    static constexpr bool isBox = GridGeometry::discMethod == DiscretizationMethod::box;
+    static constexpr bool isBox =
+        GridGeometry::discMethod == DiscretizationMethod::box;
     static constexpr int dofCodim = isBox ? dim : 0;
 
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
-    using ReferenceElements = Dune::ReferenceElements<typename GridView::ctype, dim>;
+    using ReferenceElements =
+        Dune::ReferenceElements<typename GridView::ctype, dim>;
 
     using Problem = typename GridVolumeVariables::Problem;
     //using BoundaryTypes = typename Problem::Traits::BoundaryTypes;
-    using VelocityBackend = BadPorousMediumFlowVelocity<GridVariables, FluxVariables>;
+    using VelocityBackend =
+        BadPorousMediumFlowVelocity<GridVariables, FluxVariables>;
 
-public:
+   public:
     using VelocityVector = typename ParentType::VelocityVector;
 
     /*!
@@ -80,11 +84,14 @@ public:
      *
      * \param gridVariables The grid variables
      */
-    BadPorousMediumFlowVelocityOutput(const GridVariables& gridVariables)
-    : gridVariables_(gridVariables) // TODO: can be removed after the deprecated calculateVelocity interface is removed
+    BadPorousMediumFlowVelocityOutput(const GridVariables &gridVariables)
+        : gridVariables_(
+              gridVariables)  // TODO: can be removed after the deprecated calculateVelocity interface is removed
     {
         // check, if velocity output can be used (works only for cubes so far)
-        enableOutput_ = getParamFromGroup<bool>(gridVariables.curGridVolVars().problem().paramGroup(), "Vtk.AddVelocity");
+        enableOutput_ = getParamFromGroup<bool>(
+            gridVariables.curGridVolVars().problem().paramGroup(),
+            "Vtk.AddVelocity");
         if (enableOutput_)
             velocityBackend = std::make_unique<VelocityBackend>(gridVariables);
     }
@@ -93,10 +100,16 @@ public:
     bool enableOutput() const override { return enableOutput_; }
 
     //! Returns the phase name of a given phase index.
-    std::string phaseName(int phaseIdx) const override { return FluidSystem::phaseName(phaseIdx); }
+    std::string phaseName(int phaseIdx) const override
+    {
+        return FluidSystem::phaseName(phaseIdx);
+    }
 
     //! Returns the number of phases.
-    int numFluidPhases() const override { return VolumeVariables::numFluidPhases(); }
+    int numFluidPhases() const override
+    {
+        return VolumeVariables::numFluidPhases();
+    }
 
     //! Calculate the velocities for the scvs in the element
     //! We assume the local containers to be bound to the complete stencil
@@ -115,25 +128,28 @@ public:
 
     //! Calculates the velocities for the scvs in the element.
     //! We assume the local containers to be bound to the complete stencil.
-    void calculateVelocity(VelocityVector& velocity,
-                           const Element& element,
-                           const FVElementGeometry& fvGeometry,
-                           const ElementVolumeVariables& elemVolVars,
-                           const ElementFluxVarsCache& elemFluxVarsCache,
+    void calculateVelocity(VelocityVector &velocity,
+                           const Element &element,
+                           const FVElementGeometry &fvGeometry,
+                           const ElementVolumeVariables &elemVolVars,
+                           const ElementFluxVarsCache &elemFluxVarsCache,
                            int phaseIdx) const override
     {
         if (enableOutput_)
             //std::cout << "calculateVelocity in BadPorousMediaFlow" << std::endl;
             //std::cout << "VelocityBackend: " << typeid(velocityBackend).name() << std::endl;
-            velocityBackend->calculateVelocity(velocity, element, fvGeometry, elemVolVars, elemFluxVarsCache, phaseIdx);
+            velocityBackend->calculateVelocity(velocity, element, fvGeometry,
+                                               elemVolVars, elemFluxVarsCache,
+                                               phaseIdx);
     }
 
-private:
-    const GridVariables& gridVariables_; // TODO: can be removed after the deprecated calculateVelocity interface is removed
+   private:
+    const GridVariables &
+        gridVariables_;  // TODO: can be removed after the deprecated calculateVelocity interface is removed
     bool enableOutput_;
     std::unique_ptr<VelocityBackend> velocityBackend;
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

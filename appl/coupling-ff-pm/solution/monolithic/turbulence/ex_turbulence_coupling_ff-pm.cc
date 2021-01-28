@@ -24,60 +24,64 @@
 #include <config.h>
 
 #include <ctime>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/timer.hh>
 #include <dune/istl/io.hh>
 
-#include <dumux/common/properties.hh>
-#include <dumux/common/parameters.hh>
-#include <dumux/common/dumuxmessage.hh>
-#include <dumux/common/partial.hh>
-#include <dumux/linear/seqsolverbackend.hh>
-#include <dumux/assembly/fvassembler.hh>
 #include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
+#include <dumux/common/parameters.hh>
+#include <dumux/common/partial.hh>
+#include <dumux/common/properties.hh>
 #include <dumux/discretization/method.hh>
-#include <dumux/io/vtkoutputmodule.hh>
-#include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
-#include <dumux/multidomain/staggeredtraits.hh>
 #include <dumux/multidomain/fvassembler.hh>
 #include <dumux/multidomain/newtonsolver.hh>
+#include <dumux/multidomain/staggeredtraits.hh>
 
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
-#include "ex_turbulence_pmproblem.hh"
 #include "ex_turbulence_ffproblem.hh"
+#include "ex_turbulence_pmproblem.hh"
 
-namespace Dumux {
-namespace Properties {
-
-template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::StokesZeroEq>
+namespace Dumux
 {
-    using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::DarcyTwoPTwoCNI>;
+namespace Properties
+{
+template<class TypeTag>
+struct CouplingManager<TypeTag, TTag::StokesZeroEq> {
+    using Traits =
+        StaggeredMultiDomainTraits<TypeTag,
+                                   TypeTag,
+                                   Properties::TTag::DarcyTwoPTwoCNI>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
 };
 
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::DarcyTwoPTwoCNI>
-{
-    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesZeroEq, Properties::TTag::StokesZeroEq, TypeTag>;
+struct CouplingManager<TypeTag, TTag::DarcyTwoPTwoCNI> {
+    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesZeroEq,
+                                              Properties::TTag::StokesZeroEq,
+                                              TypeTag>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
 };
 
-} // end namespace Properties
-} // end namespace Dumux
+}  // end namespace Properties
+}  // end namespace Dumux
 
-int main(int argc, char** argv) try
-{
+int main(int argc, char **argv)
+try {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -92,31 +96,39 @@ int main(int argc, char** argv) try
 
     // try to create a grid (from the given grid file or the input file)
     // for both sub-domains
-    using DarcyGridManager = Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
+    using DarcyGridManager =
+        Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
     DarcyGridManager darcyGridManager;
-    darcyGridManager.init("Darcy"); // pass parameter group
+    darcyGridManager.init("Darcy");  // pass parameter group
 
-    using StokesGridManager = Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
+    using StokesGridManager =
+        Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
     StokesGridManager stokesGridManager;
-    stokesGridManager.init("Stokes"); // pass parameter group
+    stokesGridManager.init("Stokes");  // pass parameter group
 
     // we compute on the leaf grid view
-    const auto& darcyGridView = darcyGridManager.grid().leafGridView();
-    const auto& stokesGridView = stokesGridManager.grid().leafGridView();
+    const auto &darcyGridView = darcyGridManager.grid().leafGridView();
+    const auto &stokesGridView = stokesGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using StokesFVGridGeometry = GetPropType<StokesTypeTag, Properties::FVGridGeometry>;
-    auto stokesFvGridGeometry = std::make_shared<StokesFVGridGeometry>(stokesGridView);
+    using StokesFVGridGeometry =
+        GetPropType<StokesTypeTag, Properties::FVGridGeometry>;
+    auto stokesFvGridGeometry =
+        std::make_shared<StokesFVGridGeometry>(stokesGridView);
     stokesFvGridGeometry->update();
-    using DarcyFVGridGeometry = GetPropType<DarcyTypeTag, Properties::FVGridGeometry>;
-    auto darcyFvGridGeometry = std::make_shared<DarcyFVGridGeometry>(darcyGridView);
+    using DarcyFVGridGeometry =
+        GetPropType<DarcyTypeTag, Properties::FVGridGeometry>;
+    auto darcyFvGridGeometry =
+        std::make_shared<DarcyFVGridGeometry>(darcyGridView);
     darcyFvGridGeometry->update();
 
-    using Traits = StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
+    using Traits =
+        StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
 
     // the coupling manager
     using CouplingManager = StokesDarcyCouplingManager<Traits>;
-    auto couplingManager = std::make_shared<CouplingManager>(stokesFvGridGeometry, darcyFvGridGeometry);
+    auto couplingManager = std::make_shared<CouplingManager>(
+        stokesFvGridGeometry, darcyFvGridGeometry);
 
     // the indices
     constexpr auto stokesCellCenterIdx = CouplingManager::stokesCellCenterIdx;
@@ -125,9 +137,11 @@ int main(int argc, char** argv) try
 
     // the problem (initial and boundary conditions)
     using StokesProblem = GetPropType<StokesTypeTag, Properties::Problem>;
-    auto stokesProblem = std::make_shared<StokesProblem>(stokesFvGridGeometry, couplingManager);
+    auto stokesProblem =
+        std::make_shared<StokesProblem>(stokesFvGridGeometry, couplingManager);
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
-    auto darcyProblem = std::make_shared<DarcyProblem>(darcyFvGridGeometry, couplingManager);
+    auto darcyProblem =
+        std::make_shared<DarcyProblem>(darcyFvGridGeometry, couplingManager);
 
     // initialize the fluidsystem (tabulation)
     GetPropType<StokesTypeTag, Properties::FluidSystem>::init();
@@ -168,50 +182,65 @@ int main(int argc, char** argv) try
 #endif
 
     // the grid variables
-    using StokesGridVariables = GetPropType<StokesTypeTag, Properties::GridVariables>;
-    auto stokesGridVariables = std::make_shared<StokesGridVariables>(stokesProblem, stokesFvGridGeometry);
+    using StokesGridVariables =
+        GetPropType<StokesTypeTag, Properties::GridVariables>;
+    auto stokesGridVariables = std::make_shared<StokesGridVariables>(
+        stokesProblem, stokesFvGridGeometry);
     stokesGridVariables->init(stokesSol);
-    using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
+    using DarcyGridVariables =
+        GetPropType<DarcyTypeTag, Properties::GridVariables>;
+    auto darcyGridVariables =
+        std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
     darcyGridVariables->init(sol[darcyIdx]);
 
     // intialize the vtk output module
-    const auto stokesName = getParam<std::string>("Problem.Name") + "_" + stokesProblem->name();
-    const auto darcyName = getParam<std::string>("Problem.Name") + "_" + darcyProblem->name();
+    const auto stokesName =
+        getParam<std::string>("Problem.Name") + "_" + stokesProblem->name();
+    const auto darcyName =
+        getParam<std::string>("Problem.Name") + "_" + darcyProblem->name();
 
-    StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesName);
-    GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(stokesVtkWriter);
+    StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)>
+        stokesVtkWriter(*stokesGridVariables, stokesSol, stokesName);
+    GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(
+        stokesVtkWriter);
     stokesVtkWriter.write(0.0);
 
-    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol[darcyIdx], darcyName);
-    using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
-    darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
-    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
+    VtkOutputModule<DarcyGridVariables,
+                    GetPropType<DarcyTypeTag, Properties::SolutionVector>>
+        darcyVtkWriter(*darcyGridVariables, sol[darcyIdx], darcyName);
+    using DarcyVelocityOutput =
+        GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
+    darcyVtkWriter.addVelocityOutput(
+        std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
+    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(
+        darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
     // the assembler with time loop for instationary problem
-    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
-                                                 std::make_tuple(stokesFvGridGeometry->cellCenterFVGridGeometryPtr(),
-                                                                 stokesFvGridGeometry->faceFVGridGeometryPtr(),
-                                                                 darcyFvGridGeometry),
-                                                 std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
-                                                                 stokesGridVariables->faceGridVariablesPtr(),
-                                                                 darcyGridVariables),
-                                                 couplingManager,
-                                                 timeLoop);
+    using Assembler =
+        MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
+        std::make_tuple(stokesFvGridGeometry->cellCenterFVGridGeometryPtr(),
+                        stokesFvGridGeometry->faceFVGridGeometryPtr(),
+                        darcyFvGridGeometry),
+        std::make_tuple(stokesGridVariables->cellCenterGridVariablesPtr(),
+                        stokesGridVariables->faceGridVariablesPtr(),
+                        darcyGridVariables),
+        couplingManager, timeLoop);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    using NewtonSolver =
+        MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
     NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
     // time loop
-    timeLoop->start(); do
-    {
+    timeLoop->start();
+    do {
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
 
@@ -227,7 +256,8 @@ int main(int argc, char** argv) try
 #endif
 
         // post time step treatment of Darcy problem
-        darcyProblem->postTimeStep(sol[darcyIdx], *darcyGridVariables, timeLoop->timeStepSize());
+        darcyProblem->postTimeStep(sol[darcyIdx], *darcyGridVariables,
+                                   timeLoop->timeStepSize());
 
         // advance grid variables to the next time step
         stokesGridVariables->advanceTimeStep();
@@ -244,7 +274,8 @@ int main(int argc, char** argv) try
         timeLoop->reportTimeStep();
 
         // set new dt as suggested by newton solver
-        timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
+        timeLoop->setTimeStepSize(
+            nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
 
     } while (!timeLoop->finished());
 
@@ -256,35 +287,28 @@ int main(int argc, char** argv) try
     ////////////////////////////////////////////////////////////
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
-catch (Dumux::ParameterException &e)
-{
+}  // end main
+catch (Dumux::ParameterException &e) {
     std::cerr << std::endl << e << " ---> Abort!" << std::endl;
     return 1;
-}
-catch (Dune::DGFException & e)
-{
-    std::cerr << "DGF exception thrown (" << e <<
-                 "). Most likely, the DGF file name is wrong "
+} catch (Dune::DGFException &e) {
+    std::cerr << "DGF exception thrown (" << e
+              << "). Most likely, the DGF file name is wrong "
                  "or the DGF file is corrupted, "
-                 "e.g. missing hash at end of file or wrong number (dimensions) of entries."
-                 << " ---> Abort!" << std::endl;
+                 "e.g. missing hash at end of file or wrong number "
+                 "(dimensions) of entries."
+              << " ---> Abort!" << std::endl;
     return 2;
-}
-catch (Dune::Exception &e)
-{
+} catch (Dune::Exception &e) {
     std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
     return 3;
-}
-catch (...)
-{
+} catch (...) {
     std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
     return 4;
 }
