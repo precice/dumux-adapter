@@ -3,8 +3,8 @@
 
 ## Prerequisites
 
-- DuMuX **newer** than 3.0
-- preCICE 1.3
+- DuMuX **newer** than 3.2
+- preCICE 1.6
     - Newer versions of preCICE are likely to work, but are not tested at the moment. 
 
 ## Running partitioned coupling
