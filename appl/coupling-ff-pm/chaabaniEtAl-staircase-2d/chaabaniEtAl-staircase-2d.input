@@ -1,0 +1,31 @@
+[Darcy.Grid]
+LowerLeft = 0 -1 
+UpperRight = 1 0 
+Cells = 10 10 
+
+[Stokes.Grid]
+LowerLeft = 0 -0.5 
+UpperRight = 1 1
+Cells = 10 10
+
+[Stokes.Problem]
+Name = stokes
+#PressureDifference = 1e-9
+
+[Darcy.Problem]
+Name = darcy
+
+[Darcy.SpatialParams]
+Permeability = 1e-6 # m^2
+AlphaBeaversJoseph = 1.0
+
+[Vtk]
+OutputName = chaabanietal-staircase-2d
+
+[Problem]
+Name = "chaabanietal-staircase-2d"
+EnableGravity = false
+EnableInertiaTerms = false
+
+[Vtk]
+AddVelocity = 1
