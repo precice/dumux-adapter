@@ -4,7 +4,6 @@ add_custom_target(test_exercises)
 
 add_subdirectory(monolithic-to-rename)
 add_subdirectory(fvca-monolithic-reversed)
-add_subdirectory(fvca-monolithic-reversed-3d)
 add_subdirectory(iterative)
 add_subdirectory(iterative-reversed)
 #add_subdirectory(iterative-reversed-mono-flux)
