@@ -82,8 +82,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_cleanup
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
     CMAKE_GUARD HAVE_UMFPACK
-    COMMAND rm
-    CMD_ARGS -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/cleanup_directory.sh
+    CMD_ARGS ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
@@ -124,8 +124,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_cleanup
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
     CMAKE_GUARD HAVE_UMFPACK
-    COMMAND rm
-    CMD_ARGS -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/cleanup_directory.sh
+    CMD_ARGS ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
@@ -166,10 +166,21 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_cleanup
     TARGET test_pm_reversed
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
-    CMAKE_GUARD HAVE_UMFPACK
-    COMMAND rm
-    CMD_ARGS -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/cleanup_directory.sh
+    CMD_ARGS ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+#add_test(NAME test_ff_pm_coupling_parallel_implicit_cleanup COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu)
+
+#dumux_add_test(NAME test_ff_pm_coupling_cleanup
+#    TARGET test_ff_reversed
+#    TARGET test_pm_reversed
+#    LABELS freeflow stokes precice darcy cleanup
+#    TIMEOUT 5
+#    CMAKE_GUARD HAVE_UMFPACK
+#    COMMAND rm
+#    CMD_ARGS -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu
+#)
 
 
 
@@ -189,6 +200,9 @@ set_property(TEST test_ff_pm_coupling_parallel_implicit APPEND PROPERTY DEPENDS 
 set_property(TEST test_ff_pm_coupling_parallel_implicit_coupling_iterations APPEND PROPERTY DEPENDS test_ff_pm_coupling_parallel_implicit)
 set_property(TEST test_ff_pm_coupling_parallel_implicit_cleanup APPEND PROPERTY DEPENDS test_ff_pm_coupling_parallel_implicit_coupling_iterations)
 
+
+#set_tests_properties(test_ff_pm_coupling_parallel_implicit_cleanup test_ff_pm_coupling_serial_implicit_darcy_first_coupling_iterations test_ff_pm_coupling_serial_implicit_stokes_first_coupling_iterations PROPERTIES FIXTURES_REQUIRED test_ff_pm)
+#set_tests_properties(test_ff_pm_coupling_cleanup PROPERTIES FIXTURES_CLEANUP test_ff_pm)
 
 #set_property(TEST test_ff_pm_coupling_parallel_implicit APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first)
 
