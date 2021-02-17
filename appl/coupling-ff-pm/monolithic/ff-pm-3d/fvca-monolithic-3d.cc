@@ -49,10 +49,10 @@
 
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
-#include "problem_darcy.hh"
-#include "problem_stokes.hh"
+#include "problem_darcy_3d.hh"
+#include "problem_stokes_3d.hh"
 
-#include "../common/outputhelper.hh"
+//#include "../common/outputhelper.hh"
 
 namespace Dumux
 {
@@ -122,62 +122,62 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP> {
 //  return (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
 //         + ccPressure;
 //}
-
-template<class Problem, class GridVariables, class SolutionVector>
-std::tuple<double, double, double> writePressuresOnInterfaceToFile(
-    const std::string &filename,
-    const Problem &problem,
-    const GridVariables &gridVars,
-    const SolutionVector &sol)
-{
-    const auto &gridGeometry = problem.gridGeometry();
-    auto fvGeometry = localView(gridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
-
-    std::ofstream ofs(filename + ".csv",
-                      std::ofstream::out | std::ofstream::trunc);
-    ofs << "x,y,";
-    ofs << "pressure"
-        << "\n";
-
-    double pMin = std::numeric_limits<double>::max();
-    double pMax = std::numeric_limits<double>::min();
-    double pSum = 0.;
-    for (const auto &element : elements(gridGeometry.gridView())) {
-        fvGeometry.bind(element);
-        elemVolVars.bind(element, fvGeometry, sol);
-        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
-
-        for (const auto &scvf : scvfs(fvGeometry)) {
-            const auto &pos = scvf.center();
-            if (std::fabs(pos[1] - 1.) < 1e-14) {
-                for (int i = 0; i < 2; ++i) {
-                    ofs << pos[i] << ",";
-                }
-                //const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
-                const double p = problem.dirichlet(element, scvf);
-                pMax = std::max(p, pMax);
-                pMin = std::min(p, pMin);
-                pSum += p;
-                const auto prec = ofs.precision();
-                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
-                                         1);
-                ofs << p << "\n";
-                ofs.precision(prec);
-            }
-        }
-    }
-
-    ofs.close();
-
-    return std::make_tuple(pMin, pMax, pSum);
-}
-
+//
+//template<class Problem, class GridVariables, class SolutionVector>
+//std::tuple<double, double, double> writePressuresOnInterfaceToFile(
+//    const std::string &filename,
+//    const Problem &problem,
+//    const GridVariables &gridVars,
+//    const SolutionVector &sol)
+//{
+//    const auto &gridGeometry = problem.gridGeometry();
+//    auto fvGeometry = localView(gridGeometry);
+//    auto elemVolVars = localView(gridVars.curGridVolVars());
+//    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+//
+//    std::ofstream ofs(filename + ".csv",
+//                      std::ofstream::out | std::ofstream::trunc);
+//    ofs << "x,y,";
+//    ofs << "pressure"
+//        << "\n";
+//
+//    double pMin = std::numeric_limits<double>::max();
+//    double pMax = std::numeric_limits<double>::min();
+//    double pSum = 0.;
+//    for (const auto &element : elements(gridGeometry.gridView())) {
+//        fvGeometry.bind(element);
+//        elemVolVars.bind(element, fvGeometry, sol);
+//        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+//
+//        for (const auto &scvf : scvfs(fvGeometry)) {
+//            const auto &pos = scvf.center();
+//            if (std::fabs(pos[1] - 1.) < 1e-14) {
+//                for (int i = 0; i < 2; ++i) {
+//                    ofs << pos[i] << ",";
+//                }
+//                //const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
+//                const double p = problem.dirichlet(element, scvf);
+//                pMax = std::max(p, pMax);
+//                pMin = std::min(p, pMin);
+//                pSum += p;
+//                const auto prec = ofs.precision();
+//                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
+//                                         1);
+//                ofs << p << "\n";
+//                ofs.precision(prec);
+//            }
+//        }
+//    }
+//
+//    ofs.close();
+//
+//    return std::make_tuple(pMin, pMax, pSum);
+//}
+//
 int main(int argc, char **argv)
 try {
     using namespace Dumux;
-    using namespace outputhelper::monolithic;
+    //using namespace outputhelper::monolithic;
 
     // initialize MPI, finalize is done automatically on exit
     const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
