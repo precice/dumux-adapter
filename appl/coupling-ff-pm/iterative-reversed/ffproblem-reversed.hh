@@ -278,8 +278,6 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
         if (couplingInterface_.isCoupledEntity(faceId)) {
             const Scalar density =
                 1000;  // TODO how to handle compressible fluids?
-            const auto &volVars = elemVolVars[scvf.insideScvIdx()];
-            const Scalar density_ = volVars.density();
             values[Indices::conti0EqIdx] = density *
                                            elemFaceVars[scvf].velocitySelf() *
                                            scvf.directionSign();

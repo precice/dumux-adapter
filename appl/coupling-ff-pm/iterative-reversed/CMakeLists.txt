@@ -53,12 +53,12 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
-                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
+              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/stokes-iterative-final.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00006.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/darcy-iterative-final.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00006.vtu
+              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/params.input
+              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/stokes-first/precice-config.xml
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
@@ -73,12 +73,12 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py 
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/stokes-iterative-final.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
-                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/darcy-iterative-final.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/params.input 
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/parallel-implicit/precice-config.xml
+              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/stokes-iterative-final.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00004.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/darcy-iterative-final.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00004.vtu
+              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/params.input
+              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/serial-implicit/darcy-first/precice-config.xml
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
