@@ -41,6 +41,7 @@
 #include <dumux/io/grid/gridmanager.hh>
 #include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/io/grid/gridmanager_sub.hh>
 #include <dumux/linear/seqsolverbackend.hh>
 
 #include <dumux/multidomain/fvassembler.hh>
@@ -77,103 +78,6 @@ struct CouplingManager<TypeTag, TTag::DarcyOneP> {
 }  // end namespace Properties
 }  // end namespace Dumux
 
-/*!
-  * \brief Returns the pressure at the interface using Darcy's law for reconstruction
-  */
-//template<class Problem,
-//          class Element,
-//          class FVElementGeometry,
-//          class ElementVolumeVariables,
-//          class SubControlVolumeFace,
-//          class ElementFluxVariablesCache>
-//auto pressureAtInterface(const Problem& problem,
-//                         const Element& element,
-//                         const FVElementGeometry& fvGeometry,
-//                         const ElementVolumeVariables& elemVolVars,
-//                         const SubControlVolumeFace& scvf,
-//                         const ElementFluxVariablesCache& elemFluxVarsCache)
-//{
-//  using Scalar = typename ElementVolumeVariables::VolumeVariables::PrimaryVariables::value_type;
-//  const auto& volVars = elemVolVars[scvf.insideScvIdx()];
-
-//  const Scalar boundaryFlux = problem.neumann(element,
-//                                              fvGeometry,
-//                                              elemVolVars,
-//                                              elemFluxVarsCache,
-//                                              scvf);
-
-//  const auto K = volVars.permeability();
-//  const Scalar ccPressure = volVars.pressure();
-//  const Scalar mobility = volVars.mobility();
-//  const Scalar density = volVars.density();
-
-//  // v = -K/mu * (gradP + rho*g)
-//  auto velocity = scvf.unitOuterNormal();
-//  velocity *= boundaryFlux; // TODO check sign
-//  velocity /= density;
-
-//  // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
-//  const auto alpha = Dumux::vtmv( scvf.unitOuterNormal(), K, problem.gravity() );
-
-//  auto distanceVector = scvf.center() - element.geometry().center();
-//  distanceVector /= distanceVector.two_norm2();
-//  const Scalar ti = Dumux::vtmv(distanceVector, K, scvf.unitOuterNormal());
-
-//  return (1/mobility * (scvf.unitOuterNormal() * velocity) + density * alpha)/ti
-//         + ccPressure;
-//}
-
-template<class Problem, class GridVariables, class SolutionVector>
-std::tuple<double, double, double> writePressuresOnInterfaceToFile(
-    const std::string &filename,
-    const Problem &problem,
-    const GridVariables &gridVars,
-    const SolutionVector &sol)
-{
-    const auto &gridGeometry = problem.gridGeometry();
-    auto fvGeometry = localView(gridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
-
-    std::ofstream ofs(filename + ".csv",
-                      std::ofstream::out | std::ofstream::trunc);
-    ofs << "x,y,";
-    ofs << "pressure"
-        << "\n";
-
-    double pMin = std::numeric_limits<double>::max();
-    double pMax = std::numeric_limits<double>::min();
-    double pSum = 0.;
-    for (const auto &element : elements(gridGeometry.gridView())) {
-        fvGeometry.bind(element);
-        elemVolVars.bind(element, fvGeometry, sol);
-        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
-
-        for (const auto &scvf : scvfs(fvGeometry)) {
-            const auto &pos = scvf.center();
-            if (std::fabs(pos[1] - 1.) < 1e-14) {
-                for (int i = 0; i < 2; ++i) {
-                    ofs << pos[i] << ",";
-                }
-                //const double p = pressureAtInterface(problem, element, gridGeometry, elemVolVars, scvf, elemFluxVarsCache);
-                const double p = problem.dirichlet(element, scvf);
-                pMax = std::max(p, pMax);
-                pMin = std::min(p, pMin);
-                pSum += p;
-                const auto prec = ofs.precision();
-                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
-                                         1);
-                ofs << p << "\n";
-                ofs.precision(prec);
-            }
-        }
-    }
-
-    ofs.close();
-
-    return std::make_tuple(pMin, pMax, pSum);
-}
-
 int main(int argc, char **argv)
 try {
     using namespace Dumux;
@@ -195,33 +99,91 @@ try {
 
     // try to create a grid (from the given grid file or the input file)
     // for both sub-domains
-    using DarcyGridManager =
-        Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
-    DarcyGridManager darcyGridManager;
-    darcyGridManager.init("Darcy");  // pass parameter group
+//    using DarcyGridManager =
+//        Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
+//    DarcyGridManager darcyGridManager;
+//    darcyGridManager.init("Darcy");  // pass parameter group
+//
+//    using StokesGridManager =
+//        Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
+//    StokesGridManager stokesGridManager;
+//    stokesGridManager.init("Stokes");  // pass parameter group
+//
+//    // we compute on the leaf grid view
+//    const auto &darcyGridView = darcyGridManager.grid().leafGridView();
+//    const auto &stokesGridView = stokesGridManager.grid().leafGridView();
 
-    using StokesGridManager =
-        Dumux::GridManager<GetPropType<StokesTypeTag, Properties::Grid>>;
-    StokesGridManager stokesGridManager;
-    stokesGridManager.init("Stokes");  // pass parameter group
+    // use dune-subgrid to create the individual grids
 
-    // we compute on the leaf grid view
-    const auto &darcyGridView = darcyGridManager.grid().leafGridView();
-    const auto &stokesGridView = stokesGridManager.grid().leafGridView();
+    static constexpr int dim = 2;
+
+    using HostGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<double, dim> >;
+    using HostGridManager = Dumux::GridManager<HostGrid>;
+    HostGridManager hostGridManager;
+    hostGridManager.init();
+    auto& hostGrid = hostGridManager.grid();
+
+//        struct Params
+//        {
+//            double amplitude = getParam<double>("Grid.Amplitude");
+//            double baseline = getParam<double>("Grid.Baseline");
+//            double offset = getParam<double>("Grid.Offset");
+//            double scaling = getParam<double>("Grid.Scaling");
+//        };
+//
+//        Params params;
+
+    //TODO: Check if number of elements in x-direction is even!
+
+    auto elementSelectorStokes = [&](const auto& element)
+    {
+        return (element.geometry().center()[0] > 0.5 && element.geometry().center()[1] > -0.5) || (element.geometry().center()[0] < 0.5 && element.geometry().center()[1] > 0.0);
+        //return element.geometry().center()[1] > -0.0;
+    };
+
+    auto elementSelectorDarcy = [&](const auto& element)
+    {
+        //return not elementSelectorStokes(element);
+        //return (element.geometry().center()[0] > 0.5 && element.geometry().center()[1] < -0.5) || (element.geometry().center()[0] < 0.5 && element.geometry().center()[1] < 0.0);
+        //return element.geometry().center()[1] < -0.5;
+        return (element.geometry().center()[0] > 0.5 && element.geometry().center()[1] < -0.5) || (element.geometry().center()[0] < 0.5 && element.geometry().center()[1] < 0.0);
+    };
+    using SubGrid = Dune::SubGrid<dim, HostGrid>;
+
+    Dumux::GridManager<SubGrid> subGridManagerStokes;
+    Dumux::GridManager<SubGrid> subGridManagerDarcy;
+
+    // initialize subgrids
+    subGridManagerStokes.init(hostGrid, elementSelectorStokes, "Stokes");
+    subGridManagerDarcy.init(hostGrid, elementSelectorDarcy, "Darcy");
+
+    const auto &stokesGridView = subGridManagerStokes.grid().leafGridView();
+    const auto &darcyGridView = subGridManagerDarcy.grid().leafGridView();
+
+
 
     // create the finite volume grid geometry
-    using StokesGridGeometry =
-        GetPropType<StokesTypeTag, Properties::GridGeometry>;
-    auto stokesGridGeometry =
-        std::make_shared<StokesGridGeometry>(stokesGridView);
+    using StokesFVGridGeometry = GetPropType<StokesTypeTag, Properties::GridGeometry>;
+    auto stokesGridGeometry = std::make_shared<StokesFVGridGeometry>(stokesGridView);
     stokesGridGeometry->update();
-    using DarcyGridGeometry =
-        GetPropType<DarcyTypeTag, Properties::GridGeometry>;
-    auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+    using DarcyFVGridGeometry = GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+    auto darcyGridGeometry = std::make_shared<DarcyFVGridGeometry>(darcyGridView);
     darcyGridGeometry->update();
 
-    using Traits =
-        StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
+    // create the finite volume grid geometry
+//    using StokesGridGeometry =
+//        GetPropType<StokesTypeTag, Properties::GridGeometry>;
+//    auto stokesGridGeometry =
+//        std::make_shared<StokesGridGeometry>(stokesGridView);
+//    stokesGridGeometry->update();
+//    using DarcyGridGeometry =
+//        GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+//    auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+//    darcyGridGeometry->update();
+
+    //using Traits =
+    //    StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
+    using Traits = StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
 
     // the coupling manager
     using CouplingManager = StokesDarcyCouplingManager<Traits>;
@@ -254,16 +216,24 @@ try {
     auto stokesSol = partial(sol, stokesFaceIdx, stokesCellCenterIdx);
 
     // the grid variables
-    using StokesGridVariables =
-        GetPropType<StokesTypeTag, Properties::GridVariables>;
-    auto stokesGridVariables = std::make_shared<StokesGridVariables>(
-        stokesProblem, stokesGridGeometry);
+//    using StokesGridVariables =
+//        GetPropType<StokesTypeTag, Properties::GridVariables>;
+//    auto stokesGridVariables = std::make_shared<StokesGridVariables>(
+//        stokesProblem, stokesGridGeometry);
+//    stokesGridVariables->init(stokesSol);
+//    using DarcyGridVariables =
+//        GetPropType<DarcyTypeTag, Properties::GridVariables>;
+//    auto darcyGridVariables =
+//        std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
+//    darcyGridVariables->init(sol[darcyIdx]);
+
+    using StokesGridVariables = GetPropType<StokesTypeTag, Properties::GridVariables>;
+    auto stokesGridVariables = std::make_shared<StokesGridVariables>(stokesProblem, stokesGridGeometry);
     stokesGridVariables->init(stokesSol);
-    using DarcyGridVariables =
-        GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables =
-        std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
+    using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
+    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
     darcyGridVariables->init(sol[darcyIdx]);
+
 
     /*
   const auto couplingMode = [] {
@@ -308,11 +278,12 @@ try {
         std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(
         darcyVtkWriter);
-    darcyVtkWriter.write(0.0);
+    //darcyVtkWriter.write(0.0);
 
     // the assembler for a stationary problem
-    using Assembler =
-        MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    //using Assembler =
+    //    MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
     auto assembler = std::make_shared<Assembler>(
         std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
         std::make_tuple(stokesGridGeometry->faceFVGridGeometryPtr(),

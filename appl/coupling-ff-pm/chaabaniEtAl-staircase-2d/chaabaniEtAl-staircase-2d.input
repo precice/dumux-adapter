@@ -1,11 +1,23 @@
+#Subgrid options
+[Grid]
+Positions0 = 0 0.5 1
+Positions1 = -1 -0.5 0.0 1
+Cells0 = 5 5
+Cells1 = 5 5 10
+
+
 [Darcy.Grid]
-LowerLeft = 0 -1 
-UpperRight = 1 0 
+#LowerLeft = 0 -1 
+#UpperRight = 1 0 
+Positions0 = 0 1 
+Positions1 = -1 0 
 Cells = 10 10 
 
 [Stokes.Grid]
-LowerLeft = 0 -0.5 
-UpperRight = 1 1
+#LowerLeft = 0 -0.5 
+#UpperRight = 1 1
+Positions0 = 0 1
+Positions1 = 0 1
 Cells = 10 10
 
 [Stokes.Problem]

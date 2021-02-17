@@ -33,6 +33,7 @@
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
 #include <dumux/freeflow/navierstokes/problem.hh>
+#include <dumux/io/grid/gridmanager_sub.hh>
 
 namespace Dumux
 {
@@ -60,10 +61,18 @@ struct FluidSystem<TypeTag, TTag::StokesOneP> {
 // Set the grid type
 template<class TypeTag>
 struct Grid<TypeTag, TTag::StokesOneP> {
-    using type = Dune::YaspGrid<2,
-                                Dune::EquidistantOffsetCoordinates<
-                                    GetPropType<TypeTag, Properties::Scalar>,
-                                    2> >;
+    static constexpr auto dim = 2;
+    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
+    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
+
+//    using type = Dune::YaspGrid<2,
+//                                Dune::EquidistantOffsetCoordinates<
+//                                    GetPropType<TypeTag, Properties::Scalar>,
+//                                    2> >;
+    using HostGrid = TensorGrid;
+    using type = Dune::SubGrid<dim, HostGrid>;
+
+
 };
 
 // Set the problem property
@@ -200,12 +209,15 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
         if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx,
                                               scvf)) {
-            assert(
-                couplingManager().couplingMode() !=
-                CouplingManager::CouplingMode::reconstructPorousMediumPressure);
+            //assert(
+            //    couplingManager().couplingMode() !=
+            //    CouplingManager::CouplingMode::reconstructPorousMediumPressure);
 
-            values.setCouplingDirichlet(Indices::velocityYIdx);
-            values.setBeaversJoseph(Indices::momentumXBalanceIdx);
+            //values.setCouplingDirichlet(Indices::velocityYIdx);
+            //values.setBeaversJoseph(Indices::momentumXBalanceIdx);
+            values.setCouplingNeumann(Indices::conti0EqIdx);
+            values.setCouplingNeumann(scvf.directionIndex());
+            values.setBeaversJoseph(1 - scvf.directionIndex());
         }
 
         return values;
@@ -289,9 +301,11 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
             values[Indices::conti0EqIdx] =
                 couplingManager().couplingData().massCouplingCondition(
                     element, fvGeometry, elemVolVars, elemFaceVars, scvf);
-            values[Indices::momentumYBalanceIdx] =
-                couplingManager().couplingData().momentumCouplingCondition(
-                    element, fvGeometry, elemVolVars, elemFaceVars, scvf);
+            //values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
+            //values[Indices::momentumYBalanceIdx] =
+            //    couplingManager().couplingData().momentumCouplingCondition(
+            //        element, fvGeometry, elemVolVars, elemFaceVars, scvf);
+            values[scvf.directionIndex()] = couplingManager().couplingData().momentumCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf);
 
             // std::cout << "v self is " << elemFaceVars[scvf].velocitySelf() << ", v darcy " << couplingManager().couplingData().darcyInterfaceVelocity(element, fvGeometry, elemVolVars, elemFaceVars, scvf) << std::endl;
 

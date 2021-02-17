@@ -36,6 +36,7 @@
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
+#include <dumux/io/grid/gridmanager_sub.hh>
 
 namespace Dumux
 {
@@ -69,7 +70,13 @@ struct FluidSystem<TypeTag, TTag::DarcyOneP> {
 // Set the grid type
 template<class TypeTag>
 struct Grid<TypeTag, TTag::DarcyOneP> {
-    using type = Dune::YaspGrid<2>;
+    //using type = Dune::YaspGrid<2>;
+    static constexpr auto dim = 2;
+    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
+    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
+
+    using HostGrid = TensorGrid;
+    using type = Dune::SubGrid<dim, HostGrid>;
 };
 
 template<class TypeTag>
