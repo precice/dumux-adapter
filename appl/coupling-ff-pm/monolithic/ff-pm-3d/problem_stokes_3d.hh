@@ -177,7 +177,6 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
         const auto &globalPos = scvf.dofPosition();
 
-
         if (verticalFlow_) {
             // inflow
             if (onUpperBoundary_(globalPos)) {

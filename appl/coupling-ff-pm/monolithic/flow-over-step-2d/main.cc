@@ -26,35 +26,35 @@
 #include <iostream>
 
 #include <dune/common/parallel/mpihelper.hh>
-#include <dune/istl/io.hh>
 #include <dune/grid/yaspgrid.hh>
+#include <dune/istl/io.hh>
 
-#include <dumux/common/properties.hh>
-#include <dumux/common/parameters.hh>
-#include <dumux/common/dumuxmessage.hh>
-#include <dumux/common/partial.hh>
-#include <dumux/linear/seqsolverbackend.hh>
-#include <dumux/assembly/fvassembler.hh>
 #include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
+#include <dumux/common/parameters.hh>
+#include <dumux/common/partial.hh>
+#include <dumux/common/properties.hh>
 #include <dumux/discretization/method.hh>
-#include <dumux/io/vtkoutputmodule.hh>
-#include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
-#include <dumux/multidomain/staggeredtraits.hh>
 #include <dumux/multidomain/fvassembler.hh>
 #include <dumux/multidomain/newtonsolver.hh>
+#include <dumux/multidomain/staggeredtraits.hh>
 
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
 #include "properties.hh"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -67,17 +67,16 @@ int main(int argc, char** argv)
     using StokesTypeTag = Properties::TTag::StokesOneP;
     using DarcyTypeTag = Properties::TTag::DarcyOneP;
 
-
     // use dune-subgrid to create the individual grids
     static constexpr int dim = 2;
-    using HostGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<double, dim> >;
+    using HostGrid =
+        Dune::YaspGrid<2, Dune::TensorProductCoordinates<double, dim>>;
     using HostGridManager = Dumux::GridManager<HostGrid>;
     HostGridManager hostGridManager;
     hostGridManager.init();
-    auto& hostGrid = hostGridManager.grid();
+    auto &hostGrid = hostGridManager.grid();
 
-    struct Params
-    {
+    struct Params {
         double amplitude = getParam<double>("Grid.Amplitude");
         double baseline = getParam<double>("Grid.Baseline");
         double offset = getParam<double>("Grid.Offset");
@@ -86,18 +85,20 @@ int main(int argc, char** argv)
 
     Params params;
 
-    auto elementSelectorStokes = [&](const auto& element)
-    {
+    auto elementSelectorStokes = [&](const auto &element) {
         //double interface = params.amplitude * std::sin(( element.geometry().center()[0] -params.offset) / params.scaling * 2.0 * M_PI) + params.baseline;
         //return element.geometry().center()[1] > interface;
-        return element.geometry().center()[1] > 1.0 || ( element.geometry().center()[0] > 0.5 && element.geometry().center()[1] > 0.5 );
+        return element.geometry().center()[1] > 1.0 ||
+               (element.geometry().center()[0] > 0.5 &&
+                element.geometry().center()[1] > 0.5);
     };
 
-    auto elementSelectorDarcy = [&](const auto& element)
-    {
+    auto elementSelectorDarcy = [&](const auto &element) {
         //double interface  =  params.amplitude * std::sin(( element.geometry().center()[0] - params.offset) / params.scaling * 2.0 * M_PI) + params.baseline;
         //return element.geometry().center()[1] < interface;
-        return element.geometry().center()[1] < 0.5 || ( element.geometry().center()[0] < 0.5 && element.geometry().center()[1] < 1.0 );
+        return element.geometry().center()[1] < 0.5 ||
+               (element.geometry().center()[0] < 0.5 &&
+                element.geometry().center()[1] < 1.0);
     };
 
     using SubGrid = Dune::SubGrid<dim, HostGrid>;
@@ -110,23 +111,28 @@ int main(int argc, char** argv)
     subGridManagerDarcy.init(hostGrid, elementSelectorDarcy, "Darcy");
 
     // we compute on the leaf grid view
-    const auto& darcyGridView = subGridManagerDarcy.grid().leafGridView();
-    const auto& stokesGridView = subGridManagerStokes.grid().leafGridView();
-
+    const auto &darcyGridView = subGridManagerDarcy.grid().leafGridView();
+    const auto &stokesGridView = subGridManagerStokes.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using StokesFVGridGeometry = GetPropType<StokesTypeTag, Properties::GridGeometry>;
-    auto stokesFvGridGeometry = std::make_shared<StokesFVGridGeometry>(stokesGridView);
+    using StokesFVGridGeometry =
+        GetPropType<StokesTypeTag, Properties::GridGeometry>;
+    auto stokesFvGridGeometry =
+        std::make_shared<StokesFVGridGeometry>(stokesGridView);
     stokesFvGridGeometry->update();
-    using DarcyFVGridGeometry = GetPropType<DarcyTypeTag, Properties::GridGeometry>;
-    auto darcyFvGridGeometry = std::make_shared<DarcyFVGridGeometry>(darcyGridView);
+    using DarcyFVGridGeometry =
+        GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+    auto darcyFvGridGeometry =
+        std::make_shared<DarcyFVGridGeometry>(darcyGridView);
     darcyFvGridGeometry->update();
 
-    using Traits = StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
+    using Traits =
+        StaggeredMultiDomainTraits<StokesTypeTag, StokesTypeTag, DarcyTypeTag>;
 
     // the coupling manager
     using CouplingManager = StokesDarcyCouplingManager<Traits>;
-    auto couplingManager = std::make_shared<CouplingManager>(stokesFvGridGeometry, darcyFvGridGeometry);
+    auto couplingManager = std::make_shared<CouplingManager>(
+        stokesFvGridGeometry, darcyFvGridGeometry);
 
     // the indices
     constexpr auto stokesCellCenterIdx = CouplingManager::stokesCellCenterIdx;
@@ -135,9 +141,11 @@ int main(int argc, char** argv)
 
     // the problem (initial and boundary conditions)
     using StokesProblem = GetPropType<StokesTypeTag, Properties::Problem>;
-    auto stokesProblem = std::make_shared<StokesProblem>(stokesFvGridGeometry, couplingManager);
+    auto stokesProblem =
+        std::make_shared<StokesProblem>(stokesFvGridGeometry, couplingManager);
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
-    auto darcyProblem = std::make_shared<DarcyProblem>(darcyFvGridGeometry, couplingManager);
+    auto darcyProblem =
+        std::make_shared<DarcyProblem>(darcyFvGridGeometry, couplingManager);
 
     // the solution vector
     Traits::SolutionVector sol;
@@ -153,47 +161,64 @@ int main(int argc, char** argv)
     couplingManager->init(stokesProblem, darcyProblem, sol);
 
     // the grid variables
-    using StokesGridVariables = GetPropType<StokesTypeTag, Properties::GridVariables>;
-    auto stokesGridVariables = std::make_shared<StokesGridVariables>(stokesProblem, stokesFvGridGeometry);
+    using StokesGridVariables =
+        GetPropType<StokesTypeTag, Properties::GridVariables>;
+    auto stokesGridVariables = std::make_shared<StokesGridVariables>(
+        stokesProblem, stokesFvGridGeometry);
     stokesGridVariables->init(stokesSol);
-    using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
+    using DarcyGridVariables =
+        GetPropType<DarcyTypeTag, Properties::GridVariables>;
+    auto darcyGridVariables =
+        std::make_shared<DarcyGridVariables>(darcyProblem, darcyFvGridGeometry);
     darcyGridVariables->init(sol[darcyIdx]);
 
     // intialize the vtk output module
-    const auto stokesName = getParam<std::string>("Problem.Name") + "_" + stokesProblem->name();
-    const auto darcyName = getParam<std::string>("Problem.Name") + "_" + darcyProblem->name();
+    const auto stokesName =
+        getParam<std::string>("Problem.Name") + "_" + stokesProblem->name();
+    const auto darcyName =
+        getParam<std::string>("Problem.Name") + "_" + darcyProblem->name();
 
-    StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)> stokesVtkWriter(*stokesGridVariables, stokesSol, stokesName);
-    GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(stokesVtkWriter);
+    StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)>
+        stokesVtkWriter(*stokesGridVariables, stokesSol, stokesName);
+    GetPropType<StokesTypeTag, Properties::IOFields>::initOutputModule(
+        stokesVtkWriter);
 
-    stokesVtkWriter.addField(stokesProblem->getAnalyticalVelocityX(), "analyticalV_x");
+    stokesVtkWriter.addField(stokesProblem->getAnalyticalVelocityX(),
+                             "analyticalV_x");
 
     stokesVtkWriter.write(0.0);
 
-    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol[darcyIdx], darcyName);
-    using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
-    darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
-    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
+    VtkOutputModule<DarcyGridVariables,
+                    GetPropType<DarcyTypeTag, Properties::SolutionVector>>
+        darcyVtkWriter(*darcyGridVariables, sol[darcyIdx], darcyName);
+    using DarcyVelocityOutput =
+        GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
+    darcyVtkWriter.addVelocityOutput(
+        std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
+    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(
+        darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
     // the assembler for a stationary problem
-    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
-                                                 std::make_tuple(stokesFvGridGeometry->faceFVGridGeometryPtr(),
-                                                                 stokesFvGridGeometry->cellCenterFVGridGeometryPtr(),
-                                                                 darcyFvGridGeometry),
-                                                 std::make_tuple(stokesGridVariables->faceGridVariablesPtr(),
-                                                                 stokesGridVariables->cellCenterGridVariablesPtr(),
-                                                                 darcyGridVariables),
-                                                 couplingManager);
+    using Assembler =
+        MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        std::make_tuple(stokesProblem, stokesProblem, darcyProblem),
+        std::make_tuple(stokesFvGridGeometry->faceFVGridGeometryPtr(),
+                        stokesFvGridGeometry->cellCenterFVGridGeometryPtr(),
+                        darcyFvGridGeometry),
+        std::make_tuple(stokesGridVariables->faceGridVariablesPtr(),
+                        stokesGridVariables->cellCenterGridVariablesPtr(),
+                        darcyGridVariables),
+        couplingManager);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    using NewtonSolver =
+        MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
     NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
     // solve the non-linear system
@@ -208,11 +233,10 @@ int main(int argc, char** argv)
     ////////////////////////////////////////////////////////////
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
+}  // end main

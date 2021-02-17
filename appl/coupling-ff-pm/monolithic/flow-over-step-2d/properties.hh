@@ -25,9 +25,9 @@
 #define DUMUX_EXERCISE_COUPLED_INTERFACE_PROPERTIES_HH
 
 // Both domains
-#include <dune/grid/yaspgrid.hh>
-#include <dumux/multidomain/staggeredtraits.hh>
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
+#include <dumux/multidomain/staggeredtraits.hh>
+#include <dune/grid/yaspgrid.hh>
 
 #include <dumux/io/grid/gridmanager_sub.hh>
 #include <dumux/material/components/simpleh2o.hh>
@@ -46,52 +46,62 @@
 
 #include "freeflowsubproblem.hh"
 
-namespace Dumux::Properties {
-
+namespace Dumux::Properties
+{
 // Create new type tags
-namespace TTag {
-struct DarcyOneP { using InheritsFrom = std::tuple<OneP, CCTpfaModel>; };
-struct StokesOneP { using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>; };
-} // end namespace TTag
+namespace TTag
+{
+struct DarcyOneP {
+    using InheritsFrom = std::tuple<OneP, CCTpfaModel>;
+};
+struct StokesOneP {
+    using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>;
+};
+}  // end namespace TTag
 
 // Set the coupling manager
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::StokesOneP>
-{
-    using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::DarcyOneP>;
+struct CouplingManager<TypeTag, TTag::StokesOneP> {
+    using Traits = StaggeredMultiDomainTraits<TypeTag,
+                                              TypeTag,
+                                              Properties::TTag::DarcyOneP>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
 };
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::DarcyOneP>
-{
-    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesOneP, Properties::TTag::StokesOneP, TypeTag>;
+struct CouplingManager<TypeTag, TTag::DarcyOneP> {
+    using Traits = StaggeredMultiDomainTraits<Properties::TTag::StokesOneP,
+                                              Properties::TTag::StokesOneP,
+                                              TypeTag>;
     using type = Dumux::StokesDarcyCouplingManager<Traits>;
 };
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::DarcyOneP> { using type = Dumux::PorousMediumSubProblem<TypeTag>; };
+struct Problem<TypeTag, TTag::DarcyOneP> {
+    using type = Dumux::PorousMediumSubProblem<TypeTag>;
+};
 template<class TypeTag>
-struct Problem<TypeTag, TTag::StokesOneP> { using type = Dumux::FreeFlowSubProblem<TypeTag> ; };
+struct Problem<TypeTag, TTag::StokesOneP> {
+    using type = Dumux::FreeFlowSubProblem<TypeTag>;
+};
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::DarcyOneP>
-{
+struct Grid<TypeTag, TTag::DarcyOneP> {
     static constexpr auto dim = 2;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
-
+    using TensorGrid =
+        Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim>>;
 
     using HostGrid = TensorGrid;
     using type = Dune::SubGrid<dim, HostGrid>;
 };
 template<class TypeTag>
-struct Grid<TypeTag, TTag::StokesOneP>
-{
+struct Grid<TypeTag, TTag::StokesOneP> {
     static constexpr auto dim = 2;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using TensorGrid = Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim> >;
+    using TensorGrid =
+        Dune::YaspGrid<2, Dune::TensorProductCoordinates<Scalar, dim>>;
 
     using HostGrid = TensorGrid;
     using type = Dune::SubGrid<dim, HostGrid>;
@@ -99,30 +109,37 @@ struct Grid<TypeTag, TTag::StokesOneP>
 
 // the fluid system
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::DarcyOneP>
-{
+struct FluidSystem<TypeTag, TTag::DarcyOneP> {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> > ;
+    using type =
+        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar>>;
 };
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::StokesOneP>
-{
+struct FluidSystem<TypeTag, TTag::StokesOneP> {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> > ;
+    using type =
+        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar>>;
 };
 
 template<class TypeTag>
 struct SpatialParams<TypeTag, TTag::DarcyOneP> {
-    using type = OnePSpatialParams<GetPropType<TypeTag, GridGeometry>, GetPropType<TypeTag, Scalar>>;
+    using type = OnePSpatialParams<GetPropType<TypeTag, GridGeometry>,
+                                   GetPropType<TypeTag, Scalar>>;
 };
 
 template<class TypeTag>
-struct EnableGridGeometryCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridGeometryCache<TypeTag, TTag::StokesOneP> {
+    static constexpr bool value = true;
+};
 template<class TypeTag>
-struct EnableGridFluxVariablesCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridFluxVariablesCache<TypeTag, TTag::StokesOneP> {
+    static constexpr bool value = true;
+};
 template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::StokesOneP> { static constexpr bool value = true; };
+struct EnableGridVolumeVariablesCache<TypeTag, TTag::StokesOneP> {
+    static constexpr bool value = true;
+};
 
-} // end namespace Dumux::Properties
+}  // end namespace Dumux::Properties
 
 #endif

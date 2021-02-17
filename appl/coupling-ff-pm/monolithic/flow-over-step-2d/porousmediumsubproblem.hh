@@ -24,44 +24,53 @@
 #ifndef DUMUX_DARCY_SUBPROBLEM_HH
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
-#include <dumux/porousmediumflow/problem.hh>
-#include <dumux/common/properties.hh>
 #include <dumux/common/boundarytypes.hh>
+#include <dumux/common/properties.hh>
+#include <dumux/porousmediumflow/problem.hh>
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \brief The porous medium flow sub problem
  */
-template <class TypeTag>
+template<class TypeTag>
 class PorousMediumSubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
-    using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
+    using GridView =
+        typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
-    using BoundaryTypes = Dumux::BoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
+    using BoundaryTypes = Dumux::BoundaryTypes<
+        GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
+    using FVElementGeometry =
+        typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
-    using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolumeFace =
+        typename FVElementGeometry::SubControlVolumeFace;
     using FVGridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using GridVariables = GetPropType<TypeTag, Properties::GridVariables>;
-    using ElementFluxVariablesCache = typename GridVariables::GridFluxVariablesCache::LocalView;
+    using ElementFluxVariablesCache =
+        typename GridVariables::GridFluxVariablesCache::LocalView;
 
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using Indices =
+        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-public:
+   public:
     PorousMediumSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
-                   std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "Darcy"), eps_(1e-7), couplingManager_(couplingManager)
-    {}
+                           std::shared_ptr<CouplingManager> couplingManager)
+        : ParentType(fvGridGeometry, "Darcy"),
+          eps_(1e-7),
+          couplingManager_(couplingManager)
+    {
+    }
 
     /*!
      * \name Simulation steering
@@ -72,8 +81,7 @@ public:
      * \brief Return the temperature within the domain in [K].
      *
      */
-    Scalar temperature() const
-    { return 273.15 + 10; } // 10°C
+    Scalar temperature() const { return 273.15 + 10; }  // 10°C
     // \}
 
     /*!
@@ -88,19 +96,17 @@ public:
       * \param element The element
       * \param scvf The boundary sub control volume face
       */
-    BoundaryTypes boundaryTypes(const Element &element, const SubControlVolumeFace &scvf) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolumeFace &scvf) const
     {
         BoundaryTypes values;
         //values.setAllNeumann();
 
-        const auto& globalPos = scvf.center();
-        if( onLowerBoundary_(globalPos) )
+        const auto &globalPos = scvf.center();
+        if (onLowerBoundary_(globalPos))
             values.setAllDirichlet();
         else
             values.setAllNeumann();
-
-
-
 
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
             values.setAllCouplingNeumann();
@@ -108,7 +114,7 @@ public:
         return values;
     }
 
-        /*!
+    /*!
      * \brief Evaluate the boundary conditions for a Dirichlet control volume.
      *
      * \param element The element for which the Dirichlet boundary condition is set
@@ -116,7 +122,8 @@ public:
      *
      * For this method, the \a values parameter stores primary variables.
      */
-    PrimaryVariables dirichlet(const Element &element, const SubControlVolumeFace &scvf) const
+    PrimaryVariables dirichlet(const Element &element,
+                               const SubControlVolumeFace &scvf) const
     {
         PrimaryVariables values(0.0);
         values = initial(element);
@@ -135,16 +142,18 @@ public:
      * For this method, the \a values variable stores primary variables.
      */
     template<class ElementVolumeVariables>
-    NumEqVector neumann(const Element& element,
-                        const FVElementGeometry& fvGeometry,
-                        const ElementVolumeVariables& elemVolVars,
-                        const ElementFluxVariablesCache& elemFluxVarsCache,
-                        const SubControlVolumeFace& scvf) const
+    NumEqVector neumann(const Element &element,
+                        const FVElementGeometry &fvGeometry,
+                        const ElementVolumeVariables &elemVolVars,
+                        const ElementFluxVariablesCache &elemFluxVarsCache,
+                        const SubControlVolumeFace &scvf) const
     {
         NumEqVector values(0.0);
 
         if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, scvf);
+            values[Indices::conti0EqIdx] =
+                couplingManager().couplingData().massCouplingCondition(
+                    element, fvGeometry, elemVolVars, scvf);
 
         return values;
     }
@@ -166,10 +175,12 @@ public:
      */
     template<class ElementVolumeVariables>
     NumEqVector source(const Element &element,
-                       const FVElementGeometry& fvGeometry,
-                       const ElementVolumeVariables& elemVolVars,
+                       const FVElementGeometry &fvGeometry,
+                       const ElementVolumeVariables &elemVolVars,
                        const SubControlVolume &scv) const
-    { return NumEqVector(0.0); }
+    {
+        return NumEqVector(0.0);
+    }
 
     // \}
 
@@ -190,29 +201,38 @@ public:
 
     //! Set the coupling manager
     void setCouplingManager(std::shared_ptr<CouplingManager> cm)
-    { couplingManager_ = cm; }
+    {
+        couplingManager_ = cm;
+    }
 
     //! Get the coupling manager
-    const CouplingManager& couplingManager() const
-    { return *couplingManager_; }
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
 
-private:
+   private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_; }
+    {
+        return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;
+    }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_; }
+    {
+        return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_;
+    }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_; }
+    {
+        return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_;
+    }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->gridGeometry().bBoxMax()[1] - eps_; }
+    {
+        return globalPos[1] > this->gridGeometry().bBoxMax()[1] - eps_;
+    }
 
     Scalar eps_;
     std::shared_ptr<CouplingManager> couplingManager_;
 };
 
-} //end namespace Dumux
+}  //end namespace Dumux
 
 #endif
