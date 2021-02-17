@@ -140,6 +140,8 @@ test:monolithic:ff-pm-3d:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
+    - pwd
+    - ls
     - ctest
   artifacts:
     expire_in: 5 days
