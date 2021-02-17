@@ -133,15 +133,13 @@ build:monolithic:ff-pm-3d:
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/ff-pm-3d
       - build-cmake/CMakeFiles/CMakeError.log
       - build-cmake/CMakeFiles/CMakeOutput.log
-#      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Makefile
-#      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/CTestTestfile.cmake
+      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Makefile
+      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/CTestTestfile.cmake
 
 test:monolithic:ff-pm-3d:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
-    - pwd
-    - ls
     - ctest
   artifacts:
     expire_in: 5 days
