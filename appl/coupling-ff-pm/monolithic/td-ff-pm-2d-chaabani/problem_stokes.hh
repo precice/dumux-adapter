@@ -120,13 +120,12 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
                      std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(gridGeometry, "Stokes"),
           eps_(1e-6),
-          couplingManager_(couplingManager),
-          time_(0.0)
+          time_(0.0),
+          couplingManager_(couplingManager)
     {
         problemName_ =
             getParam<std::string>("Vtk.OutputName") + "_" +
             getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
-
     }
 
     /*!
@@ -174,16 +173,10 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     {
         BoundaryTypes values;
 
-        const auto &globalPos = scvf.dofPosition();
+        //const auto &globalPos = scvf.dofPosition();
 
-        // inlet / outlet
-        if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos))
-            values.setDirichlet(Indices::pressureIdx);
-        else  // wall
-        {
-            values.setDirichlet(Indices::velocityXIdx);
-            values.setDirichlet(Indices::velocityYIdx);
-        }
+        //values.setDirichlet(Indices::velocityXIdx);
+        //values.setDirichlet(Indices::velocityYIdx);
 
         if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx,
                                               scvf)) {
@@ -193,6 +186,8 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
             values.setCouplingDirichlet(Indices::velocityYIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
+        } else {
+            values.setDirichlet(Indices::pressureIdx);
         }
 
         return values;
@@ -226,30 +221,6 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
             return initialAtPos(scvf.center());
     }
 
-    // /*!
-    //  * \brief Evaluates the boundary conditions for a Neumann control volume.
-    //  *
-    //  * \param element The element for which the Neumann boundary condition is set
-    //  * \param fvGeometry The fvGeometry
-    //  * \param elemVolVars The element volume variables
-    //  * \param elemFaceVars The element face variables
-    //  * \param scvf The boundary sub control volume face
-    //  */
-    // template<class ElementVolumeVariables, class ElementFaceVariables>
-    // NumEqVector dirichlet(const Element& element,
-    //                     const FVElementGeometry& fvGeometry,
-    //                     const ElementVolumeVariables& elemVolVars,
-    //                     const ElementFaceVariables& elemFaceVars,
-    //                     const SubControlVolumeFace& scvf) const
-    // {
-    //     NumEqVector values(0.0);
-    //
-    //     if(couplingManager().isCoupledEntity(CouplingManager::stokesIdx, scvf))
-    //     {
-    //
-    //     }
-    // }
-
     /*!
      * \brief Evaluates the boundary conditions for a Neumann control volume.
      *
@@ -268,7 +239,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     {
         NumEqVector values(0.0);
 
-        std::cout << "Neumann BC: " << values << std::endl;
+        //std::cout << "Neumann BC: " << values << std::endl;
 
         if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx,
                                               scvf)) {
@@ -302,20 +273,15 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     {
         PrimaryVariables values(0.0);
 
-        if (verticalFlow_) {
-            static const Scalar inletVelocity = getParamFromGroup<Scalar>(
-                this->paramGroup(), "Problem.Velocity");
-            values[Indices::velocityYIdx] =
-                inletVelocity * globalPos[0] *
-                (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
-        } else  // horizontal flow
-        {
-            static const Scalar deltaP = getParamFromGroup<Scalar>(
-                this->paramGroup(), "Problem.PressureDifference");
-            if (onLeftBoundary_(globalPos))
-                values[Indices::pressureIdx] = deltaP;
-        }
+        values[Indices::velocityXIdx] = xVelocityAt(time_, globalPos);
+        values[Indices::velocityYIdx] = yVelocityAt(time_, globalPos);
+        values[Indices::pressureIdx] = pressureAt(time_, globalPos);
 
+        std::cout << values[Indices::velocityXIdx] << std::endl;
+        std::cout << values[Indices::velocityYIdx] << std::endl;
+        std::cout << values[Indices::pressureIdx] << std::endl;
+        //if (onLeftBoundary_(globalPos))
+        //    values[Indices::pressureIdx] = deltaP;
         return values;
     }
 
@@ -342,9 +308,19 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
             .beaversJosephCoeffAtPos(scvf.center());
     }
 
-    void setTime( const Scalar time ) { time_ = time; }
+    void setTime(const Scalar time) { time_ = time; }
 
-    // \}
+    PrimaryVariables getExactSolution(const GlobalPosition &globalPos) const
+    {
+        PrimaryVariables values(0.0);
+
+        values[Indices::pressureIdx] = pressureAt(time_, globalPos);
+        std::cout << values[Indices::pressureIdx] << std::endl;
+        //values[Indices::velocityXIdx] = xVelocityAt( time_, globalPos);
+        //values[Indices::velocityYIdx] = yVelocityAt( time_, globalPos);
+
+        return values;
+    }
 
    private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
@@ -367,9 +343,37 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
         return globalPos[1] > this->gridGeometry().bBoxMax()[1] - eps_;
     }
 
+    Scalar pressureAt(const Scalar time, const GlobalPosition &globalPos) const
+    {
+        const auto x = globalPos[0];
+        const auto y = globalPos[1];
+        return (-std::pow(x, 2) * y + x * y + std::pow(y, 2)) *
+               std::cos(M_PI * time);
+    }
+
+    Scalar xVelocityAt(const Scalar time, const GlobalPosition &globalPos) const
+    {
+        const auto x = globalPos[0];
+        const auto y = globalPos[1];
+        return (std::pow(y, 2) - 2.0 * y + 2.0 * x - 4.0 * std::pow(y, 3) * x -
+                3) *
+               std::cos(M_PI * time);
+    };
+
+    Scalar yVelocityAt(const Scalar time, const GlobalPosition &globalPos) const
+    {
+        const auto x = globalPos[0];
+        const auto y = globalPos[1];
+        return (std::pow(x, 2) - x - 2.0 * y + std::pow(y, 4)) *
+               std::cos(M_PI * time);
+    };
+
     Scalar eps_;
     std::string problemName_;
     Scalar time_;
+    //std::vector<Scalar> analyticalVelocityX_;
+    //std::vector<Scalar> analyticalVelocityY_;
+    //std::vector<Scalar> analyticalPressure_;
 
     std::shared_ptr<CouplingManager> couplingManager_;
 };

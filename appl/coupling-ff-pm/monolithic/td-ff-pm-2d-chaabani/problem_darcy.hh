@@ -111,8 +111,8 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
                     std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(gridGeometry, "Darcy"),
           eps_(1e-7),
-          couplingManager_(couplingManager),
-          time_(0.0)
+          time_(0.0),
+          couplingManager_(couplingManager)
     {
         problemName_ =
             getParam<std::string>("Vtk.OutputName") + "_" +
@@ -255,7 +255,8 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
      */
     PrimaryVariables initial(const Element &element) const
     {
-        return PrimaryVariables(0.0);
+        //return PrimaryVariables(0.0);
+        return getExactSolution(element.geometry().center());
     }
 
     // \}
@@ -263,18 +264,35 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     //! Get the coupling manager
     const CouplingManager &couplingManager() const { return *couplingManager_; }
 
-    void setTime( const Scalar time ) { time_ = time; }
+    void setTime(const Scalar time) { time_ = time; }
+
+    PrimaryVariables getExactSolution(const GlobalPosition &globalPos) const
+    {
+        PrimaryVariables values(0.0);
+
+        values[Indices::pressureIdx] = pressureAt(time_, globalPos);
+
+        return values;
+    }
 
    private:
+    Scalar pressureAt(const Scalar time, const GlobalPosition &globalPos) const
+    {
+        const auto x = globalPos[0];
+        const auto y = globalPos[1];
+        return (-std::pow(x, 2) * y + x * y + std::pow(y, 2)) *
+               std::cos(M_PI * time);
+    };
+
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_;
     }
 
     Scalar eps_;
+    Scalar time_;
     std::shared_ptr<CouplingManager> couplingManager_;
     std::string problemName_;
-    Scalar time_;
 };
 }  // end namespace Dumux
 
