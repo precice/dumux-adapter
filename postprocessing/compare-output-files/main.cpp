@@ -232,19 +232,19 @@ Errors computePressureError(const CellData &dataSetA, const CellData &dataSetB)
     pressureErrors.dataset_norm.l2 = errP.l2;
     pressureErrors.dataset_norm.linf = errP.linf;
 
-//    std::cout << "Errors: " << std::endl
-//              << "  p: " << std::endl
-//              << "     (abs)        (rel)       (norm dataset 2)" << std::endl
-//              << "    " << pressureErrors.abs.l1 << " (l1), "
-//              << pressureErrors.rel.l1 << ", " << errP.l1 << std::endl
-//              << "    " << pressureErrors.abs.l2 << " (l2), "
-//              << pressureErrors.rel.l2 << ", " << errP.l2 << std::endl
-//              << "    " << pressureErrors.abs.linf << " (linf), "
-//              << pressureErrors.rel.linf << ", " << errP.linf << std::endl;
+    //    std::cout << "Errors: " << std::endl
+    //              << "  p: " << std::endl
+    //              << "     (abs)        (rel)       (norm dataset 2)" << std::endl
+    //              << "    " << pressureErrors.abs.l1 << " (l1), "
+    //              << pressureErrors.rel.l1 << ", " << errP.l1 << std::endl
+    //              << "    " << pressureErrors.abs.l2 << " (l2), "
+    //              << pressureErrors.rel.l2 << ", " << errP.l2 << std::endl
+    //              << "    " << pressureErrors.abs.linf << " (linf), "
+    //              << pressureErrors.rel.linf << ", " << errP.linf << std::endl;
 
-//    std::cout << "Errors (inf-norm): " << std::endl
-//              << std::setw(8) << "Pressure " << std::setw(14) << "(abs)" << std::setw(14) << "(rel)" << std::setw(20) << "(norm of dataset)" << std::endl
-//              << std::setw(8) << " " << std::setw(14) << pressureErrors.abs.linf <<  std::setw(14) << pressureErrors.rel.linf << std::setw(20) << errP.linf << std::endl;
+    //    std::cout << "Errors (inf-norm): " << std::endl
+    //              << std::setw(8) << "Pressure " << std::setw(14) << "(abs)" << std::setw(14) << "(rel)" << std::setw(20) << "(norm of dataset)" << std::endl
+    //              << std::setw(8) << " " << std::setw(14) << pressureErrors.abs.linf <<  std::setw(14) << pressureErrors.rel.linf << std::setw(20) << errP.linf << std::endl;
 
     return std::move(pressureErrors);
 }
@@ -293,20 +293,19 @@ Errors computeVelocityError(const CellData &dataSetA, const CellData &dataSetB)
     velocityErrors.dataset_norm.l2 = errV.l2;
     velocityErrors.dataset_norm.linf = errV.linf;
 
-//    std::cout << "Errors: " << std::endl
-//              << "  vel: " << std::endl
-//              << "     (abs)        (rel)       (norm dataset 2)" << std::endl
-//              << "    " << velocityErrors.abs.l1 << " (l1), "
-//              << velocityErrors.rel.l1 << ", " << errV.l1 << std::endl
-//              << "    " << velocityErrors.abs.l2 << " (l2), "
-//              << velocityErrors.rel.l2 << ", " << errV.l2 << std::endl
-//              << "    " << velocityErrors.abs.linf << " (linf), "
-//              << velocityErrors.rel.linf << ", " << errV.linf << std::endl;
+    //    std::cout << "Errors: " << std::endl
+    //              << "  vel: " << std::endl
+    //              << "     (abs)        (rel)       (norm dataset 2)" << std::endl
+    //              << "    " << velocityErrors.abs.l1 << " (l1), "
+    //              << velocityErrors.rel.l1 << ", " << errV.l1 << std::endl
+    //              << "    " << velocityErrors.abs.l2 << " (l2), "
+    //              << velocityErrors.rel.l2 << ", " << errV.l2 << std::endl
+    //              << "    " << velocityErrors.abs.linf << " (linf), "
+    //              << velocityErrors.rel.linf << ", " << errV.linf << std::endl;
 
-//    std::cout << "Errors (inf-norm): " << std::endl
-//              << std::setw(8) << "Velocity " << std::setw(14) << "(abs)" << std::setw(14) << "(rel)" << //std::setw(20) << "(norm of dataset)" << std::endl
-//              << std::setw(8) << " " << std::setw(14) << velocityErrors.abs.linf <<  std::setw(14) << //velocityErrors.rel.linf << std::setw(20) << errV.linf << std::endl;
-
+    //    std::cout << "Errors (inf-norm): " << std::endl
+    //              << std::setw(8) << "Velocity " << std::setw(14) << "(abs)" << std::setw(14) << "(rel)" << //std::setw(20) << "(norm of dataset)" << std::endl
+    //              << std::setw(8) << " " << std::setw(14) << velocityErrors.abs.linf <<  std::setw(14) << //velocityErrors.rel.linf << std::setw(20) << errV.linf << std::endl;
 
     return std::move(velocityErrors);
 }
@@ -321,11 +320,18 @@ std::tuple<Errors, Errors> computeErrors(const CellData &dataA,
     const Errors velocityErrors = computeVelocityError(dataA, dataB);
 
     std::cout << "Errors (inf-norm): " << std::endl
-              << std::setw(10) << " " << std::setw(14) << "(abs)" << std::setw(14) << "(rel)" << std::setw(20) << "(norm of dataset)" << std::endl
-              << std::setw(10) << "Pressure "  << std::setw(14) << pressureErrors.abs.linf <<  std::setw(14) << pressureErrors.rel.linf << std::setw(20) << pressureErrors.dataset_norm.linf << std::endl;
+              << std::setw(10) << " " << std::setw(14) << "(abs)"
+              << std::setw(14) << "(rel)" << std::setw(20)
+              << "(norm of dataset)" << std::endl
+              << std::setw(10) << "Pressure " << std::setw(14)
+              << pressureErrors.abs.linf << std::setw(14)
+              << pressureErrors.rel.linf << std::setw(20)
+              << pressureErrors.dataset_norm.linf << std::endl;
 
-
-    std::cout << std::setw(10) << "Velocity " << std::setw(14) << velocityErrors.abs.linf <<  std::setw(14) << velocityErrors.rel.linf << std::setw(20) << velocityErrors.dataset_norm.linf << std::endl;
+    std::cout << std::setw(10) << "Velocity " << std::setw(14)
+              << velocityErrors.abs.linf << std::setw(14)
+              << velocityErrors.rel.linf << std::setw(20)
+              << velocityErrors.dataset_norm.linf << std::endl;
 
     return std::make_tuple(pressureErrors, velocityErrors);
 }
