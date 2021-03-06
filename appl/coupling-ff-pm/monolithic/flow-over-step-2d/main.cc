@@ -200,15 +200,6 @@ int main(int argc, char **argv)
         darcyVtkWriter);
     darcyVtkWriter.write(0.0);
 
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
-    const auto maxDt = getParam<Scalar>("TimeLoop.MaxTimeStepSize");
-    auto dt = getParam<Scalar>("TimeLoop.DtInitial");
-
-    // instantiate time loop
-    auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0.0, dt, tEnd);
-    timeLoop->setMaxTimeStepSize(maxDt);
-
     // the assembler for a stationary problem
     using Assembler =
         MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
