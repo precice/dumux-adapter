@@ -513,49 +513,6 @@ try {
         const double preciceDt = couplingInterface.advance(dt);
         dt = std::min(preciceDt, dt);
 
-        {
-            double min = std::numeric_limits<double>::max();
-            double max = std::numeric_limits<double>::min();
-            double sum = 0.;
-            const std::string filename = getParam<std::string>("Problem.Name") +
-                                         "-" + darcyProblem->name() +
-                                         "-interface-velocity-" +
-                                         std::to_string(iter);
-            std::tie(min, max, sum) =
-                writeVelocitiesOnInterfaceToFile<FluxVariables>(
-                    filename, *darcyProblem, *darcyGridVariables, sol);
-            const int prec = std::cout.precision();
-            std::cout << "Velocity statistics:" << std::endl
-                      << std::setprecision(
-                             std::numeric_limits<double>::digits10 + 1)
-                      << "  min: " << min << std::endl
-                      << "  max: " << max << std::endl
-                      << "  sum: " << sum << std::endl;
-            std::cout.precision(prec);
-            {
-                const std::string filenameFlow =
-                    "darcy-statistics-" + std::to_string(iter);
-                std::ofstream ofs(filenameFlow + ".txt",
-                                  std::ofstream::out | std::ofstream::trunc);
-                const auto prec = ofs.precision();
-                ofs << "Velocity statistics (free flow):" << std::endl
-                    << std::setprecision(std::numeric_limits<double>::digits10 +
-                                         1)
-                    << "  min: " << min << std::endl
-                    << "  max: " << max << std::endl
-                    << "  sum: " << sum << std::endl;
-                ofs.precision(prec);
-                ofs.close();
-            }
-        }
-        {
-            const std::string filename = getParam<std::string>("Problem.Name") +
-                                         "-" + darcyProblem->name() +
-                                         "-interface-pressure-" +
-                                         std::to_string(iter);
-            writePressuresOnInterfaceToFile(filename, *darcyProblem,
-                                            *darcyGridVariables, sol);
-        }
         ++iter;
 
         if (couplingInterface.hasToReadIterationCheckpoint()) {
@@ -575,46 +532,6 @@ try {
     }
     // write vtk output
     darcyVtkWriter.write(1.0);
-
-    {
-        double min = std::numeric_limits<double>::max();
-        double max = std::numeric_limits<double>::min();
-        double sum = 0.;
-        const std::string filename = getParam<std::string>("Problem.Name") +
-                                     "-" + darcyProblem->name() +
-                                     "-interface-velocity";
-        std::tie(min, max, sum) =
-            writeVelocitiesOnInterfaceToFile<FluxVariables>(
-                filename, *darcyProblem, *darcyGridVariables, sol);
-        const int prec = std::cout.precision();
-        std::cout << "Velocity statistics:" << std::endl
-                  << std::setprecision(std::numeric_limits<double>::digits10 +
-                                       1)
-                  << "  min: " << min << std::endl
-                  << "  max: " << max << std::endl
-                  << "  sum: " << sum << std::endl;
-        std::cout.precision(prec);
-        {
-            const std::string filenameFlow = "darcy-statistics";
-            std::ofstream ofs(filenameFlow + ".txt",
-                              std::ofstream::out | std::ofstream::trunc);
-            const auto prec = ofs.precision();
-            ofs << "Velocity statistics (free flow):" << std::endl
-                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                << "  min: " << min << std::endl
-                << "  max: " << max << std::endl
-                << "  sum: " << sum << std::endl;
-            ofs.precision(prec);
-            ofs.close();
-        }
-    }
-    {
-        const std::string filename = getParam<std::string>("Problem.Name") +
-                                     "-" + darcyProblem->name() +
-                                     "-interface-pressure";
-        writePressuresOnInterfaceToFile(filename, *darcyProblem,
-                                        *darcyGridVariables, sol);
-    }
 
     couplingInterface.finalize();
 
