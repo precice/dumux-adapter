@@ -154,7 +154,6 @@ int main(int argc, char **argv)
     sol[darcyIdx].resize(darcyFvGridGeometry->numDofs());
 
     auto stokesSol = partial(sol, stokesFaceIdx, stokesCellCenterIdx);
-    auto stokesSolOld = stokesSol;
 
     stokesProblem->applyInitialSolution(stokesSol);
     darcyProblem->applyInitialSolution(sol[darcyIdx]);
@@ -199,15 +198,6 @@ int main(int argc, char **argv)
     GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(
         darcyVtkWriter);
     darcyVtkWriter.write(0.0);
-
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    const auto tEnd = getParam<Scalar>("TimeLoop.TEnd");
-    const auto maxDt = getParam<Scalar>("TimeLoop.MaxTimeStepSize");
-    auto dt = getParam<Scalar>("TimeLoop.DtInitial");
-
-    // instantiate time loop
-    auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0.0, dt, tEnd);
-    timeLoop->setMaxTimeStepSize(maxDt);
 
     // the assembler for a stationary problem
     using Assembler =
