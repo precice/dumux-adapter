@@ -58,10 +58,9 @@ build:monolithic-coupling:
     - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
-    - ls
     - echo $DUNE_CONTROL_PATH
-    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
-    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
+    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    #- dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic
     - make -j2 fvca-monolithic
   artifacts:
@@ -72,7 +71,6 @@ build:monolithic-coupling:
       - build-cmake/CMakeFiles/CMakeOutput.log
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/CTestTestfile.cmake
-    when: always
 
 test:monolithic-coupling:
   stage: test
