@@ -26,19 +26,19 @@ for preciceFile in "${precice_config[@]}"; do
         for alpha in "${alphaBeaversJoseph[@]}"; do
           for mesh in "${meshSizes[@]}"; do
             i=$((i+1))
-            
-            # Check if Stokes or Navier-Stokes        
+
+            # Check if Stokes or Navier-Stokes
             flowProblemName="stokes"
   #          echo ${hasInertiaTerms}
             if [[ "${hasInertiaTerms}" == "true" ]]; then
               flowProblemName="navier-stokes"
             fi
-          
+
             # Generate name of test case and create directories
             casename="${flowProblemName}-${mesh}-${alpha}-${permeability}-${dp}"
             echo "${casename}"
 
-            # Setting up input file          
+            # Setting up input file
             inputFile="${casename}.input"
             sed -e s/MESHSIZE/"${mesh}"/g \
                 -e "s/FLOWPROBLEMNAME/${flowProblemName}/g" \
@@ -48,12 +48,12 @@ for preciceFile in "${precice_config[@]}"; do
                 -e "s/HASINERTIATERMS/${hasInertiaTerms}/g" \
                 -e "s/CASENAME/${casename}/g" \
                 "${inputTemplate}" > ${inputFile}
-                
+
             # Running simulation
             #solverCmd="./${solver} ${inputFile}"
             #echo "$solverCmd"
-   
-  #           $(${solverCmd} > solver.log)                   
+
+  #           $(${solverCmd} > solver.log)
 #            $(time ./${solver} "${inputFile}" > solver.log)
   #          $(./${solverCmd} ${inputFile} > solver.log)
 
@@ -89,7 +89,7 @@ for preciceFile in "${precice_config[@]}"; do
             mv *.txt ${casename}
             mv *.json ${casename}
             cp ${preciceFile} ${casename}
-            mv "${inputFile}" ${casename} 
+            mv "${inputFile}" ${casename}
             #cd ${casename}
   #          ln -s "../${solver}" "${solver}"
             #cp "../${solver}" .
@@ -104,8 +104,3 @@ for preciceFile in "${precice_config[@]}"; do
 done
 
 echo "In total ${i} cases were run"
-
-
-
-
-

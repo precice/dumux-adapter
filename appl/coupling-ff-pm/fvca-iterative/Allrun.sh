@@ -28,4 +28,3 @@ else
     echo ""
     echo "The simulation completed!"
 fi
-

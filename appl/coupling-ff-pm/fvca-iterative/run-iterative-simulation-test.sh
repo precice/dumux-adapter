@@ -44,9 +44,3 @@ else
     echo "The simulation completed!"
     rm -rf precice-run/
 fi
-
-
-
-
-
-

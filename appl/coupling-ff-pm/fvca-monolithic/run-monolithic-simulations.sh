@@ -10,9 +10,6 @@ hasInertiaTerms=("true" "false")
 
 #interpolation=("nearest-neighbor" "nearest-projection")
 
-
-
-
 i=0
 
 #mkdir -p ${testcase}
@@ -37,19 +34,19 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
       for alpha in "${alphaBeaversJoseph[@]}"; do
         for mesh in "${meshSizes[@]}"; do
           i=$((i+1))
-          
-          # Check if Stokes or Navier-Stokes        
+
+          # Check if Stokes or Navier-Stokes
           flowProblemName="stokes"
 #          echo ${hasInertiaTerms}
           if [[ "${hasInertiaTerms}" == "true" ]]; then
             flowProblemName="navier-stokes"
           fi
-        
+
           # Generate name of test case and create directories
           casename="${flowProblemName}-${mesh}-${alpha}-${permeability}-${dp}"
           echo "${casename}"
 
-          # Setting up input file          
+          # Setting up input file
           inputFile="${casename}.input"
           sed -e s/MESHSIZE/"${mesh}"/g \
               -e "s/FLOWPROBLEMNAME/${flowProblemName}/g" \
@@ -59,12 +56,12 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
               -e "s/HASINERTIATERMS/${hasInertiaTerms}/g" \
               -e "s/CASENAME/${casename}/g" \
               "${inputTemplate}" > ${inputFile}
-              
+
           # Running simulation
           solverCmd="./${solver} ${inputFile}"
           #echo "$solverCmd"
- 
-#           $(${solverCmd} > solver.log)                   
+
+#           $(${solverCmd} > solver.log)
           $(time ./${solver} "${inputFile}" > solver.log)
 #          $(./${solverCmd} ${inputFile} > solver.log)
 
@@ -75,7 +72,7 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
           mv *.pvd ${casename}
           mv *.log ${casename}
           mv *.txt ${casename}
-          mv "${inputFile}" ${casename} 
+          mv "${inputFile}" ${casename}
           #cd ${casename}
 #          ln -s "../${solver}" "${solver}"
           #cp "../${solver}" .

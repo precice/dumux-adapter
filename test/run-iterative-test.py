@@ -83,10 +83,10 @@ except:
 
 # Start thread for Biot solver in background
 ff_proc, ff_output = run_solver(
-    "test_ff_reversed", args["dumux_param_file"], args["precice_config_file"]
+    "fvca-iterative-ff", args["dumux_param_file"], args["precice_config_file"]
 )
 pm_proc, pm_output = run_solver(
-    "test_pm_reversed", args["dumux_param_file"], args["precice_config_file"]
+    "fvca-iterative-pm", args["dumux_param_file"], args["precice_config_file"]
 )
 
 # Wait for solvers to finish

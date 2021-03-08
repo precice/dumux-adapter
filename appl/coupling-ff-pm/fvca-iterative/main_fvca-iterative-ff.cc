@@ -151,110 +151,6 @@ void setInterfaceVelocities(const Problem &problem,
     }
 }
 
-template<class Problem, class GridVariables, class SolutionVector>
-std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
-    const std::string &filename,
-    const Problem &problem,
-    const GridVariables &gridVars,
-    const SolutionVector &sol)
-{
-    const auto &gridGeometry = problem.gridGeometry();
-    auto fvGeometry = localView(gridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFaceVars = localView(gridVars.curGridFaceVars());
-
-    const auto &couplingInterface =
-        precice_adapter::PreciceAdapter::getInstance();
-
-    std::ofstream ofs(filename + ".csv",
-                      std::ofstream::out | std::ofstream::trunc);
-    ofs << "x,y,";
-    if (couplingInterface.getDimensions() == 3)
-        ofs << "z,";
-    ofs << "velocityY"
-        << "\n";
-
-    double min = std::numeric_limits<double>::max();
-    double max = std::numeric_limits<double>::min();
-    double sum = 0.;
-    for (const auto &element : elements(gridGeometry.gridView())) {
-        fvGeometry.bind(element);
-        elemVolVars.bind(element, fvGeometry, sol);
-        elemFaceVars.bindElement(element, fvGeometry, sol);
-
-        for (const auto &scvf : scvfs(fvGeometry)) {
-            if (couplingInterface.isCoupledEntity(scvf.index())) {
-                const auto &pos = scvf.center();
-                for (int i = 0; i < couplingInterface.getDimensions(); ++i) {
-                    ofs << pos[i] << ",";
-                }
-                const double v = problem.dirichlet(element, scvf)[1];
-                max = std::max(v, max);
-                min = std::min(v, min);
-                sum += v;
-                //velocityAtInterface(elemFaceVars, scvf)[scvf.directionIndex()];
-                const int prec = ofs.precision();
-                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
-                                         1)
-                    << v << "\n";
-                ofs.precision(prec);
-            }
-        }
-    }
-
-    ofs.close();
-
-    return std::make_tuple(min, max, sum);
-}
-
-template<class FluxVariables,
-         class Problem,
-         class GridVariables,
-         class SolutionVector>
-void writePressuresOnInterfaceToFile(const std::string &filename,
-                                     const Problem &problem,
-                                     const GridVariables &gridVars,
-                                     const SolutionVector &sol)
-{
-    const auto &gridGeometry = problem.gridGeometry();
-    auto fvGeometry = localView(gridGeometry);
-    auto elemVolVars = localView(gridVars.curGridVolVars());
-    auto elemFaceVars = localView(gridVars.curGridFaceVars());
-    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
-
-    const auto &couplingInterface =
-        precice_adapter::PreciceAdapter::getInstance();
-
-    std::ofstream ofs(filename + ".csv",
-                      std::ofstream::out | std::ofstream::trunc);
-    ofs << "x,y,";
-    if (couplingInterface.getDimensions() == 3)
-        ofs << "z,";
-    ofs << "pressure"
-        << "\n";
-    for (const auto &element : elements(gridGeometry.gridView())) {
-        fvGeometry.bind(element);
-        elemVolVars.bind(element, fvGeometry, sol);
-        elemFaceVars.bind(element, fvGeometry, sol);
-        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
-
-        for (const auto &scvf : scvfs(fvGeometry)) {
-            if (couplingInterface.isCoupledEntity(scvf.index())) {
-                const auto &pos = scvf.center();
-                for (int i = 0; i < couplingInterface.getDimensions(); ++i) {
-                    ofs << pos[i] << ",";
-                }
-                const double p = pressureAtInterface<FluxVariables>(
-                    problem, element, scvf, fvGeometry, elemVolVars,
-                    elemFaceVars, elemFluxVarsCache);
-                ofs << p << "\n";
-            }
-        }
-    }
-
-    ofs.close();
-}
-
 int main(int argc, char **argv)
 try {
     using namespace Dumux;
@@ -379,19 +275,8 @@ try {
         GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
     if (couplingInterface.hasToWriteInitialData()) {
-        //TODO
-        //      couplingInterface.writeQuantityVector( pressureId );
-
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol);
-        //For testing
-        //      {
-        //        std::cout << "Pressures to be sent to pm" << std::endl;
-        //        const auto p = couplingInterface.getQuantityVector( pressureId );
-        //        for (size_t i = 0; i < p.size(); ++i) {
-        //          std::cout << "p[" << i << "]=" <<p[i] << std::endl;
-        //        }
-        //      }
         couplingInterface.writeScalarQuantityToOtherSolver(pressureId);
         couplingInterface.announceInitialDataWritten();
     }
@@ -424,31 +309,13 @@ try {
             couplingInterface.announceIterationCheckpointWritten();
         }
 
-        // TODO
         couplingInterface.readScalarQuantityFromOtherSolver(velocityId);
-        //        // For testing
-        //        {
-        //          const auto v = couplingInterface.getQuantityVector( velocityId );
-        //          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-        //          std::cout << "Sum of velocities over boundary to pm: \n" << sum << std::endl;
-        //        }
-
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol);
-        // For testing
-        //        {
-        //          const auto p = couplingInterface.getQuantityVector( pressureId );
-        //          const double sum = std::accumulate( p.begin(), p.end(), 0. );
-        //          std::cout << "Pressures to be sent to pm" << std::endl;
-        ////          for (size_t i = 0; i < p.size(); ++i) {
-        ////            std::cout << "p[" << i << "]=" << p[i] << std::endl;
-        ////          }
-        //          std::cout << "Sum of pressures over boundary to pm: \n" << sum << std::endl;
-        //        }
         couplingInterface.writeScalarQuantityToOtherSolver(pressureId);
 
         //Read checkpoint
@@ -457,49 +324,6 @@ try {
         const double preciceDt = couplingInterface.advance(dt);
         dt = std::min(preciceDt, dt);
 
-        //
-        {
-            double min = std::numeric_limits<double>::max();
-            double max = std::numeric_limits<double>::min();
-            double sum = 0.;
-            const std::string filename = getParam<std::string>("Problem.Name") +
-                                         "-" + freeFlowProblem->name() +
-                                         "-interface-velocity-" +
-                                         std::to_string(iter);
-            std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile(
-                filename, *freeFlowProblem, *freeFlowGridVariables, sol);
-            const int prec = std::cout.precision();
-            std::cout << "Velocity statistics:" << std::endl
-                      << std::setprecision(
-                             std::numeric_limits<double>::digits10 + 1)
-                      << "  min: " << min << std::endl
-                      << "  max: " << max << std::endl
-                      << "  sum: " << sum << std::endl;
-            std::cout.precision(prec);
-            {
-                const std::string filenameFlow =
-                    "free-flow-statistics-" + std::to_string(iter);
-                std::ofstream ofs(filenameFlow + ".txt",
-                                  std::ofstream::out | std::ofstream::trunc);
-                const auto prec = ofs.precision();
-                ofs << "Velocity statistics (free flow):" << std::endl
-                    << std::setprecision(std::numeric_limits<double>::digits10 +
-                                         1)
-                    << "  min: " << min << std::endl
-                    << "  max: " << max << std::endl
-                    << "  sum: " << sum << std::endl;
-                ofs.precision(prec);
-                ofs.close();
-            }
-        }
-        {
-            const std::string filename = getParam<std::string>("Problem.Name") +
-                                         "-" + freeFlowProblem->name() +
-                                         "-interface-pressure-" +
-                                         std::to_string(iter);
-            writePressuresOnInterfaceToFile<FluxVariables>(
-                filename, *freeFlowProblem, *freeFlowGridVariables, sol);
-        }
         ++iter;
 
         if (couplingInterface.hasToReadIterationCheckpoint()) {
@@ -520,45 +344,6 @@ try {
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
     ////////////////////////////////////////////////////////////
-
-    {
-        double min = std::numeric_limits<double>::max();
-        double max = std::numeric_limits<double>::min();
-        double sum = 0.;
-        const std::string filename = getParam<std::string>("Problem.Name") +
-                                     "-" + freeFlowProblem->name() +
-                                     "-interface-velocity";
-        std::tie(min, max, sum) = writeVelocitiesOnInterfaceToFile(
-            filename, *freeFlowProblem, *freeFlowGridVariables, sol);
-        const int prec = std::cout.precision();
-        std::cout << "Velocity statistics:" << std::endl
-                  << std::setprecision(std::numeric_limits<double>::digits10 +
-                                       1)
-                  << "  min: " << min << std::endl
-                  << "  max: " << max << std::endl
-                  << "  sum: " << sum << std::endl;
-        std::cout.precision(prec);
-        {
-            const std::string filenameFlow = "free-flow-statistics";
-            std::ofstream ofs(filenameFlow + ".txt",
-                              std::ofstream::out | std::ofstream::trunc);
-            const auto prec = ofs.precision();
-            ofs << "Velocity statistics (free flow):" << std::endl
-                << std::setprecision(std::numeric_limits<double>::digits10 + 1)
-                << "  min: " << min << std::endl
-                << "  max: " << max << std::endl
-                << "  sum: " << sum << std::endl;
-            ofs.precision(prec);
-            ofs.close();
-        }
-    }
-    {
-        const std::string filename = getParam<std::string>("Problem.Name") +
-                                     "-" + freeFlowProblem->name() +
-                                     "-interface-pressure";
-        writePressuresOnInterfaceToFile<FluxVariables>(
-            filename, *freeFlowProblem, *freeFlowGridVariables, sol);
-    }
 
     couplingInterface.finalize();
 

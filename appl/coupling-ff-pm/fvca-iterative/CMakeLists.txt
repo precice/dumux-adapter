@@ -8,27 +8,20 @@ message(STATUS "LIBRARY_DIRS: ${LIBRARY_DIRS}")
 find_library(PRECICE_LIB NAMES precice HINTS ${LIBRARY_DIRS})
 find_package(Boost 1.65.1 REQUIRED COMPONENTS log system) #Require same version as preCICE
 
-#dune_add_test(NAME test_ff_reversed
-#              SOURCES main_ff-reversed.cc ../precice/preciceadapter.cc ../precice/dumuxpreciceindexwrapper.cc
-#              COMPILE_DEFINITIONS ENABLEMONOLITHIC=0)
 
-#dune_add_test(NAME test_pm_reversed
-#              SOURCES main_pm-reversed.cc ../precice/preciceadapter.cc ../precice/dumuxpreciceindexwrapper.cc
-#              COMPILE_DEFINITIONS ENABLEMONOLITHIC=0)
+add_executable(fvca-iterative-ff EXCLUDE_FROM_ALL main_fvca-iterative-ff.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
+add_executable(fvca-iterative-pm EXCLUDE_FROM_ALL main_fvca-iterative-pm.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
 
-add_executable(test_ff_reversed EXCLUDE_FROM_ALL main_ff-reversed.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
-add_executable(test_pm_reversed EXCLUDE_FROM_ALL main_pm-reversed.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
+target_compile_definitions(fvca-iterative-ff PUBLIC "ENABLEMONOLITHIC=0")
+target_compile_definitions(fvca-iterative-pm PUBLIC "ENABLEMONOLITHIC=0")
 
-target_compile_definitions(test_ff_reversed PUBLIC "ENABLEMONOLITHIC=0")
-target_compile_definitions(test_pm_reversed PUBLIC "ENABLEMONOLITHIC=0")
+target_compile_definitions(fvca-iterative-ff PRIVATE BOOST_ALL_DYN_LINK)
+target_link_libraries(fvca-iterative-ff PRIVATE ${Boost_LIBRARIES} ${PRECICE_LIB})
+target_include_directories(fvca-iterative-ff PRIVATE ${Boost_INCLUDE_DIRS})
 
-target_compile_definitions(test_ff_reversed PRIVATE BOOST_ALL_DYN_LINK)
-target_link_libraries(test_ff_reversed PRIVATE ${Boost_LIBRARIES} ${PRECICE_LIB})
-target_include_directories(test_ff_reversed PRIVATE ${Boost_INCLUDE_DIRS})
-
-target_compile_definitions(test_pm_reversed PRIVATE BOOST_ALL_DYN_LINK)
-target_link_libraries(test_pm_reversed PRIVATE ${Boost_LIBRARIES} ${PRECICE_LIB})
-target_include_directories(test_pm_reversed PRIVATE ${Boost_INCLUDE_DIRS})
+target_compile_definitions(fvca-iterative-pm PRIVATE BOOST_ALL_DYN_LINK)
+target_link_libraries(fvca-iterative-pm PRIVATE ${Boost_LIBRARIES} ${PRECICE_LIB})
+target_include_directories(fvca-iterative-pm PRIVATE ${Boost_INCLUDE_DIRS})
 # add a symlink for each input file
 add_input_file_links()
 
@@ -47,8 +40,8 @@ dune_symlink_to_source_files(FILES run-iterative-simulation-test.sh)
 
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
-              TARGET test_ff_reversed
-              TARGET test_pm_reversed
+              TARGET fvca-iterative-ff
+              TARGET fvca-iterative-pm
               LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
@@ -66,8 +59,8 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_coupling_iterations
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy iterations
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
@@ -77,8 +70,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_coupling_it
 )
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_cleanup
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
     CMAKE_GUARD HAVE_UMFPACK
@@ -88,8 +81,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first_cleanup
 
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
-              TARGET test_ff_reversed
-              TARGET test_pm_reversed
+              TARGET fvca-iterative-ff
+              TARGET fvca-iterative-pm
               LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
@@ -108,8 +101,8 @@ set_tests_properties(test_ff_pm_coupling_serial_implicit_darcy_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_coupling_iterations
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy iterations
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
@@ -119,8 +112,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_coupling_ite
 )
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_cleanup
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
     CMAKE_GUARD HAVE_UMFPACK
@@ -129,8 +122,8 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first_cleanup
 )
 
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
-              TARGET test_ff_reversed
-              TARGET test_pm_reversed
+              TARGET fvca-iterative-ff
+              TARGET fvca-iterative-pm
               LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
@@ -150,8 +143,8 @@ set_tests_properties(test_ff_pm_coupling_parallel_implicit PROPERTIES
 
 
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_coupling_iterations
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy iterations
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
@@ -162,8 +155,8 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_coupling_iterations
 
 
 dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_cleanup
-    TARGET test_ff_reversed
-    TARGET test_pm_reversed
+    TARGET fvca-iterative-ff
+    TARGET fvca-iterative-pm
     LABELS freeflow stokes precice darcy cleanup
     TIMEOUT 5
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/cleanup_directory.sh
@@ -173,8 +166,8 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_cleanup
 #add_test(NAME test_ff_pm_coupling_parallel_implicit_cleanup COMMAND rm -f ${CMAKE_CURRENT_BINARY_DIR}/*.pvd ${CMAKE_CURRENT_BINARY_DIR}/*.vtu)
 
 #dumux_add_test(NAME test_ff_pm_coupling_cleanup
-#    TARGET test_ff_reversed
-#    TARGET test_pm_reversed
+#    TARGET fvca-iterative-ff
+#    TARGET fvca-iterative-pm
 #    LABELS freeflow stokes precice darcy cleanup
 #    TIMEOUT 5
 #    CMAKE_GUARD HAVE_UMFPACK
@@ -205,4 +198,3 @@ set_property(TEST test_ff_pm_coupling_parallel_implicit_cleanup APPEND PROPERTY 
 #set_tests_properties(test_ff_pm_coupling_cleanup PROPERTIES FIXTURES_CLEANUP test_ff_pm)
 
 #set_property(TEST test_ff_pm_coupling_parallel_implicit APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_darcy_first)
-
