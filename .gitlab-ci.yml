@@ -58,6 +58,7 @@ build:monolithic-coupling:
     - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
+    - ls
     - echo $DUNE_CONTROL_PATH
     - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic
