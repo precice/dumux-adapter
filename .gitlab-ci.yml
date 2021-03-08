@@ -72,6 +72,7 @@ build:monolithic-coupling:
       - build-cmake/CMakeFiles/CMakeOutput.log
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/CTestTestfile.cmake
+    when: always
 
 test:monolithic-coupling:
   stage: test
