@@ -141,8 +141,6 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(),
                                             "Problem.PressureDifference");
-        //        pressureId_ =  couplingInterface_.getIdFromName( "Pressure" );
-        //        velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
     }
 
     /*!
@@ -203,15 +201,9 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 #else
 
         else if (couplingInterface_.isCoupledEntity(faceId)) {
-            // // TODO do preCICE stuff in analogy to heat transfer
             assert(dataIdsWereSet_);
-            //TODO What do I want to do here?
-            //  values.setCouplingNeumann(Indices::conti0EqIdx);
-            //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-            values.setDirichlet(Indices::velocityYIdx);
 
-            //          values.setNeumann(Indices::conti0EqIdx);
-            //          values.setNeumann(Indices::momentumYBalanceIdx);
+            values.setDirichlet(Indices::velocityYIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
         }
 #endif

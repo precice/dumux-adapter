@@ -30,14 +30,10 @@
 
 #include <dune/grid/yaspgrid.hh>
 
-//****** uncomment for the last exercise *****//
-// #include <dumux/io/grid/subgridgridcreator.hh>
-
 #include <dumux/discretization/cctpfa.hh>
 
 #include <dumux/porousmediumflow/1p/model.hh>
-//#include <dumux/porousmediumflow/problem.hh>
-#include "../common/porousmediumflowproblemwithgravity.hh"
+#include <dumux/porousmediumflow/problem.hh>
 
 #include "1pspatialparams.hh"
 
@@ -93,9 +89,9 @@ struct SpatialParams<TypeTag, TTag::DarcyOneP> {
  * \brief The porous medium flow sub problem
  */
 template<class TypeTag>
-class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
+class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
-    using ParentType = PorousMediumFlowProblemWithGravity<TypeTag>;
+    using ParentType = PorousMediumFlowProblem<TypeTag>;
     using GridView =
         typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
@@ -233,14 +229,7 @@ class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
                 couplingManager().couplingData().massCouplingCondition(
                     element, fvGeometry, elemVolVars, scvf);
 #else
-//        assert( dataIdsWereSet_ );
-//        const auto faceId = scvf.index();
-//        if ( couplingInterface_.isCoupledEntity(faceId) )
-//        {
-//          const Scalar density = 1000.;
-//          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
-//          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
-//        }
+//      Nothing
 #endif
         return values;
     }
@@ -271,15 +260,6 @@ class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
 
     // \}
 
-    /*!
-     * \brief Return gravity vector of model used
-     *
-     * \param element The element
-     *
-     * This is an auxilary function
-     */
-    //NumEqVector gravity() const
-    //{ return gravity_; }
 
     /*!
      * \brief Evaluate the initial value for a control volume.
