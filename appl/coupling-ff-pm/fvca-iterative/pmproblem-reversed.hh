@@ -260,7 +260,6 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
     // \}
 
-
     /*!
      * \brief Evaluate the initial value for a control volume.
      *
