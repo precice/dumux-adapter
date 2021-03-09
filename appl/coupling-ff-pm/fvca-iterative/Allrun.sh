@@ -1,11 +1,14 @@
 #! /usr/bin/env bash
 
+# Start progam with ./Allrun.sh PRECICE-CONFIG-XML
+
 solver_input="params.input"
 
-ff_solver="test_ff_reversed"
-pm_solver="test_pm_reversed"
+ff_solver="fvca-iterative-ff"
+pm_solver="fvca-iterative-pm"
 
-precice_config="precice-config-serial-implicit-reversed.xml"
+#precice_config="precice-config-serial-implicit-reversed.xml"
+precice_config="${1}"
 
 rm -rf "precice-run/"
 ff_cmd="./${ff_solver} - ${precice_config}"

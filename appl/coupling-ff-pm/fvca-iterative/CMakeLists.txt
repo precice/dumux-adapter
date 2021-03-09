@@ -35,8 +35,11 @@ endmacro()
 add_precice_file_links()
 
 
-
-dune_symlink_to_source_files(FILES run-iterative-simulation-test.sh)
+dune_symlink_to_source_files(FILES precice-config-serial-implicit-stokes-first.xml)
+dune_symlink_to_source_files(FILES precice-config-serial-implicit-darcy-first.xml)
+dune_symlink_to_source_files(FILES precice-config-parallel-implicit.xml)
+dune_symlink_to_source_files(FILES Allrun.sh)
+dune_symlink_to_source_files(FILES Allclean.sh)
 
 
 dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
