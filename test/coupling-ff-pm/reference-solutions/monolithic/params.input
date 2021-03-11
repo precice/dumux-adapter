@@ -1,0 +1,32 @@
+[Darcy.Grid]
+LowerLeft = 0 0
+UpperRight = 1 1
+Cells = 40 40
+
+[Stokes.Grid]
+LowerLeft = 0 1
+UpperRight = 1 2
+Cells = 40 40
+
+[Stokes.Problem]
+Name = stokes
+PressureDifference = 1e-9
+
+[Darcy.Problem]
+Name = darcy
+
+[Darcy.SpatialParams]
+Permeability = 1e-6 # m^2
+AlphaBeaversJoseph = 1.0
+
+[Vtk]
+OutputName = stokes-darcy-monolithic-coupling-test
+
+[Problem]
+Name = "fvca-monolithic"
+EnableGravity = false
+EnableInertiaTerms = false
+CouplingMode = ReconstructFreeFlowNormalStress
+
+[Vtk]
+AddVelocity = 1
