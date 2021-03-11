@@ -31,30 +31,29 @@
 #include <dune/common/timer.hh>
 #include <dune/istl/io.hh>
 
-#include <dumux/common/properties.hh>
+#include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/partial.hh>
-#include <dumux/common/dumuxmessage.hh>
-#include <dumux/linear/seqsolverbackend.hh>
-#include <dumux/assembly/fvassembler.hh>
-#include <dumux/assembly/diffmethod.hh>
+#include <dumux/common/properties.hh>
 #include <dumux/discretization/method.hh>
-#include <dumux/io/vtkoutputmodule.hh>
 #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
 #include <dumux/nonlinear/newtonsolver.hh>
 
-#include "../monolithic/problem_heat.hh"
-#include "../common/preciceadapter.hh"
 #include "../common/helperfunctions.hh"
+#include "../common/preciceadapter.hh"
+#include "../monolithic/problem_heat.hh"
 
-
-int main(int argc, char** argv) try
-{
+int main(int argc, char **argv)
+try {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -68,20 +67,26 @@ int main(int argc, char** argv) try
 
     // try to create a grid (from the given grid file or the input file)
     // for both sub-domains
-    using SolidEnergyGridManager = Dumux::GridManager<GetPropType<SolidEnergyTypeTag, Properties::Grid>>;
+    using SolidEnergyGridManager =
+        Dumux::GridManager<GetPropType<SolidEnergyTypeTag, Properties::Grid>>;
     SolidEnergyGridManager solidEnergyGridManager;
-    solidEnergyGridManager.init("SolidEnergy"); // pass parameter group
+    solidEnergyGridManager.init("SolidEnergy");  // pass parameter group
 
     // we compute on the leaf grid view
-    const auto& solidEnergyGridView = solidEnergyGridManager.grid().leafGridView();
+    const auto &solidEnergyGridView =
+        solidEnergyGridManager.grid().leafGridView();
 
-    using SolidEnergyFVGridGeometry = GetPropType<SolidEnergyTypeTag, Properties::FVGridGeometry>;
-    auto solidEnergyFvGridGeometry = std::make_shared<SolidEnergyFVGridGeometry>(solidEnergyGridView);
+    using SolidEnergyFVGridGeometry =
+        GetPropType<SolidEnergyTypeTag, Properties::FVGridGeometry>;
+    auto solidEnergyFvGridGeometry =
+        std::make_shared<SolidEnergyFVGridGeometry>(solidEnergyGridView);
     solidEnergyFvGridGeometry->update();
 
     // the problem (initial and boundary conditions)
-    using SolidEnergyProblem = GetPropType<SolidEnergyTypeTag, Properties::Problem>;
-    auto solidEnergyProblem = std::make_shared<SolidEnergyProblem>(solidEnergyFvGridGeometry);
+    using SolidEnergyProblem =
+        GetPropType<SolidEnergyTypeTag, Properties::Problem>;
+    auto solidEnergyProblem =
+        std::make_shared<SolidEnergyProblem>(solidEnergyFvGridGeometry);
 
     // the solution vector
     GetPropType<SolidEnergyTypeTag, Properties::SolutionVector> sol;
@@ -93,32 +98,26 @@ int main(int argc, char** argv) try
     // Configure preCICE. For now the config file is hardcoded.
     std::string preciceConfigFilename = "precice-config.xml";
     if (argc == 3)
-      preciceConfigFilename = argv[2];
-    auto& couplingInterface = precice_adapter::PreciceAdapter::getInstance();
-    couplingInterface.announceSolver( "SolidEnergy",
-                                      preciceConfigFilename,
-                                      mpiHelper.rank(),
-                                      mpiHelper.size() );
-
+        preciceConfigFilename = argv[2];
+    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    couplingInterface.announceSolver("SolidEnergy", preciceConfigFilename,
+                                     mpiHelper.rank(), mpiHelper.size());
 
     const int dim = couplingInterface.getDimensions();
     if (dim != int(SolidEnergyFVGridGeometry::GridView::dimension))
         DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
-    std::vector<double> coords; //( dim * numPoints );
+    std::vector<double> coords;  //( dim * numPoints );
     std::vector<int> coupledScvfIndices;
 
-    for (const auto& element : elements(solidEnergyGridView))
-    {
+    for (const auto &element : elements(solidEnergyGridView)) {
         auto fvGeometry = localView(*solidEnergyFvGridGeometry);
         fvGeometry.bindElement(element);
 
-        for (const auto& scvf : scvfs(fvGeometry))
-        {
+        for (const auto &scvf : scvfs(fvGeometry)) {
             static constexpr auto eps = 1e-7;
-            const auto& pos = scvf.center();
-            if (pos[1] > solidEnergyFvGridGeometry->bBoxMax()[1] - eps)
-            {
+            const auto &pos = scvf.center();
+            if (pos[1] > solidEnergyFvGridGeometry->bBoxMax()[1] - eps) {
                 coupledScvfIndices.push_back(scvf.index());
                 for (const auto p : pos)
                     coords.push_back(p);
@@ -128,10 +127,8 @@ int main(int argc, char** argv) try
 
     const auto numPoints = coords.size() / dim;
 
-    const double preciceDt = couplingInterface.setMeshAndInitialize( "SolidEnergyMesh",
-                                                                     numPoints,
-                                                                     coords,
-                                                                     coupledScvfIndices );
+    const double preciceDt = couplingInterface.setMeshAndInitialize(
+        "SolidEnergyMesh", numPoints, coords, coupledScvfIndices);
 
     // apply initial solution for instationary problems
     solidEnergyProblem->applyInitialSolution(sol);
@@ -139,21 +136,28 @@ int main(int argc, char** argv) try
     auto solOld = sol;
 
     // the grid variables
-    using SolidEnergyGridVariables = GetPropType<SolidEnergyTypeTag, Properties::GridVariables>;
-    auto solidEnergyGridVariables = std::make_shared<SolidEnergyGridVariables>(solidEnergyProblem, solidEnergyFvGridGeometry);
+    using SolidEnergyGridVariables =
+        GetPropType<SolidEnergyTypeTag, Properties::GridVariables>;
+    auto solidEnergyGridVariables = std::make_shared<SolidEnergyGridVariables>(
+        solidEnergyProblem, solidEnergyFvGridGeometry);
     solidEnergyGridVariables->init(sol);
 
     // intialize the vtk output module
-    VtkOutputModule<SolidEnergyGridVariables, GetPropType<SolidEnergyTypeTag, Properties::SolutionVector>> solidEnergyVtkWriter(*solidEnergyGridVariables, sol,  solidEnergyProblem->name());
-    GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(solidEnergyVtkWriter);
+    VtkOutputModule<SolidEnergyGridVariables,
+                    GetPropType<SolidEnergyTypeTag, Properties::SolutionVector>>
+        solidEnergyVtkWriter(*solidEnergyGridVariables, sol,
+                             solidEnergyProblem->name());
+    GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(
+        solidEnergyVtkWriter);
     solidEnergyVtkWriter.write(0.0);
 
-    if ( couplingInterface.hasToWriteInitialData() )
-    {
-      using namespace helperfunctions::heat;
-      setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
-      couplingInterface.writeTemperatureToOtherSolver();
-      couplingInterface.announceInitialDataWritten();
+    if (couplingInterface.hasToWriteInitialData()) {
+        using namespace helperfunctions::heat;
+        setBoundaryTemperatures<GetPropType<
+            SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(
+            *solidEnergyProblem, *solidEnergyGridVariables, sol);
+        couplingInterface.writeTemperatureToOtherSolver();
+        couplingInterface.announceInitialDataWritten();
     }
 
     couplingInterface.initializeData();
@@ -172,14 +176,16 @@ int main(int argc, char** argv) try
     auto dt = getParam<Scalar>("TimeLoop.DtInitial");
 
     //Time step size can also be changed by preCICE
-    dt = std::min( dt, preciceDt );
+    dt = std::min(dt, preciceDt);
 
     auto timeLoop = std::make_shared<TimeLoop<Scalar>>(0, dt, tEnd);
     timeLoop->setMaxTimeStepSize(maxDt);
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<SolidEnergyTypeTag, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(solidEnergyProblem, solidEnergyFvGridGeometry, solidEnergyGridVariables, timeLoop);
+    auto assembler = std::make_shared<Assembler>(
+        solidEnergyProblem, solidEnergyFvGridGeometry, solidEnergyGridVariables,
+        timeLoop);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
@@ -195,16 +201,14 @@ int main(int argc, char** argv) try
     //Checkpointing variable for preCICE
     auto sol_checkpoint = sol;
 
-//    setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
-//    couplingInterface.writeTemperatureToOtherSolver();
+    //    setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+    //    couplingInterface.writeTemperatureToOtherSolver();
 
     // time loop
     timeLoop->start();
     //do
-    while ( couplingInterface.isCouplingOngoing() )
-    {
-        if ( couplingInterface.hasToWriteIterationCheckpoint() )
-        {
+    while (couplingInterface.isCouplingOngoing()) {
+        if (couplingInterface.hasToWriteIterationCheckpoint()) {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
             couplingInterface.announceIterationCheckpointWritten();
@@ -225,27 +229,29 @@ int main(int argc, char** argv) try
         solidEnergyGridVariables->advanceTimeStep();
 
         using namespace helperfunctions::heat;
-        setBoundaryTemperatures<GetPropType<SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(*solidEnergyProblem, *solidEnergyGridVariables, sol );
+        setBoundaryTemperatures<GetPropType<
+            SolidEnergyTypeTag, Properties::ThermalConductivityModel>>(
+            *solidEnergyProblem, *solidEnergyGridVariables, sol);
         couplingInterface.writeTemperatureToOtherSolver();
 
-        const double preciceDt = couplingInterface.advance( timeLoop->timeStepSize() );
+        const double preciceDt =
+            couplingInterface.advance(timeLoop->timeStepSize());
 
         // set new dt as suggested by newton solver
-        const double newDt = std::min( preciceDt, nonLinearSolver.suggestTimeStepSize( timeLoop->timeStepSize() ) );
+        const double newDt = std::min(
+            preciceDt,
+            nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
 
+        timeLoop->setTimeStepSize(newDt);
 
-        timeLoop->setTimeStepSize( newDt );
-
-        if ( couplingInterface.hasToReadIterationCheckpoint() )
-        {
+        if (couplingInterface.hasToReadIterationCheckpoint()) {
             //Read checkpoint
             sol = sol_checkpoint;
             solidEnergyGridVariables->update(sol);
             solidEnergyGridVariables->advanceTimeStep();
             //solidEnergyGridVariables->init(sol);
             couplingInterface.announceIterationCheckpointRead();
-        }
-        else // coupling successful
+        } else  // coupling successful
         {
             // advance to the time loop to the next step
             timeLoop->advanceTimeStep();
@@ -258,9 +264,8 @@ int main(int argc, char** argv) try
 
             solOld = sol;
         }
-
     }
-//    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
+    //    } while (!timeLoop->finished() && couplingInterface.isCouplingOngoing() );
 
     timeLoop->finalize(solidEnergyGridView.comm());
     couplingInterface.finalize();
@@ -270,35 +275,28 @@ int main(int argc, char** argv) try
     ////////////////////////////////////////////////////////////
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
-catch (Dumux::ParameterException &e)
-{
+}  // end main
+catch (Dumux::ParameterException &e) {
     std::cerr << std::endl << e << " ---> Abort!" << std::endl;
     return 1;
-}
-catch (Dune::DGFException & e)
-{
-    std::cerr << "DGF exception thrown (" << e <<
-                 "). Most likely, the DGF file name is wrong "
+} catch (Dune::DGFException &e) {
+    std::cerr << "DGF exception thrown (" << e
+              << "). Most likely, the DGF file name is wrong "
                  "or the DGF file is corrupted, "
-                 "e.g. missing hash at end of file or wrong number (dimensions) of entries."
-                 << " ---> Abort!" << std::endl;
+                 "e.g. missing hash at end of file or wrong number "
+                 "(dimensions) of entries."
+              << " ---> Abort!" << std::endl;
     return 2;
-}
-catch (Dune::Exception &e)
-{
+} catch (Dune::Exception &e) {
     std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
     return 3;
-}
-catch (...)
-{
+} catch (...) {
     std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
     return 4;
 }

@@ -31,53 +31,56 @@
 #include <dune/common/timer.hh>
 #include <dune/istl/io.hh>
 
-#include <dumux/common/properties.hh>
+#include <dumux/assembly/diffmethod.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/partial.hh>
-#include <dumux/common/dumuxmessage.hh>
-#include <dumux/linear/seqsolverbackend.hh>
-#include <dumux/assembly/fvassembler.hh>
-#include <dumux/assembly/diffmethod.hh>
+#include <dumux/common/properties.hh>
 #include <dumux/discretization/method.hh>
-#include <dumux/io/vtkoutputmodule.hh>
-#include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/grid/gridmanager.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
-#include <dumux/multidomain/staggeredtraits.hh>
 #include <dumux/multidomain/fvassembler.hh>
 #include <dumux/multidomain/newtonsolver.hh>
+#include <dumux/multidomain/staggeredtraits.hh>
 
 #include <dumux/multidomain/boundary/freeflowsolidenergy/couplingmanager.hh>
 
-#include "problem_heat.hh"
 #include "problem_freeflow.hh"
+#include "problem_heat.hh"
 
-namespace Dumux {
-namespace Properties {
-
-template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::FreeFlowModel>
+namespace Dumux
 {
-    using Traits = StaggeredMultiDomainTraits<TypeTag, TypeTag, Properties::TTag::HeatModel>;
+namespace Properties
+{
+template<class TypeTag>
+struct CouplingManager<TypeTag, TTag::FreeFlowModel> {
+    using Traits = StaggeredMultiDomainTraits<TypeTag,
+                                              TypeTag,
+                                              Properties::TTag::HeatModel>;
     using type = Dumux::FreeFlowSolidEnergyCouplingManager<Traits>;
 };
 
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::HeatModel>
-{
-    using Traits = StaggeredMultiDomainTraits<Properties::TTag::FreeFlowModel, Properties::TTag::FreeFlowModel, TypeTag>;
+struct CouplingManager<TypeTag, TTag::HeatModel> {
+    using Traits = StaggeredMultiDomainTraits<Properties::TTag::FreeFlowModel,
+                                              Properties::TTag::FreeFlowModel,
+                                              TypeTag>;
     using type = Dumux::FreeFlowSolidEnergyCouplingManager<Traits>;
 };
 
-} // end namespace Properties
-} // end namespace Dumux
+}  // end namespace Properties
+}  // end namespace Dumux
 
-int main(int argc, char** argv) try
-{
+int main(int argc, char **argv)
+try {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -92,46 +95,60 @@ int main(int argc, char** argv) try
 
     // try to create a grid (from the given grid file or the input file)
     // for both sub-domains
-    using SolidEnergyGridManager = Dumux::GridManager<GetPropType<SolidEnergyTypeTag, Properties::Grid>>;
+    using SolidEnergyGridManager =
+        Dumux::GridManager<GetPropType<SolidEnergyTypeTag, Properties::Grid>>;
     SolidEnergyGridManager solidEnergyGridManager;
-    solidEnergyGridManager.init("SolidEnergy"); // pass parameter group
+    solidEnergyGridManager.init("SolidEnergy");  // pass parameter group
 
-    using FreeFlowGridManager = Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
+    using FreeFlowGridManager =
+        Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
     FreeFlowGridManager freeFlowGridManager;
-    freeFlowGridManager.init("FreeFlow"); // pass parameter group
+    freeFlowGridManager.init("FreeFlow");  // pass parameter group
 
     // we compute on the leaf grid view
-    const auto& solidEnergyGridView = solidEnergyGridManager.grid().leafGridView();
-    const auto& freeFlowGridView = freeFlowGridManager.grid().leafGridView();
+    const auto &solidEnergyGridView =
+        solidEnergyGridManager.grid().leafGridView();
+    const auto &freeFlowGridView = freeFlowGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using FreeFlowFVGridGeometry = GetPropType<FreeFlowTypeTag, Properties::FVGridGeometry>;
-    auto freeFlowFvGridGeometry = std::make_shared<FreeFlowFVGridGeometry>(freeFlowGridView);
+    using FreeFlowFVGridGeometry =
+        GetPropType<FreeFlowTypeTag, Properties::FVGridGeometry>;
+    auto freeFlowFvGridGeometry =
+        std::make_shared<FreeFlowFVGridGeometry>(freeFlowGridView);
     freeFlowFvGridGeometry->update();
-    using SolidEnergyFVGridGeometry = GetPropType<SolidEnergyTypeTag, Properties::FVGridGeometry>;
-    auto solidEnergyFvGridGeometry = std::make_shared<SolidEnergyFVGridGeometry>(solidEnergyGridView);
+    using SolidEnergyFVGridGeometry =
+        GetPropType<SolidEnergyTypeTag, Properties::FVGridGeometry>;
+    auto solidEnergyFvGridGeometry =
+        std::make_shared<SolidEnergyFVGridGeometry>(solidEnergyGridView);
     solidEnergyFvGridGeometry->update();
 
-    using Traits = StaggeredMultiDomainTraits<FreeFlowTypeTag, FreeFlowTypeTag, SolidEnergyTypeTag>;
+    using Traits = StaggeredMultiDomainTraits<FreeFlowTypeTag, FreeFlowTypeTag,
+                                              SolidEnergyTypeTag>;
 
     // the coupling manager
     using CouplingManager = FreeFlowSolidEnergyCouplingManager<Traits>;
-    auto couplingManager = std::make_shared<CouplingManager>(freeFlowFvGridGeometry, solidEnergyFvGridGeometry);
+    auto couplingManager = std::make_shared<CouplingManager>(
+        freeFlowFvGridGeometry, solidEnergyFvGridGeometry);
 
     // the indices
-    constexpr auto freeFlowCellCenterIdx = CouplingManager::freeFlowCellCenterIdx;
+    constexpr auto freeFlowCellCenterIdx =
+        CouplingManager::freeFlowCellCenterIdx;
     constexpr auto freeFlowFaceIdx = CouplingManager::freeFlowFaceIdx;
     constexpr auto solidEnergyIdx = CouplingManager::solidEnergyIdx;
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
-    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(freeFlowFvGridGeometry, couplingManager);
-    using SolidEnergyProblem = GetPropType<SolidEnergyTypeTag, Properties::Problem>;
-    auto solidEnergyProblem = std::make_shared<SolidEnergyProblem>(solidEnergyFvGridGeometry, couplingManager);
+    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(
+        freeFlowFvGridGeometry, couplingManager);
+    using SolidEnergyProblem =
+        GetPropType<SolidEnergyTypeTag, Properties::Problem>;
+    auto solidEnergyProblem = std::make_shared<SolidEnergyProblem>(
+        solidEnergyFvGridGeometry, couplingManager);
 
     // the solution vector
     Traits::SolutionVector sol;
-    sol[freeFlowCellCenterIdx].resize(freeFlowFvGridGeometry->numCellCenterDofs());
+    sol[freeFlowCellCenterIdx].resize(
+        freeFlowFvGridGeometry->numCellCenterDofs());
     sol[freeFlowFaceIdx].resize(freeFlowFvGridGeometry->numFaceDofs());
     sol[solidEnergyIdx].resize(solidEnergyFvGridGeometry->numDofs());
 
@@ -147,20 +164,31 @@ int main(int argc, char** argv) try
     couplingManager->init(freeFlowProblem, solidEnergyProblem, sol);
 
     // the grid variables
-    using FreeFlowGridVariables = GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
-    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(freeFlowProblem, freeFlowFvGridGeometry);
+    using FreeFlowGridVariables =
+        GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
+    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(
+        freeFlowProblem, freeFlowFvGridGeometry);
     freeFlowGridVariables->init(stokesSol);
-    using SolidEnergyGridVariables = GetPropType<SolidEnergyTypeTag, Properties::GridVariables>;
-    auto solidEnergyGridVariables = std::make_shared<SolidEnergyGridVariables>(solidEnergyProblem, solidEnergyFvGridGeometry);
+    using SolidEnergyGridVariables =
+        GetPropType<SolidEnergyTypeTag, Properties::GridVariables>;
+    auto solidEnergyGridVariables = std::make_shared<SolidEnergyGridVariables>(
+        solidEnergyProblem, solidEnergyFvGridGeometry);
     solidEnergyGridVariables->init(sol[solidEnergyIdx]);
 
     // intialize the vtk output module
-    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(stokesSol)> freeFlowVtkWriter(*freeFlowGridVariables, stokesSol, freeFlowProblem->name());
-    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(freeFlowVtkWriter);
+    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(stokesSol)>
+        freeFlowVtkWriter(*freeFlowGridVariables, stokesSol,
+                          freeFlowProblem->name());
+    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(
+        freeFlowVtkWriter);
     freeFlowVtkWriter.write(0.0);
 
-    VtkOutputModule<SolidEnergyGridVariables, GetPropType<SolidEnergyTypeTag, Properties::SolutionVector>> solidEnergyVtkWriter(*solidEnergyGridVariables, sol[solidEnergyIdx],  solidEnergyProblem->name());
-    GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(solidEnergyVtkWriter);
+    VtkOutputModule<SolidEnergyGridVariables,
+                    GetPropType<SolidEnergyTypeTag, Properties::SolutionVector>>
+        solidEnergyVtkWriter(*solidEnergyGridVariables, sol[solidEnergyIdx],
+                             solidEnergyProblem->name());
+    GetPropType<SolidEnergyTypeTag, Properties::IOFields>::initOutputModule(
+        solidEnergyVtkWriter);
     solidEnergyVtkWriter.write(0.0);
 
     // instantiate time loop
@@ -172,27 +200,30 @@ int main(int argc, char** argv) try
     timeLoop->setMaxTimeStepSize(maxDt);
 
     // the assembler for a stationary problem
-    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(std::make_tuple(freeFlowProblem, freeFlowProblem, solidEnergyProblem),
-                                                 std::make_tuple(freeFlowFvGridGeometry->cellCenterFVGridGeometryPtr(),
-                                                                 freeFlowFvGridGeometry->faceFVGridGeometryPtr(),
-                                                                 solidEnergyFvGridGeometry),
-                                                 std::make_tuple(freeFlowGridVariables->cellCenterGridVariablesPtr(),
-                                                                 freeFlowGridVariables->faceGridVariablesPtr(),
-                                                                 solidEnergyGridVariables),
-                                                 couplingManager, timeLoop);
+    using Assembler =
+        MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        std::make_tuple(freeFlowProblem, freeFlowProblem, solidEnergyProblem),
+        std::make_tuple(freeFlowFvGridGeometry->cellCenterFVGridGeometryPtr(),
+                        freeFlowFvGridGeometry->faceFVGridGeometryPtr(),
+                        solidEnergyFvGridGeometry),
+        std::make_tuple(freeFlowGridVariables->cellCenterGridVariablesPtr(),
+                        freeFlowGridVariables->faceGridVariablesPtr(),
+                        solidEnergyGridVariables),
+        couplingManager, timeLoop);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    using NewtonSolver =
+        MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
     NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
     // time loop
-    timeLoop->start(); do
-    {
+    timeLoop->start();
+    do {
         // set previous solution for storage evaluations
         assembler->setPreviousSolution(solOld);
 
@@ -215,7 +246,8 @@ int main(int argc, char** argv) try
         timeLoop->reportTimeStep();
 
         // set new dt as suggested by newton solver
-        timeLoop->setTimeStepSize(nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
+        timeLoop->setTimeStepSize(
+            nonLinearSolver.suggestTimeStepSize(timeLoop->timeStepSize()));
 
     } while (!timeLoop->finished());
 
@@ -227,35 +259,28 @@ int main(int argc, char** argv) try
     ////////////////////////////////////////////////////////////
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
-catch (Dumux::ParameterException &e)
-{
+}  // end main
+catch (Dumux::ParameterException &e) {
     std::cerr << std::endl << e << " ---> Abort!" << std::endl;
     return 1;
-}
-catch (Dune::DGFException & e)
-{
-    std::cerr << "DGF exception thrown (" << e <<
-                 "). Most likely, the DGF file name is wrong "
+} catch (Dune::DGFException &e) {
+    std::cerr << "DGF exception thrown (" << e
+              << "). Most likely, the DGF file name is wrong "
                  "or the DGF file is corrupted, "
-                 "e.g. missing hash at end of file or wrong number (dimensions) of entries."
-                 << " ---> Abort!" << std::endl;
+                 "e.g. missing hash at end of file or wrong number "
+                 "(dimensions) of entries."
+              << " ---> Abort!" << std::endl;
     return 2;
-}
-catch (Dune::Exception &e)
-{
+} catch (Dune::Exception &e) {
     std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
     return 3;
-}
-catch (...)
-{
+} catch (...) {
     std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
     return 4;
 }

@@ -1,0 +1,35 @@
+[Darcy.Grid]
+UpperRight = 1 0
+LowerLeft = 0 -1
+Cells = 10 10
+
+[Stokes.Grid]
+LowerLeft = 0 1
+UpperRight = 0 1
+Cells = 10 10
+
+[Stokes.Problem]
+Name = stokes
+
+[Darcy.Problem]
+Name = darcy
+
+[Darcy.SpatialParams]
+Permeability = 1e-6 # m^2
+AlphaBeaversJoseph = 1.0
+
+[Vtk]
+OutputName = td-ff-pm-2d-chaabani
+
+[Problem]
+Name = "td-ff-pm-2d-chaabani"
+EnableGravity = false
+EnableInertiaTerms = false
+
+[TimeLoop]
+TEnd = 2e-4
+MaxTimeStepSize = 1e-4
+DtInitial = 1e-4
+
+[Vtk]
+AddVelocity = 1

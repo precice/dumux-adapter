@@ -31,50 +31,67 @@
 
 #include <dune/grid/yaspgrid.hh>
 
-#include <dumux/material/fluidsystems/1pgas.hh>
 #include <dumux/material/components/air.hh>
+#include <dumux/material/fluidsystems/1pgas.hh>
 
-#include <dumux/freeflow/navierstokes/problem.hh>
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
+#include <dumux/freeflow/navierstokes/problem.hh>
 
 #if !ENABLEMONOLITHIC
 #include "../common/preciceadapter.hh"
 #endif
 
-namespace Dumux {
-template <class TypeTag>
+namespace Dumux
+{
+template<class TypeTag>
 class FreeFlowSubProblem;
 
-namespace Properties {
+namespace Properties
+{
 // Create new type tags
-namespace TTag {
-struct FreeFlowModel { using InheritsFrom = std::tuple<NavierStokesNI, StaggeredFreeFlowModel>; };
-} // end namespace TTag
+namespace TTag
+{
+struct FreeFlowModel {
+    using InheritsFrom = std::tuple<NavierStokesNI, StaggeredFreeFlowModel>;
+};
+}  // end namespace TTag
 
 // the fluid system
 template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::FreeFlowModel>
-{
+struct FluidSystem<TypeTag, TTag::FreeFlowModel> {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type = FluidSystems::OnePGas<Scalar, Dumux::Components::Air<Scalar> > ;
+    using type = FluidSystems::OnePGas<Scalar, Dumux::Components::Air<Scalar> >;
 };
 
 // Set the grid type
 template<class TypeTag>
-struct Grid<TypeTag, TTag::FreeFlowModel> { using type = Dune::YaspGrid<2, Dune::TensorProductCoordinates<GetPropType<TypeTag, Properties::Scalar>, 2> >; };
+struct Grid<TypeTag, TTag::FreeFlowModel> {
+    using type = Dune::YaspGrid<
+        2,
+        Dune::TensorProductCoordinates<GetPropType<TypeTag, Properties::Scalar>,
+                                       2> >;
+};
 
 // Set the problem property
 template<class TypeTag>
-struct Problem<TypeTag, TTag::FreeFlowModel> { using type = Dumux::FreeFlowSubProblem<TypeTag> ; };
+struct Problem<TypeTag, TTag::FreeFlowModel> {
+    using type = Dumux::FreeFlowSubProblem<TypeTag>;
+};
 
 template<class TypeTag>
-struct EnableFVGridGeometryCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
+struct EnableFVGridGeometryCache<TypeTag, TTag::FreeFlowModel> {
+    static constexpr bool value = true;
+};
 template<class TypeTag>
-struct EnableGridFluxVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
+struct EnableGridFluxVariablesCache<TypeTag, TTag::FreeFlowModel> {
+    static constexpr bool value = true;
+};
 template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> { static constexpr bool value = true; };
-} // end namespace Properties
+struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
+    static constexpr bool value = true;
+};
+}  // end namespace Properties
 
 /*!
  * \ingroup BoundaryTests
@@ -82,7 +99,7 @@ struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> { static con
  *
  * Horizontal flow from left to right with a parabolic velocity profile.
  */
-template <class TypeTag>
+template<class TypeTag>
 class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
 {
     using ParentType = NavierStokesProblem<TypeTag>;
@@ -90,13 +107,15 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
     using GridView = GetPropType<TypeTag, Properties::GridView>;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
 
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using Indices =
+        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
     using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
 
     using FVGridGeometry = GetPropType<TypeTag, Properties::FVGridGeometry>;
     using FVElementGeometry = typename FVGridGeometry::LocalView;
-    using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolumeFace =
+        typename FVElementGeometry::SubControlVolumeFace;
     using Element = typename GridView::template Codim<0>::Entity;
 
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
@@ -108,29 +127,35 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-public:
+   public:
 #if ENABLEMONOLITHIC
-    FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry, std::shared_ptr<CouplingManager> couplingManager)
-    : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingManager_(couplingManager)
+    FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
+                       std::shared_ptr<CouplingManager> couplingManager)
+        : ParentType(fvGridGeometry, "FreeFlow"),
+          eps_(1e-6),
+          couplingManager_(couplingManager)
 #else
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry)
-      : ParentType(fvGridGeometry, "FreeFlow"), eps_(1e-6), couplingInterface_(precice_adapter::PreciceAdapter::getInstance())
+        : ParentType(fvGridGeometry, "FreeFlow"),
+          eps_(1e-6),
+          couplingInterface_(precice_adapter::PreciceAdapter::getInstance())
 #endif
     {
-        problemName_  =  getParam<std::string>("Vtk.OutputName") + "_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
-        inletVelocity_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.InletVelocity");
-        inletTemperature_ = getParamFromGroup<Scalar>(this->paramGroup(), "Problem.InletTemperature");
+        problemName_ =
+            getParam<std::string>("Vtk.OutputName") + "_" +
+            getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
+        inletVelocity_ = getParamFromGroup<Scalar>(this->paramGroup(),
+                                                   "Problem.InletVelocity");
+        inletTemperature_ = getParamFromGroup<Scalar>(
+            this->paramGroup(), "Problem.InletTemperature");
     }
 
     /*!
      * \brief The problem name.
      */
-    const std::string& name() const
-    {
-        return problemName_;
-    }
+    const std::string &name() const { return problemName_; }
 
-   /*!
+    /*!
      * \name Boundary conditions
      */
     // \{
@@ -142,27 +167,24 @@ public:
      * \param element The finite element
      * \param scvf The sub control volume face
      */
-    BoundaryTypes boundaryTypes(const Element& element,
-                                const SubControlVolumeFace& scvf) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolumeFace &scvf) const
     {
         BoundaryTypes values;
 
-        const auto& globalPos = scvf.dofPosition();
+        const auto &globalPos = scvf.dofPosition();
 
         // inlet
-        if (onLeftBoundary_(globalPos))
-        {
+        if (onLeftBoundary_(globalPos)) {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
             values.setDirichlet(Indices::temperatureIdx);
         }
         //  outlet
-        else if (onRightBoundary_(globalPos))
-        {
+        else if (onRightBoundary_(globalPos)) {
             values.setDirichlet(Indices::pressureIdx);
             values.setOutflow(Indices::energyEqIdx);
-        }
-        else // wall
+        } else  // wall
         {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
@@ -170,8 +192,8 @@ public:
         }
 
 #if ENABLEMONOLITHIC
-        if (couplingManager().isCoupledEntity(CouplingManager::freeFlowIdx, scvf))
-        {
+        if (couplingManager().isCoupledEntity(CouplingManager::freeFlowIdx,
+                                              scvf)) {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
             values.setCouplingNeumann(Indices::energyEqIdx);
@@ -179,8 +201,7 @@ public:
 #else
         //TODO preCICE
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity(faceId) )
-        {
+        if (couplingInterface_.isCoupledEntity(faceId)) {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
             values.setNeumann(Indices::energyEqIdx);
@@ -193,7 +214,7 @@ public:
     /*!
      * \brief Evaluates the boundary conditions for a Dirichlet control volume.
      */
-    PrimaryVariables dirichletAtPos(const GlobalPosition& globalPos) const
+    PrimaryVariables dirichletAtPos(const GlobalPosition &globalPos) const
     {
         return initialAtPos(globalPos);
     }
@@ -208,59 +229,66 @@ public:
      * \param scvf The boundary sub control volume face
      */
     template<class ElementVolumeVariables, class ElementFaceVariables>
-    NumEqVector neumann(const Element& element,
-                        const FVElementGeometry& fvGeometry,
-                        const ElementVolumeVariables& elemVolVars,
-                        const ElementFaceVariables& elemFaceVars,
-                        const SubControlVolumeFace& scvf) const
+    NumEqVector neumann(const Element &element,
+                        const FVElementGeometry &fvGeometry,
+                        const ElementVolumeVariables &elemVolVars,
+                        const ElementFaceVariables &elemFaceVars,
+                        const SubControlVolumeFace &scvf) const
     {
         NumEqVector values(0.0);
 
 #if ENABLEMONOLITHIC
-        static const auto avgType = FreeFlowHeatCouplingOptions::stringToEnum(getParamFromGroup<std::string>(this->paramGroup(), "Problem.DiffCoeffAvgType", "FreeFlowOnly"));
-        if (couplingManager().isCoupledEntity(CouplingManager::freeFlowIdx, scvf))
-            values[Indices::energyEqIdx] = couplingManager().couplingData().energyCouplingCondition(element, fvGeometry, elemVolVars, elemFaceVars, scvf, avgType);
+        static const auto avgType = FreeFlowHeatCouplingOptions::stringToEnum(
+            getParamFromGroup<std::string>(this->paramGroup(),
+                                           "Problem.DiffCoeffAvgType",
+                                           "FreeFlowOnly"));
+        if (couplingManager().isCoupledEntity(CouplingManager::freeFlowIdx,
+                                              scvf))
+            values[Indices::energyEqIdx] =
+                couplingManager().couplingData().energyCouplingCondition(
+                    element, fvGeometry, elemVolVars, elemFaceVars, scvf,
+                    avgType);
 #else
         // TODO preCICE
         const auto faceId = scvf.index();
-        if ( couplingInterface_.isCoupledEntity( faceId ) )
-        {
-          // Actually gets temperature
-          const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
-          const auto& volVars = elemVolVars[scv];
-          const Scalar cellCenterTemperature = volVars.temperature();
-          const Scalar distance = (scvf.center() - scv.center()).two_norm();
-          const Scalar insideLambda = volVars.effectiveThermalConductivity();
-          const Scalar boundaryTemperature = couplingInterface_.getTemperatureOnFace(faceId);
-          // q = -lambda * (t_face - t_cc) / dx
-          //const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
-          const Scalar qHeat = insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
+        if (couplingInterface_.isCoupledEntity(faceId)) {
+            // Actually gets temperature
+            const auto &scv = fvGeometry.scv(scvf.insideScvIdx());
+            const auto &volVars = elemVolVars[scv];
+            const Scalar cellCenterTemperature = volVars.temperature();
+            const Scalar distance = (scvf.center() - scv.center()).two_norm();
+            const Scalar insideLambda = volVars.effectiveThermalConductivity();
+            const Scalar boundaryTemperature =
+                couplingInterface_.getTemperatureOnFace(faceId);
+            // q = -lambda * (t_face - t_cc) / dx
+            //const Scalar qHeat = -insideLambda * (cellCenterTemperature-boundaryTemperature) / distance;
+            const Scalar qHeat = insideLambda *
+                                 (cellCenterTemperature - boundaryTemperature) /
+                                 distance;
 
-          values[Indices::energyEqIdx] = qHeat;
+            values[Indices::energyEqIdx] = qHeat;
         }
 #endif
 
         return values;
     }
 
-
 #if ENABLEMONOLITHIC
     //! Get the coupling manager
-    const CouplingManager& couplingManager() const
-    { return *couplingManager_; }
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
 #endif
 
-   /*!
+    /*!
      * \name Volume terms
      */
     // \{
 
-   /*!
+    /*!
      * \brief Evaluates the initial value for a control volume.
      *
      * \param globalPos The global position
      */
-    PrimaryVariables initialAtPos(const GlobalPosition& globalPos) const
+    PrimaryVariables initialAtPos(const GlobalPosition &globalPos) const
     {
         PrimaryVariables values(0.0);
 
@@ -268,31 +296,43 @@ public:
         values[Indices::energyEqIdx] = inletTemperature_;
 
         // parabolic velocity profile
-        values[Indices::velocityXIdx] =  inletVelocity_*(globalPos[1] - this->fvGridGeometry().bBoxMin()[1])*(this->fvGridGeometry().bBoxMax()[1] - globalPos[1])
-                                      / (0.25*(this->fvGridGeometry().bBoxMax()[1] - this->fvGridGeometry().bBoxMin()[1])*(this->fvGridGeometry().bBoxMax()[1] - this->fvGridGeometry().bBoxMin()[1]));
+        values[Indices::velocityXIdx] =
+            inletVelocity_ *
+            (globalPos[1] - this->fvGridGeometry().bBoxMin()[1]) *
+            (this->fvGridGeometry().bBoxMax()[1] - globalPos[1]) /
+            (0.25 *
+             (this->fvGridGeometry().bBoxMax()[1] -
+              this->fvGridGeometry().bBoxMin()[1]) *
+             (this->fvGridGeometry().bBoxMax()[1] -
+              this->fvGridGeometry().bBoxMin()[1]));
 
         values[Indices::velocityYIdx] = 0.0;
 
         return values;
     }
 
-
-
-
     // \}
 
-private:
+   private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_; }
+    {
+        return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_;
+    }
 
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_; }
+    {
+        return globalPos[0] > this->fvGridGeometry().bBoxMax()[0] - eps_;
+    }
 
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_; }
+    {
+        return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_;
+    }
 
     bool onUpperBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_; }
+    {
+        return globalPos[1] > this->fvGridGeometry().bBoxMax()[1] - eps_;
+    }
 
     Scalar eps_;
     std::string problemName_;
@@ -302,10 +342,9 @@ private:
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-   precice_adapter::PreciceAdapter& couplingInterface_;
+    precice_adapter::PreciceAdapter &couplingInterface_;
 #endif
-
 };
-} // end namespace Dumux
+}  // end namespace Dumux
 
-#endif // DUMUX_FREEFLOW_SUBPROBLEM_HH
+#endif  // DUMUX_FREEFLOW_SUBPROBLEM_HH
