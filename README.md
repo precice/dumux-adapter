@@ -5,8 +5,7 @@ This repository provides a DuMuX specific adapter to couple to other codes using
 
 - DuMuX **newer** than 3.2
     - Some of
-- preCICE 1.6.X
-    - We are working on supporting newer versions of preCICE at the moment.
+- preCICE >=2.0.0
 
 ## Running partitioned coupling
 

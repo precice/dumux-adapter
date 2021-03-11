@@ -196,8 +196,11 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
         const auto faceId = scvf.index();
         if (couplingInterface_.isCoupledEntity(faceId))
+        {
             values =
                 couplingInterface_.getScalarQuantityOnFace(pressureId_, faceId);
+            //std::cout << "Pressure on face " << faceId << " is " << couplingInterface_.getScalarQuantityOnFace(pressureId_, faceId) << std::endl;
+        }
 
         return values;
     }
