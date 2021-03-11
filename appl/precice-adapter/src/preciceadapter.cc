@@ -32,7 +32,8 @@ void PreciceAdapter::announceSolver(const std::string &name,
                                     const int size)
 {
     assert(precice_ == nullptr);
-    precice_ = std::make_unique<precice::SolverInterface>(name, configurationFileName, rank, size);
+    precice_ = std::make_unique<precice::SolverInterface>(
+        name, configurationFileName, rank, size);
     wasCreated_ = true;
 }
 
