@@ -311,9 +311,6 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
         return values;
     }
 
-
-
-
     // \}
 
    private:
