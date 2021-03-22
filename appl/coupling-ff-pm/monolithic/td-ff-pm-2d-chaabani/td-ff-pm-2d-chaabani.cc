@@ -47,7 +47,7 @@
 #include <dumux/multidomain/newtonsolver.hh>
 #include <dumux/multidomain/staggeredtraits.hh>
 
-#include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
+#include <dumux-precice/dumux-addon/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
 #include "problem_darcy.hh"
 #include "problem_stokes.hh"
