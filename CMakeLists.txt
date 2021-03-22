@@ -33,7 +33,7 @@ dune_enable_all_packages()
 
 add_subdirectory(cmake/modules)
 add_subdirectory(doc)
-add_subdirectory(dumux)
+add_subdirectory(dumux-addon)
 
 add_subdirectory(appl)
 
