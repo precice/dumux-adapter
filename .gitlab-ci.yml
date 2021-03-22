@@ -47,6 +47,12 @@ build-iterative-coupling:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
   <<: *build-iterative-coupling
 
+build-iterative-coupling:master-1.6.1:
+  image: dumux-precice:master-1.6.1
+  rules:
+  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  <<: *build-iterative-coupling
+
 .build_template: &build-monolithic-coupling
   stage: build
   script:
@@ -73,6 +79,16 @@ build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
 
 build-monolithic-coupling:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
+  <<: *build-monolithic-coupling
+
+build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
+  image: dumux-precice:3.3git-iterative-pr-1.6.1
+  <<: *build-monolithic-coupling
+
+build-monolithic-coupling:master-1.6.1:
+  image: dumux-precice:master-1.6.1
+  rules:
+  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-coupling
 
 
@@ -127,7 +143,6 @@ test-monolithic-coupling:3.3-1.6.1:
   needs:
     - build-monolithic-coupling:3.3-1.6.1
 
-
 .build_template: &build-monolithic-flow-over-step-2d
   stage: build
   script:
@@ -154,6 +169,12 @@ build-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1:
 
 build-monolithic-flow-over-step-2d:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
+  <<: *build-monolithic-flow-over-step-2d
+
+build-monolithic-flow-over-step-2d:master-1.6.1:
+  image: dumux-precice:master-1.6.1
+  rules:
+  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-flow-over-step-2d
 
 .test_template: &test-monolithic-flow-over-step-2d
@@ -205,6 +226,12 @@ build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
 
 build-monolithic-ff-pm-3d:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
+  <<: *build-monolithic-ff-pm-3d
+
+build-monolithic-ff-pm-3d:master-1.6.1:
+  image: dumux-precice:master-1.6.1
+  rules:
+  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-ff-pm-3d
 
 
