@@ -54,8 +54,8 @@ build-iterative-coupling:3.3-1.6.1:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
-    #- dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic
     - make -j2 fvca-monolithic
   artifacts:
@@ -135,7 +135,8 @@ test-monolithic-coupling:3.3-1.6.1:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d
     - make -j2 flow-over-step-2d
   artifacts:
@@ -185,7 +186,8 @@ test-monolithic-flow-over-step-2d:3.3-1.6.1:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d
     - make -j2 ff-pm-3d
   artifacts:
