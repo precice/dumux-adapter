@@ -224,12 +224,12 @@ build-monolithic-ff-pm-3d:3.3-1.6.1:
 
 test-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
   image: dumux-precice:3.3git-iterative-pr-1.6.1
-  <<: *test-monolithic-flow-over-step-2d
+  <<: *test-monolithic-ff-pm-3d
   needs:
     - build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1
 
 test-monolithic-ff-pm-3d:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
-  <<: *test-monolithic-flow-over-step-2d
+  <<: *test-monolithic-ff-pm-3d
   needs:
     - build-monolithic-ff-pm-3d:3.3-1.6.1
