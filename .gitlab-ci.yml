@@ -99,7 +99,7 @@ test-iterative-coupling:3.3-1.6.1:
   image: dumux-precice:3.3-1.6.1
   <<: *test-iterative-coupling
   needs:
-    - build-iterative-coupling:3.3git-iterative-pr-1.6.1
+    - build-iterative-coupling:3.3-1.6.1
 
 .test_template: &test-monolithic-coupling
   stage: test
