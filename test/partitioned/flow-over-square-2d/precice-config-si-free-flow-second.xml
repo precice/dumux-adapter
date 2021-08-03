@@ -40,12 +40,12 @@
       <write-data name="Velocity" mesh="DarcyMesh"/>
     </participant>
 
-    <m2n:sockets from="FreeFlow" to="Darcy" distribution-type="gather-scatter" network="lo" />
+    <m2n:sockets from="FreeFlow" to="Darcy" network="lo" />
 
 
     <coupling-scheme:serial-implicit>
       <max-time value="1"/>
-      <timestep-length value="1" />
+      <time-window-size value="1" />
       <max-iterations value="100"/>
 
 
@@ -67,14 +67,14 @@
 
         <extrapolation-order value="0"/>
 
-        <post-processing:IQN-ILS>
+        <acceleration:IQN-ILS>
             <data mesh="DarcyMesh" name="Pressure" />
             <preconditioner type="residual-sum"/>
             <initial-relaxation value="0.1" />
             <max-used-iterations value="40" />
-            <timesteps-reused value="10" />
+            <time-windows-reused value="10" />
             <filter type="QR2" limit="1e-3" />
-        </post-processing:IQN-ILS>
+        </acceleration:IQN-ILS>
 
 
     </coupling-scheme:serial-implicit>
