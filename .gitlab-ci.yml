@@ -102,8 +102,8 @@ build-monolithic-coupling:master-1.6.1:
     paths:
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.txt
+      - "./build-cmake/appl/coupling-ff-pm/fvca-iterative/*.log"
+      - "./build-cmake/appl/coupling-ff-pm/fvca-iterative/*.txt"
 #  needs:
 #    - build-iterative-coupling
 

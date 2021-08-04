@@ -40,7 +40,7 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
               TARGET fvca-iterative-ff
               TARGET fvca-iterative-pm
               LABELS freeflow stokes precice darcy
-              TIMEOUT 15
+              TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-stokes-first/stokes-iterative-final.vtu
@@ -61,7 +61,7 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
     TARGET fvca-iterative-ff
     TARGET fvca-iterative-pm
     LABELS freeflow darcy precice darcy
-    TIMEOUT 15
+    TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
     COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
     CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-darcy-first/stokes-iterative-final.vtu
@@ -83,7 +83,7 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
               TARGET fvca-iterative-ff
               TARGET fvca-iterative-pm
               LABELS freeflow stokes precice darcy
-              TIMEOUT 15
+              TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
               CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/parallel-implicit/stokes-iterative-final.vtu
