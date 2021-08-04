@@ -98,6 +98,12 @@ def run_solver(solver_name, dumux_param_file, precice_config_file):
 def diff_iteration_files(diff_file_name, file_names):
     assert len(file_names) == 2, "Script expects two iteration files to be compared"
 
+    print(
+        "Start diff on files:\n  File 1: {}\n  File 2: {}".format(
+            file_names[0], file_names[1]
+        )
+    )
+
     with open(diff_file_name, "w") as f:
         proc = sp.Popen(
             ["diff", file_names[0], file_names[1]],
@@ -106,6 +112,11 @@ def diff_iteration_files(diff_file_name, file_names):
         )
         proc.wait()
         return_code = proc.returncode
+
+    if return_code == 0:
+        print("Diff succeeded.")
+    else:
+        print("Diff failed. Return code: {}".format(return_code))
 
     return return_code
 
