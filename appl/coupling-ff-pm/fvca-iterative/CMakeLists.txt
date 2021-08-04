@@ -43,13 +43,13 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
               TIMEOUT 15
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-stokes-first/stokes-iterative-final.vtu
+              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-stokes-first/stokes-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00005.vtu
-                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-stokes-first/darcy-iterative-final.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-stokes-first/darcy-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00005.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/params.input
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-stokes-first/precice-config.xml
-              --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-stokes-first/precice-FreeFlow-iterations.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
+              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/params.input
+              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-stokes-first/precice-config.xml
+              --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-stokes-first/precice-FreeFlow-iterations.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-si-stokes-first"
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
@@ -64,13 +64,13 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_darcy_first
     TIMEOUT 15
     CMAKE_GUARD HAVE_UMFPACK
     COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
-    CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-darcy-first/stokes-iterative-final.vtu
+    CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-darcy-first/stokes-iterative-final.vtu
             ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00006.vtu
-            ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-darcy-first/darcy-iterative-final.vtu
+            ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-darcy-first/darcy-iterative-final.vtu
             ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00006.vtu
-    --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/params.input
-    --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-darcy-first/precice-config.xml
-    --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/serial-implicit-darcy-first/precice-Darcy-iterations.log
+    --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/params.input
+    --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-darcy-first/precice-config.xml
+    --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/serial-implicit-darcy-first/precice-Darcy-iterations.log
         ${CMAKE_CURRENT_BINARY_DIR}/precice-Darcy-iterations.log
     --case-name "flow-over-box-2d-si-darcy-first"
     --relative 1e-6
@@ -86,13 +86,13 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit
               TIMEOUT 15
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
-              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/parallel-implicit/stokes-iterative-final.vtu
+              CMD_ARGS --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/parallel-implicit/stokes-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
-                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/parallel-implicit/darcy-iterative-final.vtu
+                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/parallel-implicit/darcy-iterative-final.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
-              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/params.input
-              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/parallel-implicit/precice-config.xml
-              --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/iterative/2d/flow-over-box/parallel-implicit/precice-FreeFlow-iterations.log
+              --dumux-param-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/params.input
+              --precice-config-file ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/parallel-implicit/precice-config.xml
+              --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/reference-solutions/partitioned/2d/flow-over-box/parallel-implicit/precice-FreeFlow-iterations.log
               ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-pi"
               --relative 1e-6
