@@ -62,7 +62,7 @@ parser.add_argument(
     "-cn",
     "--case-name",
     type=str,
-#    default="precice-config.xml",
+    #    default="precice-config.xml",
     help="Name identifier of the test case (required)",
     required=True,
 )
@@ -70,7 +70,7 @@ parser.add_argument(
     "-pif",
     "--precice-iteration-files",
     type=str,
-#    default="precice-config.xml",
+    #    default="precice-config.xml",
     nargs=2,
     help="Name of the preCICE iteration file names to be compared (required)",
     required=True,
@@ -94,10 +94,11 @@ def run_solver(solver_name, dumux_param_file, precice_config_file):
     )
     return proc, f
 
-def diff_iteration_files( diff_file_name, file_names ):
+
+def diff_iteration_files(diff_file_name, file_names):
     assert len(file_names) == 2, "Script expects two iteration files to be compared"
 
-    with open( diff_file_name, "w") as f:
+    with open(diff_file_name, "w") as f:
         proc = sp.Popen(
             ["diff", file_names[0], file_names[1]],
             stdout=f,
@@ -126,12 +127,16 @@ pm_proc, pm_output = run_solver(
 pm_proc.wait()
 ff_proc.wait()
 
-print( "Comparing VTU files" )
+print("Comparing VTU files")
 return_code = 0
 for i in range(0, len(args["files"]) // 2):
     print("\nFuzzy comparison...")
 
-    print("\n  Compare: \n    File 1: {}\n    File 2: {}".format( args["files"][i * 2], args["files"][i * 2+1] ))
+    print(
+        "\n  Compare: \n    File 1: {}\n    File 2: {}".format(
+            args["files"][i * 2], args["files"][i * 2 + 1]
+        )
+    )
     result = compare_vtk(
         args["files"][i * 2],
         args["files"][(i * 2) + 1],
@@ -142,44 +147,56 @@ for i in range(0, len(args["files"]) // 2):
     if result:
         return_code = 1
 
-print( "Comparing preCICE iteration files" )
-if diff_iteration_files( "{case_name}-diff.txt".format(case_name=args["case_name"]),  args["precice_iteration_files"] ) != 0:
+print("Comparing preCICE iteration files")
+if (
+    diff_iteration_files(
+        "{case_name}-diff.txt".format(case_name=args["case_name"]),
+        args["precice_iteration_files"],
+    )
+    != 0
+):
     return_code = 1
 
 
-print( "Moving relevant files" )
+print("Moving relevant files")
 if return_code != 0:
     try:
-        shutil.move( "fvca-iterative-ff.log", "{case_name}_ff.log".format(case_name=args["case_name"]) )
-        shutil.move( "fvca-iterative-pm.log", "{case_name}_pm.log".format(case_name=args["case_name"]) )
+        shutil.move(
+            "fvca-iterative-ff.log",
+            "{case_name}_ff.log".format(case_name=args["case_name"]),
+        )
+        shutil.move(
+            "fvca-iterative-pm.log",
+            "{case_name}_pm.log".format(case_name=args["case_name"]),
+        )
     except:
-        print('Not all files to be saved were found!')
+        print("Not all files to be saved were found!")
 
-print( "Removing files that are not needed anymore" )
+print("Removing files that are not needed anymore")
 if return_code == 0:
     try:
         shutil.rmtree("precice-run/")
-        #shutil.rm("*.pvd")
-        #shutil.rm("*.log")
-        #shutil.rm("*.json")
+        # shutil.rm("*.pvd")
+        # shutil.rm("*.log")
+        # shutil.rm("*.json")
     except:
         print('no directory "precice-run/" to delete')
 
     try:
-        files_to_delete=glob.glob("./*.vtu")
+        files_to_delete = glob.glob("./*.vtu")
         files_to_delete += glob.glob("./*.pvd")
         files_to_delete += glob.glob("./*.json")
         files_to_delete += glob.glob("./*.log")
         files_to_delete += glob.glob("./*.txt")
-        print( files_to_delete )
+        print(files_to_delete)
 
-        #os.remove( files_to_delete )
+        # os.remove( files_to_delete )
         for file_to_delete in files_to_delete:
-            os.remove( file_to_delete )
+            os.remove(file_to_delete)
         #    shutil.rm( file_to_delete )
-        #shutil.rm( glob.glob("./*.pvd"))
-        #shutil.rm( glob.glob("./*.json"))
+        # shutil.rm( glob.glob("./*.pvd"))
+        # shutil.rm( glob.glob("./*.json"))
     except:
-        print('No further files to remove')
+        print("No further files to remove")
 
 sys.exit(return_code)
