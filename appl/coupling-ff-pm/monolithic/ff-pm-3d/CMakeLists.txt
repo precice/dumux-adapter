@@ -6,7 +6,7 @@ add_executable(ff-pm-3d EXCLUDE_FROM_ALL fvca-monolithic-3d.cc)
 dune_add_test(NAME test_ff-pm-3d-stokes
               TARGET ff-pm-3d
               LABELS ff-pm stokes monolithic darcy
-              TIMEOUT 10
+              TIMEOUT 20
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/runtest.py
               CMD_ARGS --script fuzzy
@@ -25,7 +25,7 @@ set_tests_properties(test_ff-pm-3d-stokes PROPERTIES
 dune_add_test(NAME test_ff-pm-3d-navier-stokes
               TARGET ff-pm-3d
               LABELS ff-pm stokes monolithic darcy
-              TIMEOUT 10
+              TIMEOUT 20
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/runtest.py
               CMD_ARGS --script fuzzy
