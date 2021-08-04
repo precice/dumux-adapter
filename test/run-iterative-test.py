@@ -111,6 +111,10 @@ def diff_iteration_files(diff_file_name, file_names):
             stderr=f,
         )
         proc.wait()
+
+        with open(diff_file_name, 'r') as fin:
+            print( "File diff:\n  {}".format(fin.read()) )
+
         return_code = proc.returncode
 
     if return_code == 0:
