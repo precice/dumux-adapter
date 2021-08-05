@@ -1,0 +1,225 @@
+
+Silence - to delight Bernd.
+
+Reading parameters from file ./params-stokesdarcy.input.
+(0) 21:10:55 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
+(0) 21:10:55 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
+(0) 21:10:55 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./parallel-implicit/precice-config.xml"
+(0) 21:10:55 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+2  2
+(0) 21:10:55 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
+(0) 21:10:55 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
+(0) 21:10:55 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
+(0) 21:10:55 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
+(0) 21:10:55 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
+(0) 21:10:55 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
+(0) 21:10:55 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
+(0) 21:10:55 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-initial-data | write-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+velocities to be sent to ff
+0.0125 1 | v[0]=0
+0.0375 1 | v[1]=0
+0.0625 1 | v[2]=0
+0.0875 1 | v[3]=0
+0.1125 1 | v[4]=0
+0.1375 1 | v[5]=0
+0.1625 1 | v[6]=0
+0.1875 1 | v[7]=0
+0.2125 1 | v[8]=0
+0.2375 1 | v[9]=0
+0.2625 1 | v[10]=0
+0.2875 1 | v[11]=0
+0.3125 1 | v[12]=0
+0.3375 1 | v[13]=0
+0.3625 1 | v[14]=0
+0.3875 1 | v[15]=0
+0.4125 1 | v[16]=0
+0.4375 1 | v[17]=0
+0.4625 1 | v[18]=0
+0.4875 1 | v[19]=0
+0.5125 1 | v[20]=0
+0.5375 1 | v[21]=0
+0.5625 1 | v[22]=0
+0.5875 1 | v[23]=0
+0.6125 1 | v[24]=0
+0.6375 1 | v[25]=0
+0.6625 1 | v[26]=0
+0.6875 1 | v[27]=0
+0.7125 1 | v[28]=0
+0.7375 1 | v[29]=0
+0.7625 1 | v[30]=0
+0.7875 1 | v[31]=0
+0.8125 1 | v[32]=0
+0.8375 1 | v[33]=0
+0.8625 1 | v[34]=0
+0.8875 1 | v[35]=0
+0.9125 1 | v[36]=0
+0.9375 1 | v[37]=0
+0.9625 1 | v[38]=0
+0.9875 1 | v[39]=0
+
+Newton solver configured with the following options and parameters:
+ -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
+ -- Newton.MaxRelativeShift = 1e-08
+ -- Newton.MinSteps = 2
+ -- Newton.MaxSteps = 18
+ -- Newton.TargetSteps = 10
+ -- Newton.RetryTimeStepReductionFactor = 0.5
+ -- Newton.MaxTimeStepDivisions = 10
+
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 0.0000e+00
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 0.0000e+00
+Assemble/solve/update time: 0.01(55.41%)/0.0081(44.48%)/1.9e-05(0.10%)
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.036512, relative limit = 3.6512e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0, relative limit = 0, conv = true
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.036512, limit = 1e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0, limit = 1e-08, conv = true
+(0) 21:10:56 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8935e-13
+Assemble/solve/update time: 0.011(56.45%)/0.0081(43.44%)/2e-05(0.11%)
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.0328608, relative limit = 3.6512e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 6.19228e-06, relative limit = 6.19228e-12, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.0328608, limit = 1e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 6.19228e-06, limit = 1e-08, conv = false
+(0) 21:10:56 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.018 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-03
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 9.7971e-11
+Assemble/solve/update time: 0.013(61.78%)/0.0078(38.10%)/2.5e-05(0.12%)
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 1.1167e-08, relative limit = 3.6512e-08, conv = true
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 6.11677e-05, relative limit = 6.19228e-11, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 1.1167e-08, limit = 1e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 6.11677e-05, limit = 1e-08, conv = false
+(0) 21:10:56 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-03
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 8.3331e-11
+Assemble/solve/update time: 0.0096(56.65%)/0.0073(43.24%)/1.9e-05(0.11%)
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 9.04524e-07, relative limit = 3.65118e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 3.28535e-10, relative limit = 6.19227e-11, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 9.04524e-07, limit = 1e-08, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 3.28535e-10, limit = 1e-08, conv = true
+(0) 21:10:56 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5514e-03
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 5.5973e-11
+Assemble/solve/update time: 0.0095(56.93%)/0.0071(42.97%)/1.7e-05(0.10%)
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 3.44467e-11, relative limit = 3.65118e-08, conv = true
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.63501e-08, relative limit = 6.19158e-11, conv = false
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 3.44467e-11, limit = 1e-08, conv = true
+(0) 21:10:56 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.63501e-08, limit = 1e-08, conv = false
+(0) 21:10:56 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5514e-03
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 8.4950e-11
+Assemble/solve/update time: 0.0097(57.29%)/0.0072(42.61%)/1.7e-05(0.10%)
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.43354e-09, relative limit = 3.65118e-08, conv = true
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.1422e-11, relative limit = 6.19158e-11, conv = true
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.43354e-09, limit = 1e-08, conv = true
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.1422e-11, limit = 1e-08, conv = true
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:677 in measureConvergence: [0mAll converged
+(0) 21:10:57 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
+(0) 21:10:57 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
+Run finished at Thu Aug  5 21:10:57 2021
+Global runtime       = 1394ms / 1.394s
+Number of processors = 1
+# Rank: 0
+
+                                         Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
+------------------------------------------------------------------------------------------------------------------------------
+                                       _GLOBAL |          1 |       1394 |       1394 |       1394 |       1394 |          1 |
+                                       advance |          6 |       1126 |        226 |        174 |        187 |      0.808 |
+          advance/cpl.computeQuasiNewtonUpdate |          5 |          0 |          0 |          0 |          0 |          0 |
+                                     configure |          1 |          0 |          0 |          0 |          0 |          0 |
+                                      finalize |          1 |         30 |         30 |         30 |         30 |     0.0215 |
+                                    initialize |          1 |         17 |         17 |         17 |         17 |     0.0122 |
+         initialize/m2n.acceptMasterConnection |          1 |         16 |         16 |         16 |         16 |     0.0115 |
+         initialize/m2n.acceptSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
+   initialize/partition.feedbackMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
+     initialize/partition.gatherMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
+ initialize/partition.sendGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
+                                initializeData |          1 |          0 |          0 |          0 |          0 |          0 |
+                                solver.advance |          6 |        183 |         41 |         20 |         30 |      0.131 |
+                             solver.initialize |          1 |         36 |         36 |         36 |         36 |     0.0258 |
+
+
+                                          Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
+-----------------------------------------------------------------------------------------------------------------
+                                       _GLOBAL |       1394 |          0 |       1394 |          0 |          1 |
+                                       advance |        226 |          0 |        174 |          0 |   0.769912 |
+          advance/cpl.computeQuasiNewtonUpdate |          0 |          0 |          0 |          0 |          0 |
+                                     configure |          0 |          0 |          0 |          0 |          0 |
+                                      finalize |         30 |          0 |         30 |          0 |          1 |
+                                    initialize |         17 |          0 |         17 |          0 |          1 |
+         initialize/m2n.acceptMasterConnection |         16 |          0 |         16 |          0 |          1 |
+         initialize/m2n.acceptSlavesConnection |          0 |          0 |          0 |          0 |          0 |
+   initialize/partition.feedbackMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
+     initialize/partition.gatherMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
+ initialize/partition.sendGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
+                                initializeData |          0 |          0 |          0 |          0 |          0 |
+                                solver.advance |         41 |          0 |         20 |          0 |   0.487805 |
+                             solver.initialize |         36 |          0 |         36 |          0 |          1 |
+
+# Runtime-specified parameters used:
+[ Darcy ]
+[ Darcy.Grid ]
+Cells = "40 40"
+LowerLeft = "0 0"
+UpperRight = "1 1"
+[ Darcy.Problem ]
+InitialP = "0.0e-9"
+Name = "darcy-iterative"
+[ Darcy.SpatialParams ]
+AlphaBeaversJoseph = "1.0"
+Permeability = "1e-6"
+Porosity = "0.4"
+[ Problem ]
+EnableGravity = "false"
+Name = "fvca-iterative"
+[ Vtk ]
+AddVelocity = "1"
+
+# Global default parameters used:
+[ Assembly ]
+NumericDifferenceMethod = "1"
+[ Flux ]
+UpwindWeight = "1.0"
+[ Newton ]
+EnableAbsoluteResidualCriterion = "false"
+EnableChop = "false"
+EnablePartialReassembly = "false"
+EnableResidualCriterion = "false"
+EnableShiftCriterion = "true"
+MaxAbsoluteResidual = "1e-5"
+MaxRelativeShift = "1e-8"
+MaxSteps = "18"
+MinSteps = "2"
+ResidualReduction = "1e-5"
+SatisfyResidualAndShiftCriterion = "false"
+TargetSteps = "10"
+UseLineSearch = "false"
+[ Vtk ]
+AddProcessRank = "true"
+
+# Unused parameters:
+ = "./parallel-implicit/precice-config.xml"
+FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
+FreeFlow.Grid.Verbosity = "true"
+FreeFlow.Grid.LowerLeft = "0 1"
+FreeFlow.Grid.UpperRight = "1 2"
+FreeFlow.Grid.Cells = "40 40"
+FreeFlow.Grid.Grading1 = "1"
+FreeFlow.Problem.Name = "stokes-iterative"
+FreeFlow.Problem.EnableInertiaTerms = "false"
+FreeFlow.Problem.PressureDifference = "1e-2"
+Darcy.Grid.Verbosity = "true"
+Darcy.Grid.Grading1 = "1"
+Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
+
+
+
+
