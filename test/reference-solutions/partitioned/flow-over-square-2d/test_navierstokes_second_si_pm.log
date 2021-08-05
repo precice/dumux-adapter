@@ -1,21 +1,30 @@
 
-Chuck Norris has successfully compiled DuMuX.
+###         #   #        # #                            
+#  #  #  #  ## ##  #  #   #                             
+#  #  #  #  # # #  #  #  # #                            
+###    ##   #   #   ##                                  
+                                                        
+Dune for Multi-{ Phase,                                 
+                 Component,                             
+                 Scale,                                 
+                 Physics,                               
+                 ...} flow and transport in porous media
 
 Reading parameters from file ./params-navierstokesdarcy.input.
-(0) 21:11:00 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 21:11:00 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 21:11:00 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./serial-implicit-darcy-first/precice-config.xml"
-(0) 21:11:00 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+(0) 22:39:32 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
+(0) 22:39:32 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
+(0) 22:39:32 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-si-stokes-second.xml"
+(0) 22:39:32 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
 2  2
-(0) 21:11:00 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 21:11:00 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 21:11:00 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
-(0) 21:11:00 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
-(0) 21:11:00 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
-(0) 21:11:00 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 21:11:00 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 21:11:00 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.012 seconds.
+(0) 22:39:32 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
+(0) 22:39:32 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
+(0) 22:39:32 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
+(0) 22:39:32 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
+(0) 22:39:32 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
+(0) 22:39:32 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
+(0) 22:39:32 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
+(0) 22:39:32 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
 
 Newton solver configured with the following options and parameters:
  -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
@@ -28,73 +37,73 @@ Newton solver configured with the following options and parameters:
 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 0.0000e+00
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 0.0000e+00
-Assemble/solve/update time: 0.0095(55.35%)/0.0077(44.55%)/1.8e-05(0.10%)
-(0) 21:11:00 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
+Assemble/solve/update time: 0.0099(53.11%)/0.0087(46.76%)/2.4e-05(0.13%)
+(0) 22:39:32 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-06
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.4438e-16
-Assemble/solve/update time: 0.0089(55.86%)/0.007(44.04%)/1.6e-05(0.10%)
-(0) 21:11:00 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0097 seconds.
+Assemble/solve/update time: 0.0099(56.05%)/0.0077(43.85%)/1.8e-05(0.10%)
+(0) 22:39:33 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5635e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0932e-14
-Assemble/solve/update time: 0.0087(56.04%)/0.0068(43.85%)/1.6e-05(0.10%)
-(0) 21:11:01 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.017 seconds.
+Assemble/solve/update time: 0.0099(58.85%)/0.0069(41.05%)/1.6e-05(0.10%)
+(0) 22:39:33 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.014 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1012e-14
-Assemble/solve/update time: 0.014(58.93%)/0.0095(40.97%)/2.2e-05(0.09%)
-(0) 21:11:01 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.01 seconds.
+Assemble/solve/update time: 0.01(56.84%)/0.0078(43.06%)/1.8e-05(0.10%)
+(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.018 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.2715e-14
-Assemble/solve/update time: 0.009(56.38%)/0.0069(43.52%)/1.7e-05(0.11%)
-(0) 21:11:01 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
+Assemble/solve/update time: 0.012(59.88%)/0.0081(39.99%)/2.6e-05(0.13%)
+(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.5020e-14
-Assemble/solve/update time: 0.0087(55.95%)/0.0068(43.95%)/1.7e-05(0.11%)
-(0) 21:11:02 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 21:11:02 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
+Assemble/solve/update time: 0.0093(57.02%)/0.007(42.87%)/1.7e-05(0.10%)
+(0) 22:39:34 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
+(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
 Writing output for problem "darcy-iterative". Took 0.011 seconds.
-Writing output for problem "darcy-iterative". Took 0.0094 seconds.
-Run finished at Thu Aug  5 21:11:02 2021
-Global runtime       = 2332ms / 2.332s
+Writing output for problem "darcy-iterative". Took 0.0092 seconds.
+Run finished at Thu Aug  5 22:39:34 2021
+Global runtime       = 2387ms / 2.387s
 Number of processors = 1
 # Rank: 0
 
                                          Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
 ------------------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |          1 |       2332 |       2332 |       2332 |       2332 |          1 |
-                                       advance |          6 |       2119 |        403 |        268 |        353 |      0.909 |
+                                       _GLOBAL |          1 |       2387 |       2387 |       2387 |       2387 |          1 |
+                                       advance |          6 |       2151 |        401 |        281 |        358 |      0.901 |
                                      configure |          1 |          0 |          0 |          0 |          0 |          0 |
                                       finalize |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |          1 |          6 |          6 |          6 |          6 |    0.00257 |
-         initialize/m2n.acceptMasterConnection |          1 |          5 |          5 |          5 |          5 |    0.00214 |
+                                    initialize |          1 |         12 |         12 |         12 |         12 |    0.00503 |
+         initialize/m2n.acceptMasterConnection |          1 |         12 |         12 |         12 |         12 |    0.00503 |
          initialize/m2n.acceptSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
    initialize/partition.feedbackMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
      initialize/partition.gatherMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
  initialize/partition.sendGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |          0 |          0 |          0 |          0 |          0 |
-                                solver.advance |          6 |        172 |         42 |         19 |         28 |     0.0738 |
-                             solver.initialize |          1 |         33 |         33 |         33 |         33 |     0.0142 |
+                                initializeData |          1 |          1 |          1 |          1 |          1 |   0.000419 |
+                                solver.advance |          6 |        185 |         40 |         19 |         30 |     0.0775 |
+                             solver.initialize |          1 |         36 |         36 |         36 |         36 |     0.0151 |
 
 
                                           Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
 -----------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |       2332 |          0 |       2332 |          0 |          1 |
-                                       advance |        403 |          0 |        268 |          0 |   0.665012 |
+                                       _GLOBAL |       2387 |          0 |       2387 |          0 |          1 |
+                                       advance |        401 |          0 |        281 |          0 |   0.700748 |
                                      configure |          0 |          0 |          0 |          0 |          0 |
                                       finalize |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |          6 |          0 |          6 |          0 |          1 |
-         initialize/m2n.acceptMasterConnection |          5 |          0 |          5 |          0 |          1 |
+                                    initialize |         12 |          0 |         12 |          0 |          1 |
+         initialize/m2n.acceptMasterConnection |         12 |          0 |         12 |          0 |          1 |
          initialize/m2n.acceptSlavesConnection |          0 |          0 |          0 |          0 |          0 |
    initialize/partition.feedbackMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
      initialize/partition.gatherMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
  initialize/partition.sendGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          0 |          0 |          0 |          0 |          0 |
-                                solver.advance |         42 |          0 |         19 |          0 |   0.452381 |
-                             solver.initialize |         33 |          0 |         33 |          0 |          1 |
+                                initializeData |          1 |          0 |          1 |          0 |          1 |
+                                solver.advance |         40 |          0 |         19 |          0 |      0.475 |
+                             solver.initialize |         36 |          0 |         36 |          0 |          1 |
 
 # Runtime-specified parameters used:
 [ Darcy ]
@@ -138,7 +147,7 @@ UseLineSearch = "false"
 AddProcessRank = "true"
 
 # Unused parameters:
- = "./serial-implicit-darcy-first/precice-config.xml"
+ = "./precice-config-si-stokes-second.xml"
 FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
 FreeFlow.Grid.Verbosity = "true"
 FreeFlow.Grid.LowerLeft = "0 1"
@@ -152,5 +161,14 @@ Darcy.Grid.Verbosity = "true"
 Darcy.Grid.Grading1 = "1"
 Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
 
-Chuck Norris has compiled DuMuX even two times in a row!
+###         #   #        # #                            
+#  #  #  #  ## ##  #  #   #                             
+#  #  #  #  # # #  #  #  # #                            
+###    ##   #   #   ##                                  
+                                                        
+Dune for Multi-{ Phase,                                 
+                 Component,                             
+                 Scale,                                 
+                 Physics,                               
+                 ...} flow and transport in porous media
 
