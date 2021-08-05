@@ -18,7 +18,7 @@ Grading1 = 1
 [FreeFlow.Problem]
 Name = navierstokes-iterative
 EnableInertiaTerms = true
-PressureDifference = 1e-2
+PressureDifference = 1e-4
 
 
 [Darcy.Problem]
