@@ -68,18 +68,34 @@ function move_result_to_dir()
         exit 1
     fi
 
+    echo "Moving"
+    echo "  Case: ${case_label}"
+    echo "  Target directory: ${target_directory}"
+
+    if [[ "${case_label}" == *"navierstokes"* ]]; then
+        echo "Navier-Stokes case"
+            else
+        echo "Stokes case"
+    fi
+
     mv ${ff_solver}.log "${target_directory}/${case_label}_ff.log"
     mv ${pm_solver}.log "${target_directory}/${case_label}_pm.log"
 
     #ls darcy-iterative
     #find "darcy-iterative*.vtu" -type f -exec ls -al {} \; | sort -nr -k5 | head -n 1
-    stokes_final_vtu=$(find .  -maxdepth 1 -iname "stokes-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
-    mv ${stokes_final_vtu} "${target_directory}/${case_label}_stokes.vtu"
+    if [[ "${case_label}" == *"navierstokes"* ]]; then
+        navierstokes_final_vtu=$(find .  -maxdepth 1 -iname "navierstokes-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
+        #echo "Move ${navierstokes_final_vtu} to ${target_directory}/${case_label}_navierstokes.vtu"
+        mv ${navierstokes_final_vtu} "${target_directory}/${case_label}_navierstokes.vtu"
+    else
+        stokes_final_vtu=$(find .  -maxdepth 1 -iname "stokes-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
+        mv ${stokes_final_vtu} "${target_directory}/${case_label}_stokes.vtu"
+    fi
     darcy_final_vtu=$(find .  -maxdepth 1 -iname "darcy-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
     mv ${darcy_final_vtu} "${target_directory}/${case_label}_darcy.vtu"
 
 
-    if [[ *"navierstokes"* == ${case_label} ]]; then
+    if [[ "${case_label}" == *"navierstokes"* ]]; then
         mv precice-FreeFlow-iterations.log "${target_directory}/${case_label}_coupliter_navierstokes.log"
     else
         mv precice-FreeFlow-iterations.log "${target_directory}/${case_label}_coupliter_stokes.log"

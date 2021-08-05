@@ -1,22 +1,30 @@
 
-You idiot! You signed the order to destroy Earth!
- - Douglas Adams, HGttG
+                ##                  @@@@          @   @         @ @
+             ###   #                @   @         @@ @@          @ 
+           ##       #               @   @  @   @  @ @ @  @   @  @ @
+         ##          #              @   @  @   @  @   @  @   @     
+        #             #             @@@@    @@@   @   @   @@@      
+       #               #                                           
+      #                 #                                          
+     #                   ##        %%%                        3.3.0
+    #                      ###    %   %  %%     %%                 
+####                          #%%%     %%  %%%%%  %%%%%%%%%%%%%%%%%
 
 Reading parameters from file ./params-navierstokesdarcy.input.
-(0) 21:10:57 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 21:10:57 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 21:10:57 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./serial-implicit-stokes-first/precice-config.xml"
-(0) 21:10:57 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+(0) 22:39:30 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
+(0) 22:39:30 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
+(0) 22:39:30 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-si-stokes-first.xml"
+(0) 22:39:30 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
 2  2
-(0) 21:10:57 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 21:10:57 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 21:10:57 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
-(0) 21:10:57 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
-(0) 21:10:57 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
-(0) 21:10:57 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 21:10:57 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 21:10:57 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-initial-data | write-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.02 seconds.
+(0) 22:39:30 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
+(0) 22:39:30 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
+(0) 22:39:30 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
+(0) 22:39:30 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
+(0) 22:39:30 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
+(0) 22:39:30 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
+(0) 22:39:30 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
+(0) 22:39:30 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-initial-data | write-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
 velocities to be sent to ff
 0.0125 1 | v[0]=0
 0.0375 1 | v[1]=0
@@ -70,91 +78,91 @@ Newton solver configured with the following options and parameters:
 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1001e-14
-Assemble/solve/update time: 0.0091(54.78%)/0.0075(45.10%)/2e-05(0.12%)
-(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.00036512, relative limit = 3.6512e-10, conv = false
-(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 6.19228e-07, relative limit = 6.19228e-13, conv = false
-(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.00036512, limit = 1e-08, conv = false
-(0) 21:10:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 6.19228e-07, limit = 1e-08, conv = false
-(0) 21:10:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
+Assemble/solve/update time: 0.01(54.38%)/0.0087(45.51%)/2e-05(0.11%)
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.00036512, relative limit = 3.6512e-10, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 6.19228e-07, relative limit = 6.19228e-13, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.00036512, limit = 1e-08, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 6.19228e-07, limit = 1e-08, conv = false
+(0) 22:39:30 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5530e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0957e-14
-Assemble/solve/update time: 0.009(56.61%)/0.0069(43.29%)/1.6e-05(0.10%)
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 4.05424e-07, relative limit = 3.65428e-10, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 5.57226e-07, relative limit = 6.19149e-13, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 4.05424e-07, limit = 1e-08, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 5.57226e-07, limit = 1e-08, conv = false
-(0) 21:10:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
+Assemble/solve/update time: 0.0094(56.87%)/0.0071(43.02%)/1.7e-05(0.10%)
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 4.05424e-07, relative limit = 3.65428e-10, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 5.57226e-07, relative limit = 6.19149e-13, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 4.05424e-07, limit = 1e-08, conv = false
+(0) 22:39:30 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 5.57226e-07, limit = 1e-08, conv = false
+(0) 22:39:31 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1023e-14
-Assemble/solve/update time: 0.009(56.80%)/0.0069(43.10%)/1.6e-05(0.10%)
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 3.62678e-06, relative limit = 3.68178e-10, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.79461e-10, relative limit = 6.1851e-13, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 3.62678e-06, limit = 1e-08, conv = false
-(0) 21:10:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.79461e-10, limit = 1e-08, conv = true
-(0) 21:10:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
+Assemble/solve/update time: 0.0092(56.72%)/0.007(43.18%)/1.6e-05(0.10%)
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 3.62678e-06, relative limit = 3.68178e-10, conv = false
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.79461e-10, relative limit = 6.1851e-13, conv = false
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 3.62678e-06, limit = 1e-08, conv = false
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.79461e-10, limit = 1e-08, conv = true
+(0) 22:39:31 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 8.1572e-15
-Assemble/solve/update time: 0.0092(57.06%)/0.0069(42.84%)/1.7e-05(0.11%)
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 1.29594e-09, relative limit = 3.68177e-10, conv = false
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 8.748e-12, relative limit = 6.1851e-13, conv = false
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 1.29594e-09, limit = 1e-08, conv = true
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 8.748e-12, limit = 1e-08, conv = true
-(0) 21:10:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.0096 seconds.
+Assemble/solve/update time: 0.0094(57.08%)/0.0071(42.83%)/1.6e-05(0.10%)
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 1.29594e-09, relative limit = 3.68177e-10, conv = false
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 8.748e-12, relative limit = 6.1851e-13, conv = false
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 1.29594e-09, limit = 1e-08, conv = true
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 8.748e-12, limit = 1e-08, conv = true
+(0) 22:39:31 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Writing output for problem "darcy-iterative". Took 0.012 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1025e-14
-Assemble/solve/update time: 0.0092(56.64%)/0.007(43.26%)/1.7e-05(0.10%)
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.38376e-11, relative limit = 3.68177e-10, conv = true
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.5898e-13, relative limit = 6.1851e-13, conv = true
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.38376e-11, limit = 1e-08, conv = true
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.5898e-13, limit = 1e-08, conv = true
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:677 in measureConvergence: [0mAll converged
-(0) 21:10:59 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 21:10:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "darcy-iterative". Took 0.019 seconds.
-Writing output for problem "darcy-iterative". Took 0.0099 seconds.
-Run finished at Thu Aug  5 21:10:59 2021
-Global runtime       = 1881ms / 1.881s
+Assemble/solve/update time: 0.0095(56.22%)/0.0074(43.68%)/1.7e-05(0.10%)
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.38376e-11, relative limit = 3.68177e-10, conv = true
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.5898e-13, relative limit = 6.1851e-13, conv = true
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.38376e-11, limit = 1e-08, conv = true
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.5898e-13, limit = 1e-08, conv = true
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:677 in measureConvergence: [0mAll converged
+(0) 22:39:31 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
+(0) 22:39:31 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
+Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Writing output for problem "darcy-iterative". Took 0.01 seconds.
+Run finished at Thu Aug  5 22:39:32 2021
+Global runtime       = 1950ms / 1.95s
 Number of processors = 1
 # Rank: 0
 
                                          Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
 ------------------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |          1 |       1881 |       1881 |       1881 |       1881 |          1 |
-                                       advance |          5 |       1400 |        353 |          0 |        280 |      0.744 |
+                                       _GLOBAL |          1 |       1950 |       1950 |       1950 |       1950 |          1 |
+                                       advance |          5 |       1485 |        393 |          0 |        297 |      0.762 |
           advance/cpl.computeQuasiNewtonUpdate |          4 |          0 |          0 |          0 |          0 |          0 |
                                      configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      finalize |          1 |         29 |         29 |         29 |         29 |     0.0154 |
-                                    initialize |          1 |         14 |         14 |         14 |         14 |    0.00744 |
-         initialize/m2n.acceptMasterConnection |          1 |         13 |         13 |         13 |         13 |    0.00691 |
+                                      finalize |          1 |         29 |         29 |         29 |         29 |     0.0149 |
+                                    initialize |          1 |          6 |          6 |          6 |          6 |    0.00308 |
+         initialize/m2n.acceptMasterConnection |          1 |          5 |          5 |          5 |          5 |    0.00256 |
          initialize/m2n.acceptSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
    initialize/partition.feedbackMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
      initialize/partition.gatherMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
  initialize/partition.sendGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |        251 |        251 |        251 |        251 |      0.133 |
-                                solver.advance |          5 |        140 |         29 |         27 |         28 |     0.0744 |
-                             solver.initialize |          1 |         44 |         44 |         44 |         44 |     0.0234 |
+                                initializeData |          1 |        252 |        252 |        252 |        252 |      0.129 |
+                                solver.advance |          5 |        138 |         31 |         20 |         27 |     0.0708 |
+                             solver.initialize |          1 |         36 |         36 |         36 |         36 |     0.0185 |
 
 
                                           Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
 -----------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |       1881 |          0 |       1881 |          0 |          1 |
-                                       advance |        353 |          0 |          0 |          0 |          0 |
+                                       _GLOBAL |       1950 |          0 |       1950 |          0 |          1 |
+                                       advance |        393 |          0 |          0 |          0 |          0 |
           advance/cpl.computeQuasiNewtonUpdate |          0 |          0 |          0 |          0 |          0 |
                                      configure |          0 |          0 |          0 |          0 |          0 |
                                       finalize |         29 |          0 |         29 |          0 |          1 |
-                                    initialize |         14 |          0 |         14 |          0 |          1 |
-         initialize/m2n.acceptMasterConnection |         13 |          0 |         13 |          0 |          1 |
+                                    initialize |          6 |          0 |          6 |          0 |          1 |
+         initialize/m2n.acceptMasterConnection |          5 |          0 |          5 |          0 |          1 |
          initialize/m2n.acceptSlavesConnection |          0 |          0 |          0 |          0 |          0 |
    initialize/partition.feedbackMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
      initialize/partition.gatherMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
  initialize/partition.sendGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |        251 |          0 |        251 |          0 |          1 |
-                                solver.advance |         29 |          0 |         27 |          0 |   0.931034 |
-                             solver.initialize |         44 |          0 |         44 |          0 |          1 |
+                                initializeData |        252 |          0 |        252 |          0 |          1 |
+                                solver.advance |         31 |          0 |         20 |          0 |   0.645161 |
+                             solver.initialize |         36 |          0 |         36 |          0 |          1 |
 
 # Runtime-specified parameters used:
 [ Darcy ]
@@ -198,7 +206,7 @@ UseLineSearch = "false"
 AddProcessRank = "true"
 
 # Unused parameters:
- = "./serial-implicit-stokes-first/precice-config.xml"
+ = "./precice-config-si-stokes-first.xml"
 FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
 FreeFlow.Grid.Verbosity = "true"
 FreeFlow.Grid.LowerLeft = "0 1"
@@ -212,8 +220,14 @@ Darcy.Grid.Verbosity = "true"
 Darcy.Grid.Grading1 = "1"
 Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
 
-Marvin: I've been talking to the main computer.
-Arthur: And?
-Marvin: It hates me.
- - Douglas Adams, HGttG
+                ##                  @@@@          @   @         @ @
+             ###   #                @   @         @@ @@          @ 
+           ##       #               @   @  @   @  @ @ @  @   @  @ @
+         ##          #              @   @  @   @  @   @  @   @     
+        #             #             @@@@    @@@   @   @   @@@      
+       #               #                                           
+      #                 #                                          
+     #                   ##        %%%                        3.3.0
+    #                      ###    %   %  %%     %%                 
+####                          #%%%     %%  %%%%%  %%%%%%%%%%%%%%%%%
 
