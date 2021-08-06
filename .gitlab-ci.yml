@@ -110,7 +110,7 @@ build-monolithic-coupling:master-1.6.1:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
-    - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
@@ -145,7 +145,7 @@ test-iterative-coupling:3.3-1.6.1:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic/
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
@@ -219,7 +219,7 @@ build-monolithic-flow-over-step-2d:master-1.6.1:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
@@ -291,7 +291,7 @@ build-monolithic-ff-pm-3d:master-1.6.1:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
