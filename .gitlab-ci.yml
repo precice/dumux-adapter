@@ -43,8 +43,12 @@ build-iterative-coupling:3.3git-iterative-pr-1.6.1:
   image: dumux-precice:3.3git-iterative-pr-1.6.1
   <<: *build-iterative-coupling
 
+#build-iterative-coupling:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *build-iterative-coupling
+
 build-iterative-coupling:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *build-iterative-coupling
 
 build-iterative-coupling:master-1.6.1:
@@ -77,8 +81,12 @@ build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
   image: dumux-precice:3.3git-iterative-pr-1.6.1
   <<: *build-monolithic-coupling
 
+#build-monolithic-coupling:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *build-monolithic-coupling
+
 build-monolithic-coupling:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *build-monolithic-coupling
 
 build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
@@ -113,8 +121,14 @@ test-iterative-coupling:3.3git-iterative-pr-1.6.1:
   needs:
     - build-iterative-coupling:3.3git-iterative-pr-1.6.1
 
+#test-iterative-coupling:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *test-iterative-coupling
+#  needs:
+#    - build-iterative-coupling:3.3-1.6.1
+
 test-iterative-coupling:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *test-iterative-coupling
   needs:
     - build-iterative-coupling:3.3-1.6.1
@@ -139,8 +153,14 @@ test-monolithic-coupling:3.3git-iterative-pr-1.6.1:
   needs:
     - build-monolithic-coupling:3.3git-iterative-pr-1.6.1
 
+#test-monolithic-coupling:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *test-monolithic-coupling
+#  needs:
+#    - build-monolithic-coupling:3.3-1.6.1
+
 test-monolithic-coupling:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *test-monolithic-coupling
   needs:
     - build-monolithic-coupling:3.3-1.6.1
@@ -169,8 +189,12 @@ build-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1:
   image: dumux-precice:3.3git-iterative-pr-1.6.1
   <<: *build-monolithic-flow-over-step-2d
 
+#build-monolithic-flow-over-step-2d:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *build-monolithic-flow-over-step-2d
+
 build-monolithic-flow-over-step-2d:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *build-monolithic-flow-over-step-2d
 
 build-monolithic-flow-over-step-2d:master-1.6.1:
@@ -196,8 +220,14 @@ test-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1:
   needs:
     - build-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1
 
+#test-monolithic-flow-over-step-2d:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *test-monolithic-flow-over-step-2d
+#  needs:
+#    - build-monolithic-flow-over-step-2d:3.3-1.6.1
+
 test-monolithic-flow-over-step-2d:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *test-monolithic-flow-over-step-2d
   needs:
     - build-monolithic-flow-over-step-2d:3.3-1.6.1
@@ -226,8 +256,12 @@ build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
   image: dumux-precice:3.3git-iterative-pr-1.6.1
   <<: *build-monolithic-ff-pm-3d
 
+#build-monolithic-ff-pm-3d:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *build-monolithic-ff-pm-3d
+
 build-monolithic-ff-pm-3d:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *build-monolithic-ff-pm-3d
 
 build-monolithic-ff-pm-3d:master-1.6.1:
@@ -257,8 +291,15 @@ test-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
   needs:
     - build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1
 
+#test-monolithic-ff-pm-3d:3.3-1.6.1:
+#  image: dumux-precice:3.3-1.6.1
+#  <<: *test-monolithic-ff-pm-3d
+#  needs:
+#    - build-monolithic-ff-pm-3d:3.3-1.6.1
+
 test-monolithic-ff-pm-3d:3.3-1.6.1:
-  image: dumux-precice:3.3-1.6.1
+  image: ub2004-dumux-precice:3.3-1.6.1
   <<: *test-monolithic-ff-pm-3d
   needs:
     - build-monolithic-ff-pm-3d:3.3-1.6.1
+
