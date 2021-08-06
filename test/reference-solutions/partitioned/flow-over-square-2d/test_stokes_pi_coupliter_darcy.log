@@ -1,2 +1,2 @@
-TimeWindow  TotalIterations  Iterations  Convergence  avgConvRate(0)  avgConvRate(1)  avgConvRate(2)  avgConvRate(3)  deleted_Columns
-1  6  6  1  0.0636748220498356  0.0000000000000000  0.0636747569322701  inf  1
+TimeWindow  TotalIterations  Iterations  Convergence  QNColumns  DeletedQNColumns  DroppedQNColumns  
+1  6  6  1  4  1  0  
