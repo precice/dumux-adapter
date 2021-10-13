@@ -25,8 +25,8 @@
 #ifndef DUMUX_DARCY_SUBPROBLEM_HH
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
-#include <dune/grid/yaspgrid.hh>
 #include <dumux/common/numeqvector.hh>
+#include <dune/grid/yaspgrid.hh>
 
 #include <dumux/discretization/cctpfa.hh>
 
@@ -90,7 +90,8 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
-    using BoundaryTypes = Dumux::BoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;   
+    using BoundaryTypes = Dumux::BoundaryTypes<
+        GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
     using FVElementGeometry =
         typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;

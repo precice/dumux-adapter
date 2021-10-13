@@ -25,8 +25,8 @@
 #ifndef DUMUX_STOKES_SUBPROBLEM_HH
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
-#include <dune/grid/yaspgrid.hh>
 #include <dumux/common/numeqvector.hh>
+#include <dune/grid/yaspgrid.hh>
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
