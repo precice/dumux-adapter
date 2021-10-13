@@ -26,6 +26,7 @@
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
 #include <dune/grid/yaspgrid.hh>
+#include <dumux/common/numeqvector.hh>
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
@@ -108,7 +109,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+    using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
     using ModelTraits = GetPropType<TypeTag, Properties::ModelTraits>;
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
