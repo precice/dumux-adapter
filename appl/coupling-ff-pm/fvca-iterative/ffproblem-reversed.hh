@@ -106,7 +106,6 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using Indices =
         typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
-    //using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
     using BoundaryTypes = Dumux::NavierStokesBoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
 
     using FVElementGeometry = typename GridGeometry::LocalView;
