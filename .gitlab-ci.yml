@@ -39,22 +39,22 @@ check-style:
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
 
-build-iterative-coupling:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *build-iterative-coupling
+        #build-iterative-coupling:3.3git-iterative-pr-1.6.1:
+        #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+        #  rules:
+        #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+        #  <<: *build-iterative-coupling
 
 #build-iterative-coupling:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
 #  <<: *build-iterative-coupling
 
-build-iterative-coupling:3.3-1.6.1:
+build-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-iterative-coupling
 
-build-iterative-coupling:master-1.6.1:
-  image: dumux-precice:master-1.6.1
+build-iterative-coupling:master-2.2.1:
+  image: dumux-precice:master-2.2.1
   rules:
   - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-iterative-coupling
@@ -79,28 +79,28 @@ build-iterative-coupling:master-1.6.1:
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/CTestTestfile.cmake
 
-build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *build-monolithic-coupling
+        #build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
+        #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+        #  rules:
+        #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+        #  <<: *build-monolithic-coupling
 
 #build-monolithic-coupling:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
 #  <<: *build-monolithic-coupling
 
-build-monolithic-coupling:3.3-1.6.1:
+build-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-coupling
 
-build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *build-monolithic-coupling
+  #build-monolithic-coupling:3.3git-iterative-pr-1.6.1:
+  #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+  #  rules:
+  #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  #  <<: *build-monolithic-coupling
 
-build-monolithic-coupling:master-1.6.1:
-  image: dumux-precice:master-1.6.1
+build-monolithic-coupling:master-2.2.1:
+  image: dumux-precice:master-2.2.1
   rules:
   - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-coupling
@@ -121,13 +121,13 @@ build-monolithic-coupling:master-1.6.1:
 #  needs:
 #    - build-iterative-coupling
 
-test-iterative-coupling:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *test-iterative-coupling
-  needs:
-    - build-iterative-coupling:3.3git-iterative-pr-1.6.1
+        #test-iterative-coupling:3.3git-iterative-pr-1.6.1:
+        #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+        #  rules:
+        #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+        #  <<: *test-iterative-coupling
+        #  needs:
+        #    - build-iterative-coupling:3.3git-iterative-pr-1.6.1
 
 #test-iterative-coupling:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
@@ -135,11 +135,11 @@ test-iterative-coupling:3.3git-iterative-pr-1.6.1:
 #  needs:
 #    - build-iterative-coupling:3.3-1.6.1
 
-test-iterative-coupling:3.3-1.6.1:
+test-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-iterative-coupling
   needs:
-    - build-iterative-coupling:3.3-1.6.1
+    - build-iterative-coupling:3.3-2.2.1
 
 .test_template: &test-monolithic-coupling
   stage: test
@@ -155,13 +155,13 @@ test-iterative-coupling:3.3-1.6.1:
 #    - build-monolithic-coupling
 
 
-test-monolithic-coupling:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *test-monolithic-coupling
-  needs:
-    - build-monolithic-coupling:3.3git-iterative-pr-1.6.1
+        #test-monolithic-coupling:3.3git-iterative-pr-1.6.1:
+        #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+        #  rules:
+        #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+        #  <<: *test-monolithic-coupling
+        #  needs:
+        #    - build-monolithic-coupling:3.3git-iterative-pr-1.6.1
 
 #test-monolithic-coupling:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
@@ -169,11 +169,11 @@ test-monolithic-coupling:3.3git-iterative-pr-1.6.1:
 #  needs:
 #    - build-monolithic-coupling:3.3-1.6.1
 
-test-monolithic-coupling:3.3-1.6.1:
+test-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-monolithic-coupling
   needs:
-    - build-monolithic-coupling:3.3-1.6.1
+    - build-monolithic-coupling:3.3-2.2.1
 
 .build_template: &build-monolithic-flow-over-step-2d
   stage: build
@@ -195,11 +195,11 @@ test-monolithic-coupling:3.3-1.6.1:
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Makefile
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/CTestTestfile.cmake
 
-build-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *build-monolithic-flow-over-step-2d
+        #build-monolithic-flow-over-step-2d:3.3git-iterative-pr-1.6.1:
+        #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+        #  rules:
+        #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+        #  <<: *build-monolithic-flow-over-step-2d
 
 #build-monolithic-flow-over-step-2d:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
@@ -209,8 +209,8 @@ build-monolithic-flow-over-step-2d:3.3-1.6.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-flow-over-step-2d
 
-build-monolithic-flow-over-step-2d:master-1.6.1:
-  image: dumux-precice:master-1.6.1
+build-monolithic-flow-over-step-2d:master-2.2.1:
+  image: dumux-precice:master-2.2.1
   rules:
   - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-flow-over-step-2d
@@ -276,12 +276,12 @@ build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
 #  <<: *build-monolithic-ff-pm-3d
 
-build-monolithic-ff-pm-3d:3.3-1.6.1:
+build-monolithic-ff-pm-3d:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-ff-pm-3d
 
-build-monolithic-ff-pm-3d:master-1.6.1:
-  image: dumux-precice:master-1.6.1
+build-monolithic-ff-pm-3d:master-2.2.1:
+  image: dumux-precice:master-2.2.1
   rules:
   - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-monolithic-ff-pm-3d
@@ -301,13 +301,13 @@ build-monolithic-ff-pm-3d:master-1.6.1:
     - build:monolithic:ff-pm-3d
 
 
-test-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
-  image: dumux-precice:3.3git-iterative-pr-1.6.1
-  rules:
-  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  <<: *test-monolithic-ff-pm-3d
-  needs:
-    - build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1
+      #test-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
+      #  image: dumux-precice:3.3git-iterative-pr-1.6.1
+      #  rules:
+      #  - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+      #  <<: *test-monolithic-ff-pm-3d
+      #  needs:
+      #    - build-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1
 
 #test-monolithic-ff-pm-3d:3.3-1.6.1:
 #  image: dumux-precice:3.3-1.6.1
@@ -315,9 +315,9 @@ test-monolithic-ff-pm-3d:3.3git-iterative-pr-1.6.1:
 #  needs:
 #    - build-monolithic-ff-pm-3d:3.3-1.6.1
 
-test-monolithic-ff-pm-3d:3.3-1.6.1:
+test-monolithic-ff-pm-3d:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-monolithic-ff-pm-3d
   needs:
-    - build-monolithic-ff-pm-3d:3.3-1.6.1
+    - build-monolithic-ff-pm-3d:3.3-2.2.1
 
