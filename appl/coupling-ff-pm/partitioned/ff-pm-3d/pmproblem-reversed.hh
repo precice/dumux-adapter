@@ -29,7 +29,7 @@
 #endif
 
 #include <dune/grid/yaspgrid.hh>
-
+#include <dumux/common/numeqvector.hh>
 //****** uncomment for the last exercise *****//
 // #include <dumux/io/grid/subgridgridcreator.hh>
 
@@ -100,8 +100,8 @@ class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
         typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
-    using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
+    using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
+    using BoundaryTypes = Dumux::BoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
     using FVElementGeometry =
         typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;

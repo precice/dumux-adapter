@@ -28,6 +28,7 @@
 #endif
 
 #include <dune/grid/yaspgrid.hh>
+#include <dumux/common/numeqvector.hh> 
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
@@ -105,7 +106,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using Indices =
         typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
-    using BoundaryTypes = GetPropType<TypeTag, Properties::BoundaryTypes>;
+    using BoundaryTypes = Dumux::NavierStokesBoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
 
     using FVElementGeometry = typename GridGeometry::LocalView;
     using SubControlVolumeFace =
@@ -115,7 +116,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+    using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
 #if ENABLEMONOLITHIC
