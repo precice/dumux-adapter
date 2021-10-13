@@ -1,5 +1,5 @@
 #image: dumux-precice:3.3git-iterative-pr-2.2.0
-image: dumux-precice:3.3git-iterative-pr-2.2.0
+image: dumux-precice:3.3-2.2.1
 
 
 stages:
