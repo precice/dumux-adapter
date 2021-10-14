@@ -95,11 +95,10 @@ build-monolithic-coupling:master-2.2.1:
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
     - ls
-    - echo $PYTHONPATH
-    - python -c "from fuzzycomparevtu import compare_vtk"
     - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
+    when: on_failure
     paths:
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
