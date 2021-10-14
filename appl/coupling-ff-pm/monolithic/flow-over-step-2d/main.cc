@@ -154,7 +154,6 @@ int main(int argc, char **argv)
     sol[darcyIdx].resize(darcyFvGridGeometry->numDofs());
 
     auto stokesSol = partial(sol, stokesFaceIdx, stokesCellCenterIdx);
-    auto stokesSolOld = stokesSol;
 
     stokesProblem->applyInitialSolution(stokesSol);
     darcyProblem->applyInitialSolution(sol[darcyIdx]);

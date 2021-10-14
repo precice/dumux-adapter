@@ -41,7 +41,6 @@ bool printstuff = false;
 #include <dumux/common/math.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/properties.hh>
-#include <dumux/common/valgrind.hh>
 
 #include <dumux/linear/amgbackend.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
