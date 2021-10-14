@@ -97,13 +97,15 @@ build-monolithic-coupling:master-2.2.1:
     - ls
     - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
   artifacts:
-    expire_in: 5 days
+    expire_in: 2 days
     when: on_failure
     paths:
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.log
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.txt
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
+
 
 test-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
@@ -180,7 +182,8 @@ build-monolithic-flow-over-step-2d:master-2.2.1:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/
     - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
-    expire_in: 5 days
+    when: on_failure
+    expire_in: 2 days
     paths:
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTestsFailed.log
@@ -238,7 +241,8 @@ build-monolithic-ff-pm-3d:master-2.2.1:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
     - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
-    expire_in: 5 days
+    expire_in: 2 days
+    when: on_failure
     paths:
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTestsFailed.log
