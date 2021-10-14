@@ -95,7 +95,7 @@ build-monolithic-coupling:master-2.2.1:
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
     - ls
-    - CTEST_OUTPUT_ON_FAILURE=1 ctest
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
   artifacts:
     expire_in: 5 days
     when: on_failure
