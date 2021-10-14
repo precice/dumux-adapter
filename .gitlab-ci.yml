@@ -80,7 +80,7 @@ build-monolithic-coupling:3.3-2.2.1:
   <<: *build-monolithic-coupling
 
 build-monolithic-coupling:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ub2004-dumux-precice:3.4-2.2.1
   <<: *build-monolithic-coupling
 
 build-monolithic-coupling:master-2.2.1:
