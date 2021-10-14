@@ -25,7 +25,9 @@
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
 #include <dumux/common/boundarytypes.hh>
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
+#endif
 #include <dumux/common/properties.hh>
 #include <dumux/porousmediumflow/problem.hh>
 
@@ -42,7 +44,11 @@ class PorousMediumSubProblem : public PorousMediumFlowProblem<TypeTag>
         typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
+#else
+    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+#endif
     using BoundaryTypes = Dumux::BoundaryTypes<
         GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;

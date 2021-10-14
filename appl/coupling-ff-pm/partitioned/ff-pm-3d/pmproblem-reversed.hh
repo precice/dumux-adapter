@@ -28,8 +28,11 @@
 #define ENABLEMONOLITHIC 0
 #endif
 
-#include <dumux/common/numeqvector.hh>
 #include <dune/grid/yaspgrid.hh>
+
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
+#include <dumux/common/numeqvector.hh>
+#endif
 //****** uncomment for the last exercise *****//
 // #include <dumux/io/grid/subgridgridcreator.hh>
 
@@ -100,7 +103,11 @@ class DarcySubProblem : public PorousMediumFlowProblemWithGravity<TypeTag>
         typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
+#else
+    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+#endif
     using BoundaryTypes = Dumux::BoundaryTypes<
         GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;

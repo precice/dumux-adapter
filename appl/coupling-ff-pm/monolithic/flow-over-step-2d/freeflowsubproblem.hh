@@ -24,7 +24,9 @@
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
 #include <dumux/common/boundarytypes.hh>
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
+#endif
 #include <dumux/common/properties.hh>
 #include <dumux/common/timeloop.hh>
 
@@ -59,7 +61,11 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
+#else
+    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
+#endif
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
