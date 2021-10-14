@@ -27,13 +27,10 @@
 #define ENABLEMONOLITHIC 0
 #endif
 
-
 #include <dune/grid/yaspgrid.hh>
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
 #endif
-
-
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
