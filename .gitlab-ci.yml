@@ -46,7 +46,7 @@ build-iterative-coupling:3.3-2.2.1:
   <<: *build-iterative-coupling
 
 build-iterative-coupling:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ub2004-dumux-precice:3.4-2.2.1
   <<: *build-iterative-coupling
 
 build-iterative-coupling:master-2.2.1:
@@ -94,7 +94,6 @@ build-monolithic-coupling:master-2.2.1:
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
-    - ls
     - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
   artifacts:
     expire_in: 2 days
