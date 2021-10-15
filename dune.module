@@ -4,9 +4,9 @@
 
 #Name of the module
 Module: dumux-precice
-Version: 3.0
+Version: develop
 Maintainer: alexander.jaust@ipvs.uni-stuttgart.de
 # Required build dependencies
-Depends: dumux
+Depends: dumux (>=3.2)
 # Optional build dependencies
-#Suggests: dune-subgrid
+Suggests: dune-subgrid
