@@ -32,9 +32,9 @@ void PreciceAdapter::announceSolver(const std::string &name,
                                     const int size)
 {
     assert(precice_ == nullptr);
-    precice_ = std::make_unique<precice::SolverInterface>(name, rank, size);
+    precice_ = std::make_unique<precice::SolverInterface>(
+        name, configurationFileName, rank, size);
     wasCreated_ = true;
-    precice_->configure(configurationFileName);
 }
 
 size_t PreciceAdapter::announceQuantity(const std::string &name)
@@ -272,7 +272,7 @@ bool PreciceAdapter::checkIfActionIsRequired(const std::string &condition)
 void PreciceAdapter::actionIsFulfilled(const std::string &condition)
 {
     assert(wasCreated_);
-    precice_->fulfilledAction(condition);
+    precice_->markActionFulfilled(condition);
 }
 
 void PreciceAdapter::readBlockScalarDataFromPrecice(const int dataID,
@@ -303,7 +303,7 @@ bool PreciceAdapter::hasToWriteInitialData()
 void PreciceAdapter::announceInitialDataWritten()
 {
     assert(wasCreated_);
-    precice_->fulfilledAction(precice::constants::actionWriteInitialData());
+    precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
 }
 
 bool PreciceAdapter::hasToReadIterationCheckpoint()

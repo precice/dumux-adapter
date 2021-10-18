@@ -45,7 +45,7 @@
 #include <dumux/multidomain/newtonsolver.hh>
 #include <dumux/multidomain/staggeredtraits.hh>
 
-#include <dumux/multidomain/boundary/stokesdarcy/couplingmanager.hh>
+#include <dumux-precice/dumux-addon/multidomain/boundary/stokesdarcy/couplingmanager.hh>
 
 #include "properties.hh"
 
@@ -154,7 +154,6 @@ int main(int argc, char **argv)
     sol[darcyIdx].resize(darcyFvGridGeometry->numDofs());
 
     auto stokesSol = partial(sol, stokesFaceIdx, stokesCellCenterIdx);
-    auto stokesSolOld = stokesSol;
 
     stokesProblem->applyInitialSolution(stokesSol);
     darcyProblem->applyInitialSolution(sol[darcyIdx]);

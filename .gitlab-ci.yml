@@ -1,13 +1,14 @@
 #image: dumux-precice:3.3git-iterative-pr-2.2.0
-image: dumux-precice:3.3git-iterative-pr-1.6.1
-#image: dumux-precice:3.1-1.6.1
+#image: dumux-precice:3.3-2.2.1
+image: ub2004-style-check:clang-10
+
 
 stages:
     - check
     - build
     - test
 
-check-style:
+check-style-clang-10:
     stage: check
     script:
         - ./scripts/format/run-clang-format.sh
@@ -15,11 +16,12 @@ check-style:
         - if [ -s style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run ./scripts/format/run-clang-format.sh and commit again."; false; fi
     needs: []
     artifacts:
+        when: on_failure
         paths:
             - style-patch.diff
         expire_in: 7 day
 
-build:iterative-coupling:
+.build_template: &build-iterative-coupling
   stage: build
   script:
     - cd ..
@@ -39,28 +41,29 @@ build:iterative-coupling:
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
 
-test:iterative-coupling:
-  stage: test
-  script:
-    - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
-    - ctest
-  artifacts:
-    expire_in: 5 days
-    paths:
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
-  needs:
-    - build:iterative-coupling
+build-iterative-coupling:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *build-iterative-coupling
 
-build:monolithic-coupling:
+build-iterative-coupling:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *build-iterative-coupling
+
+build-iterative-coupling:master-2.2.1:
+  image: dumux-precice:master-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  <<: *build-iterative-coupling
+
+.build_template: &build-monolithic-coupling
   stage: build
   script:
     - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
-    #- dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic
     - make -j2 fvca-monolithic
   artifacts:
@@ -72,27 +75,97 @@ build:monolithic-coupling:
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Makefile
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/CTestTestfile.cmake
 
-test:monolithic-coupling:
+build-monolithic-coupling:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *build-monolithic-coupling
+
+build-monolithic-coupling:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *build-monolithic-coupling
+
+build-monolithic-coupling:master-2.2.1:
+  image: dumux-precice:master-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  <<: *build-monolithic-coupling
+
+
+.test_template: &test-iterative-coupling
+  stage: test
+  script:
+    - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
+  artifacts:
+    expire_in: 2 days
+    when: on_failure
+    paths:
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.log
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.txt
+      - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
+
+
+test-iterative-coupling:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *test-iterative-coupling
+  needs:
+    - build-iterative-coupling:3.3-2.2.1
+
+test-iterative-coupling:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *test-iterative-coupling
+  needs:
+    - build-iterative-coupling:3.4-2.2.1
+
+test-iterative-coupling:master-2.2.1:
+  image: ub2004-dumux-precice:master-2.2.1
+  <<: *test-iterative-coupling
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  needs:
+    - build-iterative-coupling:master-2.2.1
+
+.test_template: &test-monolithic-coupling
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic/
-    - ctest
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Testing/Temporary/LastTestsFailed.log
-  needs:
-    - build:monolithic-coupling
 
-build:monolithic:flow-over-step-2d:
+test-monolithic-coupling:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *test-monolithic-coupling
+  needs:
+    - build-monolithic-coupling:3.3-2.2.1
+
+test-monolithic-coupling:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *test-monolithic-coupling
+  needs:
+    - build-monolithic-coupling:3.4-2.2.1
+
+test-monolithic-coupling:master-2.2.1:
+  image: ub2004-dumux-precice:master-2.2.1
+  <<: *test-monolithic-coupling
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  needs:
+    - build-monolithic-coupling:master-2.2.1
+
+.build_template: &build-monolithic-flow-over-step-2d
   stage: build
   script:
     - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d
     - make -j2 flow-over-step-2d
   artifacts:
@@ -104,28 +177,61 @@ build:monolithic:flow-over-step-2d:
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Makefile
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/CTestTestfile.cmake
 
-test:monolithic:flow-over-step-2d:
+build-monolithic-flow-over-step-2d:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *build-monolithic-flow-over-step-2d
+
+build-monolithic-flow-over-step-2d:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *build-monolithic-flow-over-step-2d
+
+build-monolithic-flow-over-step-2d:master-2.2.1:
+  image: dumux-precice:master-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  <<: *build-monolithic-flow-over-step-2d
+
+.test_template: &test-monolithic-flow-over-step-2d
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/
-    - ctest
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
-    expire_in: 5 days
+    when: on_failure
+    expire_in: 2 days
     paths:
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTestsFailed.log
+
+test-monolithic-flow-over-step-2d:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *test-monolithic-flow-over-step-2d
   needs:
-    - build:monolithic:flow-over-step-2d
+    - build-monolithic-flow-over-step-2d:3.3-2.2.1
 
+test-monolithic-flow-over-step-2d:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *test-monolithic-flow-over-step-2d
+  needs:
+    - build-monolithic-flow-over-step-2d:3.4-2.2.1
 
-build:monolithic:ff-pm-3d:
+test-monolithic-flow-over-step-2d:master-2.2.1:
+  image: ub2004-dumux-precice:master-2.2.1
+  <<: *test-monolithic-flow-over-step-2d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  needs:
+    - build-monolithic-flow-over-step-2d:master-2.2.1
+
+.build_template: &build-monolithic-ff-pm-3d
   stage: build
   script:
     - cd ..
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    - dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
+    - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d
     - make -j2 ff-pm-3d
   artifacts:
@@ -137,15 +243,51 @@ build:monolithic:ff-pm-3d:
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Makefile
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/CTestTestfile.cmake
 
-test:monolithic:ff-pm-3d:
+build-monolithic-ff-pm-3d:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *build-monolithic-ff-pm-3d
+
+build-monolithic-ff-pm-3d:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *build-monolithic-ff-pm-3d
+
+build-monolithic-ff-pm-3d:master-2.2.1:
+  image: dumux-precice:master-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  <<: *build-monolithic-ff-pm-3d
+
+
+.test_template: &test-monolithic-ff-pm-3d
   stage: test
   script:
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
-    - ctest
+    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
-    expire_in: 5 days
+    expire_in: 2 days
+    when: on_failure
     paths:
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTest.log
       - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTestsFailed.log
   needs:
     - build:monolithic:ff-pm-3d
+
+test-monolithic-ff-pm-3d:3.3-2.2.1:
+  image: ub2004-dumux-precice:3.3-2.2.1
+  <<: *test-monolithic-ff-pm-3d
+  needs:
+    - build-monolithic-ff-pm-3d:3.3-2.2.1
+
+test-monolithic-ff-pm-3d:3.4-2.2.1:
+  image: ub2004-dumux-precice:3.4-2.2.1
+  <<: *test-monolithic-ff-pm-3d
+  needs:
+    - build-monolithic-ff-pm-3d:3.4-2.2.1
+
+test-monolithic-ff-pm-3d:master-2.2.1:
+  image: ub2004-dumux-precice:master-2.2.1
+  <<: *test-monolithic-ff-pm-3d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+  needs:
+    - build-monolithic-ff-pm-3d:master-2.2.1

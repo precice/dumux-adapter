@@ -30,11 +30,11 @@ dune_add_test(NAME test_flow-over-step-2d
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/runtest.py
               CMD_ARGS --script fuzzy
-                      --files ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/monolithic/flow-over-step-2d/ref-sol-stokes-flow-over-step-2d.vtu
+                      --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/monolithic/flow-over-step-2d/ref-sol-stokes-flow-over-step-2d.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/flow-over-step-2d_stokes-00001.vtu
-                      ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/monolithic/flow-over-step-2d/ref-sol-darcy-flow-over-step-2d.vtu
+                      ${CMAKE_SOURCE_DIR}/test/reference-solutions/monolithic/flow-over-step-2d/ref-sol-darcy-flow-over-step-2d.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/flow-over-step-2d_darcy-00001.vtu
-              --command "${CMAKE_CURRENT_BINARY_DIR}/flow-over-step-2d ${CMAKE_SOURCE_DIR}/test/coupling-ff-pm/monolithic/flow-over-step-2d/ref-flow-over-step-2d.input"
+              --command "${CMAKE_CURRENT_BINARY_DIR}/flow-over-step-2d ${CMAKE_SOURCE_DIR}/test/reference-solutions/monolithic/flow-over-step-2d/ref-flow-over-step-2d.input"
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-6,"p":1e-8}
 )

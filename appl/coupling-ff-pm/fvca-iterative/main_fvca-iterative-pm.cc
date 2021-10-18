@@ -41,7 +41,6 @@ bool printstuff = false;
 #include <dumux/common/math.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/properties.hh>
-#include <dumux/common/valgrind.hh>
 
 #include <dumux/linear/amgbackend.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
@@ -322,16 +321,16 @@ try {
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
                                               *darcyGridVariables, sol);
         // For testing
-        {
-            const auto v = couplingInterface.getQuantityVector(velocityId);
-            std::cout << "velocities to be sent to ff" << std::endl;
-            for (size_t i = 0; i < v.size(); ++i) {
-                for (size_t d = 0; d < dim; ++d) {
-                    std::cout << coords[i * dim + d] << " ";
-                }
-                std::cout << "| v[" << i << "]=" << v[i] << std::endl;
-            }
-        }
+        //        {
+        //            const auto v = couplingInterface.getQuantityVector(velocityId);
+        //            std::cout << "velocities to be sent to ff" << std::endl;
+        //            for (size_t i = 0; i < v.size(); ++i) {
+        //                for (size_t d = 0; d < dim; ++d) {
+        //                    std::cout << coords[i * dim + d] << " ";
+        //                }
+        //                std::cout << "| v[" << i << "]=" << v[i] << std::endl;
+        //            }
+        //        }
         couplingInterface.writeScalarQuantityToOtherSolver(velocityId);
         couplingInterface.announceInitialDataWritten();
     }
