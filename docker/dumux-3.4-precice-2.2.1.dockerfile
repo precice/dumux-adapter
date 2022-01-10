@@ -33,9 +33,9 @@ ENV DUNE_CONTROL_PATH=/home/dumux/dune-common/dune.module:/home/dumux/dune-geome
 ENV PYTHONPATH /home/dumux/dumux/bin/testing:${PYTHONPATH}
 
 #Install preCICE
-RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice2_${PRECICEVERSION}_focal.deb -O libprecice${PRECICEVERSION}-focal.deb \
-	&& apt install -y ./libprecice${PRECICEVERSION}-focal.deb \
-	&& rm -f ./libprecice${PRECICEVERSION}-focal.deb
+RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice2_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
+	&& apt install -y ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
+	&& rm -f ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb
 
 # Cleanup
 RUN apt-get clean
