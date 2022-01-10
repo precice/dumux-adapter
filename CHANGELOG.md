@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-01-10: Add license file. The code is licensed under GPLv3 without template exception.
 - 2022-01-10: Tests run by the CI on DuMuX `master` are allowed to fail.
 - 2022-01-10: Added `CHANGELOG.md` to track changes of the adapter.
 
