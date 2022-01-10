@@ -1,26 +1,20 @@
 Licensing Information
 =====================
 
-Copyright holders
------------------
-
-| Year       | Name                       |
-|------------|----------------------------|
-| 2019-2021  | Alexander Jaust            |
-| 2019-2021  | Kilian Weishaupt           |
-
 License
 -------
 
-DuMu<sup>x</sup>-preCICE is licensed under the terms and conditions of the GNU General
-Public License (GPL) version 3 or - at your option - any later
-version. The GPL can be read [online][0], or below.
+DuMu<sup>x</sup>-preCICE is licensed under the terms and conditions
+of the GNU General Public License (GPL) version 3 or - at your
+option - any later version. The GPL can be read [online][0], or below.
 
+DuMu<sup>x</sup>-preCICE uses the same license as DuMu<sup>x</sup>.
 DuMu<sup>x</sup>-preCICE' license, unlike DUNE's, does NOT feature a
 template exception to the GNU General Public License. This means that
-you must publish any source code which uses any of the DuMu<sup>x</sup>-preCICE header
-files if you want to redistribute your program to third parties. If
-this is unacceptable to you, please contact us for a commercial license.
+you must publish any source code which uses any of the
+DuMu<sup>x</sup>-preCICE header files if you want to redistribute your
+program to  third parties. If this is unacceptable to you, please
+contact us for a commercial license.
 
 [0]: https://www.gnu.org/licenses/gpl-3.0.en.html
 
