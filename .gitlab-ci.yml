@@ -34,10 +34,10 @@ check-style-clang-10:
   artifacts:
     expire_in: 3 days
     paths:
-      - /build-cmake/CMakeFiles/CMakeError.log
-      - /build-cmake/CMakeFiles/CMakeOutput.log
+      - build-cmake/CMakeFiles/CMakeError.log
+      - build-cmake/CMakeFiles/CMakeOutput.log
       - build-cmake/test/partitioned/flow-over-square-2d/test_ff_flow_over_square_2d
-      - build-cmake/test/partitioned/flow-over-square-2d/test_ff_flow_over_square_2d
+      - build-cmake/test/partitioned/flow-over-square-2d/test_pm_flow_over_square_2d
       - build-cmake/test/partitioned/flow-over-square-2d/CMakeFiles/CMakeError.log
       - build-cmake/test/partitioned/flow-over-square-2d/CMakeFiles/CMakeOutput.log
       - build-cmake/test/partitioned/flow-over-square-2d/Makefile
@@ -72,9 +72,10 @@ build-iterative-coupling:master-2.2.1:
   artifacts:
     expire_in: 3 days
     paths:
-      - /build-cmake/CMakeFiles/CMakeError.log
-      - /build-cmake/CMakeFiles/CMakeOutput.log
+      - build-cmake/CMakeFiles/CMakeError.log
+      - build-cmake/CMakeFiles/CMakeOutput.log
       - build-cmake/test/monolithic/flow-over-square-2d/test_ff_pm_flow_over_square_2d
+      - build-cmake/test/monolithic/flow-over-square-2d/params.input
       - build-cmake/test/monolithic/flow-over-square-2d/CMakeError.log
       - build-cmake/test/monolithic/flow-over-square-2d/CMakeOutput.log
       - build-cmake/test/monolithic/flow-over-square-2d/Makefile
@@ -99,17 +100,17 @@ build-monolithic-coupling:master-2.2.1:
 .test_template: &test-iterative-coupling
   stage: test
   script:
-    - cd build-cmake/test/iterative/flow-over-square-2d
+    - cd build-cmake/test/partitioned/flow-over-square-2d
     - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
   artifacts:
     expire_in: 2 days
     when: on_failure
     paths:
-      - build-cmake/test/iterative/flow-over-square-2d/Testing/Temporary/LastTest.log
-      - build-cmake/test/iterative/flow-over-square-2d/Testing/Temporary/LastTestsFailed.log
-      - build-cmake/test/iterative/flow-over-square-2d/*.log
-      - build-cmake/test/iterative/flow-over-square-2d/*.txt
-      - build-cmake/test/iterative/flow-over-square-2d/CTestTestfile.cmake
+      - build-cmake/test/partitioned/flow-over-square-2d/Testing/Temporary/LastTest.log
+      - build-cmake/test/partitioned/flow-over-square-2d/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/test/partitioned/flow-over-square-2d/*.log
+      - build-cmake/test/partitioned/flow-over-square-2d/*.txt
+      - build-cmake/test/partitioned/flow-over-square-2d/CTestTestfile.cmake
 
 
 test-iterative-coupling:3.3-2.2.1:
