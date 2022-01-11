@@ -29,17 +29,17 @@ check-style-clang-10:
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts all
-    - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
-    - make -j2 fvca-iterative-ff fvca-iterative-pm
+    - cd build-cmake/test/partitioned/flow-over-step-2d
+    - make -j2 test_ff_flow_over_square_2d test_pm_flow_over_square_2d
   artifacts:
     expire_in: 3 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/fvca-iterative-ff
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/fvca-iterative-pm
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Makefile
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
+      - build-cmake/test/partitioned/flow-over-step-2d/test_ff_flow_over_square_2d
+      - build-cmake/test/partitioned/flow-over-step-2d/test_ff_flow_over_square_2d
+      - build-cmake/test/partitioned/flow-over-step-2d/CMakeFiles/CMakeError.log
+      - build-cmake/test/partitioned/flow-over-step-2d/CMakeFiles/CMakeOutput.log
+      - build-cmake/test/partitioned/flow-over-step-2d/Makefile
+      - build-cmake/test/partitioned/flow-over-step-2d/CTestTestfile.cmake
 
 build-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
@@ -65,16 +65,16 @@ build-iterative-coupling:master-2.2.1:
     - echo $DUNE_CONTROL_PATH
     #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
-    - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic
-    - make -j2 fvca-monolithic
+    - cd build-cmake/test/monolithic/flow-over-step-2d
+    - make -j2 test_ff_pm_flow_over_square_2d
   artifacts:
     expire_in: 3 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/fvca-monolithic/fvca-monolithic
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Makefile
-      - build-cmake/appl/coupling-ff-pm/fvca-monolithic/CTestTestfile.cmake
+      - build-cmake/test/monolithic/flow-over-step-2d/test_ff_pm_flow_over_square_2d
+      - build-cmake/test/monolithic/flow-over-step-2d/CMakeError.log
+      - build-cmake/test/monolithic/flow-over-step-2d/CMakeOutput.log
+      - build-cmake/test/monolithic/flow-over-step-2d/Makefile
+      - build-cmake/test/monolithic/flow-over-step-2d/CTestTestfile.cmake
 
 build-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
@@ -95,17 +95,17 @@ build-monolithic-coupling:master-2.2.1:
 .test_template: &test-iterative-coupling
   stage: test
   script:
-    - cd build-cmake/appl/coupling-ff-pm/fvca-iterative/
+    - cd build-cmake/test/iterative/flow-over-step-2d
     - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose
   artifacts:
     expire_in: 2 days
     when: on_failure
     paths:
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/Testing/Temporary/LastTestsFailed.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.log
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/*.txt
-      - build-cmake/appl/coupling-ff-pm/fvca-iterative/CTestTestfile.cmake
+      - build-cmake/test/iterative/flow-over-step-2d/Testing/Temporary/LastTest.log
+      - build-cmake/test/iterative/flow-over-step-2d/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/test/iterative/flow-over-step-2d/*.log
+      - build-cmake/test/iterative/flow-over-step-2d/*.txt
+      - build-cmake/test/iterative/flow-over-step-2d/CTestTestfile.cmake
 
 
 test-iterative-coupling:3.3-2.2.1:
@@ -132,13 +132,13 @@ test-iterative-coupling:master-2.2.1:
 .test_template: &test-monolithic-coupling
   stage: test
   script:
-    - cd build-cmake/appl/coupling-ff-pm/fvca-monolithic/
+    - cd build-cmake/test/monolithic/flow-over-step-2d
     - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 5 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Testing/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/fvca-monolithic/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/test/monolithic/flow-over-step-2d/Testing/Temporary/LastTest.log
+      - build-cmake/test/monolithic/flow-over-step-2d/Testing/Temporary/LastTestsFailed.log
 
 test-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
