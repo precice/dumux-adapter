@@ -15,7 +15,7 @@ ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 # Install dependencies from
 RUN apt-get update
 RUN apt-get install -y apt-utils vim htop git
-RUN apt-get install -y libopenblas-dev libmetis-dev openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libparmetis-dev libeigen3-dev libxml2-dev libboost-all-dev pkg-config
+RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config
 
 # Obtain DuMuX and Dune repositories
 COPY checkout_repositories.sh .
@@ -45,7 +45,7 @@ RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
 ARG USER_NAME=dumux
 ARG USER_HOME=/home/dumux
 ARG USER_ID=1000
-ARG GROUP_ID=1001
+ARG GROUP_ID=1000
 
 RUN groupadd -g $GROUP_ID "$USER_NAME"
 RUN adduser \
