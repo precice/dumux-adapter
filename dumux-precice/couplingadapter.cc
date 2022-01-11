@@ -4,7 +4,7 @@
 #include <cassert>
 #include <exception>
 
-using namespace dumuxprecice;
+using namespace Dumux::Precice;
 
 CouplingAdapter::CouplingAdapter()
     : wasCreated_(false),

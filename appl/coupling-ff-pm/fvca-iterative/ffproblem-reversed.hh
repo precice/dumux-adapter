@@ -39,7 +39,7 @@
 #include <dumux/freeflow/navierstokes/model.hh>
 #include <dumux/freeflow/navierstokes/problem.hh>
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include <dumux-precice/couplingadapter.hh>
 
 namespace Dumux
 {
@@ -143,7 +143,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
         : ParentType(gridGeometry, "FreeFlow"),
           eps_(1e-6),
-          couplingInterface_(precice_adapter::PreciceAdapter::getInstance()),
+          couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
           pressureId_(0),
           velocityId_(0),
           dataIdsWereSet_(false)
@@ -438,7 +438,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-    precice_adapter::PreciceAdapter &couplingInterface_;
+    Dumux::Precice::CouplingAdapter &couplingInterface_;
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;

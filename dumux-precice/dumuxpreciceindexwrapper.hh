@@ -7,16 +7,15 @@
 #include <ostream>
 #include <vector>
 
+namespace Dumux::Precice::Internal
+{
+
 template<typename T>
 class DumuxPreciceIndexMapper
 {
    private:
-    // Use a boost bimap?
     std::map<T, T> dumuxFaceIndexToPreciceIndex_;
     std::map<T, T> preciceVertexToDumuxFaceIndex_;
-    // AJ: I think we should not rely on the fact that the preCICE vertexIDs start at 0.
-    // It might happen that we have more than one interface?! We should check the performance.
-    //std::vector<T> preciceVertexToDumuxFaceIndex_;
     bool mappingWasCreated_;
     size_t size_;
 
@@ -88,5 +87,6 @@ std::ostream &operator<<(std::ostream &os,
 
     return os;
 }
+} // namespace Dumux::Precice::Internal
 
 #endif  // DUMUXPRECICEINDEXWRAPPER_H

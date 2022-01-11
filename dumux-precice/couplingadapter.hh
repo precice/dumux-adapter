@@ -7,7 +7,7 @@
 
 #include "dumuxpreciceindexwrapper.hh"
 
-namespace dumuxprecice
+namespace Dumux::Precice
 {
 class CouplingAdapter
 {
@@ -40,7 +40,7 @@ class CouplingAdapter
 
     std::vector<int> vertexIDs_;  //should be size_t
 
-    DumuxPreciceIndexMapper<int> indexMapper_;
+    Internal::DumuxPreciceIndexMapper<int> indexMapper_;
 
     size_t getNumberOfQuantities() const { return dataNames_.size(); }
 
@@ -125,5 +125,5 @@ class CouplingAdapter
     void print(std::ostream &os);
 };
 
-}  // namespace dumuxprecice
+}  // namespace dumux::precice
 #endif

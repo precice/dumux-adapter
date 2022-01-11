@@ -47,8 +47,6 @@
 
 #include "ffproblem-reversed.hh"
 
-//#include "../../../precice-adapter/include/preciceadapter.hh"
-
 //TODO
 // Helper function to put pressure on interface
 
@@ -99,7 +97,7 @@ void setInterfacePressures(const Problem &problem,
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto pressureId = couplingInterface.getIdFromName("Pressure");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -131,7 +129,7 @@ void setInterfaceVelocities(const Problem &problem,
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto velocityId = couplingInterface.getIdFromName("Velocity");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -164,7 +162,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
     const auto &couplingInterface =
-        precice_adapter::PreciceAdapter::getInstance();
+        Dumux::Precice::CouplingAdapter::getInstance();
 
     std::ofstream ofs(filename + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
@@ -223,7 +221,7 @@ void writePressuresOnInterfaceToFile(const std::string &filename,
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
     const auto &couplingInterface =
-        precice_adapter::PreciceAdapter::getInstance();
+        Dumux::Precice::CouplingAdapter::getInstance();
 
     std::ofstream ofs(filename + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
@@ -311,7 +309,7 @@ try {
     if (argc > 2)
         preciceConfigFilename = argv[argc - 1];
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     couplingInterface.announceSolver("FreeFlow", preciceConfigFilename,
                                      mpiHelper.rank(), mpiHelper.size());
 

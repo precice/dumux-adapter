@@ -55,7 +55,7 @@ bool printstuff = false;
 
 #include "pmproblem-reversed.hh"
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include "dumux-precice/couplingadapter.hh"
 
 /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
@@ -114,7 +114,7 @@ void setInterfacePressures(const Problem &problem,
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto pressureId = couplingInterface.getIdFromName("Pressure");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -177,7 +177,7 @@ void setInterfaceVelocities(const Problem &problem,
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto velocityId = couplingInterface.getIdFromName("Velocity");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -246,7 +246,7 @@ try {
     if (argc > 2)
         preciceConfigFilename = argv[argc - 1];
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     couplingInterface.announceSolver("Darcy", preciceConfigFilename,
                                      mpiHelper.rank(), mpiHelper.size());
 

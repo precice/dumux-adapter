@@ -47,7 +47,7 @@
 
 #include "ffproblem-reversed.hh"
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include "dumux-precice/couplingadapter.hh"
 
 //TODO
 // Helper function to put pressure on interface
@@ -99,7 +99,7 @@ void setInterfacePressures(const Problem &problem,
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto pressureId = couplingInterface.getIdFromName("Pressure");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -131,7 +131,7 @@ void setInterfaceVelocities(const Problem &problem,
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFaceVars = localView(gridVars.curGridFaceVars());
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     const auto velocityId = couplingInterface.getIdFromName("Velocity");
 
     for (const auto &element : elements(gridGeometry.gridView())) {
@@ -207,7 +207,7 @@ try {
     if (argc > 2)
         preciceConfigFilename = argv[argc - 1];
 
-    auto &couplingInterface = precice_adapter::PreciceAdapter::getInstance();
+    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     couplingInterface.announceSolver("FreeFlow", preciceConfigFilename,
                                      mpiHelper.rank(), mpiHelper.size());
 

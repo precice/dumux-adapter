@@ -1,22 +1,12 @@
-# executables for the iterative case
-set(LIBRARY_DIRS "")
-if(DEFINED ENV{LD_LIBRARY_PATH})
-    message(STATUS "LD_LIBRARY_PATH is set. Use it for hinting")
-    string(REPLACE ":" ";" LIBRARY_DIRS $ENV{LD_LIBRARY_PATH} )
-endif()
-#message(STATUS "LIBRARY_DIRS: ${LIBRARY_DIRS}")
-find_library(PRECICE_LIB NAMES precice HINTS ${LIBRARY_DIRS})
-#find_package(Boost 1.65.1 REQUIRED COMPONENTS log system) #Require same version as preCICE
-
-
-add_executable(fvca-iterative-ff EXCLUDE_FROM_ALL main_fvca-iterative-ff.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
-add_executable(fvca-iterative-pm EXCLUDE_FROM_ALL main_fvca-iterative-pm.cc ../../precice-adapter/src/preciceadapter.cc ../../precice-adapter/src/dumuxpreciceindexwrapper.cc)
+add_executable(fvca-iterative-ff EXCLUDE_FROM_ALL main_fvca-iterative-ff.cc)
+add_executable(fvca-iterative-pm EXCLUDE_FROM_ALL main_fvca-iterative-pm.cc)
 
 target_compile_definitions(fvca-iterative-ff PUBLIC "ENABLEMONOLITHIC=0")
 target_compile_definitions(fvca-iterative-pm PUBLIC "ENABLEMONOLITHIC=0")
 
-target_link_libraries(fvca-iterative-ff PRIVATE ${PRECICE_LIB})
-target_link_libraries(fvca-iterative-pm PRIVATE ${PRECICE_LIB})
+target_link_libraries(fvca-iterative-ff PRIVATE dumux-precice)
+target_link_libraries(fvca-iterative-pm PRIVATE dumux-precice)
+
 add_input_file_links()
 
 macro(add_precice_file_links)

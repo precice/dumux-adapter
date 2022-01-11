@@ -43,7 +43,7 @@
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
-#include "../../precice-adapter/include/preciceadapter.hh"
+#include "dumux-precice/couplingadapter.hh"
 
 namespace Dumux
 {
@@ -137,7 +137,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry)
         : ParentType(fvGridGeometry, "Darcy"),
           eps_(1e-7),
-          couplingInterface_(precice_adapter::PreciceAdapter::getInstance()),
+          couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
           pressureId_(0),
           velocityId_(0),
           dataIdsWereSet_(false)
@@ -329,7 +329,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 #if ENABLEMONOLITHIC
     std::shared_ptr<CouplingManager> couplingManager_;
 #else
-    precice_adapter::PreciceAdapter &couplingInterface_;
+    Dumux::Precice::CouplingAdapter &couplingInterface_;
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;
