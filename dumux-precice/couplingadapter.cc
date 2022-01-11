@@ -1,12 +1,12 @@
-#include "../include/preciceadapter.hh"
+#include "couplingadapter.hh"
 
 #include <algorithm>
 #include <cassert>
 #include <exception>
 
-using namespace precice_adapter;
+using namespace dumuxprecice;
 
-PreciceAdapter::PreciceAdapter()
+CouplingAdapter::CouplingAdapter()
     : wasCreated_(false),
       precice_(nullptr),
       meshWasCreated_(false),
@@ -20,13 +20,13 @@ PreciceAdapter::PreciceAdapter()
     dataVectors_.reserve(reserveSize_);
 }
 
-PreciceAdapter &PreciceAdapter::getInstance()
+CouplingAdapter &CouplingAdapter::getInstance()
 {
-    static PreciceAdapter instance;
+    static CouplingAdapter instance;
     return instance;
 }
 
-void PreciceAdapter::announceSolver(const std::string &name,
+void CouplingAdapter::announceSolver(const std::string &name,
                                     const std::string configurationFileName,
                                     const int rank,
                                     const int size)
@@ -37,7 +37,7 @@ void PreciceAdapter::announceSolver(const std::string &name,
     wasCreated_ = true;
 }
 
-size_t PreciceAdapter::announceQuantity(const std::string &name)
+size_t CouplingAdapter::announceQuantity(const std::string &name)
 {
     assert(meshWasCreated_);
     auto it = std::find(dataNames_.begin(), dataNames_.end(), name);
@@ -51,20 +51,20 @@ size_t PreciceAdapter::announceQuantity(const std::string &name)
     return getNumberOfQuantities() - 1;
 }
 
-int PreciceAdapter::getDimensions() const
+int CouplingAdapter::getDimensions() const
 {
     assert(wasCreated_);
     return precice_->getDimensions();
 }
 /*
-void PreciceAdapter::setMeshName(const std::string& meshName)
+void CouplingAdapter::setMeshName(const std::string& meshName)
 {
   assert( wasCreated_ );
   meshID_ = precice_->getMeshID(meshName);
 }
 */
 
-void PreciceAdapter::setMesh(const std::string &meshName,
+void CouplingAdapter::setMesh(const std::string &meshName,
                              const size_t numPoints,
                              std::vector<double> &coordinates)
 {
@@ -77,7 +77,7 @@ void PreciceAdapter::setMesh(const std::string &meshName,
     meshWasCreated_ = true;
 }
 
-double PreciceAdapter::initialize()
+double CouplingAdapter::initialize()
 {
     assert(wasCreated_);
     assert(meshWasCreated_);
@@ -90,14 +90,14 @@ double PreciceAdapter::initialize()
     return timeStepSize_;
 }
 
-void PreciceAdapter::createIndexMapping(const std::vector<int> &dumuxFaceIDs)
+void CouplingAdapter::createIndexMapping(const std::vector<int> &dumuxFaceIDs)
 {
     assert(meshWasCreated_);
     indexMapper_.createMapping(dumuxFaceIDs, vertexIDs_);
     hasIndexMapper_ = true;
 }
 
-double PreciceAdapter::setMeshAndInitialize(const std::string &meshName,
+double CouplingAdapter::setMeshAndInitialize(const std::string &meshName,
                                             const size_t numPoints,
                                             std::vector<double> &coordinates)
 {
@@ -105,38 +105,38 @@ double PreciceAdapter::setMeshAndInitialize(const std::string &meshName,
     return initialize();
 }
 
-void PreciceAdapter::initializeData()
+void CouplingAdapter::initializeData()
 {
     assert(preciceWasInitialized_);
     precice_->initializeData();
 }
 
-void PreciceAdapter::finalize()
+void CouplingAdapter::finalize()
 {
     assert(wasCreated_);
     if (preciceWasInitialized_)
         precice_->finalize();
 }
 
-double PreciceAdapter::advance(const double computedTimeStepLength)
+double CouplingAdapter::advance(const double computedTimeStepLength)
 {
     assert(wasCreated_);
     return precice_->advance(computedTimeStepLength);
 }
 
-bool PreciceAdapter::isCouplingOngoing()
+bool CouplingAdapter::isCouplingOngoing()
 {
     assert(wasCreated_);
     return precice_->isCouplingOngoing();
 }
 
-size_t PreciceAdapter::getNumberOfVertices()
+size_t CouplingAdapter::getNumberOfVertices()
 {
     assert(wasCreated_);
     return vertexIDs_.size();
 }
 
-double PreciceAdapter::getScalarQuantityOnFace(const size_t dataID,
+double CouplingAdapter::getScalarQuantityOnFace(const size_t dataID,
                                                const int faceID) const
 {
     assert(wasCreated_);
@@ -153,7 +153,7 @@ double PreciceAdapter::getScalarQuantityOnFace(const size_t dataID,
     return quantityVector[idx];
 }
 
-void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID,
+void CouplingAdapter::writeScalarQuantityOnFace(const size_t dataID,
                                                const int faceID,
                                                const double value)
 {
@@ -171,7 +171,7 @@ void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID,
     quantityVector[idx] = value;
 }
 
-//void PreciceAdapter::writeVectorQuantityOnFace(const size_t dataID,
+//void CouplingAdapter::writeVectorQuantityOnFace(const size_t dataID,
 //                                               const int faceID,
 //                                               const double* value,
 //                                               const size_t size)
@@ -191,21 +191,21 @@ void PreciceAdapter::writeScalarQuantityOnFace(const size_t dataID,
 //  std::copy_n( value, size, quantityVector[idx] );
 //}
 
-std::vector<double> &PreciceAdapter::getQuantityVector(const size_t dataID)
+std::vector<double> &CouplingAdapter::getQuantityVector(const size_t dataID)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
     return dataVectors_[dataID];
 }
 
-const std::vector<double> &PreciceAdapter::getQuantityVector(
+const std::vector<double> &CouplingAdapter::getQuantityVector(
     const size_t dataID) const
 {
     assert(wasCreated_);
     return getQuantityVector(dataID);
 }
 
-void PreciceAdapter::writeScalarQuantityVector(const size_t dataID,
+void CouplingAdapter::writeScalarQuantityVector(const size_t dataID,
                                                std::vector<double> &values)
 {
     assert(wasCreated_);
@@ -214,7 +214,7 @@ void PreciceAdapter::writeScalarQuantityVector(const size_t dataID,
     dataVectors_[dataID] = values;
 }
 
-void PreciceAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
+void CouplingAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
@@ -223,7 +223,7 @@ void PreciceAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
     writeBlockScalarDataToPrecice(preciceDataID_[dataID], dataVectors_[dataID]);
 }
 
-void PreciceAdapter::readScalarQuantityFromOtherSolver(const size_t dataID)
+void CouplingAdapter::readScalarQuantityFromOtherSolver(const size_t dataID)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
@@ -233,13 +233,13 @@ void PreciceAdapter::readScalarQuantityFromOtherSolver(const size_t dataID)
                                    dataVectors_[dataID]);
 }
 
-bool PreciceAdapter::isCoupledEntity(const int faceID) const
+bool CouplingAdapter::isCoupledEntity(const int faceID) const
 {
     assert(wasCreated_);
     return indexMapper_.isDumuxIdMapped(faceID);
 }
 
-size_t PreciceAdapter::getIdFromName(const std::string &dataName) const
+size_t CouplingAdapter::getIdFromName(const std::string &dataName) const
 {
     assert(wasCreated_);
     const auto it = std::find(dataNames_.begin(), dataNames_.end(), dataName);
@@ -251,31 +251,31 @@ size_t PreciceAdapter::getIdFromName(const std::string &dataName) const
     return size_t(idx);
 }
 
-std::string PreciceAdapter::getNameFromId(const size_t dataID) const
+std::string CouplingAdapter::getNameFromId(const size_t dataID) const
 {
     assert(wasCreated_);
     assert(dataID < dataNames_.size());
     return dataNames_[dataID];
 }
 
-void PreciceAdapter::print(std::ostream &os)
+void CouplingAdapter::print(std::ostream &os)
 {
     os << indexMapper_;
 }
 
-bool PreciceAdapter::checkIfActionIsRequired(const std::string &condition)
+bool CouplingAdapter::checkIfActionIsRequired(const std::string &condition)
 {
     assert(wasCreated_);
     return precice_->isActionRequired(condition);
 }
 
-void PreciceAdapter::actionIsFulfilled(const std::string &condition)
+void CouplingAdapter::actionIsFulfilled(const std::string &condition)
 {
     assert(wasCreated_);
     precice_->markActionFulfilled(condition);
 }
 
-void PreciceAdapter::readBlockScalarDataFromPrecice(const int dataID,
+void CouplingAdapter::readBlockScalarDataFromPrecice(const int dataID,
                                                     std::vector<double> &data)
 {
     assert(wasCreated_);
@@ -284,7 +284,7 @@ void PreciceAdapter::readBlockScalarDataFromPrecice(const int dataID,
                                   data.data());
 }
 
-void PreciceAdapter::writeBlockScalarDataToPrecice(const int dataID,
+void CouplingAdapter::writeBlockScalarDataToPrecice(const int dataID,
                                                    std::vector<double> &data)
 {
     assert(wasCreated_);
@@ -293,43 +293,43 @@ void PreciceAdapter::writeBlockScalarDataToPrecice(const int dataID,
                                    data.data());
 }
 
-bool PreciceAdapter::hasToWriteInitialData()
+bool CouplingAdapter::hasToWriteInitialData()
 {
     assert(wasCreated_);
     return checkIfActionIsRequired(
         precice::constants::actionWriteInitialData());
 }
 
-void PreciceAdapter::announceInitialDataWritten()
+void CouplingAdapter::announceInitialDataWritten()
 {
     assert(wasCreated_);
     precice_->markActionFulfilled(precice::constants::actionWriteInitialData());
 }
 
-bool PreciceAdapter::hasToReadIterationCheckpoint()
+bool CouplingAdapter::hasToReadIterationCheckpoint()
 {
     assert(wasCreated_);
     return checkIfActionIsRequired(
         precice::constants::actionReadIterationCheckpoint());
 }
 
-void PreciceAdapter::announceIterationCheckpointRead()
+void CouplingAdapter::announceIterationCheckpointRead()
 {
     assert(wasCreated_);
     actionIsFulfilled(precice::constants::actionReadIterationCheckpoint());
 }
 
-bool PreciceAdapter::hasToWriteIterationCheckpoint()
+bool CouplingAdapter::hasToWriteIterationCheckpoint()
 {
     assert(wasCreated_);
     return checkIfActionIsRequired(
         precice::constants::actionWriteIterationCheckpoint());
 }
 
-void PreciceAdapter::announceIterationCheckpointWritten()
+void CouplingAdapter::announceIterationCheckpointWritten()
 {
     assert(wasCreated_);
     actionIsFulfilled(precice::constants::actionWriteIterationCheckpoint());
 }
 
-PreciceAdapter::~PreciceAdapter() {}
+CouplingAdapter::~CouplingAdapter() {}

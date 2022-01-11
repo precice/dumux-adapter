@@ -5,17 +5,17 @@
 #include <precice/SolverInterface.hpp>
 #include <string>
 
-#include "../src/dumuxpreciceindexwrapper.hh"
+#include "dumuxpreciceindexwrapper.hh"
 
-namespace precice_adapter
+namespace dumuxprecice
 {
-class PreciceAdapter
+class CouplingAdapter
 {
    private:
     bool wasCreated_;
     std::unique_ptr<precice::SolverInterface> precice_;
 
-    PreciceAdapter();
+    CouplingAdapter();
 
     bool checkIfActionIsRequired(const std::string &condition);
     void actionIsFulfilled(const std::string &condition);
@@ -46,13 +46,13 @@ class PreciceAdapter
 
     static constexpr size_t reserveSize_ = 4;
 
-    ~PreciceAdapter();
+    ~CouplingAdapter();
 
    public:
-    PreciceAdapter(const PreciceAdapter &) = delete;
-    void operator=(const PreciceAdapter &) = delete;
+    CouplingAdapter(const CouplingAdapter &) = delete;
+    void operator=(const CouplingAdapter &) = delete;
 
-    static PreciceAdapter &getInstance();
+    static CouplingAdapter &getInstance();
 
     void announceSolver(const std::string &name,
                         const std::string configurationFileName,
@@ -125,5 +125,5 @@ class PreciceAdapter
     void print(std::ostream &os);
 };
 
-}  // namespace precice_adapter
+}  // namespace dumuxprecice
 #endif
