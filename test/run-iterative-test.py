@@ -75,6 +75,12 @@ parser.add_argument(
     help="Name of the preCICE iteration file names to be compared (required)",
     required=True,
 )
+#parser.add_argument(
+#    "--path-to-executables",
+#    type=str,
+#    help="Path where to find the executables (required)",
+#    required=True,
+#)
 args = vars(parser.parse_args())
 print(args)
 
@@ -88,7 +94,7 @@ def run_solver(solver_name, dumux_param_file, precice_config_file):
     # print( precice_config_file )
 
     proc = sp.Popen(
-        ["./{}".format(solver_name), dumux_param_file, "-", precice_config_file],
+        ["{}".format(solver_name), dumux_param_file, "-", precice_config_file],
         stdout=f,
         stderr=f,
     )
@@ -132,10 +138,10 @@ except:
 
 # Start thread for Biot solver in background
 ff_proc, ff_output = run_solver(
-    "fvca-iterative-ff", args["dumux_param_file"], args["precice_config_file"]
+    "./test_ff_flow_over_square_2d", args["dumux_param_file"], args["precice_config_file"]
 )
 pm_proc, pm_output = run_solver(
-    "fvca-iterative-pm", args["dumux_param_file"], args["precice_config_file"]
+    "./test_pm_flow_over_square_2d", args["dumux_param_file"], args["precice_config_file"]
 )
 
 # Wait for solvers to finish
