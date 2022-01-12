@@ -19,7 +19,7 @@ check-style-clang-10:
         when: on_failure
         paths:
             - style-patch.diff
-        expire_in: 7 day
+        expire_in: 2 days
 
 .build_template: &build-iterative-coupling
   stage: build
@@ -32,20 +32,15 @@ check-style-clang-10:
     - cd build-cmake/test/partitioned/flow-over-square-2d
     - make -j2 test_ff_flow_over_square_2d test_pm_flow_over_square_2d
   artifacts:
-    expire_in: 3 days
+    expire_in: 3 hours
     paths:
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/test/partitioned/flow-over-square-2d/test_ff_flow_over_square_2d
-      - build-cmake/test/partitioned/flow-over-square-2d/test_pm_flow_over_square_2d
-      - build-cmake/test/partitioned/flow-over-square-2d/CMakeFiles/CMakeError.log
-      - build-cmake/test/partitioned/flow-over-square-2d/CMakeFiles/CMakeOutput.log
-      - build-cmake/test/partitioned/flow-over-square-2d/Makefile
-      - build-cmake/test/partitioned/flow-over-square-2d/CTestTestfile.cmake
+      - build-cmake/
 
 build-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-iterative-coupling
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-iterative-coupling:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
@@ -70,20 +65,15 @@ build-iterative-coupling:master-2.2.1:
     - cd build-cmake/test/monolithic/flow-over-square-2d
     - make -j2 test_ff_pm_flow_over_square_2d
   artifacts:
-    expire_in: 3 days
+    expire_in: 3 hours
     paths:
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/test/monolithic/flow-over-square-2d/test_ff_pm_flow_over_square_2d
-      - build-cmake/test/monolithic/flow-over-square-2d/params.input
-      - build-cmake/test/monolithic/flow-over-square-2d/CMakeError.log
-      - build-cmake/test/monolithic/flow-over-square-2d/CMakeOutput.log
-      - build-cmake/test/monolithic/flow-over-square-2d/Makefile
-      - build-cmake/test/monolithic/flow-over-square-2d/CTestTestfile.cmake
+      - build-cmake/
 
 build-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-coupling
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-monolithic-coupling:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
@@ -106,16 +96,14 @@ build-monolithic-coupling:master-2.2.1:
     expire_in: 2 days
     when: on_failure
     paths:
-      - build-cmake/test/partitioned/flow-over-square-2d/Testing/Temporary/LastTest.log
-      - build-cmake/test/partitioned/flow-over-square-2d/Testing/Temporary/LastTestsFailed.log
-      - build-cmake/test/partitioned/flow-over-square-2d/*.log
-      - build-cmake/test/partitioned/flow-over-square-2d/*.txt
-      - build-cmake/test/partitioned/flow-over-square-2d/CTestTestfile.cmake
+      - build-cmake/
 
 
 test-iterative-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-iterative-coupling
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
     - build-iterative-coupling:3.3-2.2.1
 
@@ -140,16 +128,17 @@ test-iterative-coupling:master-2.2.1:
     - cd build-cmake/test/monolithic/flow-over-square-2d
     - - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
-    expire_in: 5 days
+    expire_in: 2 days
     paths:
-      - build-cmake/test/monolithic/flow-over-square-2d/Testing/Temporary/LastTest.log
-      - build-cmake/test/monolithic/flow-over-square-2d/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/
 
 test-monolithic-coupling:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-monolithic-coupling
   needs:
     - build-monolithic-coupling:3.3-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic-coupling:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
@@ -173,26 +162,25 @@ test-monolithic-coupling:master-2.2.1:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d
     - make -j2 flow-over-step-2d
   artifacts:
-    expire_in: 3 days
+    expire_in: 3 hours
     paths:
-      - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/flow-over-step-2d
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Makefile
-      - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/CTestTestfile.cmake
+      - build-cmake/
 
 build-monolithic-flow-over-step-2d:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-flow-over-step-2d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-monolithic-flow-over-step-2d:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
   <<: *build-monolithic-flow-over-step-2d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-monolithic-flow-over-step-2d:master-2.2.1:
   image: dumux-precice:master-2.2.1
@@ -210,18 +198,21 @@ build-monolithic-flow-over-step-2d:master-2.2.1:
     when: on_failure
     expire_in: 2 days
     paths:
-      - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/
 
 test-monolithic-flow-over-step-2d:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *test-monolithic-flow-over-step-2d
   needs:
     - build-monolithic-flow-over-step-2d:3.3-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic-flow-over-step-2d:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
   <<: *test-monolithic-flow-over-step-2d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
     - build-monolithic-flow-over-step-2d:3.4-2.2.1
 
@@ -241,26 +232,25 @@ test-monolithic-flow-over-step-2d:master-2.2.1:
     - export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
-    #- dunecontrol --only=dumux-precice --opts=/home/dumux/dumux/dumux/cmake.opts  all
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
     - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d
     - make -j2 ff-pm-3d
   artifacts:
-    expire_in: 3 days
+    expire_in: 3 hours
     paths:
-      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/ff-pm-3d
-      - build-cmake/CMakeFiles/CMakeError.log
-      - build-cmake/CMakeFiles/CMakeOutput.log
-      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Makefile
-      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/CTestTestfile.cmake
+      - build-cmake/
 
 build-monolithic-ff-pm-3d:3.3-2.2.1:
   image: ub2004-dumux-precice:3.3-2.2.1
   <<: *build-monolithic-ff-pm-3d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-monolithic-ff-pm-3d:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
   <<: *build-monolithic-ff-pm-3d
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-monolithic-ff-pm-3d:master-2.2.1:
   image: dumux-precice:master-2.2.1
@@ -279,8 +269,7 @@ build-monolithic-ff-pm-3d:master-2.2.1:
     expire_in: 2 days
     when: on_failure
     paths:
-      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTest.log
-      - build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/Testing/Temporary/LastTestsFailed.log
+      - build-cmake/
   needs:
     - build:monolithic:ff-pm-3d
 
@@ -289,12 +278,16 @@ test-monolithic-ff-pm-3d:3.3-2.2.1:
   <<: *test-monolithic-ff-pm-3d
   needs:
     - build-monolithic-ff-pm-3d:3.3-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic-ff-pm-3d:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
   <<: *test-monolithic-ff-pm-3d
   needs:
     - build-monolithic-ff-pm-3d:3.4-2.2.1
+  rules:
+    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic-ff-pm-3d:master-2.2.1:
   image: ub2004-dumux-precice:master-2.2.1
