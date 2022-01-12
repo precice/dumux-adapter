@@ -14,6 +14,6 @@ find_package(Boost 1.65.1 REQUIRED COMPONENTS log system) #Require same version 
 
 add_subdirectory(monolithic)
 add_subdirectory(monolithic-const-dt)
-add_subdirectory(iterative)
+add_subdirectory(partitioned)
 #add_subdirectory(iterative-reversed)
 

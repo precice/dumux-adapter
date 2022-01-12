@@ -1,27 +1,7 @@
-#dune_add_test(NAME exercise_interface_coupling_ff-pm_original
-#              SOURCES main.cc
-#              COMPILE_DEFINITIONS EXNUMBER=0)
-
-#dune_add_test(NAME exercise_interface_coupling_ff-pm_a_solution
-#              SOURCES main.cc
-#              COMPILE_DEFINITIONS EXNUMBER=1)
-
-#dune_add_test(NAME exercise_interface_coupling_ff-pm_b_solution
-#              SOURCES main.cc
-#              COMPILE_DEFINITIONS EXNUMBER=2)
-
-#dune_add_test(NAME flow-over-step-2d
-#              SOURCES main.cc)
-
-
-# add exercise to the common target
-#add_dependencies(test_exercises exercise_interface_coupling_ff-pm_a_solution exercise_interface_coupling_ff-pm_b_solution exercise_interface_coupling_ff-pm_c_solution)
-#add_dependencies(flow-over-step-2d)
 add_executable(flow-over-step-2d EXCLUDE_FROM_ALL main.cc)
 
 # add a symlink for each input file
 add_input_file_links()
-
 
 dune_add_test(NAME test_flow-over-step-2d
               TARGET flow-over-step-2d

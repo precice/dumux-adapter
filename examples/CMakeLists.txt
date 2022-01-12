@@ -1,2 +1,2 @@
-add_subdirectory(conjugateheattransfer)
-add_subdirectory(coupling-ff-pm)
+add_subdirectory(legacy)
+add_subdirectory(ff-pm)

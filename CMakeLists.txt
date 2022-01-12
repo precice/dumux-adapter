@@ -34,7 +34,7 @@ dune_require_cxx_standard(MODULE "DuMuX-preCICE" VERSION 17)
 add_subdirectory(cmake/modules)
 add_subdirectory(doc)
 add_subdirectory(dumux-precice)
-add_subdirectory(appl)
+add_subdirectory(examples)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 
 # finalize the dune project, e.g. generating config.h etc.
