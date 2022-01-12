@@ -3,7 +3,7 @@ add_executable(flow-over-step-2d EXCLUDE_FROM_ALL main.cc)
 # add a symlink for each input file
 add_input_file_links()
 
-dune_add_test(NAME test_flow-over-step-2d
+dumux_add_test(NAME test_flow-over-step-2d
               TARGET flow-over-step-2d
               LABELS ff-pm stokes monolithic darcy
               TIMEOUT 10

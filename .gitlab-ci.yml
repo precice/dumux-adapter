@@ -90,7 +90,7 @@ test-partitioned:master-2.2.1:
 .test_template: &test-monolithic-cases
   stage: test
   script:
-    - cd build-cmake/test/monolithic/flow-over-square-2d
+    - cd build-cmake
     - CTEST_OUTPUT_ON_FAILURE=1 ctest -j2 -L ^monolithic$
   artifacts:
     expire_in: 2 days
