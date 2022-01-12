@@ -126,7 +126,7 @@ test-iterative-coupling:master-2.2.1:
   stage: test
   script:
     - cd build-cmake/test/monolithic/flow-over-square-2d
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 2 days
     paths:
@@ -163,7 +163,7 @@ test-monolithic-coupling:master-2.2.1:
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
-    - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d
+    - cd build-cmake/examples/ff-pm/monolithic/flow-over-step-2d
     - make -j2 flow-over-step-2d
   artifacts:
     expire_in: 3 hours
@@ -192,8 +192,8 @@ build-monolithic-flow-over-step-2d:master-2.2.1:
 .test_template: &test-monolithic-flow-over-step-2d
   stage: test
   script:
-    - cd build-cmake/appl/coupling-ff-pm/monolithic/flow-over-step-2d/
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
+    - cd build-cmake/examples/ff-pm/monolithic/flow-over-step-2d/
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     when: on_failure
     expire_in: 2 days
@@ -233,7 +233,7 @@ test-monolithic-flow-over-step-2d:master-2.2.1:
     - cd dumux-precice/
     - echo $DUNE_CONTROL_PATH
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts  all
-    - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d
+    - cd build-cmake/examples/ff-pm/monolithic/ff-pm-3d
     - make -j2 ff-pm-3d
   artifacts:
     expire_in: 3 hours
@@ -263,8 +263,8 @@ build-monolithic-ff-pm-3d:master-2.2.1:
 .test_template: &test-monolithic-ff-pm-3d
   stage: test
   script:
-    - cd build-cmake/appl/coupling-ff-pm/monolithic/ff-pm-3d/
-    - - CTEST_OUTPUT_ON_FAILURE=1 ctest
+    - cd build-cmake/examples/ff-pm/monolithic/ff-pm-3d/
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest
   artifacts:
     expire_in: 2 days
     when: on_failure
