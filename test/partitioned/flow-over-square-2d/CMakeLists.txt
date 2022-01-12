@@ -18,8 +18,19 @@ macro(add_precice_file_links)
 endmacro()
 add_precice_file_links()
 
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
-              TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+# Dummy test is needed to build porous media solver. The default
+# `dumux_add_test` (and the underlying `dune_add_test`) only accept
+# one target executable.
+dumux_add_test(NAME dummy_test_ff_pm_part_flow_over_square_2d
+              TARGET test_pm_flow_over_square_2d
+              LABELS freeflow stokes precice darcy partitioned
+              TIMEOUT 30
+              COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
+)
+
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
+              TARGET test_ff_flow_over_square_2d
+              TARGET test_pm_flow_over_square_2d
               LABELS freeflow stokes precice darcy partitioned
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
@@ -36,11 +47,12 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_first
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_first PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_second
-    TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
+    TARGET test_pm_flow_over_square_2d
+    TARGET test_ff_flow_over_square_2d
     LABELS freeflow darcy precice darcy partitioned
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
@@ -57,10 +69,10 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_stokes_second
     --relative 1e-6
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_stokes_second PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
 ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
-dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_stokes
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
               TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
               LABELS freeflow stokes precice darcy partitioned
               TIMEOUT 30
@@ -80,18 +92,18 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_stokes
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
-set_tests_properties(test_ff_pm_coupling_parallel_implicit_stokes PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_pi_st PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 ### Setting test dependencies
-set_property(TEST test_ff_pm_coupling_serial_implicit_stokes_second APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_first)
-set_property(TEST test_ff_pm_coupling_parallel_implicit_stokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_stokes_second)
+set_property(TEST test_ff_pm_part_flow_over_square_2d_si_st_second APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_si_st_first)
+set_property(TEST test_ff_pm_part_flow_over_square_2d_pi_st APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_si_st_second)
 
 ######################
 # Navier-Stokes tests
 ######################
 
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_navierstokes_first
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
               TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy partitioned
               TIMEOUT 60
@@ -109,10 +121,10 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_navierstokes_first
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_navierstokes_first PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
-dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_navierstokes_second
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
     TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
     LABELS freeflow darcy precice darcy partitioned
     TIMEOUT 60
@@ -130,10 +142,10 @@ dumux_add_test(NAME test_ff_pm_coupling_serial_implicit_navierstokes_second
     --relative 1e-6
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_coupling_serial_implicit_navierstokes_second PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
 ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
-dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_navierstokes
+dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
               TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy partitioned
               TIMEOUT 60
@@ -153,10 +165,10 @@ dumux_add_test(NAME test_ff_pm_coupling_parallel_implicit_navierstokes
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
-set_tests_properties(test_ff_pm_coupling_parallel_implicit_navierstokes PROPERTIES
+set_tests_properties(test_ff_pm_part_flow_over_square_2d_pi_ns PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
 
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
-set_property(TEST test_ff_pm_coupling_serial_implicit_navierstokes_first APPEND PROPERTY DEPENDS test_ff_pm_coupling_parallel_implicit_stokes)
-set_property(TEST test_ff_pm_coupling_serial_implicit_navierstokes_second APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_navierstokes_first)
-set_property(TEST test_ff_pm_coupling_parallel_implicit_navierstokes APPEND PROPERTY DEPENDS test_ff_pm_coupling_serial_implicit_navierstokes_second)
+set_property(TEST test_ff_pm_part_flow_over_square_2d_si_ns_first APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_pi_st)
+set_property(TEST test_ff_pm_part_flow_over_square_2d_si_ns_second APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_si_ns_first)
+set_property(TEST test_ff_pm_part_flow_over_square_2d_pi_ns APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_si_ns_second)

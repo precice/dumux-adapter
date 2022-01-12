@@ -3,7 +3,7 @@ add_input_file_links()
 
 add_executable(test_ff_pm_flow_over_square_2d EXCLUDE_FROM_ALL main.cc)
 
-dune_add_test(NAME test_ff_pm_flow_over_square_2d
+dune_add_test(NAME test_ff_pm_mono_flow_over_square_2d
               TARGET test_ff_pm_flow_over_square_2d
               LABELS ff-pm stokes monolithic darcy
               TIMEOUT 10
@@ -18,5 +18,5 @@ dune_add_test(NAME test_ff_pm_flow_over_square_2d
               --relative 1e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
-set_tests_properties(test_ff_pm_flow_over_square_2d PROPERTIES
+set_tests_properties(test_ff_pm_mono_flow_over_square_2d PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
