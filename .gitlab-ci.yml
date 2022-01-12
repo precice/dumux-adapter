@@ -30,7 +30,7 @@ check-style-clang-10:
     - echo $DUNE_CONTROL_PATH
     - dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts all
     - cd build-cmake/
-    - make -j4 build_tests
+    - make -j2 build_tests
   artifacts:
     expire_in: 3 hours
     paths:
