@@ -2,6 +2,14 @@
 
 ## Not released yet
 
+- 2022-01-12: The repository has been restructured. The main changes are:
+
+  - The adapter is now called `CouplingAdapter` and resides in `dumux-precice/`. The build process has been adapted accordingly.
+  - Tests case reside in `test/` directory and there in the corresponding subdirectory depending on whether it is a `monolithic`ly or `partitioned`ly coupled test case.
+  - Other example cases reside in the directory `examples/`. This is mainly the directory called `appl/` before, but with a new folder structure.
+  - The configuration of tests has been changed such that it is possible to build all tests using the `build_tests` target.
+
+  For details check out the merge request [!18 Restructure repository and tests](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/merge_requests/18)
 - 2022-01-10: Add license file. The code is licensed under GPLv3 without template exception.
 - 2022-01-10: Tests run by the CI on DuMuX `master` are allowed to fail.
 - 2022-01-10: Added `CHANGELOG.md` to track changes of the adapter.
