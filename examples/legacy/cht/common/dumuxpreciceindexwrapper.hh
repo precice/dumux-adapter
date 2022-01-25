@@ -10,7 +10,7 @@
 template<typename T>
 class DumuxPreciceIndexMapper
 {
-   private:
+private:
     // Use a boost bimap?
     std::map<T, T> dumuxFaceIndexToPreciceIndex_;
     std::map<T, T> preciceVertexToDumuxFaceIndex_;
@@ -20,7 +20,7 @@ class DumuxPreciceIndexMapper
     bool mappingWasCreated_;
     size_t size_;
 
-   public:
+public:
     DumuxPreciceIndexMapper() : mappingWasCreated_(false), size_(0) {}
 
     void createMapping(const std::vector<T> &dumuxIndices,

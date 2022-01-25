@@ -127,7 +127,7 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-   public:
+public:
 #if ENABLEMONOLITHIC
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
                        std::shared_ptr<CouplingManager> couplingManager)
@@ -313,7 +313,7 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
 
     // \}
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_;

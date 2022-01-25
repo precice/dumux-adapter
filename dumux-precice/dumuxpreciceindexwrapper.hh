@@ -9,17 +9,16 @@
 
 namespace Dumux::Precice::Internal
 {
-
 template<typename T>
 class DumuxPreciceIndexMapper
 {
-   private:
+private:
     std::map<T, T> dumuxFaceIndexToPreciceIndex_;
     std::map<T, T> preciceVertexToDumuxFaceIndex_;
     bool mappingWasCreated_;
     size_t size_;
 
-   public:
+public:
     DumuxPreciceIndexMapper() : mappingWasCreated_(false), size_(0) {}
 
     void createMapping(const std::vector<T> &dumuxIndices,
@@ -87,6 +86,6 @@ std::ostream &operator<<(std::ostream &os,
 
     return os;
 }
-} // namespace Dumux::Precice::Internal
+}  // namespace Dumux::Precice::Internal
 
 #endif  // DUMUXPRECICEINDEXWRAPPER_H
