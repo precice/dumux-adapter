@@ -1,24 +1,28 @@
 ## Description
 
 <!--
-Please describe shortly what this merge request is doing and why
-it is needed. If there is an related issue, please mention it here.
--->
+Please describe the problem/feature request. Please also describe what you want
+to achieve.
+--->
 
-## Checklist
-
-<!--
-Please make sure to go over all points on the checklist and
-mark them as checked.
--->
-
-- [ ] I made sure that the source files are formatted properly.
-- [ ] I added my changes to the changelog (`CHANGELOG.md`)
-- [ ] I updated the documentation.
+### Environment
 
 <!--
-If the pull request adds new content, please check the points
-below. Otherwise remove the following lines.
--->
+Please provide information about the operating system and relevant versions of
+the software.
 
-- [ ] I added a test for the new feature.
+Example:
+Ubuntu 20.04 LTS, preCICE 2.3.0, DuMuX 3.4, DuMuX-preCICE 0.1
+--->
+
+## Steps to reproduce
+
+<!-- Please describe the steps one has to execture to reproduce the problem. --->
+
+### Expected behavior
+
+<!-- What outcome did you expect? --->
+
+### Actual behavior
+
+<!-- What was the actual outcome? --->
