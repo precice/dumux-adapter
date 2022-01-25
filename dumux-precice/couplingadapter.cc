@@ -27,9 +27,9 @@ CouplingAdapter &CouplingAdapter::getInstance()
 }
 
 void CouplingAdapter::announceSolver(const std::string &name,
-                                    const std::string configurationFileName,
-                                    const int rank,
-                                    const int size)
+                                     const std::string configurationFileName,
+                                     const int rank,
+                                     const int size)
 {
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::SolverInterface>(
@@ -65,8 +65,8 @@ void CouplingAdapter::setMeshName(const std::string& meshName)
 */
 
 void CouplingAdapter::setMesh(const std::string &meshName,
-                             const size_t numPoints,
-                             std::vector<double> &coordinates)
+                              const size_t numPoints,
+                              std::vector<double> &coordinates)
 {
     assert(wasCreated_);
     assert(numPoints == coordinates.size() / getDimensions());
@@ -98,8 +98,8 @@ void CouplingAdapter::createIndexMapping(const std::vector<int> &dumuxFaceIDs)
 }
 
 double CouplingAdapter::setMeshAndInitialize(const std::string &meshName,
-                                            const size_t numPoints,
-                                            std::vector<double> &coordinates)
+                                             const size_t numPoints,
+                                             std::vector<double> &coordinates)
 {
     setMesh(meshName, numPoints, coordinates);
     return initialize();
@@ -137,7 +137,7 @@ size_t CouplingAdapter::getNumberOfVertices()
 }
 
 double CouplingAdapter::getScalarQuantityOnFace(const size_t dataID,
-                                               const int faceID) const
+                                                const int faceID) const
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -154,8 +154,8 @@ double CouplingAdapter::getScalarQuantityOnFace(const size_t dataID,
 }
 
 void CouplingAdapter::writeScalarQuantityOnFace(const size_t dataID,
-                                               const int faceID,
-                                               const double value)
+                                                const int faceID,
+                                                const double value)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -206,7 +206,7 @@ const std::vector<double> &CouplingAdapter::getQuantityVector(
 }
 
 void CouplingAdapter::writeScalarQuantityVector(const size_t dataID,
-                                               std::vector<double> &values)
+                                                std::vector<double> &values)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
@@ -276,7 +276,7 @@ void CouplingAdapter::actionIsFulfilled(const std::string &condition)
 }
 
 void CouplingAdapter::readBlockScalarDataFromPrecice(const int dataID,
-                                                    std::vector<double> &data)
+                                                     std::vector<double> &data)
 {
     assert(wasCreated_);
     assert(vertexIDs_.size() == data.size());
@@ -285,7 +285,7 @@ void CouplingAdapter::readBlockScalarDataFromPrecice(const int dataID,
 }
 
 void CouplingAdapter::writeBlockScalarDataToPrecice(const int dataID,
-                                                   std::vector<double> &data)
+                                                    std::vector<double> &data)
 {
     assert(wasCreated_);
     assert(vertexIDs_.size() == data.size());
