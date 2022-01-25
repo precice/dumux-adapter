@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-01-25: Added [description templates](https://docs.gitlab.com/ee/user/project/description_templates.html) for merge requests and issues.
 - 2022-01-12: The repository has been restructured. The main changes are:
 
   - The adapter is now called `CouplingAdapter` and resides in `dumux-precice/`. The build process has been adapted accordingly.
