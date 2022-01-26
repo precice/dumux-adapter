@@ -5,7 +5,7 @@
 #include <precice/SolverInterface.hpp>
 #include <string>
 
-#include "dumuxpreciceindexwrapper.hh"
+#include "dumuxpreciceindexmapper.hh"
 
 /*!
  * @brief Namespace of dumux-precice
