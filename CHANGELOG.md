@@ -2,7 +2,9 @@
 
 ## Not released yet
 
-- 2022-01-XX: Add and configure Doxygen code documentation of coupling adapter.
+- 2022-01-26: Renamed `dumupreciceindexwrapper.[hh|cc]` to `dumupreciceindexmapper.[hh|cc]` to be consistent with the class name.
+- 2022-01-26: Made sure all private member of the adapter are prefixed with an underscore.
+- 2022-01-26: Add and configure Doxygen code documentation of coupling adapter.
 - 2022-01-25: Fix code formatting configuration to be close to the original DuMuX code formatting configuration.
 - 2022-01-25: Added [description templates](https://docs.gitlab.com/ee/user/project/description_templates.html) for merge requests and issues.
 - 2022-01-12: The repository has been restructured. The main changes are:
