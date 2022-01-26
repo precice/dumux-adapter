@@ -106,7 +106,7 @@ class HeatSubProblem : public PorousMediumFlowProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-   public:
+public:
 #if ENABLEMONOLITHIC
     HeatSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
                    std::shared_ptr<CouplingManager> couplingManager)
@@ -246,7 +246,7 @@ class HeatSubProblem : public PorousMediumFlowProblem<TypeTag>
     const CouplingManager &couplingManager() const { return *couplingManager_; }
 #endif
 
-   private:
+private:
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[1] < this->fvGridGeometry().bBoxMin()[1] + eps_;
