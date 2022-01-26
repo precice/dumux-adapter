@@ -106,7 +106,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-   public:
+public:
     DarcySubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
                     std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(gridGeometry, "Darcy"),
@@ -275,7 +275,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
         return values;
     }
 
-   private:
+private:
     Scalar pressureAt(const Scalar time, const GlobalPosition &globalPos) const
     {
         const auto x = globalPos[0];

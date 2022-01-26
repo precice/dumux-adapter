@@ -131,7 +131,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-   public:
+public:
 #if ENABLEMONOLITHIC
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
                      std::shared_ptr<CouplingManager> couplingManager)
@@ -420,7 +420,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
     // \}
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;

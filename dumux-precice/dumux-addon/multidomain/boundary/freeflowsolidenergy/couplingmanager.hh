@@ -25,77 +25,111 @@
 #ifndef DUMUX_FREEFLOW_SOLIDENERGY_COUPLINGMANAGER_HH
 #define DUMUX_FREEFLOW_SOLIDENERGY_COUPLINGMANAGER_HH
 
-#include <utility>
 #include <memory>
+#include <utility>
 
-#include <dune/common/float_cmp.hh>
-#include <dune/common/exceptions.hh>
 #include <dumux/common/properties.hh>
-#include <dumux/multidomain/staggeredcouplingmanager.hh>
 #include <dumux/discretization/staggered/elementsolution.hh>
+#include <dumux/multidomain/staggeredcouplingmanager.hh>
+#include <dune/common/exceptions.hh>
+#include <dune/common/float_cmp.hh>
 
-#include "couplingdata.hh"
 #include <dumux/multidomain/boundary/stokesdarcy/couplingmapper.hh>
+#include "couplingdata.hh"
 
-namespace Dumux {
-
+namespace Dumux
+{
 /*!
  * \ingroup StokesDarcyCoupling
  * \brief Coupling manager for Stokes and Darcy domains with equal dimension.
  */
 template<class MDTraits>
 class FreeFlowSolidEnergyCouplingManager
-: public StaggeredCouplingManager<MDTraits>
+    : public StaggeredCouplingManager<MDTraits>
 {
     using Scalar = typename MDTraits::Scalar;
     using ParentType = StaggeredCouplingManager<MDTraits>;
 
 public:
-    static constexpr auto freeFlowCellCenterIdx = typename MDTraits::template SubDomain<0>::Index();
-    static constexpr auto freeFlowFaceIdx = typename MDTraits::template SubDomain<1>::Index();
-    static constexpr auto cellCenterIdx = typename MDTraits::template SubDomain<0>::Index();
-    static constexpr auto faceIdx = typename MDTraits::template SubDomain<1>::Index();
+    static constexpr auto freeFlowCellCenterIdx =
+        typename MDTraits::template SubDomain<0>::Index();
+    static constexpr auto freeFlowFaceIdx =
+        typename MDTraits::template SubDomain<1>::Index();
+    static constexpr auto cellCenterIdx =
+        typename MDTraits::template SubDomain<0>::Index();
+    static constexpr auto faceIdx =
+        typename MDTraits::template SubDomain<1>::Index();
     static constexpr auto freeFlowIdx = freeFlowCellCenterIdx;
-    static constexpr auto solidEnergyIdx = typename MDTraits::template SubDomain<2>::Index();
+    static constexpr auto solidEnergyIdx =
+        typename MDTraits::template SubDomain<2>::Index();
 
 private:
-
     using SolutionVector = typename MDTraits::SolutionVector;
 
     // obtain the type tags of the sub problems
     using StokesTypeTag = typename MDTraits::template SubDomain<0>::TypeTag;
     using DarcyTypeTag = typename MDTraits::template SubDomain<2>::TypeTag;
 
-    using CouplingStencils = std::unordered_map<std::size_t, std::vector<std::size_t> >;
+    using CouplingStencils =
+        std::unordered_map<std::size_t, std::vector<std::size_t>>;
     using CouplingStencil = CouplingStencils::mapped_type;
 
     // the sub domain type tags
     template<std::size_t id>
     using SubDomainTypeTag = typename MDTraits::template SubDomain<id>::TypeTag;
 
-    static constexpr bool isCompositional = GetPropType<SubDomainTypeTag<0>, Properties::ModelTraits>::numFluidComponents()> 1;
+    static constexpr bool isCompositional =
+        GetPropType<SubDomainTypeTag<0>,
+                    Properties::ModelTraits>::numFluidComponents() > 1;
 
-    template<std::size_t id> using GridView = GetPropType<SubDomainTypeTag<id>, Properties::GridView>;
-    template<std::size_t id> using Problem = GetPropType<SubDomainTypeTag<id>, Properties::Problem>;
-    template<std::size_t id> using NumEqVector = GetPropType<SubDomainTypeTag<id>, Properties::NumEqVector>;
-    template<std::size_t id> using ElementVolumeVariables = typename GetPropType<SubDomainTypeTag<id>, Properties::GridVolumeVariables>::LocalView;
-    template<std::size_t id> using GridVolumeVariables = GetPropType<SubDomainTypeTag<id>, Properties::GridVolumeVariables>;
-    template<std::size_t id> using VolumeVariables = typename GetPropType<SubDomainTypeTag<id>, Properties::GridVolumeVariables>::VolumeVariables;
-    template<std::size_t id> using FVGridGeometry = GetPropType<SubDomainTypeTag<id>, Properties::FVGridGeometry>;
-    template<std::size_t id> using FVElementGeometry = typename FVGridGeometry<id>::LocalView;
-    template<std::size_t id> using ElementBoundaryTypes = GetPropType<SubDomainTypeTag<id>, Properties::ElementBoundaryTypes>;
-    template<std::size_t id> using ElementFluxVariablesCache = typename GetPropType<SubDomainTypeTag<id>, Properties::GridFluxVariablesCache>::LocalView;
-    template<std::size_t id> using GridVariables = GetPropType<SubDomainTypeTag<id>, Properties::GridVariables>;
-    template<std::size_t id> using Element = typename GridView<id>::template Codim<0>::Entity;
-    template<std::size_t id> using PrimaryVariables = typename MDTraits::template SubDomain<id>::PrimaryVariables;
-    template<std::size_t id> using SubControlVolumeFace  = typename FVElementGeometry<id>::SubControlVolumeFace;
+    template<std::size_t id>
+    using GridView = GetPropType<SubDomainTypeTag<id>, Properties::GridView>;
+    template<std::size_t id>
+    using Problem = GetPropType<SubDomainTypeTag<id>, Properties::Problem>;
+    template<std::size_t id>
+    using NumEqVector =
+        GetPropType<SubDomainTypeTag<id>, Properties::NumEqVector>;
+    template<std::size_t id>
+    using ElementVolumeVariables =
+        typename GetPropType<SubDomainTypeTag<id>,
+                             Properties::GridVolumeVariables>::LocalView;
+    template<std::size_t id>
+    using GridVolumeVariables =
+        GetPropType<SubDomainTypeTag<id>, Properties::GridVolumeVariables>;
+    template<std::size_t id>
+    using VolumeVariables =
+        typename GetPropType<SubDomainTypeTag<id>,
+                             Properties::GridVolumeVariables>::VolumeVariables;
+    template<std::size_t id>
+    using FVGridGeometry =
+        GetPropType<SubDomainTypeTag<id>, Properties::FVGridGeometry>;
+    template<std::size_t id>
+    using FVElementGeometry = typename FVGridGeometry<id>::LocalView;
+    template<std::size_t id>
+    using ElementBoundaryTypes =
+        GetPropType<SubDomainTypeTag<id>, Properties::ElementBoundaryTypes>;
+    template<std::size_t id>
+    using ElementFluxVariablesCache =
+        typename GetPropType<SubDomainTypeTag<id>,
+                             Properties::GridFluxVariablesCache>::LocalView;
+    template<std::size_t id>
+    using GridVariables =
+        GetPropType<SubDomainTypeTag<id>, Properties::GridVariables>;
+    template<std::size_t id>
+    using Element = typename GridView<id>::template Codim<0>::Entity;
+    template<std::size_t id>
+    using PrimaryVariables =
+        typename MDTraits::template SubDomain<id>::PrimaryVariables;
+    template<std::size_t id>
+    using SubControlVolumeFace =
+        typename FVElementGeometry<id>::SubControlVolumeFace;
 
-    using CellCenterSolutionVector = GetPropType<StokesTypeTag, Properties::CellCenterSolutionVector>;
+    using CellCenterSolutionVector =
+        GetPropType<StokesTypeTag, Properties::CellCenterSolutionVector>;
 
     using CouplingMapper = StokesDarcyCouplingMapper<MDTraits>;
 
-    struct StationaryStokesCouplingContext
-    {
+    struct StationaryStokesCouplingContext {
         Element<solidEnergyIdx> element;
         FVElementGeometry<solidEnergyIdx> fvGeometry;
         std::size_t darcyScvfIdx;
@@ -103,24 +137,29 @@ private:
         VolumeVariables<solidEnergyIdx> volVars;
     };
 
-    struct StationaryDarcyCouplingContext
-    {
+    struct StationaryDarcyCouplingContext {
         Element<freeFlowIdx> element;
         FVElementGeometry<freeFlowIdx> fvGeometry;
         std::size_t stokesScvfIdx;
         std::size_t darcyScvfIdx;
         VolumeVariables<freeFlowIdx> volVars;
     };
-public:
 
+public:
     using ParentType::couplingStencil;
     using ParentType::updateCouplingContext;
-    using CouplingData = FreeFlowSolidEnergyCouplingData<MDTraits, FreeFlowSolidEnergyCouplingManager<MDTraits>>;
+    using CouplingData = FreeFlowSolidEnergyCouplingData<
+        MDTraits,
+        FreeFlowSolidEnergyCouplingManager<MDTraits>>;
 
     //! Constructor
-    FreeFlowSolidEnergyCouplingManager(std::shared_ptr<const FVGridGeometry<freeFlowIdx>> stokesFvGridGeometry,
-                               std::shared_ptr<const FVGridGeometry<solidEnergyIdx>> darcyFvGridGeometry) : couplingMapper_(*this)
-    { }
+    FreeFlowSolidEnergyCouplingManager(
+        std::shared_ptr<const FVGridGeometry<freeFlowIdx>> stokesFvGridGeometry,
+        std::shared_ptr<const FVGridGeometry<solidEnergyIdx>>
+            darcyFvGridGeometry)
+        : couplingMapper_(*this)
+    {
+    }
 
     /*!
      * \brief Methods to be accessed by main
@@ -130,42 +169,46 @@ public:
     //! Initialize the coupling manager
     void init(std::shared_ptr<const Problem<freeFlowIdx>> stokesProblem,
               std::shared_ptr<const Problem<solidEnergyIdx>> darcyProblem,
-              const SolutionVector& curSol)
+              const SolutionVector &curSol)
     {
-        if(Dune::FloatCmp::ne(stokesProblem->gravity(), darcyProblem->gravity()))
-            DUNE_THROW(Dune::InvalidStateException, "Both models must use the same gravity vector");
+        if (Dune::FloatCmp::ne(stokesProblem->gravity(),
+                               darcyProblem->gravity()))
+            DUNE_THROW(Dune::InvalidStateException,
+                       "Both models must use the same gravity vector");
 
-        this->setSubProblems(std::make_tuple(stokesProblem, stokesProblem, darcyProblem));
+        this->setSubProblems(
+            std::make_tuple(stokesProblem, stokesProblem, darcyProblem));
         this->curSol() = curSol;
         couplingData_ = std::make_shared<CouplingData>(*this);
         computeStencils();
     }
 
     //! Update after the grid has changed
-    void update()
-    { }
+    void update() {}
 
     // \}
 
     //! Update the solution vector before assembly
-    void updateSolution(const SolutionVector& curSol)
-    { this->curSol() = curSol; }
+    void updateSolution(const SolutionVector &curSol)
+    {
+        this->curSol() = curSol;
+    }
 
     //! Prepare the coupling stencils
     void computeStencils()
     {
-        couplingMapper_.computeCouplingMapsAndStencils(darcyToStokesCellCenterCouplingStencils_,
-                                                       darcyToStokesFaceCouplingStencils_,
-                                                       stokesCellCenterCouplingStencils_,
-                                                       stokesFaceCouplingStencils_);
+        couplingMapper_.computeCouplingMapsAndStencils(
+            darcyToStokesCellCenterCouplingStencils_,
+            darcyToStokesFaceCouplingStencils_,
+            stokesCellCenterCouplingStencils_, stokesFaceCouplingStencils_);
 
-        for(auto&& stencil : darcyToStokesCellCenterCouplingStencils_)
+        for (auto &&stencil : darcyToStokesCellCenterCouplingStencils_)
             removeDuplicates_(stencil.second);
-        for(auto&& stencil : darcyToStokesFaceCouplingStencils_)
+        for (auto &&stencil : darcyToStokesFaceCouplingStencils_)
             removeDuplicates_(stencil.second);
-        for(auto&& stencil : stokesCellCenterCouplingStencils_)
+        for (auto &&stencil : stokesCellCenterCouplingStencils_)
             removeDuplicates_(stencil.second);
-        for(auto&& stencil : stokesFaceCouplingStencils_)
+        for (auto &&stencil : stokesFaceCouplingStencils_)
             removeDuplicates_(stencil.second);
     }
 
@@ -179,41 +222,69 @@ public:
     /*!
      * \brief prepares all data and variables that are necessary to evaluate the residual of an Darcy element (i.e. Darcy information)
      */
-    template<std::size_t i, class Assembler, std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx), int> = 0>
-    void bindCouplingContext(Dune::index_constant<i> domainI, const Element<freeFlowCellCenterIdx>& element, const Assembler& assembler) const
-    { bindCouplingContext(domainI, element); }
+    template<
+        std::size_t i,
+        class Assembler,
+        std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx),
+                         int> = 0>
+    void bindCouplingContext(Dune::index_constant<i> domainI,
+                             const Element<freeFlowCellCenterIdx> &element,
+                             const Assembler &assembler) const
+    {
+        bindCouplingContext(domainI, element);
+    }
 
     /*!
      * \brief prepares all data and variables that are necessary to evaluate the residual of an Darcy element (i.e. Darcy information)
      */
-    template<std::size_t i, std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx), int> = 0>
-    void bindCouplingContext(Dune::index_constant<i> domainI, const Element<freeFlowCellCenterIdx>& element) const
+    template<
+        std::size_t i,
+        std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx),
+                         int> = 0>
+    void bindCouplingContext(
+        Dune::index_constant<i> domainI,
+        const Element<freeFlowCellCenterIdx> &element) const
     {
         stokesCouplingContext_.clear();
 
-        const auto stokesElementIdx = this->problem(freeFlowIdx).fvGridGeometry().elementMapper().index(element);
+        const auto stokesElementIdx = this->problem(freeFlowIdx)
+                                          .fvGridGeometry()
+                                          .elementMapper()
+                                          .index(element);
         boundStokesElemIdx_ = stokesElementIdx;
 
         // do nothing if the element is not coupled to the other domain
-        if(!couplingMapper_.stokesElementToDarcyElementMap().count(stokesElementIdx))
+        if (!couplingMapper_.stokesElementToDarcyElementMap().count(
+                stokesElementIdx))
             return;
 
         // prepare the coupling context
-        const auto& darcyIndices = couplingMapper_.stokesElementToDarcyElementMap().at(stokesElementIdx);
-        auto darcyFvGeometry = localView(this->problem(solidEnergyIdx).fvGridGeometry());
+        const auto &darcyIndices =
+            couplingMapper_.stokesElementToDarcyElementMap().at(
+                stokesElementIdx);
+        auto darcyFvGeometry =
+            localView(this->problem(solidEnergyIdx).fvGridGeometry());
 
-        for(auto&& indices : darcyIndices)
-        {
-            const auto& darcyElement = this->problem(solidEnergyIdx).fvGridGeometry().boundingBoxTree().entitySet().entity(indices.eIdx);
+        for (auto &&indices : darcyIndices) {
+            const auto &darcyElement = this->problem(solidEnergyIdx)
+                                           .fvGridGeometry()
+                                           .boundingBoxTree()
+                                           .entitySet()
+                                           .entity(indices.eIdx);
             darcyFvGeometry.bindElement(darcyElement);
-            const auto& scv = (*scvs(darcyFvGeometry).begin());
+            const auto &scv = (*scvs(darcyFvGeometry).begin());
 
-            const auto darcyElemSol = elementSolution(darcyElement, this->curSol()[solidEnergyIdx], this->problem(solidEnergyIdx).fvGridGeometry());
+            const auto darcyElemSol =
+                elementSolution(darcyElement, this->curSol()[solidEnergyIdx],
+                                this->problem(solidEnergyIdx).fvGridGeometry());
             VolumeVariables<solidEnergyIdx> darcyVolVars;
-            darcyVolVars.update(darcyElemSol, this->problem(solidEnergyIdx), darcyElement, scv);
+            darcyVolVars.update(darcyElemSol, this->problem(solidEnergyIdx),
+                                darcyElement, scv);
 
             // add the context
-            stokesCouplingContext_.push_back({darcyElement, darcyFvGeometry, indices.scvfIdx, indices.flipScvfIdx, darcyVolVars});
+            stokesCouplingContext_.push_back(
+                {darcyElement, darcyFvGeometry, indices.scvfIdx,
+                 indices.flipScvfIdx, darcyVolVars});
         }
     }
 
@@ -221,42 +292,64 @@ public:
      * \brief prepares all data and variables that are necessary to evaluate the residual of an Darcy element (i.e. Stokes information)
      */
     template<class Assembler>
-    void bindCouplingContext(Dune::index_constant<solidEnergyIdx> domainI, const Element<solidEnergyIdx>& element, const Assembler& assembler) const
-    { bindCouplingContext(domainI, element); }
+    void bindCouplingContext(Dune::index_constant<solidEnergyIdx> domainI,
+                             const Element<solidEnergyIdx> &element,
+                             const Assembler &assembler) const
+    {
+        bindCouplingContext(domainI, element);
+    }
 
     /*!
      * \brief prepares all data and variables that are necessary to evaluate the residual of an Darcy element (i.e. Stokes information)
      */
-    void bindCouplingContext(Dune::index_constant<solidEnergyIdx> domainI, const Element<solidEnergyIdx>& element) const
+    void bindCouplingContext(Dune::index_constant<solidEnergyIdx> domainI,
+                             const Element<solidEnergyIdx> &element) const
     {
         darcyCouplingContext_.clear();
 
-        const auto darcyElementIdx = this->problem(solidEnergyIdx).fvGridGeometry().elementMapper().index(element);
+        const auto darcyElementIdx = this->problem(solidEnergyIdx)
+                                         .fvGridGeometry()
+                                         .elementMapper()
+                                         .index(element);
         boundDarcyElemIdx_ = darcyElementIdx;
 
         // do nothing if the element is not coupled to the other domain
-        if(!couplingMapper_.darcyElementToStokesElementMap().count(darcyElementIdx))
+        if (!couplingMapper_.darcyElementToStokesElementMap().count(
+                darcyElementIdx))
             return;
 
         // prepare the coupling context
-        const auto& stokesElementIndices = couplingMapper_.darcyElementToStokesElementMap().at(darcyElementIdx);
-        auto stokesFvGeometry = localView(this->problem(freeFlowIdx).fvGridGeometry());
+        const auto &stokesElementIndices =
+            couplingMapper_.darcyElementToStokesElementMap().at(
+                darcyElementIdx);
+        auto stokesFvGeometry =
+            localView(this->problem(freeFlowIdx).fvGridGeometry());
 
-        for(auto&& indices : stokesElementIndices)
-        {
-            const auto& stokesElement = this->problem(freeFlowIdx).fvGridGeometry().boundingBoxTree().entitySet().entity(indices.eIdx);
+        for (auto &&indices : stokesElementIndices) {
+            const auto &stokesElement = this->problem(freeFlowIdx)
+                                            .fvGridGeometry()
+                                            .boundingBoxTree()
+                                            .entitySet()
+                                            .entity(indices.eIdx);
             stokesFvGeometry.bindElement(stokesElement);
 
-            using PriVarsType = typename VolumeVariables<freeFlowCellCenterIdx>::PrimaryVariables;
-            const auto& cellCenterPriVars = this->curSol()[freeFlowCellCenterIdx][indices.eIdx];
-            const auto elemSol = makeElementSolutionFromCellCenterPrivars<PriVarsType>(cellCenterPriVars);
+            using PriVarsType = typename VolumeVariables<
+                freeFlowCellCenterIdx>::PrimaryVariables;
+            const auto &cellCenterPriVars =
+                this->curSol()[freeFlowCellCenterIdx][indices.eIdx];
+            const auto elemSol =
+                makeElementSolutionFromCellCenterPrivars<PriVarsType>(
+                    cellCenterPriVars);
 
             VolumeVariables<freeFlowIdx> stokesVolVars;
-            for(const auto& scv : scvs(stokesFvGeometry))
-                stokesVolVars.update(elemSol, this->problem(freeFlowIdx), stokesElement, scv);
+            for (const auto &scv : scvs(stokesFvGeometry))
+                stokesVolVars.update(elemSol, this->problem(freeFlowIdx),
+                                     stokesElement, scv);
 
             // add the context
-            darcyCouplingContext_.push_back({stokesElement, stokesFvGeometry, indices.scvfIdx, indices.flipScvfIdx, stokesVolVars});
+            darcyCouplingContext_.push_back(
+                {stokesElement, stokesFvGeometry, indices.scvfIdx,
+                 indices.flipScvfIdx, stokesVolVars});
         }
     }
 
@@ -265,10 +358,10 @@ public:
      */
     template<class LocalAssemblerI>
     void updateCouplingContext(Dune::index_constant<solidEnergyIdx> domainI,
-                               const LocalAssemblerI& localAssemblerI,
+                               const LocalAssemblerI &localAssemblerI,
                                Dune::index_constant<solidEnergyIdx> domainJ,
                                std::size_t dofIdxGlobalJ,
-                               const PrimaryVariables<solidEnergyIdx>& priVarsJ,
+                               const PrimaryVariables<solidEnergyIdx> &priVarsJ,
                                int pvIdxJ)
     {
         this->curSol()[domainJ][dofIdxGlobalJ][pvIdxJ] = priVarsJ[pvIdxJ];
@@ -278,27 +371,33 @@ public:
      * \brief Update the coupling context for the Darcy residual w.r.t. the Stokes cell-center DOFs (DarcyToCC)
      */
     template<class LocalAssemblerI>
-    void updateCouplingContext(Dune::index_constant<solidEnergyIdx> domainI,
-                               const LocalAssemblerI& localAssemblerI,
-                               Dune::index_constant<freeFlowCellCenterIdx> domainJ,
-                               const std::size_t dofIdxGlobalJ,
-                               const PrimaryVariables<freeFlowCellCenterIdx>& priVars,
-                               int pvIdxJ)
+    void updateCouplingContext(
+        Dune::index_constant<solidEnergyIdx> domainI,
+        const LocalAssemblerI &localAssemblerI,
+        Dune::index_constant<freeFlowCellCenterIdx> domainJ,
+        const std::size_t dofIdxGlobalJ,
+        const PrimaryVariables<freeFlowCellCenterIdx> &priVars,
+        int pvIdxJ)
     {
         this->curSol()[domainJ][dofIdxGlobalJ] = priVars;
 
-        for (auto& data : darcyCouplingContext_)
-        {
-            const auto stokesElemIdx = this->problem(freeFlowIdx).fvGridGeometry().elementMapper().index(data.element);
+        for (auto &data : darcyCouplingContext_) {
+            const auto stokesElemIdx = this->problem(freeFlowIdx)
+                                           .fvGridGeometry()
+                                           .elementMapper()
+                                           .index(data.element);
 
-            if(stokesElemIdx != dofIdxGlobalJ)
+            if (stokesElemIdx != dofIdxGlobalJ)
                 continue;
 
-            using PriVarsType = typename VolumeVariables<freeFlowCellCenterIdx>::PrimaryVariables;
-            const auto elemSol = makeElementSolutionFromCellCenterPrivars<PriVarsType>(priVars);
+            using PriVarsType = typename VolumeVariables<
+                freeFlowCellCenterIdx>::PrimaryVariables;
+            const auto elemSol =
+                makeElementSolutionFromCellCenterPrivars<PriVarsType>(priVars);
 
-            for(const auto& scv : scvs(data.fvGeometry))
-                data.volVars.update(elemSol, this->problem(freeFlowIdx), data.element, scv);
+            for (const auto &scv : scvs(data.fvGeometry))
+                data.volVars.update(elemSol, this->problem(freeFlowIdx),
+                                    data.element, scv);
         }
     }
 
@@ -307,10 +406,10 @@ public:
      */
     template<class LocalAssemblerI>
     void updateCouplingContext(Dune::index_constant<solidEnergyIdx> domainI,
-                               const LocalAssemblerI& localAssemblerI,
+                               const LocalAssemblerI &localAssemblerI,
                                Dune::index_constant<freeFlowFaceIdx> domainJ,
                                const std::size_t dofIdxGlobalJ,
-                               const PrimaryVariables<1>& priVars,
+                               const PrimaryVariables<1> &priVars,
                                int pvIdxJ)
     {
         this->curSol()[domainJ][dofIdxGlobalJ] = priVars;
@@ -319,27 +418,36 @@ public:
     /*!
      * \brief Update the coupling context for the Stokes cc residual w.r.t. the Darcy DOFs (FaceToDarcy)
      */
-    template<std::size_t i, class LocalAssemblerI, std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx), int> = 0>
+    template<
+        std::size_t i,
+        class LocalAssemblerI,
+        std::enable_if_t<(i == freeFlowCellCenterIdx || i == freeFlowFaceIdx),
+                         int> = 0>
     void updateCouplingContext(Dune::index_constant<i> domainI,
-                               const LocalAssemblerI& localAssemblerI,
+                               const LocalAssemblerI &localAssemblerI,
                                Dune::index_constant<solidEnergyIdx> domainJ,
                                const std::size_t dofIdxGlobalJ,
-                               const PrimaryVariables<solidEnergyIdx>& priVars,
+                               const PrimaryVariables<solidEnergyIdx> &priVars,
                                int pvIdxJ)
     {
         this->curSol()[domainJ][dofIdxGlobalJ] = priVars;
 
-        for (auto& data : stokesCouplingContext_)
-        {
-            const auto darcyElemIdx = this->problem(solidEnergyIdx).fvGridGeometry().elementMapper().index(data.element);
+        for (auto &data : stokesCouplingContext_) {
+            const auto darcyElemIdx = this->problem(solidEnergyIdx)
+                                          .fvGridGeometry()
+                                          .elementMapper()
+                                          .index(data.element);
 
-            if(darcyElemIdx != dofIdxGlobalJ)
+            if (darcyElemIdx != dofIdxGlobalJ)
                 continue;
 
-            const auto darcyElemSol = elementSolution(data.element, this->curSol()[solidEnergyIdx], this->problem(solidEnergyIdx).fvGridGeometry());
+            const auto darcyElemSol =
+                elementSolution(data.element, this->curSol()[solidEnergyIdx],
+                                this->problem(solidEnergyIdx).fvGridGeometry());
 
-            for(const auto& scv : scvs(data.fvGeometry))
-                data.volVars.update(darcyElemSol, this->problem(solidEnergyIdx), data.element, scv);
+            for (const auto &scv : scvs(data.fvGeometry))
+                data.volVars.update(darcyElemSol, this->problem(solidEnergyIdx),
+                                    data.element, scv);
         }
     }
 
@@ -348,43 +456,46 @@ public:
     /*!
      * \brief Access the coupling data
      */
-    const auto& couplingData() const
-    {
-        return *couplingData_;
-    }
+    const auto &couplingData() const { return *couplingData_; }
 
     /*!
      * \brief Access the coupling context needed for the Stokes domain
      */
-    const auto& stokesCouplingContext(const Element<freeFlowIdx>& element, const SubControlVolumeFace<freeFlowIdx>& scvf) const
+    const auto &stokesCouplingContext(
+        const Element<freeFlowIdx> &element,
+        const SubControlVolumeFace<freeFlowIdx> &scvf) const
     {
-        if (stokesCouplingContext_.empty() || boundStokesElemIdx_ != scvf.insideScvIdx())
+        if (stokesCouplingContext_.empty() ||
+            boundStokesElemIdx_ != scvf.insideScvIdx())
             bindCouplingContext(freeFlowIdx, element);
 
-        for(const auto& context : stokesCouplingContext_)
-        {
-            if(scvf.index() == context.stokesScvfIdx)
+        for (const auto &context : stokesCouplingContext_) {
+            if (scvf.index() == context.stokesScvfIdx)
                 return context;
         }
 
-        DUNE_THROW(Dune::InvalidStateException, "No coupling context found at scvf " << scvf.center());
+        DUNE_THROW(Dune::InvalidStateException,
+                   "No coupling context found at scvf " << scvf.center());
     }
 
     /*!
      * \brief Access the coupling context needed for the Darcy domain
      */
-    const auto& darcyCouplingContext(const Element<solidEnergyIdx>& element, const SubControlVolumeFace<solidEnergyIdx>& scvf) const
+    const auto &darcyCouplingContext(
+        const Element<solidEnergyIdx> &element,
+        const SubControlVolumeFace<solidEnergyIdx> &scvf) const
     {
-        if (darcyCouplingContext_.empty() || boundDarcyElemIdx_ != scvf.insideScvIdx())
+        if (darcyCouplingContext_.empty() ||
+            boundDarcyElemIdx_ != scvf.insideScvIdx())
             bindCouplingContext(solidEnergyIdx, element);
 
-        for(const auto& context : darcyCouplingContext_)
-        {
-            if(scvf.index() == context.darcyScvfIdx)
+        for (const auto &context : darcyCouplingContext_) {
+            if (scvf.index() == context.darcyScvfIdx)
                 return context;
         }
 
-        DUNE_THROW(Dune::InvalidStateException, "No coupling context found at scvf " << scvf.center());
+        DUNE_THROW(Dune::InvalidStateException,
+                   "No coupling context found at scvf " << scvf.center());
     }
 
     /*!
@@ -395,12 +506,15 @@ public:
     /*!
      * \brief The Stokes cell center coupling stencil w.r.t. Darcy DOFs
      */
-    const CouplingStencil& couplingStencil(Dune::index_constant<freeFlowCellCenterIdx> domainI,
-                                           const Element<freeFlowIdx>& element,
-                                           Dune::index_constant<solidEnergyIdx> domainJ) const
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<freeFlowCellCenterIdx> domainI,
+        const Element<freeFlowIdx> &element,
+        Dune::index_constant<solidEnergyIdx> domainJ) const
     {
-        const auto eIdx = this->problem(domainI).fvGridGeometry().elementMapper().index(element);
-        if(stokesCellCenterCouplingStencils_.count(eIdx))
+        const auto eIdx =
+            this->problem(domainI).fvGridGeometry().elementMapper().index(
+                element);
+        if (stokesCellCenterCouplingStencils_.count(eIdx))
             return stokesCellCenterCouplingStencils_.at(eIdx);
         else
             return emptyStencil_;
@@ -411,21 +525,27 @@ public:
      *        the given domain I element's residual depends on.
      */
     template<std::size_t i, std::size_t j>
-    const CouplingStencil& couplingStencil(Dune::index_constant<i> domainI,
-                                           const Element<i>& element,
-                                           Dune::index_constant<j> domainJ) const
-    { return emptyStencil_; }
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<i> domainI,
+        const Element<i> &element,
+        Dune::index_constant<j> domainJ) const
+    {
+        return emptyStencil_;
+    }
 
     /*!
      * \brief The coupling stencil of domain I, i.e. which domain J dofs
      *        the given domain I element's residual depends on.
      */
-    const CouplingStencil& couplingStencil(Dune::index_constant<solidEnergyIdx> domainI,
-                                           const Element<solidEnergyIdx>& element,
-                                           Dune::index_constant<freeFlowCellCenterIdx> domainJ) const
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<solidEnergyIdx> domainI,
+        const Element<solidEnergyIdx> &element,
+        Dune::index_constant<freeFlowCellCenterIdx> domainJ) const
     {
-        const auto eIdx = this->problem(domainI).fvGridGeometry().elementMapper().index(element);
-        if(darcyToStokesCellCenterCouplingStencils_.count(eIdx))
+        const auto eIdx =
+            this->problem(domainI).fvGridGeometry().elementMapper().index(
+                element);
+        if (darcyToStokesCellCenterCouplingStencils_.count(eIdx))
             return darcyToStokesCellCenterCouplingStencils_.at(eIdx);
         else
             return emptyStencil_;
@@ -435,11 +555,14 @@ public:
      * \brief The coupling stencil of domain I, i.e. which domain J dofs
      *        the given domain I element's residual depends on.
      */
-    const CouplingStencil& couplingStencil(Dune::index_constant<solidEnergyIdx> domainI,
-                                           const Element<solidEnergyIdx>& element,
-                                           Dune::index_constant<freeFlowFaceIdx> domainJ) const
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<solidEnergyIdx> domainI,
+        const Element<solidEnergyIdx> &element,
+        Dune::index_constant<freeFlowFaceIdx> domainJ) const
     {
-        const auto eIdx = this->problem(domainI).fvGridGeometry().elementMapper().index(element);
+        const auto eIdx =
+            this->problem(domainI).fvGridGeometry().elementMapper().index(
+                element);
         if (darcyToStokesFaceCouplingStencils_.count(eIdx))
             return darcyToStokesFaceCouplingStencils_.at(eIdx);
         else
@@ -451,20 +574,24 @@ public:
      *        the given domain I element's residual depends on.
      */
     template<std::size_t i, std::size_t j>
-    const CouplingStencil& couplingStencil(Dune::index_constant<i> domainI,
-                                           const SubControlVolumeFace<freeFlowIdx>& scvf,
-                                           Dune::index_constant<j> domainJ) const
-    { return emptyStencil_; }
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<i> domainI,
+        const SubControlVolumeFace<freeFlowIdx> &scvf,
+        Dune::index_constant<j> domainJ) const
+    {
+        return emptyStencil_;
+    }
 
     /*!
      * \brief The coupling stencil of a Stokes face w.r.t. Darcy DOFs
      */
-    const CouplingStencil& couplingStencil(Dune::index_constant<freeFlowFaceIdx> domainI,
-                                           const SubControlVolumeFace<freeFlowIdx>& scvf,
-                                           Dune::index_constant<solidEnergyIdx> domainJ) const
+    const CouplingStencil &couplingStencil(
+        Dune::index_constant<freeFlowFaceIdx> domainI,
+        const SubControlVolumeFace<freeFlowIdx> &scvf,
+        Dune::index_constant<solidEnergyIdx> domainJ) const
     {
         const auto faceDofIdx = scvf.dofIndex();
-        if(stokesFaceCouplingStencils_.count(faceDofIdx))
+        if (stokesFaceCouplingStencils_.count(faceDofIdx))
             return stokesFaceCouplingStencils_.at(faceDofIdx);
         else
             return emptyStencil_;
@@ -476,20 +603,30 @@ public:
      * \brief There are no additional dof dependencies
      */
     template<class IdType>
-    const std::vector<std::size_t>& getAdditionalDofDependencies(IdType id, std::size_t stokesElementIdx) const
-    { return emptyStencil_; }
+    const std::vector<std::size_t> &getAdditionalDofDependencies(
+        IdType id,
+        std::size_t stokesElementIdx) const
+    {
+        return emptyStencil_;
+    }
 
     /*!
      * \brief There are no additional dof dependencies
      */
     template<class IdType>
-    const std::vector<std::size_t>& getAdditionalDofDependenciesInverse(IdType id, std::size_t darcyElementIdx) const
-    { return emptyStencil_; }
+    const std::vector<std::size_t> &getAdditionalDofDependenciesInverse(
+        IdType id,
+        std::size_t darcyElementIdx) const
+    {
+        return emptyStencil_;
+    }
 
     /*!
      * \brief Returns whether a given free flow scvf is coupled to the other domain
      */
-    bool isCoupledEntity(Dune::index_constant<freeFlowIdx>, const SubControlVolumeFace<freeFlowFaceIdx>& scvf) const
+    bool isCoupledEntity(
+        Dune::index_constant<freeFlowIdx>,
+        const SubControlVolumeFace<freeFlowFaceIdx> &scvf) const
     {
         return stokesFaceCouplingStencils_.count(scvf.dofIndex());
     }
@@ -497,32 +634,35 @@ public:
     /*!
      * \brief Returns whether a given free flow scvf is coupled to the other domain
      */
-    bool isCoupledEntity(Dune::index_constant<solidEnergyIdx>, const SubControlVolumeFace<solidEnergyIdx>& scvf) const
+    bool isCoupledEntity(Dune::index_constant<solidEnergyIdx>,
+                         const SubControlVolumeFace<solidEnergyIdx> &scvf) const
     {
         return couplingMapper_.isCoupledDarcyScvf(scvf.index());
     }
 
 protected:
-
     //! Return a reference to an empty stencil
-    std::vector<std::size_t>& emptyStencil()
-    { return emptyStencil_; }
+    std::vector<std::size_t> &emptyStencil() { return emptyStencil_; }
 
-    void removeDuplicates_(std::vector<std::size_t>& stencil)
+    void removeDuplicates_(std::vector<std::size_t> &stencil)
     {
         std::sort(stencil.begin(), stencil.end());
-        stencil.erase(std::unique(stencil.begin(), stencil.end()), stencil.end());
+        stencil.erase(std::unique(stencil.begin(), stencil.end()),
+                      stencil.end());
     }
 
 private:
-
     std::vector<bool> isCoupledDarcyDof_;
     std::shared_ptr<CouplingData> couplingData_;
 
-    std::unordered_map<std::size_t, std::vector<std::size_t> > stokesCellCenterCouplingStencils_;
-    std::unordered_map<std::size_t, std::vector<std::size_t> > stokesFaceCouplingStencils_;
-    std::unordered_map<std::size_t, std::vector<std::size_t> > darcyToStokesCellCenterCouplingStencils_;
-    std::unordered_map<std::size_t, std::vector<std::size_t> > darcyToStokesFaceCouplingStencils_;
+    std::unordered_map<std::size_t, std::vector<std::size_t>>
+        stokesCellCenterCouplingStencils_;
+    std::unordered_map<std::size_t, std::vector<std::size_t>>
+        stokesFaceCouplingStencils_;
+    std::unordered_map<std::size_t, std::vector<std::size_t>>
+        darcyToStokesCellCenterCouplingStencils_;
+    std::unordered_map<std::size_t, std::vector<std::size_t>>
+        darcyToStokesFaceCouplingStencils_;
     std::vector<std::size_t> emptyStencil_;
 
     ////////////////////////////////////////////////////////////////////////////
@@ -537,6 +677,6 @@ private:
     CouplingMapper couplingMapper_;
 };
 
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif

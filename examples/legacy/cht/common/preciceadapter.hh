@@ -11,7 +11,7 @@ namespace precice_adapter
 {
 class PreciceAdapter
 {
-   private:
+private:
     bool wasCreated_;
     bool meshWasCreated_;
     bool preciceWasInitialized_;
@@ -44,7 +44,7 @@ class PreciceAdapter
 
     ~PreciceAdapter();
 
-   public:
+public:
     PreciceAdapter(const PreciceAdapter &) = delete;
     void operator=(const PreciceAdapter &) = delete;
 
