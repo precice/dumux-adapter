@@ -9,8 +9,15 @@ import sys
 import shutil
 
 # Make sure that the PYTHONPATH is set properly
-from fuzzycomparevtu import compare_vtk
-
+try:
+    # Dumux <=3.4
+    from fuzzycomparevtu import compare_vtk
+except ImportError as e:
+    try:
+        # Dumux >3.4
+        from fuzzycomparevtu import compareVTK as compare_vtk
+    except ImportError as e:
+        raise e
 
 # parse arguments
 parser = argparse.ArgumentParser()
