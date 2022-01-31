@@ -75,12 +75,12 @@ parser.add_argument(
     help="Name of the preCICE iteration file names to be compared (required)",
     required=True,
 )
-#parser.add_argument(
+# parser.add_argument(
 #    "--path-to-executables",
 #    type=str,
 #    help="Path where to find the executables (required)",
 #    required=True,
-#)
+# )
 args = vars(parser.parse_args())
 print(args)
 
@@ -112,14 +112,14 @@ def diff_iteration_files(diff_file_name, file_names):
 
     with open(diff_file_name, "w") as f:
         proc = sp.Popen(
-            ["diff", file_names[0], file_names[1]],
+            ["diff", "-w", file_names[0], file_names[1]],
             stdout=f,
             stderr=f,
         )
         proc.wait()
 
-        with open(diff_file_name, 'r') as fin:
-            print( "File diff:\n  {}".format(fin.read()) )
+        with open(diff_file_name, "r") as fin:
+            print("File diff:\n  {}".format(fin.read()))
 
         return_code = proc.returncode
 
@@ -138,10 +138,14 @@ except:
 
 # Start thread for Biot solver in background
 ff_proc, ff_output = run_solver(
-    "./test_ff_flow_over_square_2d", args["dumux_param_file"], args["precice_config_file"]
+    "./test_ff_flow_over_square_2d",
+    args["dumux_param_file"],
+    args["precice_config_file"],
 )
 pm_proc, pm_output = run_solver(
-    "./test_pm_flow_over_square_2d", args["dumux_param_file"], args["precice_config_file"]
+    "./test_pm_flow_over_square_2d",
+    args["dumux_param_file"],
+    args["precice_config_file"],
 )
 
 # Wait for solvers to finish
