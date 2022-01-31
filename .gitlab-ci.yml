@@ -46,6 +46,10 @@ build-tests:3.4-2.2.1:
   image: ub2004-dumux-precice:3.4-2.2.1
   <<: *build-tests
 
+build-tests:3.4-2.3.0:
+  image: ub2004-dumux-precice:3.4-2.3.0
+  <<: *build-tests
+
 build-tests:master-2.2.1:
   image: dumux-precice:master-2.2.1
   rules:
@@ -77,6 +81,12 @@ test-partitioned:3.4-2.2.1:
   <<: *test-partitioned-cases
   needs:
     - build-tests:3.4-2.2.1
+
+test-partitioned:3.4-2.3.0:
+  image: ub2004-dumux-precice:3.4-2.3.0
+  <<: *test-partitioned-cases
+  needs:
+    - build-tests:3.4-2.3.0
 
 test-partitioned:master-2.2.1:
   image: ub2004-dumux-precice:master-2.2.1
@@ -111,6 +121,12 @@ test-monolithic:3.4-2.2.1:
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.4-2.2.1
+
+test-monolithic:3.4-2.3.0:
+  image: ub2004-dumux-precice:3.4-2.3.0
+  <<: *test-monolithic-cases
+  needs:
+    - build-tests:3.4-2.3.0
 
 test-monolithic:master-2.2.1:
   image: ub2004-dumux-precice:master-2.2.1
