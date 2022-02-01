@@ -29,19 +29,19 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/timer.hh>
 
-#include <dumux/common/properties.hh>
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>
 #include <dumux/common/partial.hh>
-#include <dumux/common/dumuxmessage.hh>
-#include <dumux/linear/seqsolverbackend.hh>
-#include <dumux/assembly/fvassembler.hh>
-#include <dumux/io/vtkoutputmodule.hh>
-#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/common/properties.hh>
 #include <dumux/io/grid/gridmanager_yasp.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 
-#include <dumux/multidomain/staggeredtraits.hh>
 #include <dumux/multidomain/fvassembler.hh>
 #include <dumux/multidomain/newtonsolver.hh>
+#include <dumux/multidomain/staggeredtraits.hh>
 
 #include "properties.hh"
 
@@ -54,9 +54,9 @@
 * \param problem the problem for which to evaluate the analytical solution
 */
 template<class Scalar, class Problem>
-auto createDarcyAnalyticalSolution(const Problem& problem)
+auto createDarcyAnalyticalSolution(const Problem &problem)
 {
-    const auto& gridGeometry = problem.gridGeometry();
+    const auto &gridGeometry = problem.gridGeometry();
     using GridView = typename std::decay_t<decltype(gridGeometry)>::GridView;
 
     static constexpr auto dim = GridView::dimension;
@@ -70,18 +70,18 @@ auto createDarcyAnalyticalSolution(const Problem& problem)
     analyticalPressure.resize(gridGeometry.numDofs());
     analyticalVelocity.resize(gridGeometry.numDofs());
     auto fvGeometry = localView(gridGeometry);
-    for (const auto& element : elements(gridGeometry.gridView()))
-    {
+    for (const auto &element : elements(gridGeometry.gridView())) {
         fvGeometry.bindElement(element);
-        for (auto&& scv : scvs(fvGeometry))
-        {
+        for (auto &&scv : scvs(fvGeometry)) {
             const auto ccDofIdx = scv.dofIndex();
             const auto ccDofPosition = scv.dofPosition();
-            const auto analyticalSolutionAtCc = problem.analyticalSolution(ccDofPosition);
+            const auto analyticalSolutionAtCc =
+                problem.analyticalSolution(ccDofPosition);
             analyticalPressure[ccDofIdx] = analyticalSolutionAtCc[dim];
 
             for (int dirIdx = 0; dirIdx < dim; ++dirIdx)
-                analyticalVelocity[ccDofIdx][dirIdx] = analyticalSolutionAtCc[dirIdx];
+                analyticalVelocity[ccDofIdx][dirIdx] =
+                    analyticalSolutionAtCc[dirIdx];
         }
     }
 
@@ -89,7 +89,8 @@ auto createDarcyAnalyticalSolution(const Problem& problem)
 }
 
 template<class Problem, class SolutionVector>
-void printFreeFlowL2Error(std::shared_ptr<Problem> problem, const SolutionVector& x)
+void printFreeFlowL2Error(std::shared_ptr<Problem> problem,
+                          const SolutionVector &x)
 {
     using namespace Dumux;
     using Indices = typename Problem::Indices;
@@ -97,39 +98,47 @@ void printFreeFlowL2Error(std::shared_ptr<Problem> problem, const SolutionVector
     NavierStokesErrors errors(problem, x);
     const int numCellCenterDofs = problem->gridGeometry().numCellCenterDofs();
     const int numFaceDofs = problem->gridGeometry().numFaceDofs();
-    std::ostream tmpOutputObject(std::cout.rdbuf()); // create temporary output with fixed formatting without affecting std::cout
+    std::ostream tmpOutputObject(
+        std::cout
+            .rdbuf());  // create temporary output with fixed formatting without affecting std::cout
     const auto l2Abs = errors.l2Absolute();
     const auto l2Rel = errors.l2Relative();
     tmpOutputObject << std::setprecision(8) << "** L2 error (abs/rel) for "
-                    << std::setw(6) << numCellCenterDofs << " cc dofs and " << numFaceDofs << " face dofs (total: " << numCellCenterDofs + numFaceDofs << "): "
-                    << std::scientific
-                    << "L2(p) = " << l2Abs[Indices::pressureIdx] << " / " << l2Rel[Indices::pressureIdx]
-                    << " , L2(vx) = " << l2Abs[Indices::velocityXIdx] << " / " << l2Rel[Indices::velocityXIdx]
-                    << " , L2(vy) = " << l2Abs[Indices::velocityYIdx] << " / " << l2Rel[Indices::velocityYIdx]
-                    << std::endl;
+                    << std::setw(6) << numCellCenterDofs << " cc dofs and "
+                    << numFaceDofs
+                    << " face dofs (total: " << numCellCenterDofs + numFaceDofs
+                    << "): " << std::scientific
+                    << "L2(p) = " << l2Abs[Indices::pressureIdx] << " / "
+                    << l2Rel[Indices::pressureIdx]
+                    << " , L2(vx) = " << l2Abs[Indices::velocityXIdx] << " / "
+                    << l2Rel[Indices::velocityXIdx]
+                    << " , L2(vy) = " << l2Abs[Indices::velocityYIdx] << " / "
+                    << l2Rel[Indices::velocityYIdx] << std::endl;
 
     // write the norm into a log file
     std::ofstream logFile(problem->name() + ".log", std::ios::app);
-    logFile << "[ConvergenceTest] L2(p) = " << l2Abs[Indices::pressureIdx] << " L2(vx) = " << l2Abs[Indices::velocityXIdx] << " L2(vy) = " << l2Abs[Indices::velocityYIdx] << std::endl;
+    logFile << "[ConvergenceTest] L2(p) = " << l2Abs[Indices::pressureIdx]
+            << " L2(vx) = " << l2Abs[Indices::velocityXIdx]
+            << " L2(vy) = " << l2Abs[Indices::velocityYIdx] << std::endl;
 }
 
 template<class Problem, class SolutionVector>
-void printDarcyL2Error(const Problem& problem, const SolutionVector& x)
+void printDarcyL2Error(const Problem &problem, const SolutionVector &x)
 {
     using namespace Dumux;
     using Scalar = double;
 
     Scalar l2error = 0.0;
     auto fvGeometry = localView(problem.gridGeometry());
-    for (const auto& element : elements(problem.gridGeometry().gridView()))
-    {
+    for (const auto &element : elements(problem.gridGeometry().gridView())) {
         fvGeometry.bindElement(element);
 
-        for (auto&& scv : scvs(fvGeometry))
-        {
+        for (auto &&scv : scvs(fvGeometry)) {
             const auto dofIdx = scv.dofIndex();
-            const Scalar delta = x[dofIdx] - problem.analyticalSolution(scv.dofPosition())[2/*pressureIdx*/];
-            l2error += scv.volume()*(delta*delta);
+            const Scalar delta =
+                x[dofIdx] - problem.analyticalSolution(
+                                scv.dofPosition())[2 /*pressureIdx*/];
+            l2error += scv.volume() * (delta * delta);
         }
     }
     using std::sqrt;
@@ -137,11 +146,9 @@ void printDarcyL2Error(const Problem& problem, const SolutionVector& x)
 
     const auto numDofs = problem.gridGeometry().numDofs();
     std::ostream tmp(std::cout.rdbuf());
-    tmp << std::setprecision(8) << "** L2 error (abs) for "
-            << std::setw(6) << numDofs << " cc dofs "
-            << std::scientific
-            << "L2 error = " << l2error
-            << std::endl;
+    tmp << std::setprecision(8) << "** L2 error (abs) for " << std::setw(6)
+        << numDofs << " cc dofs " << std::scientific << "L2 error = " << l2error
+        << std::endl;
 
     // write the norm into a log file
     std::ofstream logFile;
@@ -150,12 +157,12 @@ void printDarcyL2Error(const Problem& problem, const SolutionVector& x)
     logFile.close();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     using namespace Dumux;
 
     // initialize MPI, finalize is done automatically on exit
-    const auto& mpiHelper = Dune::MPIHelper::instance(argc, argv);
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
 
     // print dumux start message
     if (mpiHelper.rank() == 0)
@@ -170,45 +177,57 @@ int main(int argc, char** argv)
 
     // try to create a grid (from the given grid file or the input file)
     // for both sub-domains
-    using DarcyGridManager = Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
+    using DarcyGridManager =
+        Dumux::GridManager<GetPropType<DarcyTypeTag, Properties::Grid>>;
     DarcyGridManager darcyGridManager;
-    darcyGridManager.init("Darcy"); // pass parameter group
+    darcyGridManager.init("Darcy");  // pass parameter group
 
-    using FreeFlowGridManager = Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
+    using FreeFlowGridManager =
+        Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
     FreeFlowGridManager freeFlowGridManager;
-    freeFlowGridManager.init("FreeFlow"); // pass parameter group
+    freeFlowGridManager.init("FreeFlow");  // pass parameter group
 
     // we compute on the leaf grid view
-    const auto& darcyGridView = darcyGridManager.grid().leafGridView();
-    const auto& freeFlowGridView = freeFlowGridManager.grid().leafGridView();
+    const auto &darcyGridView = darcyGridManager.grid().leafGridView();
+    const auto &freeFlowGridView = freeFlowGridManager.grid().leafGridView();
 
     // create the finite volume grid geometry
-    using FreeFlowGridGeometry = GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
-    auto freeFlowGridGeometry = std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
-    using DarcyGridGeometry = GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+    using FreeFlowGridGeometry =
+        GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
+    auto freeFlowGridGeometry =
+        std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
+    using DarcyGridGeometry =
+        GetPropType<DarcyTypeTag, Properties::GridGeometry>;
     auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
 
-    using Traits = StaggeredMultiDomainTraits<FreeFlowTypeTag, FreeFlowTypeTag, DarcyTypeTag>;
+    using Traits = StaggeredMultiDomainTraits<FreeFlowTypeTag, FreeFlowTypeTag,
+                                              DarcyTypeTag>;
 
     // the coupling manager
     using CouplingManager = StokesDarcyCouplingManager<Traits>;
-    auto couplingManager = std::make_shared<CouplingManager>(freeFlowGridGeometry, darcyGridGeometry);
+    auto couplingManager = std::make_shared<CouplingManager>(
+        freeFlowGridGeometry, darcyGridGeometry);
 
     // the indices
-    constexpr auto freeFlowCellCenterIdx = CouplingManager::freeFlowCellCenterIdx;
+    constexpr auto freeFlowCellCenterIdx =
+        CouplingManager::freeFlowCellCenterIdx;
     constexpr auto freeFlowFaceIdx = CouplingManager::freeFlowFaceIdx;
     constexpr auto porousMediumIdx = CouplingManager::porousMediumIdx;
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
-    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(freeFlowGridGeometry, couplingManager);
+    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(
+        freeFlowGridGeometry, couplingManager);
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
-    auto spatialParams = std::make_shared<typename DarcyProblem::SpatialParams>(darcyGridGeometry);
-    auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry, couplingManager, spatialParams);
+    auto spatialParams = std::make_shared<typename DarcyProblem::SpatialParams>(
+        darcyGridGeometry);
+    auto darcyProblem = std::make_shared<DarcyProblem>(
+        darcyGridGeometry, couplingManager, spatialParams);
 
     // the solution vector
     Traits::SolutionVector sol;
-    sol[freeFlowCellCenterIdx].resize(freeFlowGridGeometry->numCellCenterDofs());
+    sol[freeFlowCellCenterIdx].resize(
+        freeFlowGridGeometry->numCellCenterDofs());
     sol[freeFlowFaceIdx].resize(freeFlowGridGeometry->numFaceDofs());
     sol[porousMediumIdx].resize(darcyGridGeometry->numDofs());
 
@@ -218,51 +237,77 @@ int main(int argc, char** argv)
     couplingManager->init(freeFlowProblem, darcyProblem, sol);
 
     // the grid variables
-    using FreeFlowGridVariables = GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
-    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(freeFlowProblem, freeFlowGridGeometry);
+    using FreeFlowGridVariables =
+        GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
+    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(
+        freeFlowProblem, freeFlowGridGeometry);
     freeFlowGridVariables->init(freeFlowSol);
-    using DarcyGridVariables = GetPropType<DarcyTypeTag, Properties::GridVariables>;
-    auto darcyGridVariables = std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
+    using DarcyGridVariables =
+        GetPropType<DarcyTypeTag, Properties::GridVariables>;
+    auto darcyGridVariables =
+        std::make_shared<DarcyGridVariables>(darcyProblem, darcyGridGeometry);
     darcyGridVariables->init(sol[porousMediumIdx]);
 
     // intialize the vtk output module
     using Scalar = typename Traits::Scalar;
-    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(freeFlowSol)> freeFlowVtkWriter(*freeFlowGridVariables, freeFlowSol, freeFlowProblem->name());
-    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(freeFlowVtkWriter);
+    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(freeFlowSol)>
+        freeFlowVtkWriter(*freeFlowGridVariables, freeFlowSol,
+                          freeFlowProblem->name());
+    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(
+        freeFlowVtkWriter);
 
-    NavierStokesAnalyticalSolutionVectors freeFlowAnalyticalSolVectors(freeFlowProblem);
-    freeFlowVtkWriter.addField(freeFlowAnalyticalSolVectors.getAnalyticalPressureSolution(), "pressureExact");
-    freeFlowVtkWriter.addField(freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolution(), "velocityExact");
-    freeFlowVtkWriter.addFaceField(freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolutionOnFace(), "faceVelocityExact");
+    NavierStokesAnalyticalSolutionVectors freeFlowAnalyticalSolVectors(
+        freeFlowProblem);
+    freeFlowVtkWriter.addField(
+        freeFlowAnalyticalSolVectors.getAnalyticalPressureSolution(),
+        "pressureExact");
+    freeFlowVtkWriter.addField(
+        freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolution(),
+        "velocityExact");
+    freeFlowVtkWriter.addFaceField(
+        freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolutionOnFace(),
+        "faceVelocityExact");
 
     freeFlowVtkWriter.write(0.0);
 
-    VtkOutputModule<DarcyGridVariables, GetPropType<DarcyTypeTag, Properties::SolutionVector>> darcyVtkWriter(*darcyGridVariables, sol[porousMediumIdx],  darcyProblem->name());
-    using DarcyVelocityOutput = GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
-    darcyVtkWriter.addVelocityOutput(std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
-    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(darcyVtkWriter);
-    const auto darcyAnalyticalSolution = createDarcyAnalyticalSolution<Scalar>(*darcyProblem);
-    darcyVtkWriter.addField(std::get<0>(darcyAnalyticalSolution), "pressureExact");
-    darcyVtkWriter.addField(std::get<1>(darcyAnalyticalSolution), "velocityExact");
+    VtkOutputModule<DarcyGridVariables,
+                    GetPropType<DarcyTypeTag, Properties::SolutionVector>>
+        darcyVtkWriter(*darcyGridVariables, sol[porousMediumIdx],
+                       darcyProblem->name());
+    using DarcyVelocityOutput =
+        GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
+    darcyVtkWriter.addVelocityOutput(
+        std::make_shared<DarcyVelocityOutput>(*darcyGridVariables));
+    GetPropType<DarcyTypeTag, Properties::IOFields>::initOutputModule(
+        darcyVtkWriter);
+    const auto darcyAnalyticalSolution =
+        createDarcyAnalyticalSolution<Scalar>(*darcyProblem);
+    darcyVtkWriter.addField(std::get<0>(darcyAnalyticalSolution),
+                            "pressureExact");
+    darcyVtkWriter.addField(std::get<1>(darcyAnalyticalSolution),
+                            "velocityExact");
     darcyVtkWriter.write(0.0);
 
     // the assembler for a stationary problem
-    using Assembler = MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
-    auto assembler = std::make_shared<Assembler>(std::make_tuple(freeFlowProblem, freeFlowProblem, darcyProblem),
-                                                 std::make_tuple(freeFlowGridGeometry->faceFVGridGeometryPtr(),
-                                                                 freeFlowGridGeometry->cellCenterFVGridGeometryPtr(),
-                                                                 darcyGridGeometry),
-                                                 std::make_tuple(freeFlowGridVariables->faceGridVariablesPtr(),
-                                                                 freeFlowGridVariables->cellCenterGridVariablesPtr(),
-                                                                 darcyGridVariables),
-                                                 couplingManager);
+    using Assembler =
+        MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        std::make_tuple(freeFlowProblem, freeFlowProblem, darcyProblem),
+        std::make_tuple(freeFlowGridGeometry->faceFVGridGeometryPtr(),
+                        freeFlowGridGeometry->cellCenterFVGridGeometryPtr(),
+                        darcyGridGeometry),
+        std::make_tuple(freeFlowGridVariables->faceGridVariablesPtr(),
+                        freeFlowGridVariables->cellCenterGridVariablesPtr(),
+                        darcyGridVariables),
+        couplingManager);
 
     // the linear solver
     using LinearSolver = UMFPackBackend;
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    using NewtonSolver =
+        MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
     NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
     // solve the non-linear system
@@ -280,11 +325,10 @@ int main(int argc, char** argv)
     ////////////////////////////////////////////////////////////
 
     // print dumux end message
-    if (mpiHelper.rank() == 0)
-    {
+    if (mpiHelper.rank() == 0) {
         Parameters::print();
         DumuxMessage::print(/*firstCall=*/false);
     }
 
     return 0;
-} // end main
+}  // end main

@@ -25,12 +25,12 @@
 #ifndef DUMUX_DARCY_SUBPROBLEM_HH
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
-#include <dune/common/fvector.hh>
 #include <dumux/common/numeqvector.hh>
+#include <dune/common/fvector.hh>
 #include <dune/grid/yaspgrid.hh>
 
-#include <dumux/discretization/cctpfa.hh>
 #include <dumux/discretization/box.hh>
+#include <dumux/discretization/cctpfa.hh>
 
 #include <dumux/common/boundarytypes.hh>
 
@@ -42,27 +42,32 @@
 
 #include "spatialparams.hh"
 
-namespace Dumux {
-template <class TypeTag>
+namespace Dumux
+{
+template<class TypeTag>
 class DarcySubProblem;
 
 /*!
  * \ingroup BoundaryTests
  * \brief The Darcy sub-problem of coupled Stokes-Darcy convergence test
  */
-template <class TypeTag>
+template<class TypeTag>
 class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 {
     using ParentType = PorousMediumFlowProblem<TypeTag>;
-    using GridView = typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
+    using GridView =
+        typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
-    using BoundaryTypes = Dumux::BoundaryTypes<GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
+    using BoundaryTypes = Dumux::BoundaryTypes<
+        GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
-    using FVElementGeometry = typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
+    using FVElementGeometry =
+        typename GetPropType<TypeTag, Properties::GridGeometry>::LocalView;
     using SubControlVolume = typename FVElementGeometry::SubControlVolume;
-    using SubControlVolumeFace = typename FVElementGeometry::SubControlVolumeFace;
+    using SubControlVolumeFace =
+        typename FVElementGeometry::SubControlVolumeFace;
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
@@ -75,24 +80,25 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
 public:
     //! export the Indices
-    using Indices = typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using Indices =
+        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
-    DarcySubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
-                    std::shared_ptr<CouplingManager> couplingManager,
-                    std::shared_ptr<typename ParentType::SpatialParams> spatialParams)
-    : ParentType(gridGeometry, spatialParams, "Darcy")
-    , couplingManager_(couplingManager)
+    DarcySubProblem(
+        std::shared_ptr<const GridGeometry> gridGeometry,
+        std::shared_ptr<CouplingManager> couplingManager,
+        std::shared_ptr<typename ParentType::SpatialParams> spatialParams)
+        : ParentType(gridGeometry, spatialParams, "Darcy"),
+          couplingManager_(couplingManager)
     {
-        problemName_ = "EggenweilerRybak_" + getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
+        problemName_ =
+            "EggenweilerRybak_" +
+            getParamFromGroup<std::string>(this->paramGroup(), "Problem.Name");
     }
 
     /*!
      * \brief The problem name.
      */
-    const std::string& name() const
-    {
-        return problemName_;
-    }
+    const std::string &name() const { return problemName_; }
 
     /*!
      * \name Problem parameters
@@ -103,8 +109,7 @@ public:
      * \brief Returns the temperature within the domain in [K].
      *
      */
-    Scalar temperature() const
-    { return 273.15 + 10; } // 10°C
+    Scalar temperature() const { return 273.15 + 10; }  // 10°C
     // \}
 
     /*!
@@ -119,11 +124,13 @@ public:
       * \param element The element
       * \param scvf The boundary sub control volume face
       */
-    BoundaryTypes boundaryTypes(const Element &element, const SubControlVolumeFace &scvf) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolumeFace &scvf) const
     {
         BoundaryTypes values;
 
-        if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx, scvf))
+        if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx,
+                                              scvf))
             values.setAllCouplingNeumann();
         else
             values.setAllDirichlet();
@@ -138,25 +145,25 @@ public:
       * \param element The element
       * \param scv The boundary sub control volume
       */
-    BoundaryTypes boundaryTypes(const Element &element, const SubControlVolume &scv) const
+    BoundaryTypes boundaryTypes(const Element &element,
+                                const SubControlVolume &scv) const
     {
         BoundaryTypes values;
 
         values.setAllDirichlet();
 
         //corners will not be handled as coupled
-        if(onLeftBoundary_(scv.dofPosition()) || onRightBoundary_(scv.dofPosition()))
-        {
+        if (onLeftBoundary_(scv.dofPosition()) ||
+            onRightBoundary_(scv.dofPosition())) {
             values.setAllDirichlet();
             return values;
         }
 
         auto fvGeometry = localView(this->gridGeometry());
         fvGeometry.bindElement(element);
-        for (auto&& scvf : scvfs(fvGeometry))
-        {
-            if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx, element, scvf))
-            {
+        for (auto &&scvf : scvfs(fvGeometry)) {
+            if (couplingManager().isCoupledEntity(
+                    CouplingManager::porousMediumIdx, element, scvf)) {
                 values.setAllCouplingNeumann();
             }
         }
@@ -188,16 +195,19 @@ public:
      * For this method, the \a values variable stores primary variables.
      */
     template<class ElementVolumeVariables, class ElementFluxVarsCache>
-    NumEqVector neumann(const Element& element,
-                        const FVElementGeometry& fvGeometry,
-                        const ElementVolumeVariables& elemVolVars,
-                        const ElementFluxVarsCache& elemFluxVarsCache,
-                        const SubControlVolumeFace& scvf) const
+    NumEqVector neumann(const Element &element,
+                        const FVElementGeometry &fvGeometry,
+                        const ElementVolumeVariables &elemVolVars,
+                        const ElementFluxVarsCache &elemFluxVarsCache,
+                        const SubControlVolumeFace &scvf) const
     {
         NumEqVector values(0.0);
 
-        if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx, element, scvf))
-            values[Indices::conti0EqIdx] = couplingManager().couplingData().massCouplingCondition(element, fvGeometry, elemVolVars, elemFluxVarsCache, scvf);
+        if (couplingManager().isCoupledEntity(CouplingManager::porousMediumIdx,
+                                              element, scvf))
+            values[Indices::conti0EqIdx] =
+                couplingManager().couplingData().massCouplingCondition(
+                    element, fvGeometry, elemVolVars, elemFluxVarsCache, scvf);
 
         return values;
     }
@@ -214,7 +224,7 @@ public:
      *
      * \param globalPos The global position
      */
-    NumEqVector sourceAtPos(const GlobalPosition& globalPos) const
+    NumEqVector sourceAtPos(const GlobalPosition &globalPos) const
     {
         return rhsNewICNonSymmetrized_(globalPos);
     }
@@ -239,7 +249,7 @@ public:
      *
      * \param globalPos The global position
      */
-    auto analyticalSolution(const GlobalPosition& globalPos) const
+    auto analyticalSolution(const GlobalPosition &globalPos) const
     {
         return analyticalSolutionNewICNonSymmetrized_(globalPos);
     }
@@ -247,177 +257,214 @@ public:
     // \}
 
     //! Get the coupling manager
-    const CouplingManager& couplingManager() const
-    { return *couplingManager_; }
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
 
 private:
-
     // see Rybak et al., 2015: "Multirate time integration for coupled saturated/unsaturated porous medium and free flow systems"
-    Dune::FieldVector<Scalar, 3> analyticalSolutionRybak_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionRybak_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
 
-        using std::exp; using std::sin; using std::cos;
-        sol[velocityXIdx] = -0.5*M_PI*y*y*cos(M_PI*x);
-        sol[velocityYIdx] = -1.0*y*sin(M_PI*x);
-        sol[pressureIdx] = 0.5*y*y*sin(M_PI*x);
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        sol[velocityXIdx] = -0.5 * M_PI * y * y * cos(M_PI * x);
+        sol[velocityYIdx] = -1.0 * y * sin(M_PI * x);
+        sol[pressureIdx] = 0.5 * y * y * sin(M_PI * x);
         return sol;
     }
 
     // see Rybak et al., 2015: "Multirate time integration for coupled saturated/unsaturated porous medium and free flow systems"
-    NumEqVector rhsRybak_(const GlobalPosition& globalPos) const
+    NumEqVector rhsRybak_(const GlobalPosition &globalPos) const
     {
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
         using std::sin;
-        return NumEqVector((0.5*M_PI*y*M_PI*y - 1)*sin(M_PI*x));
+        return NumEqVector((0.5 * M_PI * y * M_PI * y - 1) * sin(M_PI * x));
     }
 
     // see Shiue et al., 2018: "Convergence of the MAC Scheme for the Stokes/Darcy Coupling Problem"
-    Dune::FieldVector<Scalar, 3> analyticalSolutionShiueEtAlExampleOne_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionShiueEtAlExampleOne_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
 
-        using std::exp; using std::sin; using std::cos;
-        sol[pressureIdx] = (exp(y) - y*exp(1)) * cos(M_PI*x);
-        sol[velocityXIdx] = M_PI*(-exp(1)*y + exp(y))*sin(M_PI*x);
-        sol[velocityYIdx] = (exp(1) - exp(y))*cos(M_PI*x);
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        sol[pressureIdx] = (exp(y) - y * exp(1)) * cos(M_PI * x);
+        sol[velocityXIdx] = M_PI * (-exp(1) * y + exp(y)) * sin(M_PI * x);
+        sol[velocityYIdx] = (exp(1) - exp(y)) * cos(M_PI * x);
 
         return sol;
     }
 
     // see Shiue et al., 2018: "Convergence of the MAC Scheme for the Stokes/Darcy Coupling Problem"
-    NumEqVector rhsShiueEtAlExampleOne_(const GlobalPosition& globalPos) const
+    NumEqVector rhsShiueEtAlExampleOne_(const GlobalPosition &globalPos) const
     {
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
-        using std::exp; using std::sin; using std::cos;
-        return NumEqVector(cos(M_PI*x) * (M_PI*M_PI*(exp(y) - y*exp(1)) - exp(y)));
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        return NumEqVector(cos(M_PI * x) *
+                           (M_PI * M_PI * (exp(y) - y * exp(1)) - exp(y)));
     }
 
     // see Shiue et al., 2018: "Convergence of the MAC Scheme for the Stokes/Darcy Coupling Problem"
-    Dune::FieldVector<Scalar, 3> analyticalSolutionShiueEtAlExampleTwo_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionShiueEtAlExampleTwo_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
 
-        sol[pressureIdx] = x*(1.0-x)*(y-1.0) + (y-1.0)*(y-1.0)*(y-1.0)/3.0 + 2.0*x + 2.0*y + 4.0;
-        sol[velocityXIdx] = x*(y - 1.0) + (x - 1.0)*(y - 1.0) - 2.0;
-        sol[velocityYIdx] = x*(x - 1.0) - 1.0*(y - 1.0)*(y - 1.0) - 2.0;
+        sol[pressureIdx] = x * (1.0 - x) * (y - 1.0) +
+                           (y - 1.0) * (y - 1.0) * (y - 1.0) / 3.0 + 2.0 * x +
+                           2.0 * y + 4.0;
+        sol[velocityXIdx] = x * (y - 1.0) + (x - 1.0) * (y - 1.0) - 2.0;
+        sol[velocityYIdx] = x * (x - 1.0) - 1.0 * (y - 1.0) * (y - 1.0) - 2.0;
 
         return sol;
     }
 
     // see Shiue et al., 2018: "Convergence of the MAC Scheme for the Stokes/Darcy Coupling Problem"
-    NumEqVector rhsShiueEtAlExampleTwo_(const GlobalPosition& globalPos) const
-    { return NumEqVector(0.0); }
+    NumEqVector rhsShiueEtAlExampleTwo_(const GlobalPosition &globalPos) const
+    {
+        return NumEqVector(0.0);
+    }
 
     // see Schneider et al., 2019: "Coupling staggered-grid and MPFA finite volume methods for
     // free flow/porous-medium flow problems"
-    Dune::FieldVector<Scalar, 3> analyticalSolutionSchneiderEtAl_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionSchneiderEtAl_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
         static constexpr Scalar omega = M_PI;
         static constexpr Scalar c = 0.0;
-        using std::exp; using std::sin; using std::cos;
-        const Scalar sinOmegaX = sin(omega*x);
-        const Scalar cosOmegaX = cos(omega*x);
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        const Scalar sinOmegaX = sin(omega * x);
+        const Scalar cosOmegaX = cos(omega * x);
         static const Scalar expTwo = exp(2);
-        const Scalar expYPlusOne = exp(y+1);
+        const Scalar expYPlusOne = exp(y + 1);
 
-        sol[pressureIdx] = (expYPlusOne + 2 - expTwo)*sinOmegaX;
-        sol[velocityXIdx] = c/(2*omega)*expYPlusOne*sinOmegaX*sinOmegaX
-                            -omega*(expYPlusOne + 2 - expTwo)*cosOmegaX;
-        sol[velocityYIdx] = (0.5*c*(expYPlusOne + 2 - expTwo)*cosOmegaX
-                            -(c*cosOmegaX + 1)*exp(y-1))*sinOmegaX;
+        sol[pressureIdx] = (expYPlusOne + 2 - expTwo) * sinOmegaX;
+        sol[velocityXIdx] =
+            c / (2 * omega) * expYPlusOne * sinOmegaX * sinOmegaX -
+            omega * (expYPlusOne + 2 - expTwo) * cosOmegaX;
+        sol[velocityYIdx] = (0.5 * c * (expYPlusOne + 2 - expTwo) * cosOmegaX -
+                             (c * cosOmegaX + 1) * exp(y - 1)) *
+                            sinOmegaX;
 
         return sol;
     }
 
     // see Schneider et al., 2019: "Coupling staggered-grid and MPFA finite volume methods for
     // free flow/porous-medium flow problems (with c = 0)"
-    NumEqVector rhsSchneiderEtAl_(const GlobalPosition& globalPos) const
+    NumEqVector rhsSchneiderEtAl_(const GlobalPosition &globalPos) const
     {
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
-        using std::exp; using std::sin; using std::cos;
+        using std::cos;
+        using std::exp;
+        using std::sin;
         static constexpr Scalar omega = M_PI;
         static constexpr Scalar c = 0.0;
-        const Scalar cosOmegaX = cos(omega*x);
+        const Scalar cosOmegaX = cos(omega * x);
         static const Scalar expTwo = exp(2);
-        const Scalar expYPlusOne = exp(y+1);
+        const Scalar expYPlusOne = exp(y + 1);
 
-        const Scalar result = (-(c*cosOmegaX + 1)*exp(y - 1)
-                                             + 1.5*c*expYPlusOne*cosOmegaX
-                                             + omega*omega*(expYPlusOne - expTwo + 2))
-                                             *sin(omega*x);
+        const Scalar result = (-(c * cosOmegaX + 1) * exp(y - 1) +
+                               1.5 * c * expYPlusOne * cosOmegaX +
+                               omega * omega * (expYPlusOne - expTwo + 2)) *
+                              sin(omega * x);
         return NumEqVector(result);
     }
 
     // see Cao et al., 2011: "Robin–Robin domain decomposition methods for the steady-state Stokes–Darcy system with
     // the Beavers–Joseph interface condition"
-    Dune::FieldVector<Scalar, 3> analyticalSolutionCao_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionCao_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         // Transform interface to y = 1
         const Scalar y = globalPos[1] - 1;
 
-        using std::exp; using std::sin; using std::cos;
-        sol[velocityXIdx] = M_PI*M_PI*(-y + cos(M_PI*(y - 1)))*cos(M_PI*x);
-        sol[velocityYIdx] = -(M_PI*sin(M_PI*x) - 2)*(M_PI*sin(M_PI*(y - 1)) + 1);
-        sol[pressureIdx]  = (2-M_PI*sin(M_PI*x))*(-y+cos(M_PI*(1-y)));
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        sol[velocityXIdx] =
+            M_PI * M_PI * (-y + cos(M_PI * (y - 1))) * cos(M_PI * x);
+        sol[velocityYIdx] =
+            -(M_PI * sin(M_PI * x) - 2) * (M_PI * sin(M_PI * (y - 1)) + 1);
+        sol[pressureIdx] =
+            (2 - M_PI * sin(M_PI * x)) * (-y + cos(M_PI * (1 - y)));
         return sol;
     }
 
     // see Cao et al., 2011: "Robin–Robin domain decomposition methods for the steady-state Stokes–Darcy system with
     // the Beavers–Joseph interface condition"
-    NumEqVector rhsCao_(const GlobalPosition& globalPos) const
+    NumEqVector rhsCao_(const GlobalPosition &globalPos) const
     {
         const Scalar x = globalPos[0];
         // Transform interface to y = 1
         const Scalar y = globalPos[1] - 1;
-        using std::exp; using std::sin; using std::cos;
-        return NumEqVector(M_PI*M_PI*(M_PI*(y - cos(M_PI*(y - 1)))*sin(M_PI*x) - (M_PI*sin(M_PI*x) - 2)*cos(M_PI*(y - 1))));
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        return NumEqVector(M_PI * M_PI *
+                           (M_PI * (y - cos(M_PI * (y - 1))) * sin(M_PI * x) -
+                            (M_PI * sin(M_PI * x) - 2) * cos(M_PI * (y - 1))));
     }
 
-
     // exact solution for new IC with non-symmetrized stress tensor (by Elissa Eggenweiler)
-    Dune::FieldVector<Scalar, 3> analyticalSolutionNewICNonSymmetrized_(const GlobalPosition& globalPos) const
+    Dune::FieldVector<Scalar, 3> analyticalSolutionNewICNonSymmetrized_(
+        const GlobalPosition &globalPos) const
     {
         Dune::FieldVector<Scalar, 3> sol(0.0);
         const Scalar x = globalPos[0];
         const Scalar y = globalPos[1];
 
-        using std::exp; using std::sin; using std::cos;
-        sol[velocityXIdx] = x*(y-1.0) + (x-1.0)*(y-1.0) - 3.0;
-        sol[velocityYIdx] = x*(x-1.0) - (y-1.0)*(y-1.0) - 2.0;
-        sol[pressureIdx] = x*(1.0-x)*(y-1.0) + 1.0/3.0*(y-1.0)*(y-1.0)*(y-1.0) + 3.0*x + 2.0*y + 1.0;
+        using std::cos;
+        using std::exp;
+        using std::sin;
+        sol[velocityXIdx] = x * (y - 1.0) + (x - 1.0) * (y - 1.0) - 3.0;
+        sol[velocityYIdx] = x * (x - 1.0) - (y - 1.0) * (y - 1.0) - 2.0;
+        sol[pressureIdx] = x * (1.0 - x) * (y - 1.0) +
+                           1.0 / 3.0 * (y - 1.0) * (y - 1.0) * (y - 1.0) +
+                           3.0 * x + 2.0 * y + 1.0;
         return sol;
     }
 
     // exact solution for new IC with non-symmetrized stress tensor (by Elissa Eggenweiler)
-    NumEqVector rhsNewICNonSymmetrized_(const GlobalPosition& globalPos) const
+    NumEqVector rhsNewICNonSymmetrized_(const GlobalPosition &globalPos) const
     {
         return NumEqVector(0.0);
     }
 
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;  }
+    {
+        return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;
+    }
     bool onRightBoundary_(const GlobalPosition &globalPos) const
-    { return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_;  }
+    {
+        return globalPos[0] > this->gridGeometry().bBoxMax()[0] - eps_;
+    }
 
     static constexpr Scalar eps_ = 1e-7;
     std::shared_ptr<CouplingManager> couplingManager_;
     std::string problemName_;
 };
-} // end namespace Dumux
+}  // end namespace Dumux
 
 #endif
