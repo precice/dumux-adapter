@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-02-01: Add some extra information on the documentation in the `README.md`. Removed old/out-of-date mkdocs documentation from `doc/mkdocs`.
 - 2022-01-31: Increased robustness of test scripts.
 - 2022-01-31: We now use `diff -w` to compare preCICE's output files for regression tests. In preCICE 2.3.0 the white spaces used have changed which broke our regressions tests.
 - 2022-01-26: Renamed `dumupreciceindexwrapper.[hh|cc]` to `dumupreciceindexmapper.[hh|cc]` to be consistent with the class name.
