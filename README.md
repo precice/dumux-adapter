@@ -47,6 +47,23 @@ This repository provides a [DuMuX](https://dumux.org/)-specific adapter to coupl
     ctest
     ```
 
+## Documentation
+
+### User documentation
+
+At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/issues) and let us know.
+
+### API documentation
+
+The interface of the coupling adapter and also the internal (private) interface are documented using Doxygen. In order to build this documentation you need [Doxygen](https://www.doxygen.nl/index.html) installed. After configuring the project using CMake/`dunecontrol` you can build the documentation via navigating to the `build-cmake` directory and building the `doxygen_dumux-precice` target, i.e.,
+
+```text
+cd build-cmake
+make doxygen_dumux-precice
+```
+
+This generates a HTML documentation which you can view in a browser of your choice. It is stored in `build-cmake/doc/doxygen/index.html`.
+
 ## Publications
 
 ### How to cite this code?
