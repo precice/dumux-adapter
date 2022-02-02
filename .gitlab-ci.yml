@@ -65,10 +65,10 @@ build-tests:3.4-2.3.0:
   image: ajaust/dumux-precice:3.4-2.3.0
   <<: *build-tests
 
-build-tests:master-2.2.1:
-  image: ajaust/dumux-precice:master-2.2.1
-  rules:
-    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+build-tests:master-2.3.0:
+  image: dumux-precice:master-2.3.0
+#  rules:
+#    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-tests
 #  allow_failure: true
 
@@ -103,13 +103,13 @@ test-partitioned:3.4-2.3.0:
   needs:
     - build-tests:3.4-2.3.0
 
-test-partitioned:master-2.2.1:
-  image: ajaust/dumux-precice:master-2.2.1
+test-partitioned:master-2.3.0:
+  image: ub2004-dumux-precice:master-2.3.0
   <<: *test-partitioned-cases
 #  rules:
 #    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
-    - build-tests:master-2.2.1
+    - build-tests:master-2.3.0
 #  allow_failure: true
 
 .test_template: &test-monolithic-cases
@@ -144,11 +144,11 @@ test-monolithic:3.4-2.3.0:
   needs:
     - build-tests:3.4-2.3.0
 
-test-monolithic:master-2.2.1:
-  image: ajaust/dumux-precice:master-2.2.1
+test-monolithic:master-2.3.0:
+  image: ub2004-dumux-precice:master-2.3.0
   <<: *test-monolithic-cases
 #  rules:
 #    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
-    - build-tests:master-2.2.1
+    - build-tests:master-2.3.0
 #  allow_failure: true
