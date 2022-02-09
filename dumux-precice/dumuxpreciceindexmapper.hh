@@ -26,9 +26,9 @@ class DumuxPreciceIndexMapper
 {
 private:
     //!  Mapping from Dumux' face indices to preCICE's vertex indices.
-    std::map<T, T> _dumuxFaceIndexToPreciceIndex;
+    std::map<T, T> dumuxFaceIndexToPreciceIndex_;
     //!  Mapping from preCICE's vertex indices to Dumux' face indices.
-    std::map<T, T> _preciceVertexToDumuxFaceIndex;
+    std::map<T, T> preciceVertexToDumuxFaceIndex_;
 
 public:
     /*!
@@ -50,9 +50,9 @@ public:
         const size_t size_ = dumuxIndices.size();
 
         for (T i = 0; i < size_; i++) {
-            _preciceVertexToDumuxFaceIndex.emplace(preciceIndices[i],
+            preciceVertexToDumuxFaceIndex_.emplace(preciceIndices[i],
                                                    dumuxIndices[i]);
-            _dumuxFaceIndexToPreciceIndex.emplace(dumuxIndices[i],
+            dumuxFaceIndexToPreciceIndex_.emplace(dumuxIndices[i],
                                                   preciceIndices[i]);
         }
     }
@@ -65,7 +65,7 @@ public:
     const T getPreciceId(const T dumuxId) const
     {
         assert(isDumuxIdMapped(dumuxId));
-        return _dumuxFaceIndexToPreciceIndex.at(dumuxId);
+        return dumuxFaceIndexToPreciceIndex_.at(dumuxId);
     }
     /*!
      * @brief Gets DuMuX' face index basde on a preCICE vertex index.
@@ -76,7 +76,7 @@ public:
     const T getDumuxId(const T preciceId) const
     {
         assert(isPreciceIdMapped(preciceId));
-        return _preciceVertexToDumuxFaceIndex.at(preciceId);
+        return preciceVertexToDumuxFaceIndex_.at(preciceId);
     }
     /*!
      * @brief Checks if a DuMuX face index is mapped to a preCICE vertex index.
@@ -87,7 +87,7 @@ public:
      */
     bool isDumuxIdMapped(const T dumuxId) const
     {
-        return _dumuxFaceIndexToPreciceIndex.count(dumuxId) == 1;
+        return dumuxFaceIndexToPreciceIndex_.count(dumuxId) == 1;
     }
     /*!
      * @brief Checkes if a preCICE vertex index is mapped to a DuMuX face index.
@@ -98,14 +98,14 @@ public:
      */
     bool isPreciceIdMapped(const T preciceId) const
     {
-        return _preciceVertexToDumuxFaceIndex.count(preciceId) == 1;
+        return preciceVertexToDumuxFaceIndex_.count(preciceId) == 1;
     }
     /*!
      * @brief Gets the size of the mapping table
      *
      * @return size_t Number of face/vertex indices mapped.
      */
-    size_t getSize() const { return _preciceVertexToDumuxFaceIndex.size(); }
+    size_t getSize() const { return preciceVertexToDumuxFaceIndex_.size(); }
     /*!
      * @brief Destructor
      *
@@ -131,14 +131,14 @@ std::ostream &operator<<(std::ostream &os,
 {
     os << "preCICE to DuMuX mapping "
        << "\n";
-    for (const auto &v : wrapper._preciceVertexToDumuxFaceIndex) {
+    for (const auto &v : wrapper.preciceVertexToDumuxFaceIndex_) {
         os << v.first << " -> " << wrapper.getDumuxId(v.first) << "\n";
     }
 
     os << "\n\n";
     os << "Dumux to preCICE mapping "
        << "\n";
-    for (const auto &v : wrapper._dumuxFaceIndexToPreciceIndex) {
+    for (const auto &v : wrapper.dumuxFaceIndexToPreciceIndex_) {
         os << v.first << " -> " << wrapper.getPreciceId(v.first) << "\n";
     }
 
