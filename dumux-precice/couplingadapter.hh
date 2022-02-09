@@ -28,9 +28,9 @@ class CouplingAdapter
 {
 private:
     //! True if preCICE instance was initiated
-    bool _wasCreated;
+    bool wasCreated_;
     //! Pointer to preCICE instance
-    std::unique_ptr<precice::SolverInterface> _precice;
+    std::unique_ptr<precice::SolverInterface> precice_;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -69,39 +69,39 @@ private:
      *
      * @return size_t Number of quantities defined on the coupling interface.
      */
-    size_t numberOfQuantities() const { return _dataNames.size(); }
+    size_t numberOfQuantities() const { return dataNames_.size(); }
     //! True if the coupling mesh was created.
-    bool _meshWasCreated;
+    bool meshWasCreated_;
     //! True if precice::SolverInterface.initialize() has been called.
-    bool _preciceWasInitialized;
+    bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
-    bool _hasIndexMapper;
+    bool hasIndexMapper_;
     //! Stores identifier of the coupling mesh provided by preCICE.
-    int _meshID;
+    int meshID_;
     //! Time step size.
-    double _timeStepSize;
+    double timeStepSize_;
     //! Vector of names of data exchanged over coupling interface.
-    std::vector<std::string> _dataNames;
+    std::vector<std::string> dataNames_;
     //! Vector of identifiers of data exchanged over coupling interface.
-    std::vector<int> _preciceDataID;
+    std::vector<int> preciceDataID_;
     //! Vector storing data vectors of the data exchanged over the coupling interface.
-    std::vector<std::vector<double> > _dataVectors;
+    std::vector<std::vector<double> > dataVectors_;
     //! Vector of identifiers of the vertices of the coupling mesh.
-    std::vector<int> _vertexIDs;  //should be size_t
+    std::vector<int> vertexIDs_;  //should be size_t
     /*!
      * @brief Instance of DumuxPreciceIndexMapper that translates between
      *        DuMuX' identifiers of vertices and preCICE's identifiers.
      *
      */
-    Internal::DumuxPreciceIndexMapper<int> _indexMapper;
+    Internal::DumuxPreciceIndexMapper<int> indexMapper_;
     /*!
      * @brief Get the of quantities exchanged.
      *
      * @return size_t Number of quantities defined on coupling interface.
      */
-    size_t getNumberOfQuantities() const { return _dataNames.size(); }
+    size_t getNumberOfQuantities() const { return dataNames_.size(); }
     //! Number of expected quantities on the coupling interface.
-    static constexpr size_t _reserveSize = 4;
+    static constexpr size_t reserveSize_ = 4;
     /*!
      * @brief Destroy the CouplingAdapter object
      *
