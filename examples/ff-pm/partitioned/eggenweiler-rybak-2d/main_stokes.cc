@@ -1,0 +1,244 @@
+// -*- mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+// vi: set et ts=4 sw=4 sts=4:
+/*****************************************************************************
+ *   See the file COPYING for full copying permissions.                      *
+ *                                                                           *
+ *   This program is free software: you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation, either version 3 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the            *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.   *
+ *****************************************************************************/
+/*!
+ * \file
+ * \ingroup BoundaryTests
+ * \brief A test problem for the coupled FreeFlow/Darcy problem (1p).
+ */
+
+#include <config.h>
+
+#include <iostream>
+
+#include <dune/common/parallel/mpihelper.hh>
+#include <dune/common/timer.hh>
+
+#include <dumux/assembly/fvassembler.hh>
+#include <dumux/assembly/staggeredfvassembler.hh>
+#include <dumux/common/dumuxmessage.hh>
+#include <dumux/common/parameters.hh>
+#include <dumux/common/partial.hh>
+#include <dumux/common/properties.hh>
+#include <dumux/io/grid/gridmanager_yasp.hh>
+#include <dumux/io/staggeredvtkoutputmodule.hh>
+#include <dumux/io/vtkoutputmodule.hh>
+#include <dumux/linear/seqsolverbackend.hh>
+
+#include <dumux/nonlinear/newtonsolver.hh>
+
+// #include <dumux/multidomain/fvassembler.hh>
+// #include <dumux/multidomain/newtonsolver.hh>
+// #include <dumux/multidomain/staggeredtraits.hh>
+
+#include "properties.hh"
+
+#include <test/freeflow/navierstokes/analyticalsolutionvectors.hh>
+#include <test/freeflow/navierstokes/errors.hh>
+
+
+template<class Problem, class SolutionVector>
+void printFreeFlowL2Error(std::shared_ptr<Problem> problem,
+                          const SolutionVector &x)
+{
+    using namespace Dumux;
+    using Indices = typename Problem::Indices;
+
+    NavierStokesErrors errors(problem, x);
+    const int numCellCenterDofs = problem->gridGeometry().numCellCenterDofs();
+    const int numFaceDofs = problem->gridGeometry().numFaceDofs();
+    std::ostream tmpOutputObject(
+        std::cout
+            .rdbuf());  // create temporary output with fixed formatting without affecting std::cout
+    const auto l2Abs = errors.l2Absolute();
+    const auto l2Rel = errors.l2Relative();
+    tmpOutputObject << std::setprecision(8) << "** L2 error (abs/rel) for "
+                    << std::setw(6) << numCellCenterDofs << " cc dofs and "
+                    << numFaceDofs
+                    << " face dofs (total: " << numCellCenterDofs + numFaceDofs
+                    << "): " << std::scientific
+                    << "L2(p) = " << l2Abs[Indices::pressureIdx] << " / "
+                    << l2Rel[Indices::pressureIdx]
+                    << " , L2(vx) = " << l2Abs[Indices::velocityXIdx] << " / "
+                    << l2Rel[Indices::velocityXIdx]
+                    << " , L2(vy) = " << l2Abs[Indices::velocityYIdx] << " / "
+                    << l2Rel[Indices::velocityYIdx] << std::endl;
+
+    // write the norm into a log file
+    std::ofstream logFile(problem->name() + ".log", std::ios::app);
+    logFile << "[ConvergenceTest] L2(p) = " << l2Abs[Indices::pressureIdx]
+            << " L2(vx) = " << l2Abs[Indices::velocityXIdx]
+            << " L2(vy) = " << l2Abs[Indices::velocityYIdx] << std::endl;
+}
+
+int main(int argc, char **argv)
+{
+    using namespace Dumux;
+
+    // initialize MPI, finalize is done automatically on exit
+    const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
+
+    // print dumux start message
+    if (mpiHelper.rank() == 0)
+        DumuxMessage::print(/*firstCall=*/true);
+
+    // parse command line arguments and input file
+    Parameters::init(argc, argv);
+
+    // Define the sub problem type tags
+    using FreeFlowTypeTag = Properties::TTag::FreeFlowOneP;
+    // using DarcyTypeTag = Properties::TTag::DARCYTYPETAG;
+
+    // try to create a grid (from the given grid file or the input file)
+    // for both sub-domains
+
+    using FreeFlowGridManager =
+        Dumux::GridManager<GetPropType<FreeFlowTypeTag, Properties::Grid>>;
+    FreeFlowGridManager freeFlowGridManager;
+    freeFlowGridManager.init("FreeFlow");  // pass parameter group
+
+    // we compute on the leaf grid view
+    // const auto &darcyGridView = darcyGridManager.grid().leafGridView();
+    const auto &freeFlowGridView = freeFlowGridManager.grid().leafGridView();
+
+    // create the finite volume grid geometry
+    using FreeFlowGridGeometry =
+        GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
+    auto freeFlowGridGeometry =
+        std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
+    // using DarcyGridGeometry =
+    //     GetPropType<DarcyTypeTag, Properties::GridGeometry>;
+    // auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+
+    // using Traits = StaggeredMultiDomainTraits<FreeFlowTypeTag, FreeFlowTypeTag,
+    //                                           DarcyTypeTag>;
+
+    // // the coupling manager
+    // using CouplingManager = StokesDarcyCouplingManager<Traits>;
+    // auto couplingManager = std::make_shared<CouplingManager>(
+    //     freeFlowGridGeometry, darcyGridGeometry);
+
+    // the indices
+    // constexpr auto freeFlowCellCenterIdx =
+    //     CouplingManager::freeFlowCellCenterIdx;
+    // constexpr auto freeFlowFaceIdx = CouplingManager::freeFlowFaceIdx;
+    // constexpr auto porousMediumIdx = CouplingManager::porousMediumIdx;
+
+    // the problem (initial and boundary conditions)
+    using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
+    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(
+        freeFlowGridGeometry);
+    // using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
+    // auto spatialParams = std::make_shared<typename DarcyProblem::SpatialParams>(
+    //     darcyGridGeometry);
+    // auto darcyProblem = std::make_shared<DarcyProblem>(
+    //     darcyGridGeometry, couplingManager, spatialParams);
+
+    // the solution vector
+    // Traits::SolutionVector sol;
+    // sol[freeFlowCellCenterIdx].resize(
+    //     freeFlowGridGeometry->numCellCenterDofs());
+    // sol[freeFlowFaceIdx].resize(freeFlowGridGeometry->numFaceDofs());
+    GetPropType<FreeFlowTypeTag, Properties::SolutionVector> sol;
+    sol[FreeFlowGridGeometry::cellCenterIdx()].resize(
+        freeFlowGridGeometry->numCellCenterDofs());
+    sol[FreeFlowGridGeometry::faceIdx()].resize(
+        freeFlowGridGeometry->numFaceDofs());
+
+    // get a solution vector storing references to the two FreeFlow solution vectors
+    //auto freeFlowSol = partial(sol, freeFlowFaceIdx, freeFlowCellCenterIdx);
+
+    //couplingManager->init(freeFlowProblem, darcyProblem, sol);
+
+    // the grid variables
+    using FreeFlowGridVariables =
+        GetPropType<FreeFlowTypeTag, Properties::GridVariables>;
+    auto freeFlowGridVariables = std::make_shared<FreeFlowGridVariables>(
+        freeFlowProblem, freeFlowGridGeometry);
+    freeFlowGridVariables->init(sol);
+
+    // intialize the vtk output module
+    // using Scalar = typename Traits::Scalar;
+    StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(sol)>
+        freeFlowVtkWriter(*freeFlowGridVariables, sol,
+                          freeFlowProblem->name());
+    GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(
+        freeFlowVtkWriter);
+
+    NavierStokesAnalyticalSolutionVectors freeFlowAnalyticalSolVectors(
+        freeFlowProblem);
+    freeFlowVtkWriter.addField(
+        freeFlowAnalyticalSolVectors.getAnalyticalPressureSolution(),
+        "pressureExact");
+    freeFlowVtkWriter.addField(
+        freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolution(),
+        "velocityExact");
+    freeFlowVtkWriter.addFaceField(
+        freeFlowAnalyticalSolVectors.getAnalyticalVelocitySolutionOnFace(),
+        "faceVelocityExact");
+
+    freeFlowVtkWriter.write(0.0);
+
+    // the assembler for a stationary problem
+    // using Assembler =
+    //     MultiDomainFVAssembler<Traits, CouplingManager, DiffMethod::numeric>;
+    // auto assembler = std::make_shared<Assembler>(
+    //     std::make_tuple(freeFlowProblem, freeFlowProblem, darcyProblem),
+    //     std::make_tuple(freeFlowGridGeometry->faceFVGridGeometryPtr(),
+    //                     freeFlowGridGeometry->cellCenterFVGridGeometryPtr(),
+    //                     darcyGridGeometry),
+    //     std::make_tuple(freeFlowGridVariables->faceGridVariablesPtr(),
+    //                     freeFlowGridVariables->cellCenterGridVariablesPtr(),
+    //                     darcyGridVariables),
+    //     couplingManager);
+    using Assembler =
+        StaggeredFVAssembler<FreeFlowTypeTag, DiffMethod::numeric>;
+    auto assembler = std::make_shared<Assembler>(
+        freeFlowProblem, freeFlowGridGeometry, freeFlowGridVariables);
+
+    // the linear solver
+    using LinearSolver = UMFPackBackend;
+    auto linearSolver = std::make_shared<LinearSolver>();
+
+    // the non-linear solver
+    // using NewtonSolver =
+    //     MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    // NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
+    using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
+    NewtonSolver nonLinearSolver(assembler, linearSolver);
+
+    // solve the non-linear system
+    nonLinearSolver.solve(sol);
+
+    // write vtk output
+    freeFlowVtkWriter.write(1.0);
+
+    printFreeFlowL2Error(freeFlowProblem, sol);
+
+    ////////////////////////////////////////////////////////////
+    // finalize, print dumux message to say goodbye
+    ////////////////////////////////////////////////////////////
+
+    // print dumux end message
+    if (mpiHelper.rank() == 0) {
+        Parameters::print();
+        DumuxMessage::print(/*firstCall=*/false);
+    }
+
+    return 0;
+}  // end main

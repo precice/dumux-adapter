@@ -25,7 +25,6 @@ include(DuneMacros)
 
 # start a dune project with information from dune.module
 dune_project()
-
 dune_enable_all_packages()
 
 # enforce C++-17
