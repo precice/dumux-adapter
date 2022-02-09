@@ -74,7 +74,6 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
-
     static constexpr auto velocityXIdx = 0;
     static constexpr auto velocityYIdx = 1;
     static constexpr auto pressureIdx = 2;
@@ -84,9 +83,8 @@ public:
     using Indices =
         typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
 
-    DarcySubProblem(
-        std::shared_ptr<const GridGeometry> gridGeometry)
-        : ParentType(gridGeometry,"Darcy"),
+    DarcySubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
+        : ParentType(gridGeometry, "Darcy"),
           couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
           pressureId_(0),
           velocityId_(0),
@@ -205,9 +203,12 @@ public:
 
         if (couplingInterface_.isCoupledEntity(scvf.index()))
             //values[Indices::conti0EqIdx] = couplingInterface_.getMassCouplingCondition( scvf );
-            values[Indices::conti0EqIdx] = couplingInterface_.getScalarQuantityOnFace(velocityId_, scvf.index());;
-                // couplingManager().couplingData().massCouplingCondition(
-                //     element, fvGeometry, elemVolVars, elemFluxVarsCache, scvf);
+            values[Indices::conti0EqIdx] =
+                couplingInterface_.getScalarQuantityOnFace(velocityId_,
+                                                           scvf.index());
+        ;
+        // couplingManager().couplingData().massCouplingCondition(
+        //     element, fvGeometry, elemVolVars, elemFluxVarsCache, scvf);
 
         return values;
     }

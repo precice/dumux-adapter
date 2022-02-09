@@ -130,7 +130,7 @@ public:
         values.setDirichlet(Indices::velocityXIdx);
         values.setDirichlet(Indices::velocityYIdx);
 
-        if ( couplingInterface_.isCoupledEntity(scvf.index())) {
+        if (couplingInterface_.isCoupledEntity(scvf.index())) {
             values.setCouplingNeumann(Indices::conti0EqIdx);
             values.setCouplingNeumann(Indices::momentumYBalanceIdx);
             values.setSlipCondition(Indices::momentumXBalanceIdx);
@@ -167,7 +167,7 @@ public:
 
         // if (couplingManager().isCoupledEntity(CouplingManager::freeFlowIdx,
         //                                       scvf)) {
-        if ( couplingInterface_.isCoupledEntity(scvf.index())) {
+        if (couplingInterface_.isCoupledEntity(scvf.index())) {
             //TODO
             // values[Indices::conti0EqIdx] =
             //     couplingManager().couplingData().massCouplingCondition(
@@ -307,7 +307,6 @@ public:
     // \}
 
 private:
-
     // exact solution for new IC with non-symmetrized stress tensor (by Elissa Eggenweiler)
     PrimaryVariables analyticalSolutionNewICNonSymmetrized_(
         const GlobalPosition &globalPos) const
@@ -345,7 +344,6 @@ private:
     size_t velocityId_;
     bool dataIdsWereSet_;
     std::string problemName_;
-
 };
 }  // end namespace Dumux
 

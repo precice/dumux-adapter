@@ -92,7 +92,6 @@ auto createDarcyAnalyticalSolution(const Problem &problem)
     return std::make_tuple(analyticalPressure, analyticalVelocity);
 }
 
-
 template<class Problem, class SolutionVector>
 void printDarcyL2Error(const Problem &problem, const SolutionVector &x)
 {
@@ -187,7 +186,6 @@ int main(int argc, char **argv)
     GetPropType<DarcyTypeTag, Properties::SolutionVector> sol;
     sol.resize(darcyGridGeometry->numDofs());
 
-
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
     // - What rank of how many ranks this instance is
@@ -197,7 +195,8 @@ int main(int argc, char **argv)
     //    if (argc == 3)
     //      preciceConfigFilename = argv[2];
     // if (argc > 2)
-    const std::string preciceConfigFilename = (argc > 2) ? argv[argc - 1] : "precice-config.xml";
+    const std::string preciceConfigFilename =
+        (argc > 2) ? argv[argc - 1] : "precice-config.xml";
 
     auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
     couplingInterface.announceSolver("Darcy", preciceConfigFilename,
@@ -240,8 +239,7 @@ int main(int argc, char **argv)
 
     VtkOutputModule<DarcyGridVariables,
                     GetPropType<DarcyTypeTag, Properties::SolutionVector>>
-        darcyVtkWriter(*darcyGridVariables, sol,
-                       darcyProblem->name());
+        darcyVtkWriter(*darcyGridVariables, sol, darcyProblem->name());
     using DarcyVelocityOutput =
         GetPropType<DarcyTypeTag, Properties::VelocityOutput>;
     darcyVtkWriter.addVelocityOutput(

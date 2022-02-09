@@ -51,7 +51,6 @@
 #include <test/freeflow/navierstokes/analyticalsolutionvectors.hh>
 #include <test/freeflow/navierstokes/errors.hh>
 
-
 template<class Problem, class SolutionVector>
 void printFreeFlowL2Error(std::shared_ptr<Problem> problem,
                           const SolutionVector &x)
@@ -141,8 +140,8 @@ int main(int argc, char **argv)
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
-    auto freeFlowProblem = std::make_shared<FreeFlowProblem>(
-        freeFlowGridGeometry);
+    auto freeFlowProblem =
+        std::make_shared<FreeFlowProblem>(freeFlowGridGeometry);
     // using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
     // auto spatialParams = std::make_shared<typename DarcyProblem::SpatialParams>(
     //     darcyGridGeometry);
@@ -175,8 +174,7 @@ int main(int argc, char **argv)
     // intialize the vtk output module
     // using Scalar = typename Traits::Scalar;
     StaggeredVtkOutputModule<FreeFlowGridVariables, decltype(sol)>
-        freeFlowVtkWriter(*freeFlowGridVariables, sol,
-                          freeFlowProblem->name());
+        freeFlowVtkWriter(*freeFlowGridVariables, sol, freeFlowProblem->name());
     GetPropType<FreeFlowTypeTag, Properties::IOFields>::initOutputModule(
         freeFlowVtkWriter);
 
