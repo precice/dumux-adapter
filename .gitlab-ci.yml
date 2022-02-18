@@ -116,6 +116,7 @@ test-partitioned:master-2.2.1:
   stage: test
   script:
     - cd build-cmake
+    - echo $PYTHONPATH
     - CTEST_OUTPUT_ON_FAILURE=1 ctest -j2 -L ^monolithic$
   artifacts:
     expire_in: 2 days
