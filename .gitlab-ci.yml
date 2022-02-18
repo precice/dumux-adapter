@@ -52,17 +52,17 @@ check-style-black:
       - build-cmake/
 
 build-tests:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *build-tests
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-tests:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
   <<: *build-tests
 
 build-tests:3.4-2.3.0:
-  image: ub2004-dumux-precice:3.4-2.3.0
+  image: ajaust/dumux-precice:3.4-2.3.0
   <<: *build-tests
 
 build-tests:master-2.2.1:
@@ -84,7 +84,7 @@ build-tests:master-2.2.1:
       - build-cmake/
 
 test-partitioned:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *test-partitioned-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
@@ -92,19 +92,19 @@ test-partitioned:3.3-2.2.1:
     - build-tests:3.3-2.2.1
 
 test-partitioned:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
   <<: *test-partitioned-cases
   needs:
     - build-tests:3.4-2.2.1
 
 test-partitioned:3.4-2.3.0:
-  image: ub2004-dumux-precice:3.4-2.3.0
+  image: ajaust/dumux-precice:3.4-2.3.0
   <<: *test-partitioned-cases
   needs:
     - build-tests:3.4-2.3.0
 
 test-partitioned:master-2.2.1:
-  image: ub2004-dumux-precice:master-2.2.1
+  image: ajaust/dumux-precice:master-2.2.1
   <<: *test-partitioned-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
@@ -124,7 +124,7 @@ test-partitioned:master-2.2.1:
       - build-cmake/
 
 test-monolithic:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.3-2.2.1
@@ -132,19 +132,19 @@ test-monolithic:3.3-2.2.1:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.4-2.2.1
 
 test-monolithic:3.4-2.3.0:
-  image: ub2004-dumux-precice:3.4-2.3.0
+  image: ajaust/dumux-precice:3.4-2.3.0
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.4-2.3.0
 
 test-monolithic:master-2.2.1:
-  image: ub2004-dumux-precice:master-2.2.1
+  image: ajaust/dumux-precice:master-2.2.1
   <<: *test-monolithic-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
