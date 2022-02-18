@@ -1,7 +1,7 @@
 #image: dumux-precice:3.3git-iterative-pr-2.2.0
 #image: dumux-precice:3.3-2.2.1
-image: ub2004-style-check:clang-10
-
+#image: ajaust/style-check:clang-10
+image: ajaust/style-check:0.1
 
 stages:
     - check
