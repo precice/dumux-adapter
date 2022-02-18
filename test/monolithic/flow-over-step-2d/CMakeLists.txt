@@ -19,4 +19,4 @@ dumux_add_test(NAME test_flow-over-step-2d
               --zeroThreshold {"velocity_liq \(m/s\)":1e-6,"p":1e-8}
 )
 set_tests_properties(test_flow-over-step-2d PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})

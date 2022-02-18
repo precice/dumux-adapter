@@ -9,12 +9,10 @@ import json
 try:
     # Dumux <=3.4
     from fuzzycomparevtu import compare_vtk
-    from fuzzycomparedata import compare_data
 except ImportError as e:
     try:
         # Dumux >3.4
         from fuzzycomparevtu import compareVTK as compare_vtk
-        from fuzzycomparedata import compareData as compare_data
     except ImportError as e:
         raise e
 

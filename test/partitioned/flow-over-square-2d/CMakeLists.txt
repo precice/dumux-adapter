@@ -48,7 +48,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_first PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
     TARGET test_pm_flow_over_square_2d
@@ -70,7 +70,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
-ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+  ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
               TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
@@ -93,7 +93,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_pi_st PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 ### Setting test dependencies
 set_property(TEST test_ff_pm_part_flow_over_square_2d_si_st_second APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_si_st_first)
@@ -122,7 +122,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
     TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
@@ -143,7 +143,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
-ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+ ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
               TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
@@ -166,7 +166,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_pi_ns PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
 set_property(TEST test_ff_pm_part_flow_over_square_2d_si_ns_first APPEND PROPERTY DEPENDS test_ff_pm_part_flow_over_square_2d_pi_st)
