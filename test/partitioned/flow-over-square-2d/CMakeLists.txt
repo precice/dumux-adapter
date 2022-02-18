@@ -44,7 +44,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
               --precice-config-file ${CMAKE_SOURCE_DIR}/test/partitioned/flow-over-square-2d/precice-config-si-free-flow-first.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_stokes_first_si_coupliter_stokes.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-si-stokes-first"
-              --relative 1e-6
+              --relative 5e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_first PROPERTIES
@@ -66,7 +66,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
             --precice-config-file ${CMAKE_SOURCE_DIR}/test/partitioned/flow-over-square-2d/precice-config-si-free-flow-second.xml
             --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_stokes_second_si_coupliter_darcy.log ${CMAKE_CURRENT_BINARY_DIR}/precice-Darcy-iterations.log
     --case-name "flow-over-box-2d-si-stokes-second"
-    --relative 1e-6
+    --relative 5e-6
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
@@ -88,7 +88,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_stokes_pi_coupliter_stokes.log
               ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-pi"
-              --relative 1e-6
+              --relative 5e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
@@ -118,7 +118,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
               --precice-config-file ${CMAKE_SOURCE_DIR}/test/partitioned/flow-over-square-2d/precice-config-si-free-flow-first.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_navierstokes_first_si_coupliter_navierstokes.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-si-navierstokes-first"
-              --relative 1e-6
+              --relative 5e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
@@ -139,7 +139,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
             --precice-config-file ${CMAKE_SOURCE_DIR}/test/partitioned/flow-over-square-2d/precice-config-si-free-flow-second.xml
             --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_navierstokes_second_si_coupliter_darcy.log ${CMAKE_CURRENT_BINARY_DIR}/precice-Darcy-iterations.log
     --case-name "flow-over-box-2d-si-navierstokes-second"
-    --relative 1e-6
+    --relative 5e-6
     --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
@@ -161,7 +161,7 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/partitioned/flow-over-square-2d/test_navierstokes_pi_coupliter_navierstokes.log
               ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-box-2d-pi"
-              --relative 1e-6
+              --relative 5e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 # Adding DuMuX directory to Python search path such that we can use DuMuX'x fuzzy (inexact) testing of vtu files
