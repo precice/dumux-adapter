@@ -19,7 +19,7 @@ dumux_add_test(NAME test_ff-pm-3d-stokes
               --zeroThreshold {"velocity_liq \(m/s\)":1e-8,"p":1e-8}
 )
 set_tests_properties(test_ff-pm-3d-stokes PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 
 dumux_add_test(NAME test_ff-pm-3d-navier-stokes
@@ -38,4 +38,4 @@ dumux_add_test(NAME test_ff-pm-3d-navier-stokes
               --zeroThreshold {"velocity_liq \(m/s\)":1e-8,"p":1e-8}
 )
 set_tests_properties(test_ff-pm-3d-navier-stokes PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})

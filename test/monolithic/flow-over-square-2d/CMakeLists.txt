@@ -19,4 +19,4 @@ dune_add_test(NAME test_ff_pm_mono_flow_over_square_2d
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
 )
 set_tests_properties(test_ff_pm_mono_flow_over_square_2d PROPERTIES
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../dumux/bin/testing:$ENV{PYTHONPATH})
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
