@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 set -e
 # Runs clang-format on all *.cc and *.hh files
 find dumux-precice/ -regex '.*\.\(cc\|hh\)' -exec clang-format-10 -style=file -i {} \;
