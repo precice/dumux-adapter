@@ -1,7 +1,7 @@
 #image: dumux-precice:3.3git-iterative-pr-2.2.0
 #image: dumux-precice:3.3-2.2.1
-image: ub2004-style-check:clang-10
-
+#image: ajaust/style-check:clang-10
+image: ajaust/style-check:0.1
 
 stages:
     - check
@@ -21,6 +21,21 @@ check-style-clang-10:
             - style-patch.diff
         expire_in: 2 days
 
+check-style-black:
+    stage: check
+    script:
+        - sudo apt-get update && sudo apt-get install -y python3 python3-distutils python-is-python3 wget
+        - wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py && ln -sf ${HOME}/.local/bin/pip3 ${HOME}/.local/bin/pip && export PATH="${HOME}/.local/bin":"${PATH}" && pip install black
+        - black .
+        - git diff > python-style-patch.diff
+        - if [ -s python-style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run black . and commit again."; false; fi
+    needs: []
+    artifacts:
+        when: on_failure
+        paths:
+            - python-style-patch.diff
+        expire_in: 2 days
+
 .build_template: &build-tests
   stage: build
   script:
@@ -37,17 +52,21 @@ check-style-clang-10:
       - build-cmake/
 
 build-tests:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *build-tests
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 build-tests:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
+  <<: *build-tests
+
+build-tests:3.4-2.3.0:
+  image: ajaust/dumux-precice:3.4-2.3.0
   <<: *build-tests
 
 build-tests:master-2.2.1:
-  image: dumux-precice:master-2.2.1
+  image: ajaust/dumux-precice:master-2.2.1
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-tests
@@ -65,7 +84,7 @@ build-tests:master-2.2.1:
       - build-cmake/
 
 test-partitioned:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *test-partitioned-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
@@ -73,13 +92,19 @@ test-partitioned:3.3-2.2.1:
     - build-tests:3.3-2.2.1
 
 test-partitioned:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
   <<: *test-partitioned-cases
   needs:
     - build-tests:3.4-2.2.1
 
+test-partitioned:3.4-2.3.0:
+  image: ajaust/dumux-precice:3.4-2.3.0
+  <<: *test-partitioned-cases
+  needs:
+    - build-tests:3.4-2.3.0
+
 test-partitioned:master-2.2.1:
-  image: ub2004-dumux-precice:master-2.2.1
+  image: ajaust/dumux-precice:master-2.2.1
   <<: *test-partitioned-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
@@ -91,6 +116,7 @@ test-partitioned:master-2.2.1:
   stage: test
   script:
     - cd build-cmake
+    - echo $PYTHONPATH
     - CTEST_OUTPUT_ON_FAILURE=1 ctest -j2 -L ^monolithic$
   artifacts:
     expire_in: 2 days
@@ -99,7 +125,7 @@ test-partitioned:master-2.2.1:
       - build-cmake/
 
 test-monolithic:3.3-2.2.1:
-  image: ub2004-dumux-precice:3.3-2.2.1
+  image: ajaust/dumux-precice:3.3-2.2.1
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.3-2.2.1
@@ -107,13 +133,19 @@ test-monolithic:3.3-2.2.1:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
 
 test-monolithic:3.4-2.2.1:
-  image: ub2004-dumux-precice:3.4-2.2.1
+  image: ajaust/dumux-precice:3.4-2.2.1
   <<: *test-monolithic-cases
   needs:
     - build-tests:3.4-2.2.1
 
+test-monolithic:3.4-2.3.0:
+  image: ajaust/dumux-precice:3.4-2.3.0
+  <<: *test-monolithic-cases
+  needs:
+    - build-tests:3.4-2.3.0
+
 test-monolithic:master-2.2.1:
-  image: ub2004-dumux-precice:master-2.2.1
+  image: ajaust/dumux-precice:master-2.2.1
   <<: *test-monolithic-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'

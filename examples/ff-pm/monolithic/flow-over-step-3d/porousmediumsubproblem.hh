@@ -63,7 +63,7 @@ class PorousMediumSubProblem : public PorousMediumFlowProblem<TypeTag>
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-   public:
+public:
     PorousMediumSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
                            std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(fvGridGeometry, "Darcy"),
@@ -208,7 +208,7 @@ class PorousMediumSubProblem : public PorousMediumFlowProblem<TypeTag>
     //! Get the coupling manager
     const CouplingManager &couplingManager() const { return *couplingManager_; }
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;

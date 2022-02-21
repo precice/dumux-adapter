@@ -45,7 +45,7 @@ class OnePSpatialParams
                             Scalar,
                             OnePSpatialParams<FVGridGeometry, Scalar>>;
 
-   public:
+public:
     // export permeability type
     using PermeabilityType = Scalar;
 
