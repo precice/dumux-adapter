@@ -24,17 +24,27 @@ check-style-clang-10:
 check-style-black:
     stage: check
     script:
-        - sudo apt-get update && sudo apt-get install -y python3 python3-distutils python-is-python3 wget
-        - wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py && ln -sf ${HOME}/.local/bin/pip3 ${HOME}/.local/bin/pip && export PATH="${HOME}/.local/bin":"${PATH}" && pip install black
-        - black .
-        - git diff > python-style-patch.diff
-        - if [ -s python-style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run black . and commit again."; false; fi
+        - sudo apt-get update && sudo apt-get install -y
+        -
+        - gem install mdl
+        - mdl .
     needs: []
     artifacts:
         when: on_failure
         paths:
             - python-style-patch.diff
         expire_in: 2 days
+
+check-style-markdownlint:
+    stage: check
+    script:
+        - sudo apt-get update && sudo apt-get install -y ruby-bundler
+        - gem install mdl
+        - mdl .
+    needs: []
+    artifacts:
+        when: on_failure
+        expire_in: 12 hours
 
 .build_template: &build-tests
   stage: build
