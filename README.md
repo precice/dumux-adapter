@@ -21,12 +21,12 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 - DuMuX **newer** than 3.2
 
-  - Builds using the current `master` branch of DuMuX might fail.
-  - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
+    - Builds using the current `master` branch of DuMuX might fail.
+    - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
 
 - preCICE >=2.0.0
 
-  - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
+    - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
 
 - `wget` or `git` to download the DuMuX-preCICE adapter.
 - Optional: [`dune-subgrid`](https://www.dune-project.org/modules/dune-subgrid/) allows for modified grid geometries.
@@ -124,4 +124,4 @@ There is no publication related to this code available yet.
 ### Publications using dumux-precice
 
 - Jaust A., Weishaupt K., Mehl M., Flemisch B. (2020) Partitioned Coupling Schemes for Free-Flow and Porous-Media Applications with Sharp Interfaces. In: Klöfkorn R., Keilegavlen E., Radu F., Fuhrmann J. (eds) Finite Volumes for Complex Applications IX - Methods, Theoretical Aspects, Examples. FVCA 2020. Springer Proceedings in Mathematics & Statistics, vol 323. Springer, Cham. <https://doi.org/10.1007/978-3-030-43651-3_57>
-  - Code can be found at: <https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a>
+    - Code can be found at: <https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a>
