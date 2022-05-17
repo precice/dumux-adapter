@@ -2,6 +2,8 @@
 
 ## Not released yet
 
+- 2022-05-17: Added configuation for Markdown linter `markdownlint` and added it to CI. The linter can be called locally by typing `mdl .` from the root of the repository.
+- 2022-05-17: Add some more documentation on how to install the adapter to the `README.md`.
 - 2022-02-18: Updated CI to use images from account `ajaust` from Dockerhub. Changed tolerance for partitioned tests to 5e-5 due to minimal changes in the solution with the new images on a new VM.
 - 2022-02-09: Made sure all private member of the adapter are suffixed with an underscore.
 - 2022-02-01: Add some extra information on the documentation in the `README.md`. Removed old/out-of-date mkdocs documentation from `doc/mkdocs`.

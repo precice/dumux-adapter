@@ -1,7 +1,7 @@
 #image: dumux-precice:3.3git-iterative-pr-2.2.0
 #image: dumux-precice:3.3-2.2.1
 #image: ajaust/style-check:clang-10
-image: ajaust/style-check:0.1
+image: ajaust/style-check:0.2
 
 stages:
     - check
@@ -24,8 +24,7 @@ check-style-clang-10:
 check-style-black:
     stage: check
     script:
-        - sudo apt-get update && sudo apt-get install -y python3 python3-distutils python-is-python3 wget
-        - wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && rm get-pip.py && ln -sf ${HOME}/.local/bin/pip3 ${HOME}/.local/bin/pip && export PATH="${HOME}/.local/bin":"${PATH}" && pip install black
+        - pip install --user black
         - black .
         - git diff > python-style-patch.diff
         - if [ -s python-style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run black . and commit again."; false; fi
@@ -39,7 +38,6 @@ check-style-black:
 check-style-markdownlint:
     stage: check
     script:
-        - sudo apt-get update && sudo apt-get install -y ruby-bundler
         - sudo gem install mdl
         - mdl .
     needs: []
