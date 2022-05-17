@@ -12,7 +12,8 @@ check-style-clang-10:
     stage: check
     script:
         - ./scripts/format/run-clang-format.sh > clang-format-output.txt
-        - if [ $(grep -c 'clang-format did not modify any files' clang-format-output.txt) -eq 0  ] && [ $(grep -c 'no modified files to format' clang-format-output.txt) -eq 0  ]; then cat clang-format-output.txt; exit 1; fi
+        #- if [ $(grep -c 'clang-format did not modify any files' clang-format-output.txt) -eq 0  ] && [ $(grep -c 'no modified files to format' clang-format-output.txt) -eq 0  ]; then cat clang-format-output.txt; exit 1; fi
+        - if [ -s clang-format-output.txt ]; then cat clang-format-output.txt; echo "Some files need reformatting. Check the output and run ./scripts/format/run-clang-format.sh and commit again."; false; fi
         #- git diff > style-patch.diff
         #- if [ -s style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run ./scripts/format/run-clang-format.sh and commit again."; false; fi
         #- if [ -s style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run ./scripts/format/run-clang-format.sh and commit again."; false; fi
@@ -31,11 +32,11 @@ check-style-black:
         #- git diff > python-style-patch.diff
         #- if [ -s python-style-patch.diff ]; then echo "Download the style patch as artifact and apply it or run black . and commit again."; false; fi
     needs: []
-    artifacts:
-        when: on_failure
-        paths:
-            - python-style-patch.diff
-        expire_in: 2 days
+    #artifacts:
+    #    when: on_failure
+    #    paths:
+    #        - python-style-patch.diff
+    #    expire_in: 2 days
 
 check-style-markdownlint:
     stage: check
