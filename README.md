@@ -34,6 +34,8 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 - `wget` or `git` to download the DuMuX-preCICE adapter.
 - Optional: [`dune-subgrid`](https://www.dune-project.org/modules/dune-subgrid/) allows for modified grid geometries.
+- Optional: [MkDocs](https://www.mkdocs.org/) if one wants to build the user documentation locally. The user documentation can also be found [online](https://dumux-precice-adapter.readthedocs.io).
+- Optional: [Doxygen](https://www.doxygen.nl/) if one wants to build the API documentation locally.
 
 The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependencies are installed.
 
@@ -106,7 +108,7 @@ There are advanced ways of managing DUNE modules, e.g. using the environment var
 
 ### User documentation
 
-At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
+The main user documentation is available on [ReadTheDocs](https://dumux-precice-adapter.readthedocs.io). Additionally, one may find interesting information in the API documentation (see below) as well as the test and example cases that are provided with this repository. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
 
 ### API documentation
 

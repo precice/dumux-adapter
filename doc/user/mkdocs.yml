@@ -1,14 +1,24 @@
 site_name: DuMuX-preCICE adapter
 
+nav:
+  - Home: index.md
+  - Getting started:
+    - Repository overview: overview.md
+    - Installation instruction: installation.md
+    - Available examples: example-cases.md
+    - Using the adapter in your code: example-usage.md
+
 theme:
   name: 'material'
   palette:
-    primary: deep orange
-    accent: blue
+    primary: indigo
+    accent: deep orange
 
 repo_name: dumux-appl/dumux-preCICE
 repo_url: https://github.com/precice/dumux-adapter
 
 markdown_extensions:
   - admonition
+  - codehilite
+  - pymdownx.superfences
 
