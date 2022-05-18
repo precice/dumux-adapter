@@ -3,7 +3,6 @@
 !!! info
     This documentation homepage is under construction.
 
-
 If you find problems with the adapter or the documentation, please open an issue or merge request in the [`dumux-precice` git repository](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
 ## How to cite this code
