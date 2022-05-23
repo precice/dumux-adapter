@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <exception>
+#include <limit>
 
 using namespace Dumux::Precice;
 
