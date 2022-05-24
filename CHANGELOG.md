@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-05-24: Added missing include of `limits` in `couplingadapter.cc`.
 - 2022-05-17: Added base setup for extended documentation to be hosted on ReadTheDocs and being created by `mkdocs`. Also adds a base configuration and style of the documentation.
 - 2022-05-17: Added configuation for Markdown linter `markdownlint` and added it to CI. The linter can be called locally by typing `mdl .` from the root of the repository. This also led to an updated configuration of the CI.
 - 2022-05-17: Add some more documentation on how to install the adapter to the `README.md`.
