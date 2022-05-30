@@ -164,12 +164,16 @@ try {
     darcyGridVariables->init(sol[darcyIdx]);
 
     // initialize the coupling manager
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+    couplingManager->init(stokesProblem, darcyProblem, sol);
+#else
     couplingManager->init(
         stokesProblem, darcyProblem,
         std::make_tuple(stokesGridVariables->faceGridVariablesPtr(),
                         stokesGridVariables->cellCenterGridVariablesPtr(),
                         darcyGridVariables),
         sol, CouplingManager::CouplingMode::reconstructFreeFlowNormalStress);
+#endif
 
     // intialize the vtk output module
     StaggeredVtkOutputModule<StokesGridVariables, decltype(stokesSol)>

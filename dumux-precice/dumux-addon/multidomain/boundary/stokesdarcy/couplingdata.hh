@@ -106,7 +106,11 @@ struct IsSameFluidSystem<FS, FS> {
 
 // forward declaration
 template<class TypeTag,
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+         class DiscretizationMethod,
+#else
          DiscretizationMethod discMethod,
+#endif
          ReferenceSystemFormulation referenceSystem>
 class FicksLawImplementation;
 
@@ -124,10 +128,15 @@ struct IsFicksLaw : public std::false_type {
  * \brief This structs indicates that Fick's law is used for diffusion.
  * \tparam DiffLaw The diffusion law.
  */
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+template<class T, class DiscretizationMethod, ReferenceSystemFormulation referenceSystem>
+struct IsFicksLaw<FicksLawImplementation<T, DiscretizationMethod, referenceSystem>>
+#else
 template<class T,
          DiscretizationMethod discMethod,
          ReferenceSystemFormulation referenceSystem>
 struct IsFicksLaw<FicksLawImplementation<T, discMethod, referenceSystem>>
+#endif
     : public std::true_type {
 };
 
@@ -225,7 +234,11 @@ struct IndexHelper<stokesIdx, darcyIdx, FFFS, true> {
 };
 
 //! forward declare
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+template<class TypeTag, class DiscretizationMethod>
+#else
 template<class TypeTag, DiscretizationMethod discMethod>
+#endif
 class DarcysLawImplementation;
 
 //! forward declare
@@ -303,9 +316,15 @@ class StokesDarcyCouplingDataImplementationBase
 
     using AdvectionType =
         GetPropType<SubDomainTypeTag<darcyIdx>, Properties::AdvectionType>;
+    #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+    using DarcysLaw =
+        DarcysLawImplementation<SubDomainTypeTag<darcyIdx>,
+                                typename GridGeometry<darcyIdx>::DiscretizationMethod>;
+    #else
     using DarcysLaw =
         DarcysLawImplementation<SubDomainTypeTag<darcyIdx>,
                                 GridGeometry<darcyIdx>::discMethod>;
+    #endif
     using ForchheimersLaw =
         ForchheimersLawImplementation<SubDomainTypeTag<darcyIdx>,
                                       GridGeometry<darcyIdx>::discMethod>;

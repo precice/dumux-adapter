@@ -65,7 +65,7 @@ build-tests:master-2.2.1:
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-tests
-  allow_failure: true
+  allow_failure: false
 
 .test_template: &test-partitioned-cases
   stage: test
@@ -105,7 +105,7 @@ test-partitioned:master-2.2.1:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
     - build-tests:master-2.2.1
-  allow_failure: true
+  allow_failure: false
 
 .test_template: &test-monolithic-cases
   stage: test
@@ -146,4 +146,4 @@ test-monolithic:master-2.2.1:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
     - build-tests:master-2.2.1
-  allow_failure: true
+  allow_failure: false
