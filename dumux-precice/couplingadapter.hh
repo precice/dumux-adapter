@@ -13,6 +13,8 @@
  */
 namespace Dumux::Precice
 {
+enum class QuantityType { Scalar, Vector };
+
 /*!
  * @brief A DuMuX-preCICE coupling adapter class
  *
@@ -54,16 +56,18 @@ private:
      * @param[in] dataID Identifier of dataset to read.
      * @param[out] data Vector to store the read data to.
      */
-    void readBlockScalarDataFromPrecice(const int dataID,
-                                        std::vector<double> &data);
+    void readBlockDataFromPrecice(const int dataID,
+                                  std::vector<double> &data,
+                                  const QuantityType quantity_type);
     /*!
      * @brief Writes full block of data to preCICE.
      *
      * @param[in] dataID Identifier of dataset to read.
      * @param[in] data Vector containing data to write into preCICE's buffer.
      */
-    void writeBlockScalarDataToPrecice(const int dataID,
-                                       std::vector<double> &data);
+    void writeBlockDataToPrecice(const int dataID,
+                                 std::vector<double> &data,
+                                 const QuantityType quantity_type);
     /*!
      * @brief Gives the number of quantities/datasets defined on coupling interface.
      *
@@ -133,13 +137,36 @@ public:
     /*!
      * @brief Announces an additional quantity on the coupling interface.
      *
-     * Internally, the quantity is announce to preCICE and the corresponding
+     * Internally, the quantity is announced to preCICE and the corresponding
      * data structures are initilized to store information about the quantity.
      *
-     * @param[in] name Name of the quantity.
-     * @return size_t Number of currently announces quantities.
+     * @param[in] name Name of the scalar quantity.
+     * @param[in] quantity_type Type (Scalar or Vector) of the quantity
+     * @return size_t Number of currently announced quantities.
      */
-    size_t announceQuantity(const std::string &name);
+    size_t announceQuantity(const std::string &name,
+                            const QuantityType quantity_type);
+
+    /*!
+     * @brief Announces an additional scalar quantity on the coupling interface.
+     *
+     * Internally, the scalar quantity is announced to preCICE and the corresponding
+     * data structures are initilized to store information about the quantity.
+     *
+     * @param[in] name Name of the scalar quantity.
+     * @return size_t Number of currently announced quantities.
+     */
+    size_t announceScalarQuantity(const std::string &name);
+    /*!
+     * @brief Announces an additional vector quantity on the coupling interface.
+     *
+     * Internally, the vector quantity is announced to preCICE and the corresponding
+     * data structures are initilized to store information about the quantity.
+     *
+     * @param[in] name Name of the vector quantity.
+     * @return size_t Number of currently announced quantities.
+     */
+    size_t announceVectorQuantity(const std::string &name);
     /*!
      * @brief Get the number of spatial dimensions
      *
@@ -267,6 +294,15 @@ public:
      * @return double Value of scalar quantity.
      */
     double getScalarQuantityOnFace(const size_t dataID, const int faceID) const;
+    // /*!
+    //  * @brief Gets value of a vector quantity.
+    //  *
+    //  * @param[in] dataID Identifier of the quantity.
+    //  * @param[in] faceID Identifier of the face according to DuMuX' numbering.
+    //  * @return std::vector<double> Value of vector quantity.
+    //  */
+    // std::vector<double> getVectorQuantityOnFace(const size_t dataID, const int faceID) const;
+    std::vector<double> getVectorQuantity(const size_t dataID) const;
     /*!
      * @brief Gets value of a vector quantity.
      *
@@ -304,13 +340,26 @@ public:
     const std::vector<double> &getQuantityVector(const size_t dataID) const;
 
     /*!
-     * @brief Writes value of scalar quantity on given face.
+     * @brief Writes value of scalar or vector quantity on all vertices.
      *
      * @param[in] dataID Identifier of the quantity.
-     * @param[in] values Value of vector quantity.
+     * @param[in] values Value of the scalar or vector quantity.
      */
-    void writeScalarQuantityVector(const size_t dataID,
-                                   std::vector<double> &values);
+    void writeQuantityVector(const size_t dataID, std::vector<double> &values);
+    /*!
+     * @brief Writes data from adapter's buffer into preCICE's communication buffer.
+     *
+     * @param[in] dataID Identifier of the quantity to write into communication buffer.
+     */
+    void writeQuantityToOtherSolver(const size_t dataID,
+                                    const QuantityType quantity_type);
+    /*!
+     * @brief Reads data from preCICE's communication buffer and puts it into adapter's buffer.
+     *
+     * @param dataID Identifier of the quantity to read into adapter buffer.
+     */
+    void readQuantityFromOtherSolver(const size_t dataID,
+                                     const QuantityType quantity_type);
     /*!
      * @brief Writes data from adapter's buffer into preCICE's communication buffer.
      *
@@ -323,6 +372,11 @@ public:
      * @param dataID Identifier of the quantity to read into adapter buffer.
      */
     void readScalarQuantityFromOtherSolver(const size_t dataID);
+    /*!
+     * @brief Writes data from adapter's buffer into preCICE's communication buffer.
+     *
+     * @param[in] dataID Identifier of the quantity to write into communication buffer.
+     */
     /*!
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
