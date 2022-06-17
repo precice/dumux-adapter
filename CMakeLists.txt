@@ -20,6 +20,8 @@ list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
 # Find preCICE library
 find_package(precice 2 REQUIRED CONFIG)
 
+list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
+  "${PROJECT_SOURCE_DIR}/cmake/modules")
 #include the dune macros
 include(DuneMacros)
 

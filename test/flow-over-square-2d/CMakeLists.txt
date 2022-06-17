@@ -8,14 +8,6 @@ target_link_libraries(test_ff_flow_over_square_2d PRIVATE dumux-precice)
 target_link_libraries(test_pm_flow_over_square_2d PRIVATE dumux-precice)
 
 add_input_file_links()
-
-macro(add_precice_file_links)
-  FILE(GLOB precice_files *.xml)
-  foreach(VAR ${input_files})
-    get_filename_component(file_name ${VAR} NAME)
-    dune_symlink_to_source_files(FILES ${file_name})
-  endforeach()
-endmacro()
 add_precice_file_links()
 
 # Dummy test is needed to build porous media solver. The default
