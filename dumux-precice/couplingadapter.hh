@@ -302,7 +302,7 @@ public:
     //  * @return std::vector<double> Value of vector quantity.
     //  */
     // std::vector<double> getVectorQuantityOnFace(const size_t dataID, const int faceID) const;
-    std::vector<double> getVectorQuantity(const size_t dataID) const;
+    // std::vector<double> getVectorQuantity(const size_t dataID) const;
     /*!
      * @brief Gets value of a vector quantity.
      *
