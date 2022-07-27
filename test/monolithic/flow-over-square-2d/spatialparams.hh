@@ -49,7 +49,7 @@ class OnePSpatialParams
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
-   public:
+public:
     // export permeability type
     using PermeabilityType = Scalar;
 
@@ -86,7 +86,7 @@ class OnePSpatialParams
         return alphaBJ_;
     }
 
-   private:
+private:
     Scalar permeability_;
     Scalar alphaBJ_;
 };

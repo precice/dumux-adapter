@@ -126,7 +126,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 #endif
 
-   public:
+public:
 #if ENABLEMONOLITHIC
     DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry,
                     std::shared_ptr<CouplingManager> couplingManager)
@@ -303,7 +303,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     const CouplingManager &couplingManager() const { return *couplingManager_; }
 #endif
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->fvGridGeometry().bBoxMin()[0] + eps_;

@@ -115,7 +115,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-   public:
+public:
     DarcySubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
                     std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(gridGeometry, "Darcy"),
@@ -278,7 +278,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     //! Get the coupling manager
     const CouplingManager &couplingManager() const { return *couplingManager_; }
 
-   private:
+private:
     bool onLowerBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[1] < this->gridGeometry().bBoxMin()[1] + eps_;
