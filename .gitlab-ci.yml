@@ -14,7 +14,7 @@ check-style-clang-10:
     artifacts:
         when: on_failure
         paths:
-            - style-patch.diff
+            - clang-format-output.txt
         expire_in: 2 days
 
 check-style-black:
