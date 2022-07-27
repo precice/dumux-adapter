@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-07-27: Make sure clang-format fails when files a badly formatted.
 - 2022-05-25: Add CMake guards to prevent build targe generation of cases that depend of `dune-subgrid`, if `dune-subgrid` is not installed.
 - 2022-05-24: Added missing include of `limits` in `couplingadapter.cc`.
 - 2022-05-17: Added base setup for extended documentation to be hosted on ReadTheDocs and being created by `mkdocs`. Also adds a base configuration and style of the documentation.

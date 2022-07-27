@@ -121,7 +121,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-   public:
+public:
     using Indices = typename ModelTraits::Indices;
 
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
@@ -394,7 +394,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
     // \}
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;

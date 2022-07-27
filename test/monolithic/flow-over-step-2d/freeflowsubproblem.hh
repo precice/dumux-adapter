@@ -70,7 +70,7 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
 
-   public:
+public:
     FreeFlowSubProblem(std::shared_ptr<const FVGridGeometry> fvGridGeometry,
                        std::shared_ptr<CouplingManager> couplingManager)
         : ParentType(fvGridGeometry, "Stokes"),
@@ -302,7 +302,7 @@ class FreeFlowSubProblem : public NavierStokesProblem<TypeTag>
 
     // \}
 
-   private:
+private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
         return globalPos[0] < this->gridGeometry().bBoxMin()[0] + eps_;
