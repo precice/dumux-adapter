@@ -1,0 +1,14 @@
+site_name: DuMuX-preCICE adapter
+
+theme:
+  name: 'material'
+  palette:
+    primary: deep orange
+    accent: blue
+
+repo_name: dumux-appl/dumux-preCICE
+repo_url: https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice
+
+markdown_extensions:
+  - admonition
+

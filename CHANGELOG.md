@@ -3,6 +3,11 @@
 ## Not released yet
 
 - 2022-07-27: Make sure clang-format fails when files a badly formatted.
+- 2022-05-25: Add CMake guards to prevent build targe generation of cases that depend of `dune-subgrid`, if `dune-subgrid` is not installed.
+- 2022-05-24: Added missing include of `limits` in `couplingadapter.cc`.
+- 2022-05-17: Added base setup for extended documentation to be hosted on ReadTheDocs and being created by `mkdocs`. Also adds a base configuration and style of the documentation.
+- 2022-05-17: Added configuation for Markdown linter `markdownlint` and added it to CI. The linter can be called locally by typing `mdl .` from the root of the repository. This also led to an updated configuration of the CI.
+- 2022-05-17: Add some more documentation on how to install the adapter to the `README.md`.
 - 2022-02-18: Updated CI to use images from account `ajaust` from Dockerhub. Changed tolerance for partitioned tests to 5e-5 due to minimal changes in the solution with the new images on a new VM.
 - 2022-02-09: Made sure all private member of the adapter are suffixed with an underscore.
 - 2022-02-01: Add some extra information on the documentation in the `README.md`. Removed old/out-of-date mkdocs documentation from `doc/mkdocs`.
@@ -14,10 +19,10 @@
 - 2022-01-25: Added [description templates](https://docs.gitlab.com/ee/user/project/description_templates.html) for merge requests and issues.
 - 2022-01-12: The repository has been restructured. The main changes are:
 
-  - The adapter is now called `CouplingAdapter` and resides in `dumux-precice/`. The build process has been adapted accordingly.
-  - Tests case reside in `test/` directory and there in the corresponding subdirectory depending on whether it is a `monolithic`ly or `partitioned`ly coupled test case.
-  - Other example cases reside in the directory `examples/`. This is mainly the directory called `appl/` before, but with a new folder structure.
-  - The configuration of tests has been changed such that it is possible to build all tests using the `build_tests` target.
+    - The adapter is now called `CouplingAdapter` and resides in `dumux-precice/`. The build process has been adapted accordingly.
+    - Tests case reside in `test/` directory and there in the corresponding subdirectory depending on whether it is a `monolithic`ly or `partitioned`ly coupled test case.
+    - Other example cases reside in the directory `examples/`. This is mainly the directory called `appl/` before, but with a new folder structure.
+    - The configuration of tests has been changed such that it is possible to build all tests using the `build_tests` target.
 
   For details check out the merge request [!18 Restructure repository and tests](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/merge_requests/18)
 - 2022-01-10: Add license file. The code is licensed under GPLv3 without template exception.
