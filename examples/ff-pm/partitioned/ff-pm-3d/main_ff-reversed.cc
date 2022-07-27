@@ -349,8 +349,10 @@ try {
         "FreeFlowMesh", numberOfPoints, coords);
     couplingInterface.createIndexMapping(coupledScvfIndices);
 
-    const auto velocityId = couplingInterface.announceScalarQuantity("Velocity");
-    const auto pressureId = couplingInterface.announceScalarQuantity("Pressure");
+    const auto velocityId =
+        couplingInterface.announceScalarQuantity("Velocity");
+    const auto pressureId =
+        couplingInterface.announceScalarQuantity("Pressure");
 
     freeFlowProblem->updatePreciceDataIds();
 

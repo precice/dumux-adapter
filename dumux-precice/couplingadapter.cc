@@ -372,7 +372,7 @@ void CouplingAdapter::writeBlockDataToPrecice(const int dataID,
         precice_->writeBlockScalarData(dataID, vertexIDs_.size(),
                                        vertexIDs_.data(), data.data());
     } else {
-        assert(vertexIDs_.size()*getDimensions() == data.size());
+        assert(vertexIDs_.size() * getDimensions() == data.size());
         precice_->writeBlockVectorData(dataID, vertexIDs_.size(),
                                        vertexIDs_.data(), data.data());
     }

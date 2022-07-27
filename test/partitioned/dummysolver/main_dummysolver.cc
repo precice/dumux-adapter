@@ -32,10 +32,12 @@ try {
     // parse command line arguments and input file
     Parameters::init(argc, argv);
 
-    const std::string solverName = getParamFromGroup<std::string>("preCICE", "SolverName");
-    const std::string preciceConfigFilename =    getParamFromGroup<std::string>("preCICE", "ConfigFileName");
-    const std::string meshName =    getParamFromGroup<std::string>("preCICE", "MeshName");
-
+    const std::string solverName =
+        getParamFromGroup<std::string>("preCICE", "SolverName");
+    const std::string preciceConfigFilename =
+        getParamFromGroup<std::string>("preCICE", "ConfigFileName");
+    const std::string meshName =
+        getParamFromGroup<std::string>("preCICE", "MeshName");
 
     // Initialize preCICE.Tell preCICE about:
     // - Name of solver
@@ -51,20 +53,22 @@ try {
     couplingInterface.announceSolver(solverName, preciceConfigFilename,
                                      mpiHelper.rank(), mpiHelper.size());
 
-
     std::cout << "DUMMY (" << mpiHelper.rank()
-              << "): Running solver dummy with preCICE config file \"" << preciceConfigFilename
-              << "\", participant name \"" << solverName
-              << "\", and mesh name \"" << meshName
-              << "\".\n";
+              << "): Running solver dummy with preCICE config file \""
+              << preciceConfigFilename << "\", participant name \""
+              << solverName << "\", and mesh name \"" << meshName << "\".\n";
 
     const int dimensions = couplingInterface.getDimensions();
-    assert( dimensions == 3 );
-    const std::string scalarDataWriteName = (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo" ;
-    const std::string scalarDataReadName = (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne";
+    assert(dimensions == 3);
+    const std::string scalarDataWriteName =
+        (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo";
+    const std::string scalarDataReadName =
+        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne";
 
-    const std::string vectorDataWriteName = (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo" ;
-    const std::string vectorDataReadName = (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne";
+    const std::string vectorDataWriteName =
+        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo";
+    const std::string vectorDataReadName =
+        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne";
 
     const int numberOfVertices = 3;
 
@@ -73,20 +77,22 @@ try {
     // std::vector<double> readVectorData(numberOfVertices * dimensions);
     std::vector<double> writeVectorData(numberOfVertices * dimensions);
     std::vector<double> vertices(numberOfVertices * dimensions);
-    std::vector<int>    preciceVertexIDs(numberOfVertices);
-    std::vector<int>    dumuxVertexIDs(numberOfVertices);
+    std::vector<int> preciceVertexIDs(numberOfVertices);
+    std::vector<int> dumuxVertexIDs(numberOfVertices);
 
     for (int i = 0; i < numberOfVertices; i++) {
         writeScalarData.at(i) = i + numberOfVertices;
         dumuxVertexIDs.at(i) = i + numberOfVertices;
         for (int j = 0; j < dimensions; j++) {
-            vertices.at(j + dimensions * i)  = i;
+            vertices.at(j + dimensions * i) = i;
             writeVectorData.at(j + dimensions * i) = i;
         }
     }
 
-    std::cout << "DUMMY (" << mpiHelper.rank() << "): Initialize preCICE and set mesh\n";
-    double preciceDt = couplingInterface.setMeshAndInitialize(meshName, numberOfVertices, vertices);
+    std::cout << "DUMMY (" << mpiHelper.rank()
+              << "): Initialize preCICE and set mesh\n";
+    double preciceDt = couplingInterface.setMeshAndInitialize(
+        meshName, numberOfVertices, vertices);
 
     // Create index mapping between DuMuX's index numbering and preCICE's numbering
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Create index mapping\n";
@@ -98,69 +104,81 @@ try {
     // const int readVectorDataID  = couplingInterface.getDataID(vectorDataReadName, meshID);
     // const int writeVectorDataID = couplingInterface.getDataID(vectorDataWriteName, meshID);
 
-    const int readScalarDataID  = couplingInterface.announceScalarQuantity(scalarDataReadName);
-    const int writeScalarDataID = couplingInterface.announceScalarQuantity(scalarDataWriteName);
-    const int readVectorDataID  = couplingInterface.announceVectorQuantity(vectorDataReadName);
-    const int writeVectorDataID = couplingInterface.announceVectorQuantity(vectorDataWriteName);
+    const int readScalarDataID =
+        couplingInterface.announceScalarQuantity(scalarDataReadName);
+    const int writeScalarDataID =
+        couplingInterface.announceScalarQuantity(scalarDataWriteName);
+    const int readVectorDataID =
+        couplingInterface.announceVectorQuantity(vectorDataReadName);
+    const int writeVectorDataID =
+        couplingInterface.announceVectorQuantity(vectorDataWriteName);
 
     // const auto velocityId = couplingInterface.announceScalarQuantity("Velocity");
     // const auto pressureId = couplingInterface.announceScalarQuantity("Pressure");
 
     if (couplingInterface.hasToWriteInitialData()) {
-        std::cout << "DUMMY (" << mpiHelper.rank() << "): Writing initial data\n";
+        std::cout << "DUMMY (" << mpiHelper.rank()
+                  << "): Writing initial data\n";
         // Scalar data
-        couplingInterface.writeQuantityVector(writeScalarDataID, writeScalarData);
+        couplingInterface.writeQuantityVector(writeScalarDataID,
+                                              writeScalarData);
         couplingInterface.writeScalarQuantityToOtherSolver(writeScalarDataID);
         // Vector data
-        couplingInterface.writeQuantityVector(writeVectorDataID, writeVectorData);
-        couplingInterface.writeQuantityToOtherSolver(writeVectorDataID, Dumux::Precice::QuantityType::Vector);
+        couplingInterface.writeQuantityVector(writeVectorDataID,
+                                              writeVectorData);
+        couplingInterface.writeQuantityToOtherSolver(
+            writeVectorDataID, Dumux::Precice::QuantityType::Vector);
         couplingInterface.announceInitialDataWritten();
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingInterface.initializeData();
 
     // Check exchanged initial data
-    if ( solverName == "SolverOne")
-    {
-        std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading initial data\n";
-        couplingInterface.readQuantityFromOtherSolver( readScalarDataID, Dumux::Precice::QuantityType::Scalar );
-        couplingInterface.readQuantityFromOtherSolver( readVectorDataID, Dumux::Precice::QuantityType::Vector );
+    if (solverName == "SolverOne") {
+        std::cout << "DUMMY (" << mpiHelper.rank()
+                  << "): Reading initial data\n";
+        couplingInterface.readQuantityFromOtherSolver(
+            readScalarDataID, Dumux::Precice::QuantityType::Scalar);
+        couplingInterface.readQuantityFromOtherSolver(
+            readVectorDataID, Dumux::Precice::QuantityType::Vector);
 
-        const std::vector<double>& readScalarQuantity =
-            couplingInterface.getQuantityVector (readScalarDataID);
+        const std::vector<double> &readScalarQuantity =
+            couplingInterface.getQuantityVector(readScalarDataID);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Scalar data\n";
-        for (const double& value: readScalarQuantity)
+        for (const double &value : readScalarQuantity)
             std::cout << value << ",";
         std::cout << "\n";
 
-        const std::vector<double>& readVectorQuantity =
-            couplingInterface.getQuantityVector (readVectorDataID);
+        const std::vector<double> &readVectorQuantity =
+            couplingInterface.getQuantityVector(readVectorDataID);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Vector data\n";
-        for (const double& value: readVectorQuantity)
+        for (const double &value : readVectorQuantity)
             std::cout << value << ",";
         std::cout << "\n";
 
         for (int i = 0; i < numberOfVertices; i++) {
-            if ( readScalarQuantity.at(i) != writeScalarData.at(i) ) {
+            if (readScalarQuantity.at(i) != writeScalarData.at(i)) {
                 std::cout << "DUMMY (" << mpiHelper.rank()
-                            << "): Reading initialized SCALAR data error\n"
-                            << "Index: " << i
-                            << ", Expected " << writeScalarData.at(i)
-                            << ", Found " << readScalarQuantity.at(i)
-                            << "\n";
-                throw ( std::runtime_error("Did not find expected SCALAR data.") );
+                          << "): Reading initialized SCALAR data error\n"
+                          << "Index: " << i << ", Expected "
+                          << writeScalarData.at(i) << ", Found "
+                          << readScalarQuantity.at(i) << "\n";
+                throw(std::runtime_error("Did not find expected SCALAR data."));
             }
 
             for (int j = 0; j < dimensions; j++) {
-                if ( readVectorQuantity.at(j + dimensions * i) != writeVectorData.at(j + dimensions * i) ) {
-                    std::cout << "DUMMY (" << mpiHelper.rank()
-                                << "): Reading initialized VECTOR data error\n"
-                                << "Expected " << writeVectorData.at(j + dimensions * i)
-                                << ", Found " << readVectorQuantity.at(j + dimensions * i)
-                                << "\n";
-                    throw ( std::runtime_error("Did not find expected VECTOR data.") );
+                if (readVectorQuantity.at(j + dimensions * i) !=
+                    writeVectorData.at(j + dimensions * i)) {
+                    std::cout
+                        << "DUMMY (" << mpiHelper.rank()
+                        << "): Reading initialized VECTOR data error\n"
+                        << "Expected " << writeVectorData.at(j + dimensions * i)
+                        << ", Found "
+                        << readVectorQuantity.at(j + dimensions * i) << "\n";
+                    throw(std::runtime_error(
+                        "Did not find expected VECTOR data."));
                 }
             }
         }
@@ -191,7 +209,8 @@ try {
 
     while (couplingInterface.isCouplingOngoing()) {
         if (couplingInterface.hasToWriteIterationCheckpoint()) {
-            std::cout << "DUMMY (" << mpiHelper.rank() << "): Writing iteration checkpoint\n";
+            std::cout << "DUMMY (" << mpiHelper.rank()
+                      << "): Writing iteration checkpoint\n";
             couplingInterface.announceIterationCheckpointWritten();
         }
 
@@ -199,15 +218,16 @@ try {
         // std::fill( readScalarData.begin(), readScalarData.end(), 0 );
         // std::fill( readVectorData.begin(), readVectorData.end(), 0 );
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading data\n";
-        couplingInterface.readQuantityFromOtherSolver( readScalarDataID, Dumux::Precice::QuantityType::Scalar );
-        couplingInterface.readQuantityFromOtherSolver( readVectorDataID, Dumux::Precice::QuantityType::Vector );
+        couplingInterface.readQuantityFromOtherSolver(
+            readScalarDataID, Dumux::Precice::QuantityType::Scalar);
+        couplingInterface.readQuantityFromOtherSolver(
+            readVectorDataID, Dumux::Precice::QuantityType::Vector);
 
         // Check data
-        if (iter > 0)
-        {
+        if (iter > 0) {
             int offset = (solverName == "SolverOne") ? 0 : 1;
-            const std::vector<double>& readScalarQuantity =
-                couplingInterface.getQuantityVector (readScalarDataID);
+            const std::vector<double> &readScalarQuantity =
+                couplingInterface.getQuantityVector(readScalarDataID);
 
             // std::cout << "DUMMY (" << mpiHelper.rank() << "): Scalar data\n";
             // for (const double& value: readScalarQuantity)
@@ -217,8 +237,8 @@ try {
             //     std::cout << value << ",";
             // std::cout << "\n";
 
-            const std::vector<double>& readVectorQuantity =
-                couplingInterface.getQuantityVector (readVectorDataID);
+            const std::vector<double> &readVectorQuantity =
+                couplingInterface.getQuantityVector(readVectorDataID);
 
             // std::cout << "DUMMY (" << mpiHelper.rank() << "): Vector data\n";
             // for (const double& value: readVectorQuantity)
@@ -229,25 +249,30 @@ try {
             // std::cout << "\n";
 
             for (int i = 0; i < numberOfVertices; i++) {
-                if ( readScalarQuantity.at(i) != writeScalarData.at(i) + offset ) {
+                if (readScalarQuantity.at(i) !=
+                    writeScalarData.at(i) + offset) {
                     std::cout << "DUMMY (" << mpiHelper.rank()
-                            << "): Reading initialized SCALAR data error\n"
-                            << "Index " << i
-                            << ", Expected " << writeScalarData.at(i) + offset
-                            << ", Found " << readScalarQuantity.at(i)
-                            << "\n";
-                    throw ( std::runtime_error("Did not find expected SCALAR data.") );
+                              << "): Reading initialized SCALAR data error\n"
+                              << "Index " << i << ", Expected "
+                              << writeScalarData.at(i) + offset << ", Found "
+                              << readScalarQuantity.at(i) << "\n";
+                    throw(std::runtime_error(
+                        "Did not find expected SCALAR data."));
                 }
 
                 for (int j = 0; j < dimensions; j++) {
-                    if ( readVectorQuantity.at(j + dimensions * i) != writeVectorData.at(j + dimensions * i) + offset ) {
-                        std::cout << "DUMMY (" << mpiHelper.rank()
-                                << "): Reading initialized VECTOR data error\n"
-                                << "Index " << j + dimensions * i
-                                << ", Expected " << writeVectorData.at(j + dimensions * i) + offset
-                                << ", Found " << readVectorQuantity.at(j + dimensions * i)
-                                << "\n";
-                        throw ( std::runtime_error("Did not find expected VECTOR data.") );
+                    if (readVectorQuantity.at(j + dimensions * i) !=
+                        writeVectorData.at(j + dimensions * i) + offset) {
+                        std::cout
+                            << "DUMMY (" << mpiHelper.rank()
+                            << "): Reading initialized VECTOR data error\n"
+                            << "Index " << j + dimensions * i << ", Expected "
+                            << writeVectorData.at(j + dimensions * i) + offset
+                            << ", Found "
+                            << readVectorQuantity.at(j + dimensions * i)
+                            << "\n";
+                        throw(std::runtime_error(
+                            "Did not find expected VECTOR data."));
                     }
                 }
             }
@@ -266,24 +291,27 @@ try {
         // Write scalar data via DuMuX ID <-> preCICE ID mapping
         for (int i = 0; i < numberOfVertices; i++) {
             const double value = i + iter;
-            couplingInterface.writeScalarQuantityOnFace(writeScalarDataID,
-                                dumuxVertexIDs[i],
-                                value);
+            couplingInterface.writeScalarQuantityOnFace(
+                writeScalarDataID, dumuxVertexIDs[i], value);
         }
-        couplingInterface.writeQuantityToOtherSolver(writeScalarDataID, Dumux::Precice::QuantityType::Scalar);
+        couplingInterface.writeQuantityToOtherSolver(
+            writeScalarDataID, Dumux::Precice::QuantityType::Scalar);
 
         // Write vector data
-        couplingInterface.writeQuantityVector(writeVectorDataID, writeVectorData);
-        couplingInterface.writeQuantityToOtherSolver(writeVectorDataID, Dumux::Precice::QuantityType::Vector);
+        couplingInterface.writeQuantityVector(writeVectorDataID,
+                                              writeVectorData);
+        couplingInterface.writeQuantityToOtherSolver(
+            writeVectorDataID, Dumux::Precice::QuantityType::Vector);
 
         preciceDt = couplingInterface.advance(preciceDt);
 
         if (couplingInterface.hasToReadIterationCheckpoint()) {
-            std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading iteration checkpoint\n";
+            std::cout << "DUMMY (" << mpiHelper.rank()
+                      << "): Reading iteration checkpoint\n";
             couplingInterface.announceIterationCheckpointRead();
-        } else
-        {
-            std::cout << "DUMMY (" << mpiHelper.rank() << "): Advancing in time\n";
+        } else {
+            std::cout << "DUMMY (" << mpiHelper.rank()
+                      << "): Advancing in time\n";
         }
     }
     ////////////////////////////////////////////////////////////
@@ -291,7 +319,8 @@ try {
     ////////////////////////////////////////////////////////////
 
     couplingInterface.finalize();
-      std::cout  << "DUMMY (" << mpiHelper.rank() << "): Closing C++ solver dummy...\n";
+    std::cout << "DUMMY (" << mpiHelper.rank()
+              << "): Closing C++ solver dummy...\n";
 
     // print dumux end message
     if (mpiHelper.rank() == 0) {
