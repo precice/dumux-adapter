@@ -9,4 +9,4 @@ dumux_add_test(NAME test_partitioned_dummysolver
               TARGET test_partitioned_dummysolver
               LABELS dummy precice partitioned
               TIMEOUT 30
-              COMMAND test_partitioned_dummysolver)
+              COMMAND Allrun.sh)
