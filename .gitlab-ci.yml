@@ -8,7 +8,7 @@ stages:
 check-style-clang-10:
     stage: check
     script:
-        - ./scripts/format/run-clang-format.sh > clang-format-output.txt
+        - ./scripts/format/run-clang-format.sh > clang-format-output.txt 2>&1
         - if [ -s clang-format-output.txt ]; then cat clang-format-output.txt; echo "Some files need reformatting. Check the output and run ./scripts/format/run-clang-format.sh and commit again."; false; fi
     needs: []
     artifacts:
