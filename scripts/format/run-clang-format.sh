@@ -12,3 +12,4 @@ for DIRECTORY in "${DIRECTORIES[@]}"; do
         exit $?
     fi
 done
+exit 0
