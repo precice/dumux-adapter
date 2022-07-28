@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-07-28: Add Docker recipe used for CI.
 - 2022-07-27: Add DuMuX solverdummy and add it as test case.
 - 2022-07-27: Add support for exchanging vector quantities.
 - 2022-07-27: Make sure clang-format fails when files a badly formatted.
