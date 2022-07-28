@@ -67,7 +67,7 @@ build-tests:master-2.2.1:
   <<: *build-tests
   allow_failure: true
 
-.test_template: &test-partitioned-cases
+.test_template: &test-cases
   stage: test
   script:
     - cd build-cmake/
@@ -80,7 +80,7 @@ build-tests:master-2.2.1:
 
 test-partitioned:3.3-2.2.1:
   image: ajaust/dumux-precice:3.3-2.2.1
-  <<: *test-partitioned-cases
+  <<: *test-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
@@ -88,60 +88,19 @@ test-partitioned:3.3-2.2.1:
 
 test-partitioned:3.4-2.2.1:
   image: ajaust/dumux-precice:3.4-2.2.1
-  <<: *test-partitioned-cases
+  <<: *test-cases
   needs:
     - build-tests:3.4-2.2.1
 
 test-partitioned:3.4-2.3.0:
   image: ajaust/dumux-precice:3.4-2.3.0
-  <<: *test-partitioned-cases
+  <<: *test-cases
   needs:
     - build-tests:3.4-2.3.0
 
 test-partitioned:master-2.2.1:
   image: ajaust/dumux-precice:master-2.2.1
-  <<: *test-partitioned-cases
-  rules:
-    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-  needs:
-    - build-tests:master-2.2.1
-  allow_failure: true
-
-.test_template: &test-monolithic-cases
-  stage: test
-  script:
-    - cd build-cmake
-    - echo $PYTHONPATH
-    - CTEST_OUTPUT_ON_FAILURE=1 ctest -j2 -L ^monolithic$
-  artifacts:
-    expire_in: 2 days
-    when: on_failure
-    paths:
-      - build-cmake/
-
-test-monolithic:3.3-2.2.1:
-  image: ajaust/dumux-precice:3.3-2.2.1
-  <<: *test-monolithic-cases
-  needs:
-    - build-tests:3.3-2.2.1
-  rules:
-    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-
-test-monolithic:3.4-2.2.1:
-  image: ajaust/dumux-precice:3.4-2.2.1
-  <<: *test-monolithic-cases
-  needs:
-    - build-tests:3.4-2.2.1
-
-test-monolithic:3.4-2.3.0:
-  image: ajaust/dumux-precice:3.4-2.3.0
-  <<: *test-monolithic-cases
-  needs:
-    - build-tests:3.4-2.3.0
-
-test-monolithic:master-2.2.1:
-  image: ajaust/dumux-precice:master-2.2.1
-  <<: *test-monolithic-cases
+  <<: *test-cases
   rules:
     - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   needs:
