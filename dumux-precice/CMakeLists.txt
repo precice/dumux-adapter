@@ -4,5 +4,3 @@ install(FILES
 
 add_library(dumux-precice STATIC couplingadapter.cc dumuxpreciceindexmapper.cc)
 target_link_libraries(dumux-precice PRIVATE precice::precice)
-
-add_subdirectory(dumux-addon)

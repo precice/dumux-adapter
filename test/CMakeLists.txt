@@ -1,2 +1,2 @@
-add_subdirectory(monolithic)
-add_subdirectory(partitioned)
+add_subdirectory(flow-over-square-2d)
+add_subdirectory(dummysolver)
