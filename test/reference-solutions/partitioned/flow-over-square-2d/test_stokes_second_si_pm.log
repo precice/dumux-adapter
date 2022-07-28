@@ -1,155 +1,0 @@
-
-You idiot! You signed the order to destroy Earth!
- - Douglas Adams, HGttG
-
-Reading parameters from file ./params-stokesdarcy.input.
-(0) 21:54:57 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 21:54:57 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 21:54:57 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-si-stokes-second.xml"
-(0) 21:54:57 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
-2  2
-(0) 21:54:57 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 21:54:57 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 21:54:57 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
-(0) 21:54:57 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
-(0) 21:54:57 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
-(0) 21:54:57 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 21:54:57 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 21:54:57 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.01 seconds.
-
-Newton solver configured with the following options and parameters:
- -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
- -- Newton.MaxRelativeShift = 1e-08
- -- Newton.MinSteps = 2
- -- Newton.MaxSteps = 18
- -- Newton.TargetSteps = 10
- -- Newton.RetryTimeStepReductionFactor = 0.5
- -- Newton.MaxTimeStepDivisions = 10
-
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 0.0000e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 0.0000e+00
-Assemble/solve/update time: 0.012(58.31%)/0.0088(41.60%)/1.8e-05(0.09%)
-(0) 21:54:57 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8935e-13
-Assemble/solve/update time: 0.011(57.92%)/0.0079(41.98%)/2e-05(0.10%)
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.01 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5514e-03
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 8.1632e-11
-Assemble/solve/update time: 0.0092(56.21%)/0.0072(43.68%)/1.7e-05(0.10%)
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.015 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5514e-03
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0466e-10
-Assemble/solve/update time: 0.011(57.89%)/0.0079(42.01%)/1.8e-05(0.10%)
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.01 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5514e-03
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6730e-10
-Assemble/solve/update time: 0.0095(56.71%)/0.0072(43.19%)/1.7e-05(0.10%)
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
-Writing output for problem "darcy-iterative". Took 0.0095 seconds.
-Run finished at Thu Aug  5 21:54:58 2021
-Global runtime       = 1351ms / 1.351s
-Number of processors = 1
-# Rank: 0
-
-                                         Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
-------------------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |          1 |       1351 |       1351 |       1351 |       1351 |          1 |
-                                       advance |          5 |       1159 |        263 |        210 |        231 |      0.858 |
-                                     configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      finalize |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |          1 |          7 |          7 |          7 |          7 |    0.00518 |
-         initialize/m2n.acceptMasterConnection |          1 |          7 |          7 |          7 |          7 |    0.00518 |
-         initialize/m2n.acceptSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
-   initialize/partition.feedbackMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-     initialize/partition.gatherMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initialize/partition.sendGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |          1 |          1 |          1 |          1 |    0.00074 |
-                                solver.advance |          5 |        146 |         35 |         20 |         29 |      0.108 |
-                             solver.initialize |          1 |         35 |         35 |         35 |         35 |     0.0259 |
-
-
-                                          Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |       1351 |          0 |       1351 |          0 |          1 |
-                                       advance |        263 |          0 |        210 |          0 |   0.798479 |
-                                     configure |          0 |          0 |          0 |          0 |          0 |
-                                      finalize |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |          7 |          0 |          7 |          0 |          1 |
-         initialize/m2n.acceptMasterConnection |          7 |          0 |          7 |          0 |          1 |
-         initialize/m2n.acceptSlavesConnection |          0 |          0 |          0 |          0 |          0 |
-   initialize/partition.feedbackMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-     initialize/partition.gatherMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
- initialize/partition.sendGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |          0 |          1 |          0 |          1 |
-                                solver.advance |         35 |          0 |         20 |          0 |   0.571429 |
-                             solver.initialize |         35 |          0 |         35 |          0 |          1 |
-
-# Runtime-specified parameters used:
-[ Darcy ]
-[ Darcy.Grid ]
-Cells = "40 40"
-LowerLeft = "0 0"
-UpperRight = "1 1"
-[ Darcy.Problem ]
-InitialP = "0.0e-9"
-Name = "darcy-iterative"
-[ Darcy.SpatialParams ]
-AlphaBeaversJoseph = "1.0"
-Permeability = "1e-6"
-Porosity = "0.4"
-[ Problem ]
-EnableGravity = "false"
-Name = "fvca-iterative"
-[ Vtk ]
-AddVelocity = "1"
-
-# Global default parameters used:
-[ Assembly ]
-NumericDifferenceMethod = "1"
-[ Flux ]
-UpwindWeight = "1.0"
-[ Newton ]
-EnableAbsoluteResidualCriterion = "false"
-EnableChop = "false"
-EnablePartialReassembly = "false"
-EnableResidualCriterion = "false"
-EnableShiftCriterion = "true"
-MaxAbsoluteResidual = "1e-5"
-MaxRelativeShift = "1e-8"
-MaxSteps = "18"
-MinSteps = "2"
-ResidualReduction = "1e-5"
-SatisfyResidualAndShiftCriterion = "false"
-TargetSteps = "10"
-UseLineSearch = "false"
-[ Vtk ]
-AddProcessRank = "true"
-
-# Unused parameters:
- = "./precice-config-si-stokes-second.xml"
-FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
-FreeFlow.Grid.Verbosity = "true"
-FreeFlow.Grid.LowerLeft = "0 1"
-FreeFlow.Grid.UpperRight = "1 2"
-FreeFlow.Grid.Cells = "40 40"
-FreeFlow.Grid.Grading1 = "1"
-FreeFlow.Problem.Name = "stokes-iterative"
-FreeFlow.Problem.EnableInertiaTerms = "false"
-FreeFlow.Problem.PressureDifference = "1e-2"
-Darcy.Grid.Verbosity = "true"
-Darcy.Grid.Grading1 = "1"
-Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
-
-Marvin: I've been talking to the main computer.
-Arthur: And?
-Marvin: It hates me.
- - Douglas Adams, HGttG
-
