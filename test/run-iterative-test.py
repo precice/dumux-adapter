@@ -159,6 +159,10 @@ pm_proc, pm_output = run_solver(
 pm_proc.wait()
 ff_proc.wait()
 
+print("Files in current directory:")
+for f in os.listdir():
+    print(f"  {f}")
+
 print("Comparing VTU files")
 return_code = 0
 for i in range(0, len(args["files"]) // 2):
