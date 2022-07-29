@@ -13,10 +13,6 @@ endif()
 
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
-
-list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
-  "${PROJECT_SOURCE_DIR}/cmake/modules")
-
 # Find preCICE library
 find_package(precice 2 REQUIRED CONFIG)
 

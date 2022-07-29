@@ -1,7 +1,7 @@
 set(modules
-"DumuxPreciceMacros.cmake"
-"DumuxPreciceTestMacros.cmake"
-"AddPreciceConfigurationFileLinks.cmake"
+  DumuxPreciceMacros.cmake
+  DumuxPreciceTestMacros.cmake
+  AddPreciceConfigurationFileLinks.cmake
 )
 
 include(GNUInstallDirs)
