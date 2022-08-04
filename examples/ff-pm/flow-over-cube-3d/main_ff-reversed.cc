@@ -91,15 +91,6 @@ void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol)
 {
-
-
-
-
-
-
-
-
-
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
     auto elemVolVars = localView(gridVars.curGridVolVars());

@@ -1,7 +1,5 @@
 # DuMuX-preCICE adapter
 
-
-
 This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
 ## Structure of the repository
