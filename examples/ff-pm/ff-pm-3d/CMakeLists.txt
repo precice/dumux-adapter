@@ -15,9 +15,16 @@ dune_symlink_to_source_files(FILES precice-config.xml)
 # Dummy test is needed to build porous media solver. The default
 # `dumux_add_test` (and the underlying `dune_add_test`) only accept
 # one target executable.
-dumux_add_test(NAME dummy_test_ff_pm_part_flow_over_square_2d
-              TARGET pm_flow_over_square_2d
-              LABELS freeflow stokes precice darcy partitioned
-              TIMEOUT 30
+dumux_add_test(NAME dummytarget_to_build_pm_flow_over_cube_3d
+              TARGET pm_flow_over_cube_3d
+              LABELS freeflow stokes precice darcy partitioned 3d
+              TIMEOUT 5
               COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 )
+
+#dumux_add_test(NAME dummytarget_to_build_ff_flow_over_cube_3d
+#              TARGET ff_flow_over_cube_3d
+#              LABELS freeflow stokes precice darcy partitioned 3d
+#              TIMEOUT 5
+#              COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
+#)
