@@ -35,16 +35,15 @@ dumux_add_test(NAME test_ff_pm_flow_over_cube_3d
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
               CMD_ARGS
-              --skip-checks
               --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_cube_3d
               --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_cube_3d
-              --files DUMMY_VTU1
-                      DUMMY_VTU2
-                      DUMMY_VTU3
-                      DUMMY_VTU4
-              --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-stokesdarcy.input
+              --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-cube-3d/test_stokes_first_si_stokes.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-3d-precice-stokes-00005.vtu
+                      ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-cube-3d/test_stokes_first_si_darcy.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-3d-precice-darcy-00005.vtu
+              --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params.input
               --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config.xml
-              --precice-iteration-files DUMMY_PRECICE_ITERATION1 DUMMY_PRECICE_ITERATION2
+              --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-cube-3d/test_stokes_first_si_coupliter_stokes.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
               --case-name "flow-over-cube_3d"
               --relative 5e-6
               --zeroThreshold {"velocity_liq \(m/s\)":1e-14,"p":1e-12}
