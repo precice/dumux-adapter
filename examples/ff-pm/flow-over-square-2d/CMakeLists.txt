@@ -1,9 +1,6 @@
 add_executable(ff_flow_over_square_2d EXCLUDE_FROM_ALL main_ff.cc)
 add_executable(pm_flow_over_square_2d EXCLUDE_FROM_ALL main_pm.cc)
 
-target_compile_definitions(ff_flow_over_square_2d PUBLIC "ENABLEMONOLITHIC=0")
-target_compile_definitions(pm_flow_over_square_2d PUBLIC "ENABLEMONOLITHIC=0")
-
 target_link_libraries(ff_flow_over_square_2d PRIVATE dumux-precice)
 target_link_libraries(pm_flow_over_square_2d PRIVATE dumux-precice)
 

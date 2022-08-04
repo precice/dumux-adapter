@@ -24,10 +24,6 @@
 #ifndef DUMUX_DARCY_SUBPROBLEM_HH
 #define DUMUX_DARCY_SUBPROBLEM_HH
 
-#ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 0
-#endif
-
 #include <dune/grid/yaspgrid.hh>
 
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
@@ -122,18 +118,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
-#if ENABLEMONOLITHIC
-    using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
-#endif
-
 public:
-#if ENABLEMONOLITHIC
-    DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry,
-                    std::shared_ptr<CouplingManager> couplingManager)
-        : ParentType(fvGridGeometry, "Darcy"),
-          eps_(1e-7),
-          couplingManager_(couplingManager)
-#else
     DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry)
         : ParentType(fvGridGeometry, "Darcy"),
           eps_(1e-7),
@@ -141,7 +126,6 @@ public:
           pressureId_(0),
           velocityId_(0),
           dataIdsWereSet_(false)
-#endif
     {
     }
 
@@ -177,15 +161,9 @@ public:
         // set Neumann BCs to all boundaries first
         values.setAllNeumann();
 
-#if ENABLEMONOLITHIC
-        // set the coupling boundary condition at the interface
-        if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values.setAllCouplingNeumann();
-#else
         const auto faceId = scvf.index();
         if (couplingInterface_.isCoupledEntity(faceId))
             values.setAllDirichlet();
-#endif
         return values;
     }
 
@@ -233,16 +211,6 @@ public:
     {
         // no-flow everywhere ...
         NumEqVector values(0.0);
-
-#if ENABLEMONOLITHIC
-        // ... except at the coupling interface
-        if (couplingManager().isCoupledEntity(CouplingManager::darcyIdx, scvf))
-            values[Indices::conti0EqIdx] =
-                couplingManager().couplingData().massCouplingCondition(
-                    element, fvGeometry, elemVolVars, scvf);
-#else
-//      Nothing
-#endif
         return values;
     }
 
@@ -289,19 +257,12 @@ public:
 
     // \}
 
-#if !ENABLEMONOLITHIC
     void updatePreciceDataIds()
     {
         pressureId_ = couplingInterface_.getIdFromName("Pressure");
         velocityId_ = couplingInterface_.getIdFromName("Velocity");
         dataIdsWereSet_ = true;
     }
-#endif
-
-#if ENABLEMONOLITHIC
-    //! Get the coupling manager
-    const CouplingManager &couplingManager() const { return *couplingManager_; }
-#endif
 
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
@@ -326,15 +287,11 @@ private:
 
     Scalar eps_;
 
-#if ENABLEMONOLITHIC
-    std::shared_ptr<CouplingManager> couplingManager_;
-#else
     Dumux::Precice::CouplingAdapter &couplingInterface_;
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;
 
-#endif
 };
 }  // namespace Dumux
 

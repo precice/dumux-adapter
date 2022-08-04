@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-08-04: Remove leftover references to monolithic coupling from code.
 - 2022-08-02: Fix CMake macro that creates files links to preCICE configuration files.
 - 2022-07-29: Updated tests to work with DuMuX 3.5. CI was updated to newer versions of DuMuX and preCICE accordingly.
 - 2022-07-28: Remove monolithic test cases and examples from repository.
