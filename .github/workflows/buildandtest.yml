@@ -12,7 +12,7 @@ jobs:
           precice_version: 2.3.0
     runs-on: ubuntu-latest
     container:
-      image: ajaust/dumux-precice:{{ $matrix.dumux_version }}-{{ $matrix.precice_version }}
+      image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     steps:
     - name: Check out code
       uses: actions/checkout@v2
