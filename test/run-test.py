@@ -27,6 +27,11 @@ parser.add_argument(
     "--files",
     nargs="+",
     help="Pairs of file names (first reference, then current). Usage: '[-f ref1 cur1 [[ref2] [cur2] ...]]'",
+
+
+
+
+
 )
 parser.add_argument(
     "-r",
