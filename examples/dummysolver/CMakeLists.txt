@@ -7,6 +7,6 @@ dune_symlink_to_source_files(FILES Allrun.sh)
 
 dumux_add_test(NAME dumuxprecice_dummysolver
               TARGET dumuxprecice_dummysolver
-              LABELS dummy precice partitioned
+              LABELS dummy precice
               TIMEOUT 30
               COMMAND Allrun.sh)

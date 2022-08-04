@@ -13,7 +13,7 @@ add_precice_file_links()
 # one target executable.
 dumux_add_test(NAME dummy_test_ff_pm_part_flow_over_square_2d
               TARGET pm_flow_over_square_2d
-              LABELS freeflow stokes precice darcy partitioned
+              LABELS freeflow stokes precice darcy
               TIMEOUT 30
               COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 )
@@ -21,7 +21,7 @@ dumux_add_test(NAME dummy_test_ff_pm_part_flow_over_square_2d
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
               TARGET ff_flow_over_square_2d
               TARGET pm_flow_over_square_2d
-              LABELS freeflow stokes precice darcy partitioned
+              LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
@@ -45,7 +45,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_first PROPERTIES
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
     TARGET pm_flow_over_square_2d
     TARGET ff_flow_over_square_2d
-    LABELS freeflow darcy precice darcy partitioned
+    LABELS freeflow darcy precice darcy
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
     COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
@@ -68,7 +68,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
               TARGET ff_flow_over_square_2d pm_flow_over_square_2d
-              LABELS freeflow stokes precice darcy partitioned
+              LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
@@ -101,7 +101,7 @@ set_property(TEST test_ff_pm_part_flow_over_square_2d_pi_st APPEND PROPERTY DEPE
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
               TARGET ff_flow_over_square_2d pm_flow_over_square_2d
-              LABELS freeflow navierstokes precice darcy partitioned
+              LABELS freeflow navierstokes precice darcy
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
@@ -124,7 +124,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
     TARGET ff_flow_over_square_2d pm_flow_over_square_2d
-    LABELS freeflow darcy precice darcy partitioned
+    LABELS freeflow darcy precice darcy
     TIMEOUT 60
     CMAKE_GUARD HAVE_UMFPACK
     COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
@@ -147,7 +147,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
               TARGET ff_flow_over_square_2d pm_flow_over_square_2d
-              LABELS freeflow navierstokes precice darcy partitioned
+              LABELS freeflow navierstokes precice darcy
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py

@@ -14,14 +14,14 @@ add_precice_file_links()
 # one target executable.
 dumux_add_test(NAME dummytarget_to_build_pm_flow_over_cube_3d
               TARGET pm_flow_over_cube_3d
-              LABELS freeflow stokes precice darcy partitioned 3d
+              LABELS freeflow stokes precice darcy 3d
               TIMEOUT 5
               COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 )
 
 #dumux_add_test(NAME dummytarget_to_build_ff_flow_over_cube_3d
 #              TARGET ff_flow_over_cube_3d
-#              LABELS freeflow stokes precice darcy partitioned 3d
+#              LABELS freeflow stokes precice darcy 3d
 #              TIMEOUT 5
 #              COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 #)
@@ -29,7 +29,7 @@ dumux_add_test(NAME dummytarget_to_build_pm_flow_over_cube_3d
 
 dumux_add_test(NAME test_ff_pm_flow_over_cube_3d
               TARGET ff_flow_over_cube_3d pm_flow_over_cube_3d
-              LABELS freeflow stokes precice darcy partitioned
+              LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
               COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py

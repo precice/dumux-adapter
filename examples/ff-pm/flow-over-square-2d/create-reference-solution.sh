@@ -117,26 +117,26 @@ clean_up_dir
 ##################
 
 run_test_case params-stokesdarcy.input  ./precice-config-si-stokes-first.xml
-move_result_to_dir "test_stokes_first_si" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_stokes_first_si" "../../reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-stokesdarcy.input ./precice-config-si-stokes-second.xml
-move_result_to_dir "test_stokes_second_si" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_stokes_second_si" "../../reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-stokesdarcy.input ./precice-config-pi.xml
-move_result_to_dir "test_stokes_pi" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_stokes_pi" "../../reference-solutions/flow-over-square-2d/"
 
 ##################
 # Navier-Stokes
 ##################
 
 run_test_case ./params-navierstokesdarcy.input ./precice-config-si-stokes-first.xml
-move_result_to_dir "test_navierstokes_first_si" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_navierstokes_first_si" "../../reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-navierstokesdarcy.input ./precice-config-si-stokes-second.xml
-move_result_to_dir "test_navierstokes_second_si" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_navierstokes_second_si" "../../reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-navierstokesdarcy.input ./precice-config-pi.xml
-move_result_to_dir "test_navierstokes_pi" "../../reference-solutions/partitioned/flow-over-square-2d/"
+move_result_to_dir "test_navierstokes_pi" "../../reference-solutions/flow-over-square-2d/"
 
 
 exit 0
