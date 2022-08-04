@@ -74,8 +74,8 @@ build-tests:3.5-2.4.0:
 
 build-tests:master-2.4.0:
   image: ajaust/dumux-precice:master-2.4.0
-  rules:
-    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
+#  rules:
+#    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
   <<: *build-tests
   allow_failure: true
 
@@ -128,11 +128,11 @@ test-partitioned:3.5-2.4.0:
   needs:
     - build-tests:3.5-2.4.0
 
-#test-partitioned:master-2.2.1:
-#  image: ajaust/dumux-precice:master-2.2.1
-#  <<: *test-cases
+test-partitioned:master-2.4.0:
+  image: ajaust/dumux-precice:master-2.4.0
+  <<: *test-cases
 #  rules:
 #    - if: '$CI_NIGHTLY_BUILD == "TRUE"'
-#  needs:
-#    - build-tests:master-2.2.1
-#  allow_failure: true
+  needs:
+    - build-tests:master-2.4.0
+  allow_failure: true
