@@ -23,10 +23,6 @@
 #ifndef DUMUX_STOKES_SUBPROBLEM_HH
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
-#ifndef ENABLEMONOLITHIC
-#define ENABLEMONOLITHIC 0
-#endif
-
 #include <dune/grid/yaspgrid.hh>
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
@@ -128,18 +124,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
-#if ENABLEMONOLITHIC
-    using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
-#endif
-
 public:
-#if ENABLEMONOLITHIC
-    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
-                     std::shared_ptr<CouplingManager> couplingManager)
-        : ParentType(gridGeometry, "Stokes"),
-          eps_(1e-6),
-          couplingManager_(couplingManager)
-#else
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
         : ParentType(gridGeometry, "FreeFlow"),
           eps_(1e-6),
@@ -147,7 +132,6 @@ public:
           pressureId_(0),
           velocityId_(0),
           dataIdsWereSet_(false)
-#endif
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(),
                                             "Problem.PressureDifference");
@@ -203,23 +187,12 @@ public:
             values.setDirichlet(Indices::pressureIdx);
         }
         // coupling interface
-#if ENABLEMONOLITHIC
-        else if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx,
-                                                   scvf)) {
-            values.setCouplingNeumann(Indices::conti0EqIdx);
-            values.setCouplingNeumann(Indices::momentumYBalanceIdx);
-            values.setBeaversJoseph(Indices::momentumXBalanceIdx);
-        }
-#else
-
         else if (couplingInterface_.isCoupledEntity(faceId)) {
             assert(dataIdsWereSet_);
 
             values.setDirichlet(Indices::velocityYIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
-        }
-#endif
-        else {
+        } else {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
         }
@@ -266,17 +239,6 @@ public:
     {
         NumEqVector values(0.0);
 
-#if ENABLEMONOLITHIC
-        if (couplingManager().isCoupledEntity(CouplingManager::stokesIdx,
-                                              scvf)) {
-            values[Indices::conti0EqIdx] =
-                couplingManager().couplingData().massCouplingCondition(
-                    element, fvGeometry, elemVolVars, elemFaceVars, scvf);
-            values[Indices::momentumYBalanceIdx] =
-                couplingManager().couplingData().momentumCouplingCondition(
-                    element, fvGeometry, elemVolVars, elemFaceVars, scvf);
-        }
-#else
         assert(dataIdsWereSet_);
         const auto faceId = scvf.index();
         if (couplingInterface_.isCoupledEntity(faceId)) {
@@ -291,17 +253,10 @@ public:
                                                             faceId) -
                  initialAtPos(scvf.center())[Indices::pressureIdx]);
         }
-#endif
-
         return values;
     }
 
     // \}
-
-#if ENABLEMONOLITHIC
-    //! Get the coupling manager
-    const CouplingManager &couplingManager() const { return *couplingManager_; }
-#endif
 
     /*!
      * \name Volume terms
@@ -331,12 +286,7 @@ public:
     Scalar permeability(const Element &element,
                         const SubControlVolumeFace &scvf) const
     {
-#if ENABLEMONOLITHIC
-        return couplingManager().couplingData().darcyPermeability(element,
-                                                                  scvf);
-#else
         return 1e-10;  // TODO transfer information or just use constant value
-#endif
     }
 
     /*!
@@ -344,14 +294,7 @@ public:
      */
     Scalar alphaBJ(const SubControlVolumeFace &scvf) const
     {
-#if ENABLEMONOLITHIC
-        return couplingManager()
-            .problem(CouplingManager::darcyIdx)
-            .spatialParams()
-            .beaversJosephCoeffAtPos(scvf.center());
-#else
-        return 1.0;    // TODO transfer information or just use constant value
-#endif
+        return 1.0;  // TODO transfer information or just use constant value
     }
 
     /*!
@@ -406,14 +349,12 @@ public:
         return analyticalVelocityX_;
     }
 
-#if !ENABLEMONOLITHIC
     void updatePreciceDataIds()
     {
         pressureId_ = couplingInterface_.getIdFromName("Pressure");
         velocityId_ = couplingInterface_.getIdFromName("Velocity");
         dataIdsWereSet_ = true;
     }
-#endif
 
     // \}
 
@@ -441,14 +382,10 @@ private:
     Scalar eps_;
     Scalar deltaP_;
 
-#if ENABLEMONOLITHIC
-    std::shared_ptr<CouplingManager> couplingManager_;
-#else
     Dumux::Precice::CouplingAdapter &couplingInterface_;
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;
-#endif
 
     mutable std::vector<Scalar> analyticalVelocityX_;
 };

@@ -82,6 +82,20 @@ parser.add_argument(
     help="Name of the preCICE iteration file names to be compared (required)",
     required=True,
 )
+parser.add_argument(
+    "-s1",
+    "--solver-one",
+    type=str,
+    help="First solver",
+    required=True,
+)
+parser.add_argument(
+    "-s2",
+    "--solver-two",
+    type=str,
+    help="Second solver",
+    required=True,
+)
 # parser.add_argument(
 #    "--path-to-executables",
 #    type=str,
@@ -145,12 +159,12 @@ except:
 
 # Start thread for Biot solver in background
 ff_proc, ff_output = run_solver(
-    "./test_ff_flow_over_square_2d",
+    "{}".format(args["solver_one"]),
     args["dumux_param_file"],
     args["precice_config_file"],
 )
 pm_proc, pm_output = run_solver(
-    "./test_pm_flow_over_square_2d",
+    "{}".format(args["solver_two"]),
     args["dumux_param_file"],
     args["precice_config_file"],
 )

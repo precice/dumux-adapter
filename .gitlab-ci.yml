@@ -83,7 +83,7 @@ build-tests:master-2.4.0:
   stage: test
   script:
     - cd build-cmake/
-    - CTEST_OUTPUT_ON_FAILURE=1 ctest -j1 -L ^partitioned$
+    - CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose -j1 -L ^partitioned$
   artifacts:
     expire_in: 2 days
     when: on_failure

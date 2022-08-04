@@ -1,33 +1,33 @@
-add_executable(test_ff_flow_over_square_2d EXCLUDE_FROM_ALL main_ff.cc)
-add_executable(test_pm_flow_over_square_2d EXCLUDE_FROM_ALL main_pm.cc)
+add_executable(ff_flow_over_square_2d EXCLUDE_FROM_ALL main_ff.cc)
+add_executable(pm_flow_over_square_2d EXCLUDE_FROM_ALL main_pm.cc)
 
-target_compile_definitions(test_ff_flow_over_square_2d PUBLIC "ENABLEMONOLITHIC=0")
-target_compile_definitions(test_pm_flow_over_square_2d PUBLIC "ENABLEMONOLITHIC=0")
-
-target_link_libraries(test_ff_flow_over_square_2d PRIVATE dumux-precice)
-target_link_libraries(test_pm_flow_over_square_2d PRIVATE dumux-precice)
+target_link_libraries(ff_flow_over_square_2d PRIVATE dumux-precice)
+target_link_libraries(pm_flow_over_square_2d PRIVATE dumux-precice)
 
 add_input_file_links()
 add_precice_file_links()
+
 
 # Dummy test is needed to build porous media solver. The default
 # `dumux_add_test` (and the underlying `dune_add_test`) only accept
 # one target executable.
 dumux_add_test(NAME dummy_test_ff_pm_part_flow_over_square_2d
-              TARGET test_pm_flow_over_square_2d
+              TARGET pm_flow_over_square_2d
               LABELS freeflow stokes precice darcy partitioned
               TIMEOUT 30
               COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 )
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
-              TARGET test_ff_flow_over_square_2d
-              TARGET test_pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d
+              TARGET pm_flow_over_square_2d
               LABELS freeflow stokes precice darcy partitioned
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+              COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
               CMD_ARGS
+              --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+              --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_first_si_stokes.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00005.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_first_si_darcy.vtu
@@ -43,13 +43,15 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
-    TARGET test_pm_flow_over_square_2d
-    TARGET test_ff_flow_over_square_2d
+    TARGET pm_flow_over_square_2d
+    TARGET ff_flow_over_square_2d
     LABELS freeflow darcy precice darcy partitioned
     TIMEOUT 30
     CMAKE_GUARD HAVE_UMFPACK
-    COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+    COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
     CMD_ARGS
+            --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+            --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
             --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_second_si_stokes.vtu
               ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00006.vtu
               ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_second_si_darcy.vtu
@@ -65,12 +67,14 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
   ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
-              TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
               LABELS freeflow stokes precice darcy partitioned
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+              COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
               CMD_ARGS
+              --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+              --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_pi_stokes.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_pi_darcy.vtu
@@ -96,12 +100,14 @@ set_property(TEST test_ff_pm_part_flow_over_square_2d_pi_st APPEND PROPERTY DEPE
 ######################
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
-              TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy partitioned
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+              COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
               CMD_ARGS
+              --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+              --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_first_si_navierstokes.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00006.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_first_si_darcy.vtu
@@ -117,12 +123,14 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
-    TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+    TARGET ff_flow_over_square_2d pm_flow_over_square_2d
     LABELS freeflow darcy precice darcy partitioned
     TIMEOUT 60
     CMAKE_GUARD HAVE_UMFPACK
-    COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+    COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
     CMD_ARGS
+    --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+    --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
     --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_second_si_navierstokes.vtu
               ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00007.vtu
               ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_second_si_darcy.vtu
@@ -138,12 +146,14 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
  ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
-              TARGET test_ff_flow_over_square_2d test_pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy partitioned
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
-              COMMAND ${CMAKE_SOURCE_DIR}/test/run-iterative-test.py
+              COMMAND ${CMAKE_SOURCE_DIR}/test/run-test.py
               CMD_ARGS
+              --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
+              --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_pi_navierstokes.vtu
                       ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00011.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_pi_darcy.vtu
