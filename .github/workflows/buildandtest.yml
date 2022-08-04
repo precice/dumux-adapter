@@ -21,8 +21,7 @@ jobs:
         ls -lah
         cd ..
         ls -lah
-        export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
-        cd dumux-precice/
+        export DUNE_CONTROL_PATH=${PWD}/.:${DUNE_CONTROL_PATH}
         echo $DUNE_CONTROL_PATH
         dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts all
         cd build-cmake/
