@@ -198,8 +198,7 @@ public:
             //          values.setNeumann(Indices::momentumYBalanceIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
             values.setBeaversJoseph(Indices::momentumZBalanceIdx);
-        }
-        else {
+        } else {
             values.setDirichlet(Indices::velocityXIdx);
             values.setDirichlet(Indices::velocityYIdx);
             values.setDirichlet(Indices::velocityZIdx);
@@ -302,7 +301,7 @@ public:
      */
     Scalar alphaBJ(const SubControlVolumeFace &scvf) const
     {
-        return 1.0;    // TODO transfer information or just use constant value
+        return 1.0;  // TODO transfer information or just use constant value
     }
 
     /*!

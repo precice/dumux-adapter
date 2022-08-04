@@ -209,14 +209,14 @@ public:
         // no-flow everywhere ...
         NumEqVector values(0.0);
 
-//        assert( dataIdsWereSet_ );
-//        const auto faceId = scvf.index();
-//        if ( couplingInterface_.isCoupledEntity(faceId) )
-//        {
-//          const Scalar density = 1000.;
-//          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
-//          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
-//        }
+        //        assert( dataIdsWereSet_ );
+        //        const auto faceId = scvf.index();
+        //        if ( couplingInterface_.isCoupledEntity(faceId) )
+        //        {
+        //          const Scalar density = 1000.;
+        //          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+        //          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
+        //        }
         return values;
     }
 
@@ -307,7 +307,6 @@ private:
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;
-
 };
 }  // namespace Dumux
 

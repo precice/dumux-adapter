@@ -291,7 +291,6 @@ private:
     size_t pressureId_;
     size_t velocityId_;
     bool dataIdsWereSet_;
-
 };
 }  // namespace Dumux
 
