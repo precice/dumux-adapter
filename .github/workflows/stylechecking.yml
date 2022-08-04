@@ -1,15 +1,15 @@
-
 name: Style checking
 on: [pull_request, push]
+
 jobs:
-  Markdown linting (mdl):
+  Markdown-linting-(mdl):
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
       uses: actions/checkout@v2
     - name: Run mdl
       uses: actionshub/markdownlint@main
-  Python linting (black):
+  Python-linting-(black):
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,7 +20,7 @@ jobs:
         run: pip install --user black
       - name: "Run style check"
         run: black --check .
-  C++ linting (clang-format):
+  C++-linting-(clang-format):
     runs-on: ubuntu-latest
     container: ajaust/style-check:0.2
     steps:
