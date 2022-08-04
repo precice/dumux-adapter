@@ -22,7 +22,9 @@ jobs:
         run: black --check .
   cpp_linting:
     runs-on: ubuntu-latest
-    container: ajaust/style-check:0.2
+    container:
+      image: ajaust/style-check:0.2
+      options: --user 1000:1001
     steps:
       - uses: actions/checkout@v2
       - name: Run format check
