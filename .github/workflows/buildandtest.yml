@@ -17,14 +17,14 @@ jobs:
       image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     steps:
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        path: dumux-precice
     - name: Build code
       run: |
         ls -lah
-        cd ..
-        ls -lah
-        export DUNE_CONTROL_PATH=${PWD}/.:${DUNE_CONTROL_PATH}
+        export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
         echo $DUNE_CONTROL_PATH
-        dunecontrol --only=dumux-precice --opts=./test/cmake-test.opts all
-        cd build-cmake/
+        dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
+        cd dumux-precice/build-cmake/
         make -j2 build_tests
