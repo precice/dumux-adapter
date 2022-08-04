@@ -29,9 +29,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_first
               --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
               --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_first_si_stokes.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00005.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-stokes-00005.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_first_si_darcy.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00005.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00005.vtu
               --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-stokesdarcy.input
               --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-si-free-flow-first.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_first_si_coupliter_stokes.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
@@ -53,9 +53,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_st_second
             --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
             --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
             --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_second_si_stokes.vtu
-              ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00006.vtu
+              ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-stokes-00006.vtu
               ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_second_si_darcy.vtu
-              ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00006.vtu
+              ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00006.vtu
             --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-stokesdarcy.input
             --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-si-free-flow-second.xml
             --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_second_si_coupliter_darcy.log ${CMAKE_CURRENT_BINARY_DIR}/precice-Darcy-iterations.log
@@ -76,9 +76,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
               --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
               --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_pi_stokes.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/stokes-iterative-00007.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-stokes-00007.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_pi_darcy.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00007.vtu
               --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-stokesdarcy.input
               --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-pi.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_stokes_pi_coupliter_stokes.log
@@ -109,9 +109,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
               --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
               --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_first_si_navierstokes.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00006.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-navierstokes-00006.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_first_si_darcy.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00006.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00006.vtu
               --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-navierstokesdarcy.input
               --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-si-free-flow-first.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_first_si_coupliter_navierstokes.log ${CMAKE_CURRENT_BINARY_DIR}/precice-FreeFlow-iterations.log
@@ -132,9 +132,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
     --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
     --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
     --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_second_si_navierstokes.vtu
-              ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00007.vtu
+              ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-navierstokes-00007.vtu
               ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_second_si_darcy.vtu
-              ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00007.vtu
+              ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00007.vtu
             --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-navierstokesdarcy.input
             --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-si-free-flow-second.xml
             --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_second_si_coupliter_darcy.log ${CMAKE_CURRENT_BINARY_DIR}/precice-Darcy-iterations.log
@@ -155,9 +155,9 @@ dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
               --solver-one ${CMAKE_CURRENT_BINARY_DIR}/ff_flow_over_square_2d
               --solver-two ${CMAKE_CURRENT_BINARY_DIR}/pm_flow_over_square_2d
               --files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_pi_navierstokes.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/navierstokes-iterative-00011.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-navierstokes-00011.vtu
                       ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_pi_darcy.vtu
-                      ${CMAKE_CURRENT_BINARY_DIR}/darcy-iterative-00011.vtu
+                      ${CMAKE_CURRENT_BINARY_DIR}/ff-pm-2d-precice-darcy-00011.vtu
               --dumux-param-file ${CMAKE_CURRENT_BINARY_DIR}/params-navierstokesdarcy.input
               --precice-config-file ${CMAKE_CURRENT_BINARY_DIR}/precice-config-pi.xml
               --precice-iteration-files ${CMAKE_SOURCE_DIR}/test/reference-solutions/flow-over-square-2d/test_navierstokes_pi_coupliter_navierstokes.log

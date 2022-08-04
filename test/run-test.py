@@ -218,11 +218,11 @@ print("Moving relevant files")
 if return_code != 0:
     try:
         shutil.move(
-            "fvca-iterative-ff.log",
+            "*-ff.log",
             "{case_name}_ff.log".format(case_name=args["case_name"]),
         )
         shutil.move(
-            "fvca-iterative-pm.log",
+            "*-pm.log",
             "{case_name}_pm.log".format(case_name=args["case_name"]),
         )
     except:
