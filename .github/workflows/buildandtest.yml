@@ -18,7 +18,9 @@ jobs:
       uses: actions/checkout@v2
     - name: Build code
       run: |
+        ls -lah
         cd ..
+        ls -lah
         export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
         cd dumux-precice/
         echo $DUNE_CONTROL_PATH
