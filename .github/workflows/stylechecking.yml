@@ -27,4 +27,4 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run format check
-        run: ./scripts/format/run-clang-format.sh > clang-format-output.txt 2>&1
+        run: ./scripts/format/run-clang-format.sh
