@@ -90,6 +90,18 @@ public:
         return alphaBJ_;
     }
 
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+    /*!
+     * \brief Return the temperature within the domain in [K].
+     *
+     * This problem assumes a temperature of 10 degrees Celsius.
+     */
+    Scalar temperature(const GlobalPosition &globalPos) const
+    {
+        return 273.15 + 10;  // 10°C
+    }
+#endif
+
 private:
     Scalar permeability_;
     Scalar porosity_;

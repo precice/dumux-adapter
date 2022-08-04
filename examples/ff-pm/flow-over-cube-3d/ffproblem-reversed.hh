@@ -143,12 +143,14 @@ public:
      */
     // \{
 
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR < 5
     /*!
      * \brief Return the temperature within the domain in [K].
      *
      * This problem assumes a temperature of 10 degrees Celsius.
      */
     Scalar temperature() const { return 273.15 + 10; }  // 10°C
+#endif
 
     /*!
      * \brief Return the sources within the domain.
@@ -314,7 +316,11 @@ public:
         using std::sqrt;
         const Scalar dPdX = -deltaP_ / (this->gridGeometry().bBoxMax()[0] -
                                         this->gridGeometry().bBoxMin()[0]);
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
+        static const Scalar mu = FluidSystem::viscosity(273.15 + 10, 1e5);
+#else
         static const Scalar mu = FluidSystem::viscosity(temperature(), 1e5);
+#endif
         static const Scalar alpha =
             getParam<Scalar>("Darcy.SpatialParams.AlphaBeaversJoseph");
         static const Scalar K =

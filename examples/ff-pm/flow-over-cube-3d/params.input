@@ -17,7 +17,7 @@ Grading1 = 1
 [FreeFlow.Problem]
 Name = ff-pm-3d-precice-stokes
 EnableInertiaTerms = false
-#Name = navier-stokes-iterative-3d
+#Name = ff-pm-3d-precice-navierstokes
 #EnableInertiaTerms = true
 PressureDifference = 1e-1
 

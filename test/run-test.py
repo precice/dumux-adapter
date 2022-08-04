@@ -96,6 +96,9 @@ parser.add_argument(
     help="Second solver",
     required=True,
 )
+parser.add_argument(
+    "-sc", "--skip-checks", help="If set, will skip checks", action="store_true"
+)
 # parser.add_argument(
 #    "--path-to-executables",
 #    type=str,
@@ -177,46 +180,49 @@ print("Files in current directory:")
 for f in os.listdir():
     print(f"  {f}")
 
-print("Comparing VTU files")
 return_code = 0
-for i in range(0, len(args["files"]) // 2):
-    print("\nFuzzy comparison...")
 
-    print(
-        "\n  Compare: \n    File 1: {}\n    File 2: {}".format(
-            args["files"][i * 2], args["files"][i * 2 + 1]
+if args["skip_checks"] is False:
+
+    print("Comparing VTU files")
+    for i in range(0, len(args["files"]) // 2):
+        print("\nFuzzy comparison...")
+
+        print(
+            "\n  Compare: \n    File 1: {}\n    File 2: {}".format(
+                args["files"][i * 2], args["files"][i * 2 + 1]
+            )
         )
-    )
-    result = compare_vtk(
-        args["files"][i * 2],
-        args["files"][(i * 2) + 1],
-        relative=args["relative"],
-        absolute=args["absolute"],
-        zeroValueThreshold=args["zeroThreshold"],
-    )
-    if result:
-        return_code = 1
+        result = compare_vtk(
+            args["files"][i * 2],
+            args["files"][(i * 2) + 1],
+            relative=args["relative"],
+            absolute=args["absolute"],
+            zeroValueThreshold=args["zeroThreshold"],
+        )
+        if result:
+            return_code = 1
 
-print("Comparing preCICE iteration files")
-if (
-    diff_iteration_files(
-        "{case_name}-diff.txt".format(case_name=args["case_name"]),
-        args["precice_iteration_files"],
-    )
-    != 0
-):
-    return_code = 1
+    print("Comparing preCICE iteration files")
+    if (
+        diff_iteration_files(
+            "{case_name}-diff.txt".format(case_name=args["case_name"]),
+            args["precice_iteration_files"],
+        )
+        != 0
+    ):
+        return_code = 1
 
 
 print("Moving relevant files")
 if return_code != 0:
     try:
         shutil.move(
-            "fvca-iterative-ff.log",
+            "*-ff.log",
             "{case_name}_ff.log".format(case_name=args["case_name"]),
         )
         shutil.move(
-            "fvca-iterative-pm.log",
+            "*-pm.log",
             "{case_name}_pm.log".format(case_name=args["case_name"]),
         )
     except:
