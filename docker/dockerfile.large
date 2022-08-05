@@ -22,7 +22,7 @@ ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 # Install dependencies from
 RUN apt-get update
 RUN apt-get install -y apt-utils vim htop git
-RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config
+RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config python3
 
 # Obtain DuMuX and Dune repositories
 COPY checkout_repositories.sh .
