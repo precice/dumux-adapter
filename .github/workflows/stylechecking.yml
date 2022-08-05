@@ -1,0 +1,35 @@
+name: Style checking
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+
+jobs:
+  markdown_linting:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Run mdl
+      uses: actionshub/markdownlint@main
+  python_linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8.10'
+      - name: "Install style checker"
+        run: pip install --user black
+      - name: "Run style check"
+        run: black --check .
+  cpp_linting:
+    runs-on: ubuntu-latest
+    container:
+      image: ajaust/style-check-github:0.3
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run format check
+        run: ./scripts/format/run-clang-format.sh
