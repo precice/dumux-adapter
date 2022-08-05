@@ -41,10 +41,10 @@ jobs:
       run: |
         export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
         cd dumux-precice/build-cmake/
-        CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose -j1
+        CTEST_OUTPUT_ON_FAILURE=1 ctest -j1
   build-and-test-dumux-master:
     strategy:
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         dumux_version: [master]
         precice_version: [2.4.0]
