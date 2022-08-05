@@ -1,16 +1,5 @@
 FROM ubuntu:20.04
 
-ARG DUNEVERSION=2.7
-ARG DUMUXVERSION=3.4
-ARG PRECICEVERSION=2.2.1
-ARG PRECICEUBUNTU=focal
-
-# User configuration
-ARG USER_NAME=dumux
-ARG USER_HOME=/home/${USER_NAME}
-ARG USER_ID=1000
-ARG GROUP_ID=1000
-
 # Install DUNE and DuMuX in /home/dumux
 WORKDIR	${USER_HOME}
 
@@ -25,6 +14,8 @@ RUN apt-get install -y apt-utils vim htop git
 RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config python3
 
 # Obtain DuMuX and Dune repositories
+ARG DUNEVERSION=2.7
+ARG DUMUXVERSION=3.4
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 
@@ -40,6 +31,8 @@ ENV DUNE_CONTROL_PATH=${USER_HOME}/dune-common/dune.module:${USER_HOME}/dune-geo
 ENV PYTHONPATH ${USER_HOME}/dumux/bin/testing:${PYTHONPATH}
 
 #Install preCICE
+ARG PRECICEVERSION=2.2.1
+ARG PRECICEUBUNTU=focal
 RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice2_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& apt install -y ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& rm -f ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb
@@ -47,21 +40,6 @@ RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}
 # Cleanup
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
-
-# Create user
-RUN groupadd -g $GROUP_ID "$USER_NAME"
-RUN adduser \
-    --home "$USER_HOME" \
-    --uid $USER_ID \
-    --gid $GROUP_ID \
-    --disabled-password \
-    "$USER_NAME"
-
-RUN echo "$USER_NAME" ALL=\(root\) NOPASSWD:ALL > "/etc/sudoers.d/$USER_NAME" && \
-    chmod 0440 "/etc/sudoers.d/$USER_NAME"
-
-USER "$USER_NAME"
-WORKDIR "$USER_HOME"
 
 CMD ["bash"]
 

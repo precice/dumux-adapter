@@ -1,8 +1,5 @@
 FROM ubuntu:20.04
 
-ARG DUNEVERSION=2.8
-ARG DUMUXVERSION=3.5
-
 ENV DEBIAN_FRONTEND noninteractive
 
 # Prohibit /usr/doc files from being installed
@@ -17,6 +14,8 @@ ARG DUMUXINSTALLPATH=/opt/DUMUX
 WORKDIR ${DUMUXINSTALLPATH}
 
 # Obtain DuMuX and Dune repositories
+ARG DUNEVERSION=2.8
+ARG DUMUXVERSION=3.5
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 
