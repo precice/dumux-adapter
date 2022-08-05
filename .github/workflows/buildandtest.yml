@@ -49,7 +49,7 @@ jobs:
         ls -lah
         git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b master
         ls -lah
-        dunecontrol --opts=cmake-test.opts --only=dumux all
+        dunecontrol --opts=/opt/DUMUX/cmake-test.opts --only=dumux all
         export DUNE_CONTROL_PATH=${DUNE_CONTROL_PATH}:${PWD}/dumux/dune.module
     - name: Check out code
       uses: actions/checkout@v3
