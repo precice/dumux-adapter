@@ -13,20 +13,43 @@ jobs:
       matrix:
         dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0]
-        canary: [false]
-        include:
-        - dumux_version: master
-          precice_version: 2.4.0
-          canary: true
+        #include:
+        #- dumux_version: master
+        #  precice_version: 2.4.0
+        #  canary: true
     container:
       image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        path: dumux-precice
+    - name: Build code
+      run: |
+        ls -lah
+        export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
+        echo $DUNE_CONTROL_PATH
+        dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
+        cd dumux-precice/build-cmake/
+        make -j2 build_tests
+  build-and-test-code-master:
+    strategy:
+      max-parallel: 3
+      matrix:
+        dumux_version: [master]
+        precice_version: [2.4.0]
+        dune_version: [2.8]
+    container:
+      image: ajaust/dune-precice:${{ matrix.dune_version }}-${{ matrix.dune_version }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.canary }}
     steps:
     - name: Build DuMuX master
-      if: ${{ matrix.canary }}
       run: |
+        ls -lah
         git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b master
+        ls -lah
         dunecontrol --opts=cmake-test.opts --only=dumux all
         export DUNE_CONTROL_PATH=${DUNE_CONTROL_PATH}:${PWD}/dumux/dune.module
     - name: Check out code
