@@ -4,7 +4,7 @@ on: [pull_request, push]
 jobs:
   build-and-test-code:
     strategy:
-      max-parallel: 2
+      max-parallel: 3
       matrix:
         dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0]
