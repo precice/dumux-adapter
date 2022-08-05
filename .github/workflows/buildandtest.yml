@@ -3,6 +3,7 @@ on: [pull_request, push]
 
 jobs:
   build-and-test-code:
+    continue-on-error: ${{ matrix.canary }}
     strategy:
       max-parallel: 3
       matrix:
@@ -12,9 +13,8 @@ jobs:
         include:
         - dumux_version: master
           precice_version: 2.3.0
-          experimental: true
+          experimental: [true]
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.canary }}
     container:
       image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     steps:
