@@ -43,7 +43,6 @@ jobs:
     container:
       image: ajaust/dune-precice:${{ matrix.dune_version }}-${{ matrix.dune_version }}
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.canary }}
     steps:
     - name: Build DuMuX master
       run: |
