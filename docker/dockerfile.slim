@@ -7,7 +7,6 @@ ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 
 # Install dependencies from
 RUN apt-get update
-#RUN apt-get install -y apt-utils vim htop git
 RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libboost-log1.71.0 libboost-thread1.71.0 libboost-system1.71.0 libboost-filesystem1.71.0 libboost-program-options1.71.0 libboost-test1.71.0 libboost-container1.71.0 libeigen3-dev libxml2 libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libeigen3-dev libxml2-dev libsuitesparse-dev python3
 
 ARG DUMUXINSTALLPATH=/opt/DUMUX

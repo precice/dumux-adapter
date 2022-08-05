@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-08-05: Moved CI to GitHub and updated CI workflows. Docker images now use the root user default user. Several Docker images have been added.
 - 2022-08-04: Restructure repository to have a more logical directory structure. Code examples live in `examples/`. These codes are also used as tests. Reference data resides in `test/`.
 - 2022-08-04: Update CI to also run tests against DuMuX master. Theses tests may fail.
 - 2022-08-04: Remove leftover references to monolithic coupling from code.
