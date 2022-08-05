@@ -6,12 +6,15 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        dumux_version: [3.4, 3.5, master]
+        dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0]
-        exclude:
+        canary: [false]
+        include:
         - dumux_version: master
           precice_version: 2.3.0
+          experimental: true
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.canary }}
     container:
       image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     steps:
