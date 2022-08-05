@@ -5,10 +5,8 @@ jobs:
   build-and-test-code:
     strategy:
       matrix:
-        #dumux_version: [3.4, 3.5, master]
-        #precice_version: [2.3.0, 2.4.0]
-        dumux_version: [3.5]
-        precice_version: [2.4.0]
+        dumux_version: [3.4, 3.5, master]
+        precice_version: [2.3.0, 2.4.0]
         exclude:
         - dumux_version: master
           precice_version: 2.3.0
