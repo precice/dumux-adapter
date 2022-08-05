@@ -34,7 +34,7 @@ ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALL
 ENV PYTHONPATH ${DUMUXINSTALLPATH}/dumux/bin/testing:${PYTHONPATH}
 
 # Compile minmum version of preCICE
-RUN git clone --depth 1 -b v${PRECICEVERSION} https://github.com/precice/precice.git precice-${PRECICEVERSION} && cd precice-${PRECICEVERSION} && mkdir build && cd build && cmake .. -DBUILD_SHARED_LIBS=ON -DPRECICE_MPICommunication=OFF -DPRECICE_PETScMapping=OFF -DPRECICE_PythonActions=OFF -DCMAKE_INSTALL_PREFIX=/usr && make -j 4 && make test && make install && cd ../../ && rm -rf precice-${PRECICEVERSION}
+RUN git clone --depth 1 -b v${PRECICEVERSION} https://github.com/precice/precice.git precice-${PRECICEVERSION} && cd precice-${PRECICEVERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS=ON -DPRECICE_MPICommunication=OFF -DPRECICE_PETScMapping=OFF -DPRECICE_PythonActions=OFF -DCMAKE_INSTALL_PREFIX=/usr && make -j 4 && make test && make install && cd ../../ && rm -rf precice-${PRECICEVERSION}
 
 RUN apt-get purge -y libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libxml2-dev && binprecice --version
 

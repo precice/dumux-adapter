@@ -16,7 +16,7 @@ jobs:
         canary: [false]
         include:
         - dumux_version: master
-          precice_version: 2.3.0
+          precice_version: 2.4.0
           canary: true
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.canary }}
