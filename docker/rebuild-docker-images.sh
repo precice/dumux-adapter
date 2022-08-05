@@ -15,6 +15,6 @@ done
 
 PRECICE_VERSION="2.4.0"
 echo "Building dune-precice:${dumux_version}-${precice_version}"
-docker build --build-arg DUNEVERSION=${DUNE_VERSION} --build-arg PRECICEVERSION=${PRECICE_VERSION} -t ajaust/dune-precice:2.8-${PRECICE_VERSION} --file dockerfile_dune-precice.slim .
-docker push ajaust/dune-precice:${dumux_version}-${precice_version}
+docker build --build-arg DUNEVERSION=${DUNE_VERSION} --build-arg PRECICEVERSION=${PRECICE_VERSION} -t ajaust/dune-precice:${DUNE_VERSION}-${PRECICE_VERSION} --file dockerfile_dune-precice.slim .
+docker push ajaust/dune-precice:${DUNE_VERSION}-${PRECICE_VERSION}
 y | docker image prune
