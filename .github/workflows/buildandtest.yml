@@ -41,7 +41,7 @@ jobs:
         precice_version: [2.4.0]
         dune_version: [2.8]
     container:
-      image: ajaust/dune-precice:${{ matrix.dune_version }}-${{ matrix.dune_version }}
+      image: ajaust/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
     steps:
     - name: Build DuMuX master
