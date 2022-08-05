@@ -21,11 +21,13 @@ do
     fi
 done
 
-echo "Checking out module: dumux"
-if [[ "$DUMUXVERSION" == "master" ]]; then
-  git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b master
-else
-  git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b releases/$DUMUXVERSION
+if [[ "$DUMUXVERSION" != "none" ]]; then
+    echo "Checking out module: dumux"
+    if [[ "$DUMUXVERSION" == "master" ]]; then
+    git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b master
+    else
+    git clone --depth 1 https://git.iws.uni-stuttgart.de/dumux-repositories/dumux.git -b releases/$DUMUXVERSION
+    fi
 fi
 echo "Printing DUNE modules to screen:"
 ls

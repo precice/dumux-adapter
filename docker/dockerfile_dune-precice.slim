@@ -1,0 +1,44 @@
+FROM ubuntu:20.04
+
+ARG DUNEVERSION=2.8
+ARG PRECICEVERSION=2.4.0
+ARG PRECICEUBUNTU=focal
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Prohibit /usr/doc files from being installed
+ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
+
+# Install dependencies from
+RUN apt-get update
+RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libboost-log1.71.0 libboost-thread1.71.0 libboost-system1.71.0 libboost-filesystem1.71.0 libboost-program-options1.71.0 libboost-test1.71.0 libboost-container1.71.0 libeigen3-dev libxml2 libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libeigen3-dev libxml2-dev libsuitesparse-dev
+
+ARG DUMUXINSTALLPATH=/opt/DUMUX
+WORKDIR ${DUMUXINSTALLPATH}
+
+# Obtain DuMuX and Dune repositories
+COPY checkout_repositories.sh .
+RUN bash checkout_repositories.sh ${DUNEVERSION} none
+
+# Install DUNE and DUMUX
+COPY cmake-test.opts .
+# Make dunecontrol available
+ENV PATH /opt/DUMUX/dune-common/bin:${PATH}
+RUN dunecontrol --opts=cmake-test.opts all
+
+# Make DUNE and DUMUX accessible
+ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALLPATH}/dune-geometry/dune.module:${DUMUXINSTALLPATH}/dune-grid/dune.module:${DUMUXINSTALLPATH}/dune-localfunctions/dune.module:${DUMUXINSTALLPATH}/dune-istl/dune.module:${DUMUXINSTALLPATH}/dune-subgrid/dune.module
+
+# Compile minmum version of preCICE
+RUN git clone --depth 1 -b v${PRECICEVERSION} https://github.com/precice/precice.git precice-${PRECICEVERSION} && cd precice-${PRECICEVERSION} && mkdir build && cd build && cmake .. -DBUILD_SHARED_LIBS=ON -DPRECICE_MPICommunication=OFF -DPRECICE_PETScMapping=OFF -DPRECICE_PythonActions=OFF -DCMAKE_INSTALL_PREFIX=/usr && make -j 4 && make test && make install && cd ../../ && rm -rf precice-${PRECICEVERSION}
+
+RUN apt-get purge -y libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libxml2-dev && binprecice --version
+
+# Cleanup
+RUN apt-get autoremove -y && apt-get clean
+RUN rm -rf /var/lib/apt/lists/* && rm -rf /tmp/*
+
+CMD ["bash"]
+
+# Reset frontend for interactive use
+ENV DEBIAN_FRONTEND=
