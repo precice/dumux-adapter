@@ -11,6 +11,8 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
+        container:
+          image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
         dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0]
         canary: [false]
@@ -18,10 +20,10 @@ jobs:
         - dumux_version: master
           precice_version: 2.4.0
           canary: true
+          container:
+            image: ajaust/dune-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.canary }}
-    container:
-      image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     steps:
     - name: Build DuMuX master
       if: ${{ matrix.canary }}
