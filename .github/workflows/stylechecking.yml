@@ -1,5 +1,10 @@
 name: Style checking
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
 
 jobs:
   markdown_linting:
