@@ -35,8 +35,6 @@ jobs:
         make -j2 build_tests
     - name: Run tests
       run: |
-        apt update
-        apt install -y python3
         export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
         cd dumux-precice/build-cmake/
         CTEST_OUTPUT_ON_FAILURE=1 ctest --verbose -j1
@@ -73,8 +71,6 @@ jobs:
         make -j2 build_tests
     - name: Run tests
       run: |
-        apt update
-        apt install -y python3
         export DUNE_CONTROL_PATH=${PWD}/dumux:${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
         cd dumux-precice/build-cmake/
         export PYTHONPATH=${PWD}/dumux/bin/testing:${PYTHONPATH}
