@@ -21,6 +21,10 @@ jobs:
       image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
     steps:
+    - name: Print python3 version
+      run: python3 --version
+    - name: Print python3 version (/usr/bin/env python3)
+      run: /usr/bin/env python3 --version
     - name: Check out code
       uses: actions/checkout@v3
       with:
@@ -33,8 +37,6 @@ jobs:
         dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
         cd dumux-precice/build-cmake/
         make -j2 build_tests
-    - name: Print python3 version
-      run: python3 --version
     - name: Run tests
       run: |
         export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
@@ -52,6 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
+    - name: Print python3 version
+      run: python3 --version
+    - name: Print python3 version (/usr/bin/env python3)
+      run: /usr/bin/env python3 --version
     - name: Build DuMuX master
       run: |
         ls -lah
@@ -71,8 +77,6 @@ jobs:
         dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
         cd dumux-precice/build-cmake/
         make -j2 build_tests
-    - name: Print python3 version
-      run: python3 --version
     - name: Run tests
       run: |
         export DUNE_CONTROL_PATH=${PWD}/dumux:${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
