@@ -1,8 +1,5 @@
 FROM ubuntu:20.04
 
-ARG DUNEVERSION=2.8
-ARG DUMUXVERSION=3.5
-
 ENV DEBIAN_FRONTEND noninteractive
 
 # Prohibit /usr/doc files from being installed
@@ -10,13 +7,14 @@ ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 
 # Install dependencies from
 RUN apt-get update
-#RUN apt-get install -y apt-utils vim htop git
-RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libeigen3-dev libsuitesparse-dev
+RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libeigen3-dev libsuitesparse-dev python3
 
 ARG DUMUXINSTALLPATH=/opt/DUMUX
 WORKDIR ${DUMUXINSTALLPATH}
 
 # Obtain DuMuX and Dune repositories
+ARG DUNEVERSION=2.8
+ARG DUMUXVERSION=3.5
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 

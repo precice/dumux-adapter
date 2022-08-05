@@ -1,6 +1,6 @@
 # Docker image
 
-This directory contains a Docker recipe for building an environment for testing the DuMuX-preCICE adapter. The recipe does **not** install the adapter.
+This directory contains a Docker recipes and helper scripts for building an environment for testing the DuMuX-preCICE adapter. The recipes do **not** install the adapter.
 
 The following main dependencies are installed when using the `dockerfile.large` and `dockerfile.slim` recipe:
 
@@ -29,3 +29,5 @@ If one wants to build a "slim" image using DUNE 2.8, DuMuX from the current mast
 ```text
 sudo docker build --build-arg DUNEVERSION=2.8 --build-arg DUMUXVERSION=master --build-arg PRECICEVERSION=2.4.0 -t ajaust/dumux-precice:master-2.4.0 --file dockerfile.slim .
 ```
+
+The script `rebuild-docker-images.sh` can be used to rebuild the Docker images locally.

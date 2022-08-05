@@ -12,13 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dumux_version: [3.4, 3.5, master]
+        dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0]
-        #dumux_version: [3.5]
-        #precice_version: [2.4.0]
-        exclude:
-        - dumux_version: master
-          precice_version: 2.3.0
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3

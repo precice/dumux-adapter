@@ -14,9 +14,8 @@ WORKDIR ${DUMUXINSTALLPATH}
 
 # Obtain DuMuX and Dune repositories
 ARG DUNEVERSION=2.8
-ARG DUMUXVERSION=3.5
 COPY checkout_repositories.sh .
-RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
+RUN bash checkout_repositories.sh ${DUNEVERSION} none
 
 # Install DUNE and DUMUX
 COPY cmake-test.opts .
@@ -25,9 +24,7 @@ ENV PATH /opt/DUMUX/dune-common/bin:${PATH}
 RUN dunecontrol --opts=cmake-test.opts all
 
 # Make DUNE and DUMUX accessible
-ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALLPATH}/dune-geometry/dune.module:${DUMUXINSTALLPATH}/dune-grid/dune.module:${DUMUXINSTALLPATH}/dune-localfunctions/dune.module:${DUMUXINSTALLPATH}/dune-istl/dune.module:${DUMUXINSTALLPATH}/dune-subgrid/dune.module:${DUMUXINSTALLPATH}/dumux/dune.module
-
-ENV PYTHONPATH ${DUMUXINSTALLPATH}/dumux/bin/testing:${PYTHONPATH}
+ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALLPATH}/dune-geometry/dune.module:${DUMUXINSTALLPATH}/dune-grid/dune.module:${DUMUXINSTALLPATH}/dune-localfunctions/dune.module:${DUMUXINSTALLPATH}/dune-istl/dune.module:${DUMUXINSTALLPATH}/dune-subgrid/dune.module
 
 # Compile minmum version of preCICE
 ARG PRECICEVERSION=2.4.0
