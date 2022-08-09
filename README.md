@@ -3,7 +3,7 @@
 ![build and test develop](https://github.com/precice/dumux-adapter/actions/workflows/buildandtest.yml/badge.svg)
 ![build and test develop with DuMuX masters](https://github.com/precice/dumux-adapter/actions/workflows/buildandtestdumuxmaster.yml/badge.svg)
 
-This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
+This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
 ## Structure of the repository
 
@@ -48,13 +48,13 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. At the moment there are no adapter releases, besides an outdated `v0.1` release, such the best way is to checkout the `develop` branch of the adapter.
 
     ```text
-    git clone -b develop https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice.git
+    git clone -b develop https://github.com/precice/dumux-adapter.git
     ```
 
     You can also try to clone the repository via SSH:
 
     ```text
-    git clone -b develop git@git.iws.uni-stuttgart.de:dumux-appl/dumux-precice.git
+    git clone -b develop git@github.com:precice/dumux-adapter.git
     ```
 
 3. Verify that the `dumux-precice` folder is in the same directory as the DUNE module folders and the `dumux` folder.
@@ -106,7 +106,7 @@ There are advanced ways of managing DUNE modules, e.g. using the environment var
 
 ### User documentation
 
-At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/issues) and let us know.
+At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
 
 ### API documentation
 
