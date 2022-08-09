@@ -7,7 +7,7 @@ theme:
     accent: blue
 
 repo_name: dumux-appl/dumux-preCICE
-repo_url: https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice
+repo_url: https://github.com/precice/dumux-adapter
 
 markdown_extensions:
   - admonition
