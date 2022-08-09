@@ -17,7 +17,6 @@ jobs:
     container:
       image: ajaust/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
     - name: Print python3 version
       run: python3 --version
