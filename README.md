@@ -1,6 +1,7 @@
 # DuMuX-preCICE adapter
 
 ![build and test develop](https://github.com/precice/dumux-adapter/actions/workflows/buildandtest.yml/badge.svg)
+![build and test develop with DuMuX masters](https://github.com/precice/dumux-adapter/actions/workflows/buildandtestcanary.yml/badge.svg)
 
 This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
