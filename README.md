@@ -27,6 +27,7 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
+    - Needs UMFPack (available via SuiteSparse) as solver for linear systems of equations. This is needed to run the examples included in the adapter. Otherwise you can skip UMFPack.
 
 - preCICE >=2.0.0
 
