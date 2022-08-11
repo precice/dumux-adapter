@@ -19,6 +19,9 @@ rule 'MD007', :indent => 4
 # This will complain for overly wide tables and code blocks.
 rule 'MD013', :line_length => 99999
 
+# Allow multiple headers with same content
+rule 'MD024', :allow_different_nesting => :true
+
 # Nested lists should be indented with four spaces.
 # Modification: Question marks should be allowed
 rule 'MD026', :punctuation => '.,;:!'

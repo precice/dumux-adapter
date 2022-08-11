@@ -27,6 +27,7 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
+    - Needs UMFPack (available via SuiteSparse) as solver for linear systems of equations. This is needed to run the examples included in the adapter. Otherwise you can skip UMFPack.
 
 - preCICE >=2.0.0
 
@@ -34,6 +35,8 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 - `wget` or `git` to download the DuMuX-preCICE adapter.
 - Optional: [`dune-subgrid`](https://www.dune-project.org/modules/dune-subgrid/) allows for modified grid geometries.
+- Optional: [MkDocs](https://www.mkdocs.org/) if one wants to build the user documentation locally. The user documentation can also be found in the `doc/user/docs/` directory and is spread over several Markdown files.
+- Optional: [Doxygen](https://www.doxygen.nl/) if one wants to build the API documentation locally.
 
 The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependencies are installed.
 
@@ -106,7 +109,7 @@ There are advanced ways of managing DUNE modules, e.g. using the environment var
 
 ### User documentation
 
-At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
+The main user documentation is currently not available on an online service, but can be found in the `docs/user/docs` directory. Additionally, one may find interesting information in the API documentation (see below) as well as the test and example cases that are provided with this repository. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
 
 ### API documentation
 
