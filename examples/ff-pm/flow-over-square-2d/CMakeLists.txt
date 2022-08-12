@@ -67,7 +67,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_st_second PROPERTIES
   ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_st
-              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d
               LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK
@@ -100,7 +100,7 @@ set_property(TEST test_ff_pm_part_flow_over_square_2d_pi_st APPEND PROPERTY DEPE
 ######################
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_first
-              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
@@ -123,7 +123,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_first PROPERTIES
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_si_ns_second
-    TARGET ff_flow_over_square_2d pm_flow_over_square_2d
+    TARGET ff_flow_over_square_2d
     LABELS freeflow darcy precice darcy
     TIMEOUT 60
     CMAKE_GUARD HAVE_UMFPACK
@@ -146,7 +146,7 @@ set_tests_properties(test_ff_pm_part_flow_over_square_2d_si_ns_second PROPERTIES
  ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test:$ENV{PYTHONPATH})
 
 dumux_add_test(NAME test_ff_pm_part_flow_over_square_2d_pi_ns
-              TARGET ff_flow_over_square_2d pm_flow_over_square_2d
+              TARGET ff_flow_over_square_2d
               LABELS freeflow navierstokes precice darcy
               TIMEOUT 60
               CMAKE_GUARD HAVE_UMFPACK
