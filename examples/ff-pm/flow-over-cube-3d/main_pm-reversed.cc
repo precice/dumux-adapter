@@ -326,7 +326,11 @@ try {
     using DarcyGridGeometry =
         GetPropType<DarcyTypeTag, Properties::GridGeometry>;
     auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
+    darcyGridGeometry->update(darcyGridManager.grid().leafGridView());
+#else
     darcyGridGeometry->update();
+#endif
 
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
     auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry);

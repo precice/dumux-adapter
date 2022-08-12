@@ -28,7 +28,7 @@ dumux_add_test(NAME dummytarget_to_build_pm_flow_over_cube_3d
 
 
 dumux_add_test(NAME test_ff_pm_flow_over_cube_3d
-              TARGET ff_flow_over_cube_3d pm_flow_over_cube_3d
+              TARGET ff_flow_over_cube_3d
               LABELS freeflow stokes precice darcy
               TIMEOUT 30
               CMAKE_GUARD HAVE_UMFPACK

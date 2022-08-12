@@ -284,7 +284,11 @@ try {
         GetPropType<FreeFlowTypeTag, Properties::GridGeometry>;
     auto freeFlowGridGeometry =
         std::make_shared<FreeFlowGridGeometry>(freeFlowGridView);
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
+    freeFlowGridGeometry->update(freeFlowGridManager.grid().leafGridView());
+#else
     freeFlowGridGeometry->update();
+#endif
 
     // the problem (initial and boundary conditions)
     using FreeFlowProblem = GetPropType<FreeFlowTypeTag, Properties::Problem>;
