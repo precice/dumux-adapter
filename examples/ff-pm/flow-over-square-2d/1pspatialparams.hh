@@ -24,7 +24,11 @@
 #ifndef DUMUX_1P_TEST_SPATIALPARAMS_HH
 #define DUMUX_1P_TEST_SPATIALPARAMS_HH
 
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
+#include <dumux/porousmediumflow/fvspatialparams1p.hh>
+#else
 #include <dumux/material/spatialparams/fv1p.hh>
+#endif
 
 namespace Dumux
 {
@@ -36,15 +40,29 @@ namespace Dumux
  */
 template<class FVGridGeometry, class Scalar>
 class OnePSpatialParams
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
+    : public FVPorousMediumFlowSpatialParamsOneP<
+          FVGridGeometry,
+          Scalar,
+          OnePSpatialParams<FVGridGeometry, Scalar>>
+#else
     : public FVSpatialParamsOneP<FVGridGeometry,
                                  Scalar,
                                  OnePSpatialParams<FVGridGeometry, Scalar>>
+#endif
 {
     using GridView = typename FVGridGeometry::GridView;
     using ParentType =
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
+        FVPorousMediumFlowSpatialParamsOneP<
+            FVGridGeometry,
+            Scalar,
+            OnePSpatialParams<FVGridGeometry, Scalar>>;
+#else
         FVSpatialParamsOneP<FVGridGeometry,
                             Scalar,
                             OnePSpatialParams<FVGridGeometry, Scalar>>;
+#endif
 
     using Element = typename GridView::template Codim<0>::Entity;
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
@@ -96,7 +114,7 @@ public:
      *
      * This problem assumes a temperature of 10 degrees Celsius.
      */
-    Scalar temperature(const GlobalPosition &globalPos) const
+    Scalar temperatureAtPos(const GlobalPosition &globalPos) const
     {
         return 273.15 + 10;  // 10°C
     }

@@ -134,12 +134,14 @@ public:
      */
     // \{
 
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR < 5
     /*!
      * \brief Return the temperature within the domain in [K].
      *
      */
     Scalar temperature() const { return 273.15 + 10; }  // 10°C
     // \}
+#endif
 
     /*!
      * \name Boundary conditions
