@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-08-12: Update CI to test with preCICE 2.5.0.
 - 2022-08-11: Updated documentation and removed it from readthedocs.
 - 2022-08-09: Remove GitLab-specific files like CI configuration.
 - 2022-08-09: Update links to point to the new GitHub repository of the code.
