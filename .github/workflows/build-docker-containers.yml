@@ -34,7 +34,7 @@ jobs:
         with:
           push: true
           file: "./docker/dockerfile.slim"
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
+          tags: ${{ env.dockerhub_username }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
           build-args: |
             DUNE_VERSION=2.8
             PRECICEUBUNTU=focal
