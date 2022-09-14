@@ -7,7 +7,7 @@ on:
       - develop
     paths:
       - 'docker/**'
-      - '.github/workflows/builddockercontainers.yml'
+      - '.github/workflows/build-docker-containers.yml'
 
 jobs:
   build-and-release-docker-image:
