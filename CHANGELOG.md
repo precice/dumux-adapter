@@ -2,6 +2,7 @@
 
 ## Not released yet
 
+- 2022-09-14: Updated CI to use containers from `precice` namespace on DockerHub. Also makes sure that `dune-precice` containers are build for tests against DuMuX's master branch.
 - 2022-09-14: Updated and fixed GitHub to build Docker containers.
 - 2022-08-12: Update CI config to rebuild Docker containers if Docker recips have been updated or when the CI config for building the containers has been updated.
 - 2022-08-12: Update examples to work with DuMuX releases newer than DuMuX 3.5.
