@@ -27,9 +27,9 @@ jobs:
         run: black --check .
   cpp_linting:
     runs-on: ubuntu-latest
-    container:
-      image: ajaust/style-check-github:0.3
     steps:
       - uses: actions/checkout@v2
       - name: Run format check
-        run: ./scripts/format/run-clang-format.sh
+        run: |
+          sudo apt-get install clang-format-10
+          ./scripts/format/run-clang-format.sh

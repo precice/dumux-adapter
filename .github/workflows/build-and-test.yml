@@ -14,7 +14,7 @@ jobs:
         dumux_version: [3.4, 3.5]
         precice_version: [2.3.0, 2.4.0, 2.5.0]
     container:
-      image: ajaust/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
+      image: precice/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
     steps:
     - name: Print python3 version
