@@ -33,7 +33,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          file: "./docker/dockerfile.slim"
+          context: "{{defaultContext}}:docker"
+          file: "./dockerfile.slim"
           tags: ${{ env.dockerhub_username }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
           build-args: |
             DUNE_VERSION=2.8
