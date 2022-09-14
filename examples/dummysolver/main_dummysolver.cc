@@ -19,7 +19,7 @@
 #include "dumux-precice/couplingadapter.hh"
 
 // More debugging output is printed if the dummy is verbose.
-static constexpr bool is_verbose_dummy = false;
+static constexpr bool is_dummy_verbose = false;
 
 int main(int argc, char **argv)
 try {
@@ -171,7 +171,7 @@ try {
         }
     }
 
-    if (is_verbose_dummy) {
+    if (is_dummy_verbose) {
         for (int i = 0; i < numberOfVertices; i++) {
             if (readScalarData.at(i) != writeScalarData.at(i)) {
                 std::cout << "DUMMY (" << mpiHelper.rank()
@@ -216,7 +216,7 @@ try {
             const std::vector<double> &readScalarQuantity =
                 couplingInterface.getQuantityVector(readScalarDataID);
 
-            if (is_verbose_dummy) {
+            if (is_dummy_verbose) {
                 std::cout << "DUMMY (" << mpiHelper.rank()
                           << "): Scalar data\n";
                 for (const double &value : readScalarQuantity)
@@ -230,7 +230,7 @@ try {
             const std::vector<double> &readVectorQuantity =
                 couplingInterface.getQuantityVector(readVectorDataID);
 
-            if (is_verbose_dummy) {
+            if (is_dummy_verbose) {
                 std::cout << "DUMMY (" << mpiHelper.rank()
                           << "): Vector data\n";
                 for (const double &value : readVectorQuantity)
