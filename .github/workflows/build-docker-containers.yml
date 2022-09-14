@@ -14,7 +14,7 @@ jobs:
     name: Builds a Docker container for testing the DuMuX preCICE adapter
     runs-on: ubuntu-latest
     env:
-        docker_username: precice
+        dockerhub_username: precice
     strategy:
       matrix:
         dumux_version: [3.4, 3.5]
