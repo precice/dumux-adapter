@@ -18,9 +18,6 @@
 
 #include "dumux-precice/couplingadapter.hh"
 
-// More debugging output is printed if the dummy is verbose.
-static constexpr bool is_dummy_verbose = false;
-
 int main(int argc, char **argv)
 try {
     using namespace Dumux;
@@ -171,29 +168,6 @@ try {
         }
     }
 
-    if (is_dummy_verbose) {
-        for (int i = 0; i < numberOfVertices; i++) {
-            if (readScalarData.at(i) != writeScalarData.at(i)) {
-                std::cout << "DUMMY (" << mpiHelper.rank()
-                          << "): Reading initialized SCALAR data error\n"
-                          << "Expected " << writeScalarData.at(i) << ", Found "
-                          << readScalarData.at(i) << "\n";
-            }
-
-            for (int j = 0; j < dimensions; j++) {
-                if (readVectorData.at(j + dimensions * i) !=
-                    writeVectorData.at(j + dimensions * i)) {
-                    std::cout
-                        << "DUMMY (" << mpiHelper.rank()
-                        << "): Reading initialized VECTOR data error\n"
-                        << "Expected " << writeVectorData.at(j + dimensions * i)
-                        << ", Found " << readVectorData.at(j + dimensions * i)
-                        << "\n";
-                }
-            }
-        }
-    }
-
     int iter = 0;
 
     while (couplingInterface.isCouplingOngoing()) {
@@ -216,30 +190,8 @@ try {
             const std::vector<double> &readScalarQuantity =
                 couplingInterface.getQuantityVector(readScalarDataID);
 
-            if (is_dummy_verbose) {
-                std::cout << "DUMMY (" << mpiHelper.rank()
-                          << "): Scalar data\n";
-                for (const double &value : readScalarQuantity)
-                    std::cout << value << ",";
-                std::cout << "\n";
-                for (const double &value : writeScalarData)
-                    std::cout << value << ",";
-                std::cout << "\n";
-            }
-
             const std::vector<double> &readVectorQuantity =
                 couplingInterface.getQuantityVector(readVectorDataID);
-
-            if (is_dummy_verbose) {
-                std::cout << "DUMMY (" << mpiHelper.rank()
-                          << "): Vector data\n";
-                for (const double &value : readVectorQuantity)
-                    std::cout << value << ",";
-                std::cout << "\n";
-                for (const double &value : writeVectorData)
-                    std::cout << value << ",";
-                std::cout << "\n";
-            }
 
             for (int i = 0; i < numberOfVertices; i++) {
                 if (readScalarQuantity.at(i) !=
