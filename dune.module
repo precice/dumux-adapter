@@ -4,7 +4,7 @@
 
 #Name of the module
 Module: dumux-precice
-Version: develop
+Version: 1.0.0
 Maintainer: alexander.jaust@ipvs.uni-stuttgart.de
 # Required build dependencies
 Depends: dumux (>=3.2)

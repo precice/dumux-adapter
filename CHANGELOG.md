@@ -2,6 +2,8 @@
 
 ## Not released yet
 
+## v1.0.0
+
 - 2022-09-14: The solver dummy has been cleaned up.
 - 2022-09-14: Updated CI to use containers from `precice` namespace on DockerHub. Also makes sure that `dune-precice` containers are build for tests against DuMuX's master branch.
 - 2022-09-14: Updated and fixed GitHub to build Docker containers.
