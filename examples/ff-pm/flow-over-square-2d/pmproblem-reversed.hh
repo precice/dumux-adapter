@@ -265,6 +265,9 @@ public:
         dataIdsWereSet_ = true;
     }
 
+    //! Get the coupling manager
+    const CouplingManager &couplingManager() const { return *couplingManager_; }
+
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
