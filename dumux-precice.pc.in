@@ -9,7 +9,7 @@ DEPENDENCIES=@REQUIRES@
 Name: @PACKAGE_NAME@
 Version: @VERSION@
 Description: dumux-precice module
-URL: https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice
+URL: https://github.com/precice/dumux-adapter
 Requires: dumux
 Suggests: dune-subgrid
 Libs: -L${libdir}

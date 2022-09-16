@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <exception>
+#include <limits>
 
 using namespace Dumux::Precice;
 
@@ -37,7 +38,8 @@ void CouplingAdapter::announceSolver(const std::string &name,
     wasCreated_ = true;
 }
 
-size_t CouplingAdapter::announceQuantity(const std::string &name)
+size_t CouplingAdapter::announceQuantity(const std::string &name,
+                                         const QuantityType quantity_type)
 {
     assert(meshWasCreated_);
     auto it = std::find(dataNames_.begin(), dataNames_.end(), name);
@@ -46,9 +48,22 @@ size_t CouplingAdapter::announceQuantity(const std::string &name)
     }
     dataNames_.push_back(name);
     preciceDataID_.push_back(precice_->getDataID(name, meshID_));
-    dataVectors_.push_back(std::vector<double>(vertexIDs_.size()));
+    const int quantity_dimension =
+        (quantity_type == QuantityType::Scalar) ? 1 : getDimensions();
+    dataVectors_.push_back(
+        std::vector<double>(vertexIDs_.size() * quantity_dimension));
 
     return getNumberOfQuantities() - 1;
+}
+
+size_t CouplingAdapter::announceScalarQuantity(const std::string &name)
+{
+    return announceQuantity(name, QuantityType::Scalar);
+}
+
+size_t CouplingAdapter::announceVectorQuantity(const std::string &name)
+{
+    return announceQuantity(name, QuantityType::Vector);
 }
 
 int CouplingAdapter::getDimensions() const
@@ -153,6 +168,38 @@ double CouplingAdapter::getScalarQuantityOnFace(const size_t dataID,
     return quantityVector[idx];
 }
 
+// std::vector<double> getVectorQuantityOnFace(const size_t dataID, const int faceID) const
+// {
+//     assert(wasCreated_);
+//     assert(hasIndexMapper_);
+//     if (!hasIndexMapper_) {
+//         throw std::runtime_error(
+//             "Reading quantity using faceID, but index mapping was not "
+//             "created!");
+//     }
+//     const auto idx = indexMapper_.getPreciceId(faceID);
+//     assert(dataID < dataVectors_.size());
+//     const std::vector<double> &quantityVector = dataVectors_[dataID];
+//     assert(idx+getDimension()-1 < quantityVector.size());
+//     std::vector<double> vector_quantity( quantityVector.begin(), quantityVector.begin()+getDimension()-1 );
+//     return vector_quantity;
+// }
+// void getQuantityVector(const size_t dataID, std::vector<double>& quantity_vector) const
+// {
+//     assert(wasCreated_);
+//     assert(hasIndexMapper_);
+//     if (!hasIndexMapper_) {
+//         throw std::runtime_error(
+//             "Reading quantity using faceID, but index mapping was not "
+//             "created!");
+//     }
+//     const auto idx = indexMapper_.getPreciceId(faceID);
+//     const std::vector<double>& data_vector = dataVectors_[dataID];
+//     assert(dataID < data_vector.size());
+//     quantity_vector.resize( data_vector.size() );
+//     std::copy( data_vector.begin(), data_vector.end(), quantity_vector.begin() );
+// }
+
 void CouplingAdapter::writeScalarQuantityOnFace(const size_t dataID,
                                                 const int faceID,
                                                 const double value)
@@ -205,8 +252,17 @@ const std::vector<double> &CouplingAdapter::getQuantityVector(
     return getQuantityVector(dataID);
 }
 
-void CouplingAdapter::writeScalarQuantityVector(const size_t dataID,
-                                                std::vector<double> &values)
+// void CouplingAdapter::writeScalarQuantityVector(const size_t dataID,
+//                                                 std::vector<double> &values)
+// {
+//     assert(wasCreated_);
+//     assert(dataID < dataVectors_.size());
+//     assert(dataVectors_[dataID].size() == values.size());
+//     dataVectors_[dataID] = values;
+// }
+
+void CouplingAdapter::writeQuantityVector(const size_t dataID,
+                                          std::vector<double> &values)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
@@ -214,23 +270,38 @@ void CouplingAdapter::writeScalarQuantityVector(const size_t dataID,
     dataVectors_[dataID] = values;
 }
 
-void CouplingAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
+void CouplingAdapter::writeQuantityToOtherSolver(
+    const size_t dataID,
+    const QuantityType quantity_type)
 {
     assert(wasCreated_);
     assert(dataID < dataVectors_.size());
     assert(dataID < preciceDataID_.size());
     assert(dataID < std::numeric_limits<int>::max());
-    writeBlockScalarDataToPrecice(preciceDataID_[dataID], dataVectors_[dataID]);
+    writeBlockDataToPrecice(preciceDataID_[dataID], dataVectors_[dataID],
+                            quantity_type);
+}
+
+void CouplingAdapter::readQuantityFromOtherSolver(
+    const size_t dataID,
+    const QuantityType quantity_type)
+{
+    assert(wasCreated_);
+    assert(dataID < dataVectors_.size());
+    assert(dataID < preciceDataID_.size());
+    assert(dataID < std::numeric_limits<int>::max());
+    readBlockDataFromPrecice(preciceDataID_[dataID], dataVectors_[dataID],
+                             quantity_type);
+}
+
+void CouplingAdapter::writeScalarQuantityToOtherSolver(const size_t dataID)
+{
+    writeQuantityToOtherSolver(dataID, QuantityType::Scalar);
 }
 
 void CouplingAdapter::readScalarQuantityFromOtherSolver(const size_t dataID)
 {
-    assert(wasCreated_);
-    assert(dataID < dataVectors_.size());
-    assert(dataID < preciceDataID_.size());
-    assert(dataID < std::numeric_limits<int>::max());
-    readBlockScalarDataFromPrecice(preciceDataID_[dataID],
-                                   dataVectors_[dataID]);
+    readQuantityFromOtherSolver(dataID, QuantityType::Scalar);
 }
 
 bool CouplingAdapter::isCoupledEntity(const int faceID) const
@@ -275,22 +346,36 @@ void CouplingAdapter::actionIsFulfilled(const std::string &condition)
     precice_->markActionFulfilled(condition);
 }
 
-void CouplingAdapter::readBlockScalarDataFromPrecice(const int dataID,
-                                                     std::vector<double> &data)
+void CouplingAdapter::readBlockDataFromPrecice(const int dataID,
+                                               std::vector<double> &data,
+                                               const QuantityType quantity_type)
 {
     assert(wasCreated_);
-    assert(vertexIDs_.size() == data.size());
-    precice_->readBlockScalarData(dataID, vertexIDs_.size(), vertexIDs_.data(),
-                                  data.data());
+    if (quantity_type == QuantityType::Scalar) {
+        assert(vertexIDs_.size() == data.size());
+        precice_->readBlockScalarData(dataID, vertexIDs_.size(),
+                                      vertexIDs_.data(), data.data());
+    } else {
+        assert(vertexIDs_.size() * getDimensions() == data.size());
+        precice_->readBlockVectorData(dataID, vertexIDs_.size(),
+                                      vertexIDs_.data(), data.data());
+    }
 }
 
-void CouplingAdapter::writeBlockScalarDataToPrecice(const int dataID,
-                                                    std::vector<double> &data)
+void CouplingAdapter::writeBlockDataToPrecice(const int dataID,
+                                              std::vector<double> &data,
+                                              const QuantityType quantity_type)
 {
     assert(wasCreated_);
-    assert(vertexIDs_.size() == data.size());
-    precice_->writeBlockScalarData(dataID, vertexIDs_.size(), vertexIDs_.data(),
-                                   data.data());
+    if (quantity_type == QuantityType::Scalar) {
+        assert(vertexIDs_.size() == data.size());
+        precice_->writeBlockScalarData(dataID, vertexIDs_.size(),
+                                       vertexIDs_.data(), data.data());
+    } else {
+        assert(vertexIDs_.size() * getDimensions() == data.size());
+        precice_->writeBlockVectorData(dataID, vertexIDs_.size(),
+                                       vertexIDs_.data(), data.data());
+    }
 }
 
 bool CouplingAdapter::hasToWriteInitialData()

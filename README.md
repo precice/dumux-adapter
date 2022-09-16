@@ -1,38 +1,92 @@
-# DuMuX-preCICE coupling
+# DuMuX-preCICE adapter
 
-This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
+![build and test develop](https://github.com/precice/dumux-adapter/actions/workflows/build-and-test.yml/badge.svg)
+![build and test develop with DuMuX masters](https://github.com/precice/dumux-adapter/actions/workflows/build-and-test-dumux-master.yml/badge.svg)
 
-## Prerequisites
-
-- DuMuX **newer** than 3.2
-    - Builds using the current `master` branch of DuMuX might fail.
-- preCICE >=2.0.0
-    - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
+This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
 ## Structure of the repository
+
+Note that this repository is a [DUNE module](https://www.dune-project.org/) and thus some parts of the repository structure are given by the typical DUNE module layout.
 
 - `cmake/`: Contains CMake modules for building the adapter. Under normal circumstances you do not need
 - `examples/`: Contains examples on how to couple different domains. Some of the examples are taken from DuMuX or are slightly adapted from DuMuX test cases or tutorials. Please check the `README.md` file in this directory and corresponding subdirectories to find further explanations of the examples. Additional examples can be found in the `test/` directory.
 - `doc/`: Additional documentation.
+- `docker/`: A Docker recipe that creates a container with DUNE, DuMuX and preCICE. The recipe is mainly used for the automated tests. Check the `README.md` in the subdirectory for more details.
 - `dumux-precice/`: The preCICE adapter source code and further code for some of the tests and examples.
 - `scripts/`: Contains useful scripts to run simulations and for checking the code's formatting.
-- `test/`: Contains test cases and reference solutions (`reference-solutions/`). Test cases as divided into `monolithic/` and `partitioned` (=preCICE) test cases. The directory also contains several DUNE configuration files (`.opts` files) for configuring the project.
+- `test/`: Contains test cases and reference solutions (`reference-solutions/`). The directory also contains several DUNE configuration files (`.opts` files) for configuring the project.
 
-## Running tests
+## Installation
 
-1. Configure the DUNE module
+The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be build using the [DUNE build system](https://www.dune-project.org/doc/installation/). The DUNE build system is build on top of CMake and comes with various tools that make installation and management of DUNE modules easier. Therefore, it is recommended to install `dumux-precice` using `dunecontrol`. Please check out the [DUNE installation instructions](https://www.dune-project.org/doc/installation/) to get an overview over the `dunecontrol` tools and how DUNE modules work.
+
+### Prerequisites
+
+- DuMuX **newer** than 3.2
+
+    - Builds using the current `master` branch of DuMuX might fail.
+    - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
+    - Needs UMFPack (available via SuiteSparse) as solver for linear systems of equations. This is needed to run the examples included in the adapter. Otherwise you can skip UMFPack.
+
+- preCICE >=2.0.0
+
+    - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
+
+- `wget` or `git` to download the DuMuX-preCICE adapter.
+- Optional: [`dune-subgrid`](https://www.dune-project.org/modules/dune-subgrid/) allows for modified grid geometries.
+- Optional: [MkDocs](https://www.mkdocs.org/) if one wants to build the user documentation locally. The user documentation can also be found in the `doc/user/docs/` directory and is spread over several Markdown files.
+- Optional: [Doxygen](https://www.doxygen.nl/) if one wants to build the API documentation locally.
+
+The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependencies are installed.
+
+### Detailed installation steps
+
+1. Install [DuMuX](https://dumux.org/) and the needed dependencies. The easiest way is to follow [DuMuX's installation instructions](https://dumux.org/installation/). The DuMuX project provides a script that installs and DuMuX and the DUNE modules required by DuMuX. This means, after installing DuMuX via the provided script you should be good to go to use the DuMuX-preCICE adapter.
+
+    After the installation you should have a root directory that contains the base DUNE modules, i.e. a  number of directories named like `dune-common`, `dune-geometry` etc., and a directory called `dumux`.
+
+    - Note that extended features of DuMuX or the DuMuX-preCICE adapter may need additional DUNE modules.
+
+2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. At the moment there are no adapter releases, besides an outdated `v0.1` release, such the best way is to checkout the `develop` branch of the adapter.
+
+    ```text
+    git clone -b develop https://github.com/precice/dumux-adapter.git
+    ```
+
+    You can also try to clone the repository via SSH:
+
+    ```text
+    git clone -b develop git@github.com:precice/dumux-adapter.git
+    ```
+
+3. Verify that the `dumux-precice` folder is in the same directory as the DUNE module folders and the `dumux` folder.
+
+4. Build and configure the adapter using `dunecontrol`. While being in the directory mentioned in the previous step via calling
+
+    ```text
+    dunecontrol --only=dumux-precice all
+    ```
+
+    After the build and configure step a new directory `build-cmake` was created inside the `dumux-precice` directory.
+
+    You can configure the build and configuration process using advanced options by manipulating CMake variables. `dunecontrol` allows to pass an options file for that
 
     ```bash
     dunecontrol --opts=OPTSFILE.opts --only=dumux-precice all
     ```
 
-    You may use one of the `opts`-file provided by the adapter that resides in `test/`, e.g.,
+    There is an `opts`-file provided by the adapter that resides in `test/`. You can use it as
 
     ```bash
     dunecontrol --opts=dumux-precice/test/cmake-test.opts --only=dumux-precice all
     ```
 
-2. Build all test. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
+    This provided `cmake-test.opts` file turns off some system-dependent optimizations such that the tests create comparable results on different computers.
+
+    For more ways do manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
+
+5. Optional, but recommended: Build all tests to verify the installation. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
 
     ```bash
     cd dumux-precice/build-cmake
@@ -41,17 +95,21 @@ This repository provides a [DuMuX](https://dumux.org/)-specific adapter to coupl
 
     You may speed up the build process by using more than one build job, e.g., use `make -j4` in order to build with for processes at the same time.
 
-3. Run the tests from the `build-cmake` directory
+    Afterwards you can run the tests from the `build-cmake` directory using
 
     ```bash
     ctest
     ```
 
+    If any tests fails, you should verify if something went wrong with the installation.
+
+There are advanced ways of managing DUNE modules, e.g. using the environment variable `DUNE_CONTROL_PATH`, that are beyond the scope of this short documentation. You can find more information in the [DUNE FAQ](https://www.dune-project.org/doc/installation/#faq).
+
 ## Documentation
 
 ### User documentation
 
-At the moment the documentation is provided by the API documentation (see below) as well as the test and example cases. If something is unclear or you would want something to be documented better, please open an [issue](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/issues) and let us know.
+The main user documentation is currently not available on an online service, but can be found in the `docs/user/docs` directory. Additionally, one may find interesting information in the API documentation (see below) as well as the test and example cases that are provided with this repository. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
 
 ### API documentation
 
@@ -66,11 +124,11 @@ This generates a HTML documentation which you can view in a browser of your choi
 
 ## Publications
 
-### How to cite this code?
+### How to cite this code
 
 There is no publication related to this code available yet.
 
 ### Publications using dumux-precice
 
 - Jaust A., Weishaupt K., Mehl M., Flemisch B. (2020) Partitioned Coupling Schemes for Free-Flow and Porous-Media Applications with Sharp Interfaces. In: Klöfkorn R., Keilegavlen E., Radu F., Fuhrmann J. (eds) Finite Volumes for Complex Applications IX - Methods, Theoretical Aspects, Examples. FVCA 2020. Springer Proceedings in Mathematics & Statistics, vol 323. Springer, Cham. <https://doi.org/10.1007/978-3-030-43651-3_57>
-    - Code can be found at: https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a
+    - Code can be found at: <https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a>
