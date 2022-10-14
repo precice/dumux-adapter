@@ -48,16 +48,16 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 
     - Note that extended features of DuMuX or the DuMuX-preCICE adapter may need additional DUNE modules.
 
-2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. It is recommended to use the latest release of the adapter, which can be found by checking out the relevant branch.
+2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. It is recommended to use the latest release of the adapter, which can be found by checking out the relevant release tag.
 
     ```text
-    git clone -b dumux-adapter-v1.0.0 https://github.com/precice/dumux-adapter.git
+    git clone -b v1.0.0 https://github.com/precice/dumux-adapter.git
     ```
 
     You can also try to clone the repository via SSH:
 
     ```text
-    git clone -b dumux-adapter-v1.0.0 git@github.com:precice/dumux-adapter.git
+    git clone -b v1.0.0 git@github.com:precice/dumux-adapter.git
     ```
 
 3. Verify that the `dumux-adapter` folder is in the same directory as the DUNE module folders and the `dumux` folder.
