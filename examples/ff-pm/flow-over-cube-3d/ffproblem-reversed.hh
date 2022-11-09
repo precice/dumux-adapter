@@ -190,7 +190,7 @@ public:
         // coupling interface
         else if (couplingInterface_.isCoupledEntity(faceId)) {
             // // TODO do preCICE stuff in analogy to heat transfer
-            assert(dataIdsWereSet_setBeaversJoseph);
+            assert(dataIdsWereSet_);
             //TODO What do I want to do here?
             //  values.setCouplingNeumann(Indices::conti0EqIdx);
             //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
