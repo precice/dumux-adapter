@@ -34,7 +34,7 @@
 
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
-#include <dumux/freeflow/navierstokes/problem.hh>
+#include <dumux/freeflow/navierstokes/staggered/problem.hh>
 
 #include <dumux-precice/couplingadapter.hh>
 
@@ -94,9 +94,9 @@ struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
  * \brief The free flow sub problem
  */
 template<class TypeTag>
-class StokesSubProblem : public NavierStokesProblem<TypeTag>
+class StokesSubProblem : public NavierStokesStaggeredProblem<TypeTag>
 {
-    using ParentType = NavierStokesProblem<TypeTag>;
+    using ParentType = NavierStokesStaggeredProblem<TypeTag>;
 
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using GridView = typename GridGeometry::GridView;
