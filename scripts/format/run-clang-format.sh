@@ -6,7 +6,7 @@ for DIRECTORY in "${DIRECTORIES[@]}"; do
     #echo "Check files in ${DIRECTORY}"
     for FILE in $(find "${DIRECTORY}" -regex '.*\.\(cc\|hh\)' ); do
         #echo "$FILE"
-        clang-format-10 --dry-run -style=file -Werror -i ${FILE}
+        clang-format-14 --dry-run -style=file -Werror -i ${FILE}
     done
     if [ $? -ne 0 ]; then
         exit $?
