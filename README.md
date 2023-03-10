@@ -65,7 +65,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 4. Build and configure the adapter using `dunecontrol`. While being in the directory mentioned in the previous step via calling
 
     ```text
-    ./dune-common/bin/dunecontrol --only=dumux-adapter/dumux-precice all
+    ./dune-common/bin/dunecontrol --only=dumux-precice all
     ```
 
     After the build and configure step a new directory `build-cmake` was created inside the `dumux-precice` directory.
