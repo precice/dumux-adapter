@@ -42,7 +42,7 @@ bool printstuff = false;
 #include <dumux/common/parameters.hh>
 #include <dumux/common/properties.hh>
 
-#include <dumux/linear/amgbackend.hh>
+#include <dumux/linear/seqsolverbackend.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
 
 #include <dumux/assembly/diffmethod.hh>
