@@ -40,7 +40,13 @@
 #include <dumux/io/grid/gridmanager.hh>
 #include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/vtkoutputmodule.hh>
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
+#include <dumux/linear/istlsolvers.hh>
+#include <dumux/linear/linearsolvertraits.hh>
+#include <dumux/linear/linearalgebratraits.hh>
+#else
 #include <dumux/linear/seqsolverbackend.hh>
+#endif
 
 #include <dumux/assembly/staggeredfvassembler.hh>
 #include <dumux/nonlinear/newtonsolver.hh>
@@ -295,7 +301,12 @@ try {
         freeFlowProblem, freeFlowGridGeometry, freeFlowGridVariables);
 
     // the linear solver
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
+    using LinearSolver = UMFPackIstlSolver<SeqLinearSolverTraits,
+                                           LinearAlgebraTraitsFromAssembler<Assembler>>;
+#else
     using LinearSolver = UMFPackBackend;
+#endif
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
