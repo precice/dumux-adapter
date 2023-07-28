@@ -40,10 +40,11 @@
 #include <dumux/io/grid/gridmanager.hh>
 #include <dumux/io/staggeredvtkoutputmodule.hh>
 #include <dumux/io/vtkoutputmodule.hh>
+
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
 #include <dumux/linear/istlsolvers.hh>
-#include <dumux/linear/linearsolvertraits.hh>
 #include <dumux/linear/linearalgebratraits.hh>
+#include <dumux/linear/linearsolvertraits.hh>
 #else
 #include <dumux/linear/seqsolverbackend.hh>
 #endif
@@ -302,8 +303,9 @@ try {
 
     // the linear solver
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
-    using LinearSolver = UMFPackIstlSolver<SeqLinearSolverTraits,
-                                           LinearAlgebraTraitsFromAssembler<Assembler>>;
+    using LinearSolver =
+        UMFPackIstlSolver<SeqLinearSolverTraits,
+                          LinearAlgebraTraitsFromAssembler<Assembler>>;
 #else
     using LinearSolver = UMFPackBackend;
 #endif
