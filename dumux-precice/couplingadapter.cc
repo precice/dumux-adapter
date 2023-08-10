@@ -24,10 +24,10 @@ CouplingAdapter &CouplingAdapter::getInstance()
     return instance;
 }
 
-void CouplingAdapter::announceSolver(const std::string &name, //TODO change string inout to string_like?
-                                     const std::string configurationFileName,
-                                     const int rank,
-                                     const int size)
+void CouplingAdapter::announceSolver(const std::string  &name, 
+                                     const std::string   configurationFileName,
+                                     const int           rank,
+                                     const int           size)
 {
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::Participant>(
@@ -56,8 +56,8 @@ int CouplingAdapter::getMeshDimensions(const precice::string_view &meshName) con
 }
 
 
-void CouplingAdapter::setMesh(const precice::string_view  &meshName,
-                              precice::span<const double> positions)
+void CouplingAdapter::setMesh(const precice::string_view        &meshName,
+                                    precice::span<const double>  positions)
 {
     assert(wasCreated_);
     vertexIDsSpan_ = precice::span(vertexIDs_);
@@ -118,7 +118,7 @@ size_t CouplingAdapter::getNumberOfVertices()
 
 double CouplingAdapter::getScalarQuantityOnFace(const precice::string_view &meshName,    
                                                 const precice::string_view &dataName,
-                                                const int faceID)
+                                                const int                   faceID)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -135,8 +135,8 @@ double CouplingAdapter::getScalarQuantityOnFace(const precice::string_view &mesh
 
 void CouplingAdapter::writeScalarQuantityOnFace(const precice::string_view &meshName,
                                                 const precice::string_view &dataName,
-                                                const int faceID,
-                                                const double value)
+                                                const int                   faceID,
+                                                const double                value)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -161,7 +161,7 @@ std::vector<double> &CouplingAdapter::getQuantityVector(const precice::string_vi
 
 void CouplingAdapter::writeQuantityVector(const precice::string_view &meshName,
                                           const precice::string_view &dataName,
-                                          std::vector<double> &values)
+                                                std::vector<double>  &values)
 {
     std::vector<double> &dataVector = getQuantityVector(meshName, dataName);
     assert(dataVector.size() == values.size());
@@ -182,9 +182,9 @@ std::string CouplingAdapter::createKeyFromName(const precice::string_view meshNa
 
     for (int i = 0; i < (meshName.size() + 1 + dataName.size()); i++)
     {
-    if (i < meshName.size()) combinedKey += meshName[i];
-    else if (i == meshName.size()) combinedKey += ':';
-    else combinedKey += dataName[i - meshName.size()];
+    if      (i <  meshName.size())  combinedKey += meshName[i];
+    else if (i == meshName.size())  combinedKey += ':';
+    else                            combinedKey += dataName[i - meshName.size()];
     }
 
     return combinedKey;
@@ -197,7 +197,7 @@ void CouplingAdapter::print(std::ostream &os)
 
 void CouplingAdapter::readQuantityFromOtherSolver(const precice::string_view                &meshName,
                                                   const precice::string_view                &dataName,
-                                                  double                                    relativeReadTime)
+                                                  double                                     relativeReadTime)
 {
     precice::span<double> dataValuesSpan(getQuantityVector(meshName,dataName));
     precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime, dataValuesSpan);

@@ -83,9 +83,9 @@ public:
      * @param[in] size Total number of processes of the DuMuX solver.
      */
     void announceSolver(const std::string &name,
-                        const std::string configurationFileName,
-                        const int rank,
-                        const int size);
+                        const std::string  configurationFileName,
+                        const int          rank,
+                        const int          size);
     /*!
      * @brief Announces a quantity on the coupling interface.
      *
@@ -95,15 +95,15 @@ public:
      * @param[in] meshName Name of the mesh.
      * @param[in] dataName Name of the data.
      */
-    void announceQuantity(const precice::string_view               &meshName,
-                          const precice::string_view               &dataName);
+    void announceQuantity(const precice::string_view &meshName,
+                          const precice::string_view &dataName);
     /*!
      * @brief Get the number of spatial dimensions
      *
      * @param[in] meshName Name of the mesh
      * @return int Number of space dimensions.
      */
-    int getMeshDimensions(const precice::string_view                &meshName) const;
+    int getMeshDimensions(const precice::string_view &meshName) const;
     /*!
      * @brief Get the maximum time step size from preCICE
      *
@@ -148,7 +148,7 @@ public:
      *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
      */
     void setMesh(const precice::string_view         &meshName,
-                 precice::span<const double>        positions);
+                       precice::span<const double>   positions);
     /*!
      * @brief Initializes the coupling
      *
@@ -203,7 +203,7 @@ public:
      */
     void readQuantityFromOtherSolver(const precice::string_view                &meshName,
                                      const precice::string_view                &dataName,
-                                     double                                    relativeReadTime);
+                                           double                               relativeReadTime);
     /*!
      * @brief Writes full block of data to preCICE.
      *
@@ -222,7 +222,7 @@ public:
      */
     double getScalarQuantityOnFace(const precice::string_view &meshName, 
                                    const precice::string_view &dataName, 
-                                   const int faceID);
+                                   const int                   faceID);
     /*!
      * @brief Writes value of scalar quantity on a given finite volume face to data map.
      *
@@ -233,8 +233,8 @@ public:
      */
     void writeScalarQuantityOnFace(const precice::string_view &meshName,
                                    const precice::string_view &dataName,
-                                   const int faceID,
-                                   const double value);
+                                   const int                   faceID,
+                                   const double                value);
     /*!
      * @brief Gets the quantity value vector from the data map according to the mesh and data name.
      *
@@ -253,7 +253,7 @@ public:
      */
     void writeQuantityVector(const precice::string_view &meshName, 
                              const precice::string_view &dataName,
-                             std::vector<double> &values);
+                                   std::vector<double>  &values);
     /*!
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
