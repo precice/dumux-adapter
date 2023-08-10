@@ -129,8 +129,8 @@ void setInterfacePressures(const Problem &problem,
                 const double p =
                     pressureAtInterface(problem, element, gridGeometry,
                                         elemVolVars, scvf, elemFluxVarsCache);
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView, dataNameView,
-                                                            scvf.index(), p);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), p);
             }
         }
     }
@@ -193,8 +193,8 @@ void setInterfaceVelocities(const Problem &problem,
                 const double v = velocityAtInterface<FluxVariables>(
                     problem, element, fvGeometry, elemVolVars, scvf,
                     elemFluxVarsCache);
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView, dataNameView,
-                                                            scvf.index(), v);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), v);
             }
         }
     }
@@ -254,7 +254,7 @@ try {
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
-                                     mpiHelper.rank(), mpiHelper.size());
+                                       mpiHelper.rank(), mpiHelper.size());
 
     const precice::string_view meshNameView = std::string("DarcyMesh");
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
@@ -327,11 +327,14 @@ try {
     if (couplingParticipant.hasToWriteInitialData()) {
         //TODO
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol, meshNameView, dataNameViewV);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewV);
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
     }
     couplingParticipant.setMeshAndInitialize(
-        "DarcyMesh", numberOfPoints, coords);// couplingParticipant.initialize();
+        "DarcyMesh", numberOfPoints,
+        coords);  // couplingParticipant.initialize();
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
@@ -358,13 +361,16 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView, dataNameViewP);
+        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
+                                                        dataNameViewP);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol, meshNameView, dataNameViewV);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewV);
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
 
         couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();

@@ -83,9 +83,9 @@ public:
      * @param[in] size Total number of processes of the DuMuX solver.
      */
     void announceSolver(const std::string &name,
-                        const std::string  configurationFileName,
-                        const int          rank,
-                        const int          size);
+                        const std::string configurationFileName,
+                        const int rank,
+                        const int size);
     /*!
      * @brief Announces a quantity on the coupling interface.
      *
@@ -133,7 +133,7 @@ public:
      * @return false No further action is needed.
      */
     bool hasToWriteInitialData();
-    
+
     /*!
      * @brief Adds mesh for coupling of solvers.
      *
@@ -147,8 +147,8 @@ public:
      *       Example 3D:\n
      *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
      */
-    void setMesh(const precice::string_view         &meshName,
-                       precice::span<const double>   positions);
+    void setMesh(const precice::string_view &meshName,
+                 precice::span<const double> positions);
     /*!
      * @brief Initializes the coupling
      *
@@ -201,17 +201,17 @@ public:
      * @param[in] dataName Name of the data.
      * @param[in] relativeReadTime The relative time tagged to the data to be read.
      */
-    void readQuantityFromOtherSolver(const precice::string_view                &meshName,
-                                     const precice::string_view                &dataName,
-                                           double                               relativeReadTime);
+    void readQuantityFromOtherSolver(const precice::string_view &meshName,
+                                     const precice::string_view &dataName,
+                                     double relativeReadTime);
     /*!
      * @brief Writes full block of data to preCICE.
      *
      * @param[in] meshName Name of the mesh.
      * @param[in] dataName Name of the data.
      */
-    void writeQuantityToOtherSolver(const precice::string_view                &meshName,
-                                    const precice::string_view                &dataName);
+    void writeQuantityToOtherSolver(const precice::string_view &meshName,
+                                    const precice::string_view &dataName);
     /*!
      * @brief Gets value of a scalar quantity on a finite volume face.
      *
@@ -220,9 +220,9 @@ public:
      * @param[in] faceID Identifier of the face according to DuMuX' numbering.
      * @return double Value of scalar quantity.
      */
-    double getScalarQuantityOnFace(const precice::string_view &meshName, 
-                                   const precice::string_view &dataName, 
-                                   const int                   faceID);
+    double getScalarQuantityOnFace(const precice::string_view &meshName,
+                                   const precice::string_view &dataName,
+                                   const int faceID);
     /*!
      * @brief Writes value of scalar quantity on a given finite volume face to data map.
      *
@@ -233,8 +233,8 @@ public:
      */
     void writeScalarQuantityOnFace(const precice::string_view &meshName,
                                    const precice::string_view &dataName,
-                                   const int                   faceID,
-                                   const double                value);
+                                   const int faceID,
+                                   const double value);
     /*!
      * @brief Gets the quantity value vector from the data map according to the mesh and data name.
      *
@@ -242,8 +242,9 @@ public:
      * @param[in] dataName Name of the data.
      * @return The value vector of the quantity.
      */
-    std::vector<double> &getQuantityVector(const precice::string_view &meshName, 
-                                           const precice::string_view &dataName);
+    std::vector<double> &getQuantityVector(
+        const precice::string_view &meshName,
+        const precice::string_view &dataName);
     /*!
      * @brief Writes the quantity value vector into the data map.
      *
@@ -251,10 +252,10 @@ public:
      * @param[in] dataName Name of the data.
      * @param[in] values Value of the scalar or vector quantity.
      */
-    void writeQuantityVector(const precice::string_view &meshName, 
+    void writeQuantityVector(const precice::string_view &meshName,
                              const precice::string_view &dataName,
-                                   std::vector<double>  &values);
-    /*!
+                             std::vector<double> &values);
+    /*! 
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
      * @param[in] faceID Identifier of the face according to DuMuX' numbering.

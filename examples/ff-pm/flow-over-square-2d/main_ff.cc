@@ -115,9 +115,8 @@ void setInterfacePressures(const Problem &problem,
                 const auto p = pressureAtInterface<FluxVariables>(
                     problem, element, scvf, fvGeometry, elemVolVars,
                     elemFaceVars, elemFluxVarsCache);
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView,
-                                                            dataNameView,
-                                                            scvf.index(), p);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), p);
             }
         }
     }
@@ -147,8 +146,8 @@ void setInterfaceVelocities(const Problem &problem,
                 //TODO: What to do here?
                 const auto v = velocityAtInterface(elemFaceVars,
                                                    scvf)[scvf.directionIndex()];
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView, dataNameView,
-                                                            scvf.index(), v);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), v);
             }
         }
     }
@@ -216,14 +215,15 @@ try {
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
-                                     mpiHelper.rank(), mpiHelper.size());
+                                       mpiHelper.rank(), mpiHelper.size());
 
     const precice::string_view meshNameView = std::string("FreeFlowMesh");
-    const int dim = couplingParticipant.getMeshDimensions(meshNameView); // mesh name
+    const int dim =
+        couplingParticipant.getMeshDimensions(meshNameView);  // mesh name
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(FreeFlowGridGeometry::GridView::dimension))
-        DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match"); 
+        DUNE_THROW(Dune::InvalidStateException, "Dimensions do not match");
 
     // GET mesh corodinates
     const double xMin =
@@ -285,8 +285,10 @@ try {
 
     if (couplingParticipant.hasToWriteInitialData()) {
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol, meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewP);
+                                             *freeFlowGridVariables, sol,
+                                             meshNameView, dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewP);
     }
     couplingParticipant.initialize();
 
@@ -316,14 +318,17 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView, dataNameViewV, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
+                                                        dataNameViewV, dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol, meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewP);
+                                             *freeFlowGridVariables, sol,
+                                             meshNameView, dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewP);
 
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);

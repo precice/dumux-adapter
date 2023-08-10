@@ -127,8 +127,8 @@ void setInterfacePressures(const Problem &problem,
                 const double p =
                     pressureAtInterface(problem, element, gridGeometry,
                                         elemVolVars, scvf, elemFluxVarsCache);
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView, dataNameView,
-                                                            scvf.index(), p);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), p);
             }
         }
     }
@@ -191,8 +191,8 @@ void setInterfaceVelocities(const Problem &problem,
                 const double v = velocityAtInterface<FluxVariables>(
                     problem, element, fvGeometry, elemVolVars, scvf,
                     elemFluxVarsCache);
-                couplingParticipant.writeScalarQuantityOnFace(meshNameView, dataNameView,
-                                                            scvf.index(), v);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), v);
             }
         }
     }
@@ -236,7 +236,8 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
         for (const auto &scvf : scvfs(fvGeometry)) {
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
-                for (int i = 0; i < couplingParticipant.getMeshDimensions(meshName); ++i) {
+                for (int i = 0;
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
                     ofs << pos[i] << ",";
                 }
                 const double v = velocityAtInterface<FluxVariables>(
@@ -256,7 +257,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
 
     ofs.close();
     return std::make_tuple(min, max, sum);
-} 
+}
 
 template<class Problem, class GridVariables, class SolutionVector>
 void writePressuresOnInterfaceToFile(const precice::string_view &meshName,
@@ -288,7 +289,8 @@ void writePressuresOnInterfaceToFile(const precice::string_view &meshName,
         for (const auto &scvf : scvfs(fvGeometry)) {
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
-                for (int i = 0; i < couplingParticipant.getMeshDimensions(meshName); ++i) {
+                for (int i = 0;
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
                     ofs << pos[i] << ",";
                 }
                 const double p =
@@ -356,7 +358,7 @@ try {
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
-                                     mpiHelper.rank(), mpiHelper.size());
+                                       mpiHelper.rank(), mpiHelper.size());
 
     const precice::string_view meshNameView = std::string("DarcyMesh");
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
@@ -429,11 +431,14 @@ try {
     if (couplingParticipant.hasToWriteInitialData()) {
         //TODO
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol, meshNameView, dataNameViewV);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewV);
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
     }
     couplingParticipant.setMeshAndInitialize(
-        "DarcyMesh", numberOfPoints, coords);// couplingParticipant.initialize();
+        "DarcyMesh", numberOfPoints,
+        coords);  // couplingParticipant.initialize();
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
@@ -460,12 +465,14 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView, dataNameViewP);
-    
+        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
+                                                        dataNameViewP);
+
         // solve the non-linear system
         nonLinearSolver.solve(sol);
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol, meshNameView, dataNameViewV);
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
         // For testing
         {
             const auto v = couplingParticipant.getQuantityVector(velocityId);
@@ -484,7 +491,8 @@ try {
             std::cout << "Sum of velocities over boundary to ff: \n"
                       << sum << std::endl;
         }
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
 
         couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();

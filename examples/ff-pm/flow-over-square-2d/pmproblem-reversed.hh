@@ -188,8 +188,8 @@ public:
 
         const auto faceId = scvf.index();
         if (couplingParticipant_.isCoupledEntity(faceId)) {
-            values =
-                couplingParticipant_.getScalarQuantityOnFace(meshNameView_, dataNameView_, faceId);
+            values = couplingParticipant_.getScalarQuantityOnFace(
+                meshNameView_, dataNameView_, faceId);
             //std::cout << "Pressure on face " << faceId << " is " << couplingParticipant_.getScalarQuantityOnFace(pressureId_, faceId) << std::endl;
         }
 

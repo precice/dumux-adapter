@@ -5,7 +5,6 @@
 #include <exception>
 #include <limits>
 
-
 using namespace Dumux::Precice;
 
 CouplingAdapter::CouplingAdapter()
@@ -24,10 +23,10 @@ CouplingAdapter &CouplingAdapter::getInstance()
     return instance;
 }
 
-void CouplingAdapter::announceSolver(const std::string  &name, 
-                                     const std::string   configurationFileName,
-                                     const int           rank,
-                                     const int           size)
+void CouplingAdapter::announceSolver(const std::string &name,
+                                     const std::string configurationFileName,
+                                     const int rank,
+                                     const int size)
 {
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::Participant>(
@@ -35,8 +34,8 @@ void CouplingAdapter::announceSolver(const std::string  &name,
     wasCreated_ = true;
 }
 
-void CouplingAdapter::announceQuantity(const precice::string_view         &meshName,
-                                       const precice::string_view         &dataName)
+void CouplingAdapter::announceQuantity(const precice::string_view &meshName,
+                                       const precice::string_view &dataName)
 {
     assert(meshWasCreated_);
     const std::string key = createKeyFromName(meshName, dataName);
@@ -49,15 +48,15 @@ void CouplingAdapter::announceQuantity(const precice::string_view         &meshN
     dataMap_.insert(std::make_pair(key, dataValues));
 }
 
-int CouplingAdapter::getMeshDimensions(const precice::string_view &meshName) const
+int CouplingAdapter::getMeshDimensions(
+    const precice::string_view &meshName) const
 {
     assert(wasCreated_);
     return precice_->getMeshDimensions(meshName);
 }
 
-
-void CouplingAdapter::setMesh(const precice::string_view        &meshName,
-                                    precice::span<const double>  positions)
+void CouplingAdapter::setMesh(const precice::string_view &meshName,
+                              precice::span<const double> positions)
 {
     assert(wasCreated_);
     vertexIDsSpan_ = precice::span(vertexIDs_);
@@ -78,13 +77,14 @@ void CouplingAdapter::initialize()
     preciceWasInitialized_ = true;
     assert(preciceWasInitialized_);
 }
-    
+
 double CouplingAdapter::getMaxTimeStepSize()
 {
     return precice_->getMaxTimeStepSize();
 }
 
-void CouplingAdapter::createIndexMapping(const std::vector<int> &dumuxFaceIndices)// TODO what does this do?
+void CouplingAdapter::createIndexMapping(
+    const std::vector<int> &dumuxFaceIndices)  // TODO what does this do?
 {
     assert(meshWasCreated_);
     indexMapper_.createMapping(dumuxFaceIndices, vertexIDs_);
@@ -116,9 +116,10 @@ size_t CouplingAdapter::getNumberOfVertices()
     return vertexIDs_.size();
 }
 
-double CouplingAdapter::getScalarQuantityOnFace(const precice::string_view &meshName,    
-                                                const precice::string_view &dataName,
-                                                const int                   faceID)
+double CouplingAdapter::getScalarQuantityOnFace(
+    const precice::string_view &meshName,
+    const precice::string_view &dataName,
+    const int faceID)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -133,10 +134,11 @@ double CouplingAdapter::getScalarQuantityOnFace(const precice::string_view &mesh
     return dataVector[idx];
 }
 
-void CouplingAdapter::writeScalarQuantityOnFace(const precice::string_view &meshName,
-                                                const precice::string_view &dataName,
-                                                const int                   faceID,
-                                                const double                value)
+void CouplingAdapter::writeScalarQuantityOnFace(
+    const precice::string_view &meshName,
+    const precice::string_view &dataName,
+    const int faceID,
+    const double value)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -151,8 +153,9 @@ void CouplingAdapter::writeScalarQuantityOnFace(const precice::string_view &mesh
     dataVector[idx] = value;
 }
 
-std::vector<double> &CouplingAdapter::getQuantityVector(const precice::string_view &meshName,
-                                                        const precice::string_view &dataName)
+std::vector<double> &CouplingAdapter::getQuantityVector(
+    const precice::string_view &meshName,
+    const precice::string_view &dataName)
 {
     std::string key = createKeyFromName(meshName, dataName);
     assert(dataMap_.find(key) != dataMap_.end());
@@ -161,7 +164,7 @@ std::vector<double> &CouplingAdapter::getQuantityVector(const precice::string_vi
 
 void CouplingAdapter::writeQuantityVector(const precice::string_view &meshName,
                                           const precice::string_view &dataName,
-                                                std::vector<double>  &values)
+                                          std::vector<double> &values)
 {
     std::vector<double> &dataVector = getQuantityVector(meshName, dataName);
     assert(dataVector.size() == values.size());
@@ -174,17 +177,20 @@ bool CouplingAdapter::isCoupledEntity(const int faceID) const
     return indexMapper_.isDumuxIdMapped(faceID);
 }
 
-std::string CouplingAdapter::createKeyFromName(const precice::string_view meshName,
-                                               const precice::string_view dataName) const
+std::string CouplingAdapter::createKeyFromName(
+    const precice::string_view meshName,
+    const precice::string_view dataName) const
 {
     assert(wasCreated_);
     std::string combinedKey;
 
-    for (int i = 0; i < (meshName.size() + 1 + dataName.size()); i++)
-    {
-    if      (i <  meshName.size())  combinedKey += meshName[i];
-    else if (i == meshName.size())  combinedKey += ':';
-    else                            combinedKey += dataName[i - meshName.size()];
+    for (int i = 0; i < (meshName.size() + 1 + dataName.size()); i++) {
+        if (i < meshName.size())
+            combinedKey += meshName[i];
+        else if (i == meshName.size())
+            combinedKey += ':';
+        else
+            combinedKey += dataName[i - meshName.size()];
     }
 
     return combinedKey;
@@ -195,18 +201,22 @@ void CouplingAdapter::print(std::ostream &os)
     os << indexMapper_;
 }
 
-void CouplingAdapter::readQuantityFromOtherSolver(const precice::string_view                &meshName,
-                                                  const precice::string_view                &dataName,
-                                                  double                                     relativeReadTime)
+void CouplingAdapter::readQuantityFromOtherSolver(
+    const precice::string_view &meshName,
+    const precice::string_view &dataName,
+    double relativeReadTime)
 {
-    precice::span<double> dataValuesSpan(getQuantityVector(meshName,dataName));
-    precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime, dataValuesSpan);
+    precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
+    precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime,
+                       dataValuesSpan);
 }
 
-void CouplingAdapter::writeQuantityToOtherSolver(const precice::string_view                &meshName,
-                                                 const precice::string_view                &dataName)
+void CouplingAdapter::writeQuantityToOtherSolver(
+    const precice::string_view &meshName,
+    const precice::string_view &dataName)
 {
-    precice::span<const double> dataValuesSpan(getQuantityVector(meshName,dataName));
+    precice::span<const double> dataValuesSpan(
+        getQuantityVector(meshName, dataName));
     precice_->writeData(meshName, dataName, vertexIDsSpan_, dataValuesSpan);
 }
 

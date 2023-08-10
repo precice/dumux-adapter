@@ -46,7 +46,7 @@ try {
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver(solverName, preciceConfigFilename,
-                                     mpiHelper.rank(), mpiHelper.size());
+                                       mpiHelper.rank(), mpiHelper.size());
 
     std::cout << "DUMMY (" << mpiHelper.rank()
               << "): Running solver dummy with preCICE config file \""
@@ -55,10 +55,14 @@ try {
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshNameView);
     assert(dimensions == 3);
-    const precice::string_view scalarDataWriteName = std::string((solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo");
-    const precice::string_view scalarDataReadName = std::string((solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne");
-    const precice::string_view vectorDataWriteName = std::string((solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo");
-    const precice::string_view vectorDataReadName = std::string((solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne");
+    const precice::string_view scalarDataWriteName = std::string(
+        (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo");
+    const precice::string_view scalarDataReadName = std::string(
+        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne");
+    const precice::string_view vectorDataWriteName = std::string(
+        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo");
+    const precice::string_view vectorDataReadName = std::string(
+        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne");
 
     const int numberOfVertices = 3;
 
@@ -67,7 +71,7 @@ try {
     std::vector<double> writeVectorData(numberOfVertices * dimensions);
     std::vector<double> readVectorData(numberOfVertices * dimensions);
 
-    std::vector<double> vertices(numberOfVertices * dimensions); // coordinates
+    std::vector<double> vertices(numberOfVertices * dimensions);  // coordinates
     std::vector<int> dumuxVertexIDs(numberOfVertices);
 
     for (int i = 0; i < numberOfVertices; i++) {
@@ -103,10 +107,14 @@ try {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
 
-        couplingParticipant.writeQuantityVector(meshNameView, scalarDataWriteName, writeScalarData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, scalarDataWriteName);
-        couplingParticipant.writeQuantityVector(meshNameView, vectorDataWriteName, writeVectorData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, vectorDataWriteName);
+        couplingParticipant.writeQuantityVector(
+            meshNameView, scalarDataWriteName, writeScalarData);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       scalarDataWriteName);
+        couplingParticipant.writeQuantityVector(
+            meshNameView, vectorDataWriteName, writeVectorData);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       vectorDataWriteName);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -135,7 +143,7 @@ try {
         std::cout << "\n";
 
         for (int i = 0; i < numberOfVertices; i++) {
-            if (readScalarQuantity.at(i) != writeScalarData.at(i)) { 
+            if (readScalarQuantity.at(i) != writeScalarData.at(i)) {
                 std::cout << "DUMMY (" << mpiHelper.rank()
                           << "): Reading initialized SCALAR data error\n"
                           << "Index: " << i << ", Expected "
@@ -145,7 +153,7 @@ try {
             }
 
             for (int j = 0; j < dimensions; j++) {
-                if (readVectorQuantity.at(j + dimensions * i)!=
+                if (readVectorQuantity.at(j + dimensions * i) !=
                     writeVectorData.at(j + dimensions * i)) {
                     std::cout
                         << "DUMMY (" << mpiHelper.rank()
@@ -178,7 +186,7 @@ try {
         // Check data
         if (iter > 0) {
             int offset = (solverName == "SolverOne") ? 0 : 1;
-            
+
             const std::vector<double> &readScalarQuantity = readScalarData;
             const std::vector<double> &readVectorQuantity = readVectorData;
 
@@ -228,12 +236,14 @@ try {
             couplingParticipant.writeScalarQuantityOnFace(
                 meshNameView, scalarDataWriteName, dumuxVertexIDs[i], value);
         }
-        couplingParticipant.writeQuantityToOtherSolver(
-            meshNameView, scalarDataWriteName);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       scalarDataWriteName);
 
         // Write vector data
-        couplingParticipant.writeQuantityVector(meshNameView, vectorDataWriteName, writeVectorData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView, vectorDataWriteName);
+        couplingParticipant.writeQuantityVector(
+            meshNameView, vectorDataWriteName, writeVectorData);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       vectorDataWriteName);
 
         couplingParticipant.advance(preciceDt);
 

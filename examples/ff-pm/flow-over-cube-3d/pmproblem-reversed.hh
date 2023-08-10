@@ -189,8 +189,8 @@ public:
 
         const auto faceId = scvf.index();
         if (couplingParticipant_.isCoupledEntity(faceId))
-            values =
-                couplingParticipant_.getScalarQuantityOnFace(meshNameView_, dataNameView_, faceId);
+            values = couplingParticipant_.getScalarQuantityOnFace(
+                meshNameView_, dataNameView_, faceId);
 
         return values;
     }

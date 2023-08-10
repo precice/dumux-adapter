@@ -235,7 +235,8 @@ public:
         const auto faceId = scvf.index();
         if (couplingParticipant_.isCoupledEntity(faceId)) {
             values[Indices::velocityYIdx] =
-                couplingParticipant_.getScalarQuantityOnFace(meshNameView_, dataNameView_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(
+                    meshNameView_, dataNameView_, faceId);
         }
 
         return values;
@@ -270,9 +271,8 @@ public:
                                            scvf.directionSign();
             values[Indices::momentumYBalanceIdx] =
                 scvf.directionSign() *
-                (couplingParticipant_.getScalarQuantityOnFace(meshNameView,
-                                                            dataNameView,
-                                                            faceId) -
+                (couplingParticipant_.getScalarQuantityOnFace(
+                     meshNameView, dataNameView, faceId) -
                  initialAtPos(scvf.center())[Indices::pressureIdx]);
         }
         return values;

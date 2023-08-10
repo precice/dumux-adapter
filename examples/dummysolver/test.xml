@@ -36,7 +36,7 @@
   </participant>
 
   <m2n:sockets acceptor="SolverOne" connector="SolverTwo" exchange-directory=".."/>
-
+ 
   <coupling-scheme:serial-implicit>
     <participants first="SolverOne" second="SolverTwo" />
     <max-time-windows value="2" />
