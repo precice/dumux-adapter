@@ -138,10 +138,7 @@ public:
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
         : ParentType(gridGeometry, "FreeFlow"),
           eps_(1e-6),
-          couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
-          pressureId_(0),
-          velocityId_(0),
-          dataIdsWereSet_(false)
+          couplingParticipant_(Dumux::Precice::CouplingAdapter::getInstance())
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(),
                                             "Problem.PressureDifference");
@@ -201,9 +198,7 @@ public:
             values.setDirichlet(Indices::pressureIdx);
         }
         // coupling interface
-        else if (couplingInterface_.isCoupledEntity(faceId)) {
-            assert(dataIdsWereSet_);
-
+        else if (couplingParticipant_.isCoupledEntity(faceId)) {
             values.setDirichlet(Indices::velocityYIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
         } else {
@@ -223,13 +218,15 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
+        precice::string_view meshNameView_ = std::string("FreeFlowMesh");
+        precice::string_view dataNameView_ = std::string("Velocity");
         PrimaryVariables values(0.0);
         values = initialAtPos(scvf.center());
 
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId)) {
+        if (couplingParticipant_.isCoupledEntity(faceId)) {
             values[Indices::velocityYIdx] =
-                couplingInterface_.getScalarQuantityOnFace(velocityId_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(meshNameView_, dataNameView_, faceId);
         }
 
         return values;
@@ -251,11 +248,12 @@ public:
                         const ElementFaceVariables &elemFaceVars,
                         const SubControlVolumeFace &scvf) const
     {
+        precice::string_view meshNameView_ = std::string("FreeFlowMesh");
+        precice::string_view dataNameView_ = std::string("Pressure");
         NumEqVector values(0.0);
 
-        assert(dataIdsWereSet_);
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId)) {
+        if (couplingParticipant_.isCoupledEntity(faceId)) {
             const Scalar density =
                 1000;  // TODO how to handle compressible fluids?
             values[Indices::conti0EqIdx] = density *
@@ -263,7 +261,8 @@ public:
                                            scvf.directionSign();
             values[Indices::momentumYBalanceIdx] =
                 scvf.directionSign() *
-                (couplingInterface_.getScalarQuantityOnFace(pressureId_,
+                (couplingParticipant_.getScalarQuantityOnFace(meshNameView_,
+                                                            dataNameView_,
                                                             faceId) -
                  initialAtPos(scvf.center())[Indices::pressureIdx]);
         }
@@ -363,13 +362,6 @@ public:
         return analyticalVelocityX_;
     }
 
-    void updatePreciceDataIds()
-    {
-        pressureId_ = couplingInterface_.getIdFromName("Pressure");
-        velocityId_ = couplingInterface_.getIdFromName("Velocity");
-        dataIdsWereSet_ = true;
-    }
-
     // \}
 
 private:
@@ -396,10 +388,7 @@ private:
     Scalar eps_;
     Scalar deltaP_;
 
-    Dumux::Precice::CouplingAdapter &couplingInterface_;
-    size_t pressureId_;
-    size_t velocityId_;
-    bool dataIdsWereSet_;
+    Dumux::Precice::CouplingAdapter &couplingParticipant_;
 
     mutable std::vector<Scalar> analyticalVelocityX_;
 };

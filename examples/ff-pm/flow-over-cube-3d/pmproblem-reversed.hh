@@ -122,10 +122,7 @@ public:
     DarcySubProblem(std::shared_ptr<const GridGeometry> fvGridGeometry)
         : ParentType(fvGridGeometry, "Darcy"),
           eps_(1e-7),
-          couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
-          pressureId_(0),
-          velocityId_(0),
-          dataIdsWereSet_(false)
+          couplingParticipant_(Dumux::Precice::CouplingAdapter::getInstance())
     {
     }
 
@@ -168,7 +165,7 @@ public:
         values.setAllNeumann();
 
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId))
+        if (couplingParticipant_.isCoupledEntity(faceId))
             values.setAllDirichlet();
         return values;
     }
@@ -184,14 +181,16 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
+        precice::string_view meshNameView_ = std::string("DarcyMesh");
+        precice::string_view dataNameView_ = std::string("Pressure");
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
         values = initial(element);
 
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId))
+        if (couplingParticipant_.isCoupledEntity(faceId))
             values =
-                couplingInterface_.getScalarQuantityOnFace(pressureId_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(meshNameView_, dataNameView_, faceId);
 
         return values;
     }
@@ -218,10 +217,10 @@ public:
 
         //        assert( dataIdsWereSet_ );
         //        const auto faceId = scvf.index();
-        //        if ( couplingInterface_.isCoupledEntity(faceId) )
+        //        if ( couplingParticipant_.isCoupledEntity(faceId) )
         //        {
         //          const Scalar density = 1000.;
-        //          values[Indices::conti0EqIdx] = density * couplingInterface_.getScalarQuantityOnFace( velocityId_, faceId );
+        //          values[Indices::conti0EqIdx] = density * couplingParticipant_.getScalarQuantityOnFace( velocityId_, faceId );
         //          std::cout << "pm: values[Indices::conti0EqIdx] = " << values << std::endl;
         //        }
         return values;
@@ -280,13 +279,6 @@ public:
 
     // \}
 
-    void updatePreciceDataIds()
-    {
-        pressureId_ = couplingInterface_.getIdFromName("Pressure");
-        velocityId_ = couplingInterface_.getIdFromName("Velocity");
-        dataIdsWereSet_ = true;
-    }
-
 private:
     bool onLeftBoundary_(const GlobalPosition &globalPos) const
     {
@@ -310,10 +302,7 @@ private:
 
     Scalar eps_;
 
-    Dumux::Precice::CouplingAdapter &couplingInterface_;
-    size_t pressureId_;
-    size_t velocityId_;
-    bool dataIdsWereSet_;
+    Dumux::Precice::CouplingAdapter &couplingParticipant_;
 };
 }  // namespace Dumux
 

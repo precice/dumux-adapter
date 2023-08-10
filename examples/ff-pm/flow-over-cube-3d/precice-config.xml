@@ -6,55 +6,53 @@
     <sink type="stream" output="stdout"  enabled="false" />
   </log>
 
-  <solver-interface dimensions="3">
 
-    <data:scalar name="Velocity"/>
-    <data:scalar name="Pressure"/>
+  <data:scalar name="Velocity"/>
+  <data:scalar name="Pressure"/>
 
-    <mesh name="FreeFlowMesh">
-      <use-data name="Velocity" />
-      <use-data name="Pressure" />
-    </mesh>
+  <mesh name="FreeFlowMesh" dimensions="3">
+    <use-data name="Velocity" />
+    <use-data name="Pressure" />
+  </mesh>
 
-    <mesh name="DarcyMesh">
-      <use-data name="Velocity" />
-      <use-data name="Pressure" />
-    </mesh>
+  <mesh name="DarcyMesh" dimensions="3">
+    <use-data name="Velocity" />
+    <use-data name="Pressure" />
+  </mesh>
 
-    <participant name="FreeFlow">
-      <use-mesh name="FreeFlowMesh" provide="yes"/>
-      <use-mesh name="DarcyMesh" from="Darcy"/>
+  <participant name="FreeFlow">
+    <use-mesh name="FreeFlowMesh" provide="yes"/>
+    <use-mesh name="DarcyMesh" from="Darcy"/>
 
-      <read-data name="Velocity" mesh="FreeFlowMesh"/>
-      <write-data name="Pressure" mesh="FreeFlowMesh"/>
+    <read-data name="Velocity" mesh="FreeFlowMesh"/>
+    <write-data name="Pressure" mesh="FreeFlowMesh"/>
 
-      <mapping:nearest-neighbor direction="write" from="FreeFlowMesh" to="DarcyMesh" constraint="consistent"/>
-      <mapping:nearest-neighbor direction="read" from="DarcyMesh" to="FreeFlowMesh" constraint="consistent"/>
+    <mapping:nearest-neighbor direction="write" from="FreeFlowMesh" to="DarcyMesh" constraint="consistent"/>
+    <mapping:nearest-neighbor direction="read" from="DarcyMesh" to="FreeFlowMesh" constraint="consistent"/>
+  </participant>
 
-    </participant>
+  <participant name="Darcy">
+    <use-mesh name="DarcyMesh" provide="yes"/>
 
-    <participant name="Darcy">
-      <use-mesh name="DarcyMesh" provide="yes"/>
+    <read-data name="Pressure" mesh="DarcyMesh"/>
+    <write-data name="Velocity" mesh="DarcyMesh"/>
+  </participant>
 
-      <read-data name="Pressure" mesh="DarcyMesh"/>
-      <write-data name="Velocity" mesh="DarcyMesh"/>
-    </participant>
-
-    <m2n:sockets from="FreeFlow" to="Darcy" network="lo" />
+  <m2n:sockets acceptor="FreeFlow" connector="Darcy" network="lo" />
 
 
-    <coupling-scheme:serial-implicit>
-      <max-time value="1"/>
-      <time-window-size value="1" />
-      <max-iterations value="100"/>
+  <coupling-scheme:serial-implicit>
+    <max-time value="1"/>
+    <time-window-size value="1" />
+    <max-iterations value="100"/>
 
 
-      <participants first="FreeFlow" second="Darcy"/>
-      <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />
-      <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="true" />
+    <participants first="FreeFlow" second="Darcy"/>
+    <exchange data="Pressure" mesh="DarcyMesh" from="FreeFlow" to="Darcy" initialize="false" />
+    <exchange data="Velocity" mesh="DarcyMesh" from="Darcy" to="FreeFlow" initialize="true" />
 
-      <relative-convergence-measure limit="1e-8" data="Pressure" mesh="DarcyMesh"/>
-      <relative-convergence-measure limit="1e-8" data="Velocity" mesh="DarcyMesh"/>
+    <relative-convergence-measure limit="1e-8" data="Pressure" mesh="DarcyMesh"/>
+    <relative-convergence-measure limit="1e-8" data="Velocity" mesh="DarcyMesh"/>
 
 
        <!--
@@ -62,18 +60,17 @@
        -->
 
 
-        <extrapolation-order value="0"/>
+      <extrapolation-order value="0"/>
 
-        <acceleration:IQN-ILS>
-            <data mesh="DarcyMesh" name="Velocity" />
-            <initial-relaxation value="0.1" />
-            <max-used-iterations value="40" />
-            <time-windows-reused value="10" />
-            <filter type="QR2" limit="1e-3" />
-        </acceleration:IQN-ILS>
+      <acceleration:IQN-ILS>
+          <data mesh="DarcyMesh" name="Velocity" />
+          <initial-relaxation value="0.1" />
+          <max-used-iterations value="40" />
+          <time-windows-reused value="10" />
+          <filter type="QR2" limit="1e-3" />
+      </acceleration:IQN-ILS>
 
 
-    </coupling-scheme:serial-implicit>
-  </solver-interface>
+  </coupling-scheme:serial-implicit>
 </precice-configuration>
 
