@@ -24,7 +24,7 @@ CouplingAdapter &CouplingAdapter::getInstance()
 }
 
 void CouplingAdapter::announceSolver(const std::string &name,
-                                     const std::string configurationFileName,
+                                     const std::string &configurationFileName,
                                      const int rank,
                                      const int size)
 {
@@ -178,8 +178,8 @@ bool CouplingAdapter::isCoupledEntity(const int faceID) const
 }
 
 std::string CouplingAdapter::createKeyFromName(
-    const precice::string_view meshName,
-    const precice::string_view dataName) const
+    const precice::string_view &meshName,
+    const precice::string_view &dataName) const
 {
     assert(wasCreated_);
     std::string combinedKey;

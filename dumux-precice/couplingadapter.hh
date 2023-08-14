@@ -83,7 +83,7 @@ public:
      * @param[in] size Total number of processes of the DuMuX solver.
      */
     void announceSolver(const std::string &name,
-                        const std::string configurationFileName,
+                        const std::string &configurationFileName,
                         const int rank,
                         const int size);
     /*!
@@ -270,8 +270,8 @@ public:
      * @param[in] dataName Name of the quantity.
      * @return size_t Numeric identifier of quantity.
      */
-    std::string createKeyFromName(const precice::string_view meshName,
-                                  const precice::string_view dataName) const;
+    std::string createKeyFromName(const precice::string_view &meshName,
+                                  const precice::string_view &dataName) const;
     /*!
      * @brief Prints status of coupling adapter to given output stream.
      *
