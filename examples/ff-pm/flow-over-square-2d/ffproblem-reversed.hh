@@ -218,8 +218,8 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
-        precice::string_view meshNameView_ = std::string("FreeFlowMesh");
-        precice::string_view dataNameView_ = std::string("Velocity");
+        precice::string_view meshNameView_("FreeFlowMesh", 12);
+        precice::string_view dataNameView_("Velocity", 8);
         PrimaryVariables values(0.0);
         values = initialAtPos(scvf.center());
 
@@ -249,8 +249,8 @@ public:
                         const ElementFaceVariables &elemFaceVars,
                         const SubControlVolumeFace &scvf) const
     {
-        precice::string_view meshNameView_ = std::string("FreeFlowMesh");
-        precice::string_view dataNameView_ = std::string("Pressure");
+        precice::string_view meshNameView_("FreeFlowMesh", 12);
+        precice::string_view dataNameView_("Pressure", 8);
         NumEqVector values(0.0);
 
         const auto faceId = scvf.index();

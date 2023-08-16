@@ -217,9 +217,8 @@ try {
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView = std::string("FreeFlowMesh");
-    const int dim =
-        couplingParticipant.getMeshDimensions(meshNameView);  // mesh name
+    const precice::string_view meshNameView("FreeFlowMesh", 12);  // mesh name
+    const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(FreeFlowGridGeometry::GridView::dimension))
@@ -232,7 +231,6 @@ try {
         getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords;  //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
-    precice::span<double> coordsSpan(coords);
 
     for (const auto &element : elements(freeFlowGridView)) {
         auto fvGeometry = localView(*freeFlowGridGeometry);
@@ -252,12 +250,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    double preciceDt = couplingParticipant.getMaxTimeStepSize();
+    precice::span<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV = std::string("Velocity");
-    const precice::string_view dataNameViewP = std::string("Pressure");
+    const precice::string_view dataNameViewV("Velocity", 8);
+    const precice::string_view dataNameViewP("Pressure", 8);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
 
@@ -306,6 +304,7 @@ try {
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
@@ -329,7 +328,6 @@ try {
                                              meshNameView, dataNameViewP);
         couplingParticipant.writeQuantityToOtherSolver(meshNameView,
                                                        dataNameViewP);
-
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;

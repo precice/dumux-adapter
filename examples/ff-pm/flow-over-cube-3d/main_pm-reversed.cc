@@ -55,6 +55,8 @@ bool printstuff = false;
 
 #include "pmproblem-reversed.hh"
 
+#include "dumux-precice/couplingadapter.hh"
+
 /*!
   * \brief Returns the pressure at the interface using Darcy's law for reconstruction
   */
@@ -360,7 +362,7 @@ try {
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView = std::string("DarcyMesh");
+    const precice::string_view meshNameView("DarcyMesh", 9);
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension)
               << std::endl;
@@ -374,7 +376,6 @@ try {
         getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords;  //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
-    precice::span<double> coordsSpan(coords);
 
     for (const auto &element : elements(darcyGridView)) {
         auto fvGeometry = localView(*darcyGridGeometry);
@@ -394,12 +395,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    double preciceDt = couplingParticipant.getMaxTimeStepSize();
+    precice::span<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV = std::string("Velocity");
-    const precice::string_view dataNameViewP = std::string("Pressure");
+    const precice::string_view dataNameViewV("Velocity", 8);
+    const precice::string_view dataNameViewP("Pressure", 8);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
 
@@ -436,9 +437,7 @@ try {
         couplingParticipant.writeQuantityToOtherSolver(meshNameView,
                                                        dataNameViewV);
     }
-    couplingParticipant.setMeshAndInitialize(
-        "DarcyMesh", numberOfPoints,
-        coords);  // couplingParticipant.initialize();
+    couplingParticipant.initialize();
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
@@ -453,6 +452,7 @@ try {
     using NewtonSolver = Dumux::NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
@@ -466,31 +466,13 @@ try {
         }
 
         couplingParticipant.readQuantityFromOtherSolver(meshNameView,
-                                                        dataNameViewP);
+                                                        dataNameViewP, dt);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
                                               *darcyGridVariables, sol,
                                               meshNameView, dataNameViewV);
-        // For testing
-        {
-            const auto v = couplingParticipant.getQuantityVector(velocityId);
-            for (size_t i = 0; i < v.size(); ++i) {
-                for (size_t d = 0; d < dim; ++d) {
-                    std::cout << coords[i * dim + d] << " ";
-                }
-                std::cout << "| v[" << i << "]=" << v[i] << std::endl;
-            }
-
-            const double sum = std::accumulate(v.begin(), v.end(), 0.);
-            std::cout << "Velocities to be sent to ff" << std::endl;
-            //          for (size_t i = 0; i < v.size(); ++i) {
-            //            std::cout << "v[" << i << "]=" << v[i] << std::endl;
-            //          }
-            std::cout << "Sum of velocities over boundary to ff: \n"
-                      << sum << std::endl;
-        }
         couplingParticipant.writeQuantityToOtherSolver(meshNameView,
                                                        dataNameViewV);
 

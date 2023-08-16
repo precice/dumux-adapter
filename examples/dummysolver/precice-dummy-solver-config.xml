@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 
-<precice-configuration>
+<precice-configuration >
 
   <log>
     <sink type="stream" output="stdout"  filter= "%Severity% > debug" format="preCICE:%ColorizedSeverity% %Message%" enabled="true" />
   </log>
-
   <data:scalar name="scalarDataOne"  />
   <data:scalar name="scalarDataTwo"  />
 
@@ -19,7 +18,7 @@
     <use-data name="vectorDataOne" />
     <use-data name="vectorDataTwo" />
   </mesh>
- 
+
   <mesh name="MeshTwo" dimensions="3">
     <use-data name="scalarDataOne" />
     <use-data name="scalarDataTwo" />
@@ -29,7 +28,7 @@
   </mesh>
 
   <participant name="SolverOne">
-    <use-mesh name="MeshOne" provide="yes"/>
+    <provide-mesh name="MeshOne"/>
 
     <write-data name="scalarDataOne" mesh="MeshOne" />
     <write-data name="vectorDataOne" mesh="MeshOne" />
@@ -38,8 +37,8 @@
   </participant>
 
   <participant name="SolverTwo">
-    <use-mesh name="MeshOne" from="SolverOne"/>
-    <use-mesh name="MeshTwo" provide="yes"/>
+    <receive-mesh name="MeshOne" from="SolverOne"/>
+    <provide-mesh name="MeshTwo"/>
 
     <mapping:nearest-neighbor   direction="write" from="MeshTwo" to="MeshOne" constraint="conservative"/>
     <mapping:nearest-neighbor direction="read"  from="MeshOne" to="MeshTwo" constraint="consistent" />
@@ -66,5 +65,4 @@
       <exchange data="scalarDataTwo" mesh="MeshOne" from="SolverTwo" to="SolverOne" initialize="yes"/>
       <exchange data="vectorDataTwo" mesh="MeshOne" from="SolverTwo" to="SolverOne" initialize="yes"/>
     </coupling-scheme:serial-implicit>
-
 </precice-configuration>

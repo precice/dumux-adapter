@@ -256,7 +256,7 @@ try {
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView = std::string("DarcyMesh");
+    const precice::string_view meshNameView("DarcyMesh", 9);
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension)
               << std::endl;
@@ -270,7 +270,6 @@ try {
         getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords;  //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
-    precice::span<double> coordsSpan(coords);
 
     for (const auto &element : elements(darcyGridView)) {
         auto fvGeometry = localView(*darcyGridGeometry);
@@ -290,12 +289,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    double preciceDt = couplingParticipant.getMaxTimeStepSize();
+    precice::span<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV = std::string("Velocity");
-    const precice::string_view dataNameViewP = std::string("Pressure");
+    const precice::string_view dataNameViewV("Velocity", 8);
+    const precice::string_view dataNameViewP("Pressure", 8);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
 
@@ -332,9 +331,7 @@ try {
         couplingParticipant.writeQuantityToOtherSolver(meshNameView,
                                                        dataNameViewV);
     }
-    couplingParticipant.setMeshAndInitialize(
-        "DarcyMesh", numberOfPoints,
-        coords);  // couplingParticipant.initialize();
+    couplingParticipant.initialize();
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
@@ -349,6 +346,7 @@ try {
     using NewtonSolver = Dumux::NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
@@ -362,7 +360,7 @@ try {
         }
 
         couplingParticipant.readQuantityFromOtherSolver(meshNameView,
-                                                        dataNameViewP);
+                                                        dataNameViewP, dt);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);

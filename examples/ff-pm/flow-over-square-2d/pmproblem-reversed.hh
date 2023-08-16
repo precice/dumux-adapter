@@ -180,18 +180,16 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
-        precice::string_view meshNameView_ = std::string("DarcyMesh");
-        precice::string_view dataNameView_ = std::string("Pressure");
+        precice::string_view meshNameView_("DarcyMesh", 9);
+        precice::string_view dataNameView_("Pressure", 8);
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
         values = initial(element);
 
         const auto faceId = scvf.index();
-        if (couplingParticipant_.isCoupledEntity(faceId)) {
+        if (couplingParticipant_.isCoupledEntity(faceId))
             values = couplingParticipant_.getScalarQuantityOnFace(
                 meshNameView_, dataNameView_, faceId);
-            //std::cout << "Pressure on face " << faceId << " is " << couplingParticipant_.getScalarQuantityOnFace(pressureId_, faceId) << std::endl;
-        }
 
         return values;
     }

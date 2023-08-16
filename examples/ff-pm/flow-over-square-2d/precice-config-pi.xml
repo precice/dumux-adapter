@@ -21,8 +21,8 @@
   </mesh>
 
   <participant name="FreeFlow">
-    <use-mesh name="FreeFlowMesh" provide="yes"/>
-    <use-mesh name="DarcyMesh" from="Darcy"/>
+    <provide-mesh name="FreeFlowMesh"/>
+    <receive-mesh name="DarcyMesh" from="Darcy"/>
 
     <read-data name="Velocity" mesh="FreeFlowMesh"/>
     <write-data name="Pressure" mesh="FreeFlowMesh"/>
@@ -33,7 +33,7 @@
   </participant>
 
   <participant name="Darcy">
-    <use-mesh name="DarcyMesh" provide="yes"/>
+    <provide-mesh name="DarcyMesh" />
 
     <read-data name="Pressure" mesh="DarcyMesh"/>
     <write-data name="Velocity" mesh="DarcyMesh"/>
@@ -63,8 +63,6 @@
       <relative-convergence-measure limit="1.0e-2" data="Velocity" mesh="FreeFlowMesh"/>
       -->
 
-
-      <extrapolation-order value="0"/>
 
       <acceleration:IQN-ILS>
           <data mesh="DarcyMesh" name="Pressure" />

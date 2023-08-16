@@ -47,6 +47,8 @@
 
 #include "ffproblem-reversed.hh"
 
+#include "dumux-precice/couplingadapter.hh"
+
 //TODO
 // Helper function to put pressure on interface
 
@@ -325,7 +327,7 @@ try {
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView = std::string("FreeFlowMesh");
+    const precice::string_view meshNameView("FreeFlowMesh", 12);
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
@@ -339,7 +341,6 @@ try {
         getParamFromGroup<std::vector<double>>("Darcy", "Grid.UpperRight")[0];
     std::vector<double> coords;  //( dim * vertexSize );
     std::vector<int> coupledScvfIndices;
-    precice::span<double> coordsSpan(coords);
 
     for (const auto &element : elements(freeFlowGridView)) {
         auto fvGeometry = localView(*freeFlowGridGeometry);
@@ -359,12 +360,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    double preciceDt = couplingParticipant.getMaxTimeStepSize();
+    precice::span<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV = std::string("Velocity");
-    const precice::string_view dataNameViewP = std::string("Pressure");
+    const precice::string_view dataNameViewV("Velocity", 8);
+    const precice::string_view dataNameViewP("Pressure", 8);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
 
@@ -391,9 +392,6 @@ try {
         GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
     if (couplingParticipant.hasToWriteInitialData()) {
-        //TODO
-        //      couplingParticipant.writeQuantityVector( pressureId );
-
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
                                              meshNameView, dataNameViewP);
@@ -416,6 +414,7 @@ try {
     using NewtonSolver = NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
@@ -428,16 +427,8 @@ try {
             sol_checkpoint = sol;
         }
 
-        // TODO
         couplingParticipant.readQuantityFromOtherSolver(meshNameView,
                                                         dataNameViewV, dt);
-        //        // For testing
-        //        {
-        //          const auto v = couplingParticipant.getQuantityVector( velocityId );
-        //          const double sum = std::accumulate( v.begin(), v.end(), 0. );
-        //          std::cout << "Sum of velocities over boundary to pm: \n" << sum << std::endl;
-        //        }
-
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
@@ -447,10 +438,10 @@ try {
                                              meshNameView, dataNameViewP);
         couplingParticipant.writeQuantityToOtherSolver(meshNameView,
                                                        dataNameViewP);
-
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
+        couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         dt = std::min(preciceDt, dt);
 

@@ -59,6 +59,8 @@ void CouplingAdapter::setMesh(const precice::string_view &meshName,
                               precice::span<const double> positions)
 {
     assert(wasCreated_);
+    vertexIDs_ =
+        std::vector<int>(positions.size() / getMeshDimensions(meshName));
     vertexIDsSpan_ = precice::span(vertexIDs_);
     precice_->setMeshVertices(meshName, positions, vertexIDsSpan_);
     meshWasCreated_ = true;
@@ -78,13 +80,13 @@ void CouplingAdapter::initialize()
     assert(preciceWasInitialized_);
 }
 
-double CouplingAdapter::getMaxTimeStepSize()
+double CouplingAdapter::getMaxTimeStepSize() const
 {
     return precice_->getMaxTimeStepSize();
 }
 
 void CouplingAdapter::createIndexMapping(
-    const std::vector<int> &dumuxFaceIndices)  // TODO what does this do?
+    const std::vector<int> &dumuxFaceIndices)
 {
     assert(meshWasCreated_);
     indexMapper_.createMapping(dumuxFaceIndices, vertexIDs_);
@@ -183,16 +185,15 @@ std::string CouplingAdapter::createKeyFromName(
 {
     assert(wasCreated_);
     std::string combinedKey;
-
-    for (int i = 0; i < (meshName.size() + 1 + dataName.size()); i++) {
+    int length = meshName.size() + 1 + dataName.size();
+    for (int i = 0; i < length; i++) {
         if (i < meshName.size())
             combinedKey += meshName[i];
         else if (i == meshName.size())
-            combinedKey += ':';
+            combinedKey += ":";
         else
-            combinedKey += dataName[i - meshName.size()];
+            combinedKey += dataName[i - meshName.size() - 1];
     }
-
     return combinedKey;
 }
 

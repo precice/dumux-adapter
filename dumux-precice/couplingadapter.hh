@@ -109,7 +109,7 @@ public:
      *
      * @return double time step size
      */
-    double getMaxTimeStepSize();
+    double getMaxTimeStepSize() const;
     /*!
      * @brief Checks if simulation checkpoint needs to be restored.
      *
