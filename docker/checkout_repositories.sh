@@ -15,7 +15,7 @@ for module in 'common' 'geometry' 'grid' 'localfunctions' 'istl' 'subgrid'
 do
     echo "Checking out module: ${module}"
     if [[ ${module} == 'subgrid' ]]; then
-        git clone --depth 1 https://git.imp.fu-berlin.de/agnumpde/dune-${module}.git -b releases/$DUNEVERSION
+        git clone --depth 1 https://gitlab.dune-project.org/extensions/dune-${module}.git -b releases/$DUNEVERSION
     else
         git clone --depth 1 https://gitlab.dune-project.org/core/dune-${module}.git -b releases/$DUNEVERSION
     fi
