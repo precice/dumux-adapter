@@ -111,34 +111,34 @@ public:
      */
     double getMaxTimeStepSize() const;
     /*!
-     * @brief Checks if simulation checkpoint needs to be restored.
+     * @brief Checks if the participant is required to read an iteration checkpoint. If true, the participant is required to read an iteration checkpoint before calling advance(). 
      *
      * @return true Simulation checkpoint has to be restored.
      * @return false No further action is needed.
      */
-    bool hasToReadIterationCheckpoint();
+    bool requiresToReadCheckpoint();
 
     /*!
-     * @brief Checks if simulation checkpoint needs to be saved.
+     * @brief Checks if the participant is required to write an iteration checkpoint. If true, the participant is required to write an iteration checkpoint before calling advance(). 
      *
      * @return true Simulation checkpoints needs to be stored.
      * @return false No further action is needed.
      */
-    bool hasToWriteIterationCheckpoint();
+    bool requiresToWriteCheckpoint();
 
     /*!
-     * @brief Checks if initial coupling data has to be written.
+     * @brief Checks if the participant is required to provide initial data. If true, the participant needs to write initial data to defined vertices prior to calling initialize().
      *
      * @return true Initial coupling data has to be provided.
      * @return false No further action is needed.
      */
-    bool hasToWriteInitialData();
+    bool requiresToWriteInitialData();
 
     /*!
      * @brief Adds mesh for coupling of solvers.
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
-     * @param[in] positions A span to the coordinates of the vertices
+     * @param[in] positions A span to the coordinates of the vertices.
      * 
      * \note The coordinates need to be stored consecutively
      *       according to their spatial coordinates as.\n
@@ -270,8 +270,8 @@ public:
      * @param[in] dataName Name of the quantity.
      * @return size_t Numeric identifier of quantity.
      */
-    std::string createKeyFromName(const precice::string_view &meshName,
-                                  const precice::string_view &dataName) const;
+    std::string meshAndDataKey(const precice::string_view &meshName,
+                               const precice::string_view &dataName) const;
     /*!
      * @brief Prints status of coupling adapter to given output stream.
      *

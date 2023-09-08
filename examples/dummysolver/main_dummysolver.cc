@@ -101,7 +101,7 @@ try {
     couplingParticipant.announceQuantity(meshNameView, vectorDataWriteName);
     couplingParticipant.announceQuantity(meshNameView, vectorDataReadName);
 
-    if (couplingParticipant.hasToWriteInitialData()) {
+    if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
         couplingParticipant.writeQuantityVector(
@@ -173,7 +173,7 @@ try {
     int iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.hasToWriteIterationCheckpoint()) {
+        if (couplingParticipant.requiresToWriteCheckpoint()) {
             std::cout << "DUMMY (" << mpiHelper.rank()
                       << "): Writing iteration checkpoint\n";
         }
@@ -253,7 +253,7 @@ try {
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         couplingParticipant.advance(preciceDt);
 
-        if (couplingParticipant.hasToReadIterationCheckpoint()) {
+        if (couplingParticipant.requiresToReadCheckpoint()) {
             std::cout << "DUMMY (" << mpiHelper.rank()
                       << "): Reading iteration checkpoint\n";
         } else {

@@ -281,7 +281,7 @@ try {
     using FluxVariables =
         GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
-    if (couplingParticipant.hasToWriteInitialData()) {
+    if (couplingParticipant.requiresToWriteInitialData()) {
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
                                              meshNameView, dataNameViewP);
@@ -312,7 +312,7 @@ try {
     size_t iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.hasToWriteIterationCheckpoint()) {
+        if (couplingParticipant.requiresToWriteCheckpoint()) {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
         }
@@ -337,7 +337,7 @@ try {
 
         ++iter;
 
-        if (couplingParticipant.hasToReadIterationCheckpoint()) {
+        if (couplingParticipant.requiresToReadCheckpoint()) {
             //            //Read checkpoint
             //            freeFlowVtkWriter.write(vtkTime);
             //            vtkTime += 1.;

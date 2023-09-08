@@ -38,7 +38,7 @@ void CouplingAdapter::announceQuantity(const precice::string_view &meshName,
                                        const precice::string_view &dataName)
 {
     assert(meshWasCreated_);
-    const std::string key = createKeyFromName(meshName, dataName);
+    const std::string key = meshAndDataKey(meshName, dataName);
     if (dataMap_.find(key) != dataMap_.end()) {
         throw(std::runtime_error(" Error! Duplicate quantity announced! "));
     }
@@ -103,7 +103,7 @@ void CouplingAdapter::finalize()
 void CouplingAdapter::advance(const double computedTimeStepLength)
 {
     assert(wasCreated_);
-    return precice_->advance(computedTimeStepLength);
+    precice_->advance(computedTimeStepLength);
 }
 
 bool CouplingAdapter::isCouplingOngoing()
@@ -159,7 +159,7 @@ std::vector<double> &CouplingAdapter::getQuantityVector(
     const precice::string_view &meshName,
     const precice::string_view &dataName)
 {
-    std::string key = createKeyFromName(meshName, dataName);
+    std::string key = meshAndDataKey(meshName, dataName);
     assert(dataMap_.find(key) != dataMap_.end());
     return dataMap_[key];
 }
@@ -179,7 +179,7 @@ bool CouplingAdapter::isCoupledEntity(const int faceID) const
     return indexMapper_.isDumuxIdMapped(faceID);
 }
 
-std::string CouplingAdapter::createKeyFromName(
+std::string CouplingAdapter::meshAndDataKey(
     const precice::string_view &meshName,
     const precice::string_view &dataName) const
 {
@@ -221,19 +221,19 @@ void CouplingAdapter::writeQuantityToOtherSolver(
     precice_->writeData(meshName, dataName, vertexIDsSpan_, dataValuesSpan);
 }
 
-bool CouplingAdapter::hasToWriteInitialData()
+bool CouplingAdapter::requiresToWriteInitialData()
 {
     assert(wasCreated_);
     return precice_->requiresInitialData();
 }
 
-bool CouplingAdapter::hasToReadIterationCheckpoint()
+bool CouplingAdapter::requiresToReadCheckpoint()
 {
     assert(wasCreated_);
     return precice_->requiresReadingCheckpoint();
 }
 
-bool CouplingAdapter::hasToWriteIterationCheckpoint()
+bool CouplingAdapter::requiresToWriteCheckpoint()
 {
     assert(wasCreated_);
     return precice_->requiresWritingCheckpoint();

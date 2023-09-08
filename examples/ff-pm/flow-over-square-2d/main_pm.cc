@@ -323,7 +323,7 @@ try {
     darcyVtkWriter.write(0.0);
 
     using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
-    if (couplingParticipant.hasToWriteInitialData()) {
+    if (couplingParticipant.requiresToWriteInitialData()) {
         //TODO
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
                                               *darcyGridVariables, sol,
@@ -354,7 +354,7 @@ try {
     size_t iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.hasToWriteIterationCheckpoint()) {
+        if (couplingParticipant.requiresToWriteCheckpoint()) {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
         }
@@ -376,7 +376,7 @@ try {
 
         ++iter;
 
-        if (couplingParticipant.hasToReadIterationCheckpoint()) {
+        if (couplingParticipant.requiresToReadCheckpoint()) {
             //Read checkpoint
             darcyVtkWriter.write(vtkTime);
             vtkTime += 1.;
