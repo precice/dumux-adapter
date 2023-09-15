@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         dumux_version: [3.4, 3.5]
-        precice_version: [2.3.0, 2.4.0, 2.5.0]
+        precice_version: [develop]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
     strategy:
       matrix:
         dune_version: [2.9]
-        precice_version: [2.5.0]
+        precice_version: [develop]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
