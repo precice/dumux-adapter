@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        precice_version: [3.0.0]
+        precice_version: [develop]
         dune_version: [2.9]
     container:
       image: precice/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}

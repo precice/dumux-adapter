@@ -12,7 +12,7 @@ jobs:
       max-parallel: 2
       matrix:
         dumux_version: [3.4, 3.5]
-        precice_version: [3.0.0]
+        precice_version: [develop]
     container:
       image: precice/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
