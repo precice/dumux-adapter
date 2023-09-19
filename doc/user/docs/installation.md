@@ -9,7 +9,7 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
 
-- preCICE >=2.0.0
+- preCICE >=3.0.0
 
     - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
 

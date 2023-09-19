@@ -2,6 +2,8 @@
 
 ## Not released yet
 
+- 2023-08-10: Updated the adapter to align with preCICE V3. Updated the examples accordingly.
+
 ## v1.0.0
 
 - 2022-09-14: The solver dummy has been cleaned up.
@@ -47,6 +49,7 @@
     - The configuration of tests has been changed such that it is possible to build all tests using the `build_tests` target.
 
   For details check out the merge request [!18 Restructure repository and tests](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice/-/merge_requests/18)
+
 - 2022-01-10: Add license file. The code is licensed under GPLv3 without template exception.
 - 2022-01-10: Tests run by the CI on DuMuX `master` are allowed to fail.
 - 2022-01-10: Added `CHANGELOG.md` to track changes of the adapter.

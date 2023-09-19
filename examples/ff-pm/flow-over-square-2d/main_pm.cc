@@ -114,15 +114,16 @@ auto pressureAtInterface(const Problem &problem,
 template<class Problem, class GridVariables, class SolutionVector>
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
-                           const SolutionVector &sol)
+                           const SolutionVector &sol,
+                           const precice::string_view meshNameView,
+                           const precice::string_view dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
-    const auto pressureId = couplingInterface.getIdFromName("Pressure");
+    auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
 
     for (const auto &element : elements(gridGeometry.gridView())) {
         fvGeometry.bindElement(element);
@@ -130,13 +131,13 @@ void setInterfacePressures(const Problem &problem,
 
         //sstd::cout << "Pressure by reconstruction" << std::endl;
         for (const auto &scvf : scvfs(fvGeometry)) {
-            if (couplingInterface.isCoupledEntity(scvf.index())) {
+            if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 //TODO: What to do here?
                 const double p =
                     pressureAtInterface(problem, element, gridGeometry,
                                         elemVolVars, scvf, elemFluxVarsCache);
-                couplingInterface.writeScalarQuantityOnFace(pressureId,
-                                                            scvf.index(), p);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), p);
             }
         }
     }
@@ -177,15 +178,16 @@ template<class FluxVariables,
          class SolutionVector>
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
-                            const SolutionVector &sol)
+                            const SolutionVector &sol,
+                            const precice::string_view meshNameView,
+                            const precice::string_view dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
     auto elemVolVars = localView(gridVars.curGridVolVars());
     auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
 
-    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
-    const auto velocityId = couplingInterface.getIdFromName("Velocity");
+    auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
 
     for (const auto &element : elements(gridGeometry.gridView())) {
         fvGeometry.bind(element);
@@ -193,13 +195,13 @@ void setInterfaceVelocities(const Problem &problem,
         elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
 
         for (const auto &scvf : scvfs(fvGeometry)) {
-            if (couplingInterface.isCoupledEntity(scvf.index())) {
+            if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 //TODO: What to do here?
                 const double v = velocityAtInterface<FluxVariables>(
                     problem, element, fvGeometry, elemVolVars, scvf,
                     elemFluxVarsCache);
-                couplingInterface.writeScalarQuantityOnFace(velocityId,
-                                                            scvf.index(), v);
+                couplingParticipant.writeScalarQuantityOnFace(
+                    meshNameView, dataNameView, scvf.index(), v);
             }
         }
     }
@@ -250,18 +252,19 @@ try {
     // - Name of solver
     // - What rank of how many ranks this instance is
     // Configure preCICE. For now the config file is hardcoded.
-    //couplingInterface.createInstance( "darcy", mpiHelper.rank(), mpiHelper.size() );
+    //couplingParticipant.createInstance( "darcy", mpiHelper.rank(), mpiHelper.size() );
     std::string preciceConfigFilename = "precice-config.xml";
     //    if (argc == 3)
     //      preciceConfigFilename = argv[2];
     if (argc > 2)
         preciceConfigFilename = argv[argc - 1];
 
-    auto &couplingInterface = Dumux::Precice::CouplingAdapter::getInstance();
-    couplingInterface.announceSolver("Darcy", preciceConfigFilename,
-                                     mpiHelper.rank(), mpiHelper.size());
+    auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
+    couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
+                                       mpiHelper.rank(), mpiHelper.size());
 
-    const int dim = couplingInterface.getDimensions();
+    const precice::string_view meshNameView("DarcyMesh", 9);
+    const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(DarcyGridGeometry::GridView::dimension))
@@ -293,16 +296,14 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    const double preciceDt = couplingInterface.setMeshAndInitialize(
-        "DarcyMesh", numberOfPoints, coords);
-    couplingInterface.createIndexMapping(coupledScvfIndices);
+    precice::span<double> coordsSpan(coords);
+    couplingParticipant.setMesh(meshNameView, coordsSpan);
+    couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const auto velocityId =
-        couplingInterface.announceScalarQuantity("Velocity");
-    const auto pressureId =
-        couplingInterface.announceScalarQuantity("Pressure");
-
-    darcyProblem->updatePreciceDataIds();
+    const precice::string_view dataNameViewV("Velocity", 8);
+    const precice::string_view dataNameViewP("Pressure", 8);
+    couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
+    couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
 
     darcyProblem->applyInitialSolution(sol);
 
@@ -329,25 +330,15 @@ try {
     darcyVtkWriter.write(0.0);
 
     using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
-    if (couplingInterface.hasToWriteInitialData()) {
+    if (couplingParticipant.requiresToWriteInitialData()) {
         //TODO
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol);
-        // For testing
-        //        {
-        //            const auto v = couplingInterface.getQuantityVector(velocityId);
-        //            std::cout << "velocities to be sent to ff" << std::endl;
-        //            for (size_t i = 0; i < v.size(); ++i) {
-        //                for (size_t d = 0; d < dim; ++d) {
-        //                    std::cout << coords[i * dim + d] << " ";
-        //                }
-        //                std::cout << "| v[" << i << "]=" << v[i] << std::endl;
-        //            }
-        //        }
-        couplingInterface.writeScalarQuantityToOtherSolver(velocityId);
-        couplingInterface.announceInitialDataWritten();
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
     }
-    couplingInterface.initializeData();
+    couplingParticipant.initialize();
 
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
@@ -368,41 +359,43 @@ try {
     using NewtonSolver = Dumux::NewtonSolver<Assembler, LinearSolver>;
     NewtonSolver nonLinearSolver(assembler, linearSolver);
 
+    double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
     auto sol_checkpoint = sol;
 
     double vtkTime = 1.0;
     size_t iter = 0;
 
-    while (couplingInterface.isCouplingOngoing()) {
-        if (couplingInterface.hasToWriteIterationCheckpoint()) {
+    while (couplingParticipant.isCouplingOngoing()) {
+        if (couplingParticipant.requiresToWriteCheckpoint()) {
             //DO CHECKPOINTING
             sol_checkpoint = sol;
-            couplingInterface.announceIterationCheckpointWritten();
         }
 
-        couplingInterface.readScalarQuantityFromOtherSolver(pressureId);
+        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
+                                                        dataNameViewP, dt);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
         setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol);
-        couplingInterface.writeScalarQuantityToOtherSolver(velocityId);
+                                              *darcyGridVariables, sol,
+                                              meshNameView, dataNameViewV);
+        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                                       dataNameViewV);
 
-        const double preciceDt = couplingInterface.advance(dt);
+        couplingParticipant.advance(dt);
+        preciceDt = couplingParticipant.getMaxTimeStepSize();
         dt = std::min(preciceDt, dt);
 
         ++iter;
 
-        if (couplingInterface.hasToReadIterationCheckpoint()) {
+        if (couplingParticipant.requiresToReadCheckpoint()) {
             //Read checkpoint
             darcyVtkWriter.write(vtkTime);
             vtkTime += 1.;
             sol = sol_checkpoint;
             darcyGridVariables->update(sol);
             darcyGridVariables->advanceTimeStep();
-            //darcyGridVariables->init(sol);
-            couplingInterface.announceIterationCheckpointRead();
         } else  // coupling successful
         {
             // write vtk output
@@ -412,7 +405,7 @@ try {
     // write vtk output
     darcyVtkWriter.write(1.0);
 
-    couplingInterface.finalize();
+    couplingParticipant.finalize();
 
     ////////////////////////////////////////////////////////////
     // finalize, print dumux message to say goodbye
