@@ -3,7 +3,7 @@
 ![build and test develop](https://github.com/precice/dumux-adapter/actions/workflows/build-and-test.yml/badge.svg)
 ![build and test develop with DuMuX masters](https://github.com/precice/dumux-adapter/actions/workflows/build-and-test-dumux-master.yml/badge.svg)
 
-This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
+This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
 ## Structure of the repository
 
@@ -131,4 +131,3 @@ There is no publication related to this code available yet.
 ### Publications using dumux-precice
 
 - Jaust A., Weishaupt K., Mehl M., Flemisch B. (2020) Partitioned Coupling Schemes for Free-Flow and Porous-Media Applications with Sharp Interfaces. In: Klöfkorn R., Keilegavlen E., Radu F., Fuhrmann J. (eds) Finite Volumes for Complex Applications IX - Methods, Theoretical Aspects, Examples. FVCA 2020. Springer Proceedings in Mathematics & Statistics, vol 323. Springer, Cham. <https://doi.org/10.1007/978-3-030-43651-3_57>
-    - Code can be found at: <https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a>
