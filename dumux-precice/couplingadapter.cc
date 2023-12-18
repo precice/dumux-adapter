@@ -34,8 +34,8 @@ void CouplingAdapter::announceSolver(const std::string &name,
     wasCreated_ = true;
 }
 
-void CouplingAdapter::announceQuantity(const precice::string_view &meshName,
-                                       const precice::string_view &dataName)
+void CouplingAdapter::announceQuantity(const std::string &meshName,
+                                       const std::string &dataName)
 {
     assert(meshWasCreated_);
     const std::string key = meshAndDataKey(meshName, dataName);
@@ -49,14 +49,14 @@ void CouplingAdapter::announceQuantity(const precice::string_view &meshName,
 }
 
 int CouplingAdapter::getMeshDimensions(
-    const precice::string_view &meshName) const
+    const std::string &meshName) const
 {
     assert(wasCreated_);
     return precice_->getMeshDimensions(meshName);
 }
 
-void CouplingAdapter::setMesh(const precice::string_view &meshName,
-                              precice::span<const double> positions)
+void CouplingAdapter::setMesh(const std::string &meshName,
+                              std::vector<double> &positions)
 {
     assert(wasCreated_);
     vertexIDs_ =
@@ -119,8 +119,8 @@ size_t CouplingAdapter::getNumberOfVertices()
 }
 
 double CouplingAdapter::getScalarQuantityOnFace(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName,
+    const std::string &meshName,
+    const std::string &dataName,
     const int faceID)
 {
     assert(wasCreated_);
@@ -137,8 +137,8 @@ double CouplingAdapter::getScalarQuantityOnFace(
 }
 
 void CouplingAdapter::writeScalarQuantityOnFace(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName,
+    const std::string &meshName,
+    const std::string &dataName,
     const int faceID,
     const double value)
 {
@@ -156,16 +156,16 @@ void CouplingAdapter::writeScalarQuantityOnFace(
 }
 
 std::vector<double> &CouplingAdapter::getQuantityVector(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName)
+    const std::string &meshName,
+    const std::string &dataName)
 {
     std::string key = meshAndDataKey(meshName, dataName);
     assert(dataMap_.find(key) != dataMap_.end());
     return dataMap_[key];
 }
 
-void CouplingAdapter::writeQuantityVector(const precice::string_view &meshName,
-                                          const precice::string_view &dataName,
+void CouplingAdapter::writeQuantityVector(const std::string &meshName,
+                                          const std::string &dataName,
                                           std::vector<double> &values)
 {
     std::vector<double> &dataVector = getQuantityVector(meshName, dataName);
@@ -180,8 +180,8 @@ bool CouplingAdapter::isCoupledEntity(const int faceID) const
 }
 
 std::string CouplingAdapter::meshAndDataKey(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName) const
+    const std::string &meshName,
+    const std::string &dataName) const
 {
     assert(wasCreated_);
     std::string combinedKey;
@@ -203,8 +203,8 @@ void CouplingAdapter::print(std::ostream &os)
 }
 
 void CouplingAdapter::readQuantityFromOtherSolver(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName,
+    const std::string &meshName,
+    const std::string &dataName,
     double relativeReadTime)
 {
     precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
@@ -213,8 +213,8 @@ void CouplingAdapter::readQuantityFromOtherSolver(
 }
 
 void CouplingAdapter::writeQuantityToOtherSolver(
-    const precice::string_view &meshName,
-    const precice::string_view &dataName)
+    const std::string &meshName,
+    const std::string &dataName)
 {
     precice::span<const double> dataValuesSpan(
         getQuantityVector(meshName, dataName));
