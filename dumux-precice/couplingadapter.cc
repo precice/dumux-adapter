@@ -48,8 +48,7 @@ void CouplingAdapter::announceQuantity(const std::string &meshName,
     dataMap_.insert(std::make_pair(key, dataValues));
 }
 
-int CouplingAdapter::getMeshDimensions(
-    const std::string &meshName) const
+int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
 {
     assert(wasCreated_);
     return precice_->getMeshDimensions(meshName);
@@ -118,10 +117,9 @@ size_t CouplingAdapter::getNumberOfVertices()
     return vertexIDs_.size();
 }
 
-double CouplingAdapter::getScalarQuantityOnFace(
-    const std::string &meshName,
-    const std::string &dataName,
-    const int faceID)
+double CouplingAdapter::getScalarQuantityOnFace(const std::string &meshName,
+                                                const std::string &dataName,
+                                                const int faceID)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -136,11 +134,10 @@ double CouplingAdapter::getScalarQuantityOnFace(
     return dataVector[idx];
 }
 
-void CouplingAdapter::writeScalarQuantityOnFace(
-    const std::string &meshName,
-    const std::string &dataName,
-    const int faceID,
-    const double value)
+void CouplingAdapter::writeScalarQuantityOnFace(const std::string &meshName,
+                                                const std::string &dataName,
+                                                const int faceID,
+                                                const double value)
 {
     assert(wasCreated_);
     assert(hasIndexMapper_);
@@ -179,9 +176,8 @@ bool CouplingAdapter::isCoupledEntity(const int faceID) const
     return indexMapper_.isDumuxIdMapped(faceID);
 }
 
-std::string CouplingAdapter::meshAndDataKey(
-    const std::string &meshName,
-    const std::string &dataName) const
+std::string CouplingAdapter::meshAndDataKey(const std::string &meshName,
+                                            const std::string &dataName) const
 {
     assert(wasCreated_);
     std::string combinedKey;
@@ -202,19 +198,17 @@ void CouplingAdapter::print(std::ostream &os)
     os << indexMapper_;
 }
 
-void CouplingAdapter::readQuantityFromOtherSolver(
-    const std::string &meshName,
-    const std::string &dataName,
-    double relativeReadTime)
+void CouplingAdapter::readQuantityFromOtherSolver(const std::string &meshName,
+                                                  const std::string &dataName,
+                                                  double relativeReadTime)
 {
     precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
     precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime,
                        dataValuesSpan);
 }
 
-void CouplingAdapter::writeQuantityToOtherSolver(
-    const std::string &meshName,
-    const std::string &dataName)
+void CouplingAdapter::writeQuantityToOtherSolver(const std::string &meshName,
+                                                 const std::string &dataName)
 {
     precice::span<const double> dataValuesSpan(
         getQuantityVector(meshName, dataName));
