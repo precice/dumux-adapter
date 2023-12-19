@@ -196,8 +196,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
                 for (int i = 0;
-                     i < couplingParticipant.getMeshDimensions(meshName);
-                     ++i) {
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
                     ofs << pos[i] << ",";
                 }
                 const double v = problem.dirichlet(element, scvf)[1];
@@ -255,8 +254,7 @@ void writePressuresOnInterfaceToFile(const std::string &meshName,
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
                 for (int i = 0;
-                     i < couplingParticipant.getMeshDimensions(meshName);
-                     ++i) {
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
                     ofs << pos[i] << ",";
                 }
                 const double p = pressureAtInterface<FluxVariables>(
@@ -402,8 +400,7 @@ try {
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
                                              meshName, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameViewP);
     }
     couplingParticipant.initialize();
 
@@ -440,8 +437,8 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshName,
-                                                        dataNameViewV, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameViewV,
+                                                        dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
@@ -449,8 +446,7 @@ try {
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
                                              meshName, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameViewP);
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;

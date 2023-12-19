@@ -97,12 +97,12 @@ try {
     if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
-        couplingParticipant.writeQuantityVector(
-            meshName, scalarDataWriteName, writeScalarData);
+        couplingParticipant.writeQuantityVector(meshName, scalarDataWriteName,
+                                                writeScalarData);
         couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        scalarDataWriteName);
-        couplingParticipant.writeQuantityVector(
-            meshName, vectorDataWriteName, writeVectorData);
+        couplingParticipant.writeQuantityVector(meshName, vectorDataWriteName,
+                                                writeVectorData);
         couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        vectorDataWriteName);
     }
@@ -120,8 +120,7 @@ try {
             meshName, vectorDataReadName, preciceDt);
 
         const std::vector<double> &readScalarQuantity =
-            couplingParticipant.getQuantityVector(meshName,
-                                                  scalarDataReadName);
+            couplingParticipant.getQuantityVector(meshName, scalarDataReadName);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Scalar data\n";
         for (const double &value : readScalarQuantity)
@@ -129,8 +128,7 @@ try {
         std::cout << "\n";
 
         const std::vector<double> &readVectorQuantity =
-            couplingParticipant.getQuantityVector(meshName,
-                                                  vectorDataReadName);
+            couplingParticipant.getQuantityVector(meshName, vectorDataReadName);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Vector data\n";
         for (const double &value : readVectorQuantity)
@@ -239,8 +237,8 @@ try {
                                                        scalarDataWriteName);
 
         // Write vector data
-        couplingParticipant.writeQuantityVector(
-            meshName, vectorDataWriteName, writeVectorData);
+        couplingParticipant.writeQuantityVector(meshName, vectorDataWriteName,
+                                                writeVectorData);
         couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        vectorDataWriteName);
         preciceDt = couplingParticipant.getMaxTimeStepSize();

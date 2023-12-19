@@ -437,11 +437,9 @@ try {
     using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
     if (couplingParticipant.requiresToWriteInitialData()) {
         //TODO
-        setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol,
-                                              meshName, dataNameV);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameV);
+        setInterfaceVelocities<FluxVariables>(
+            *darcyProblem, *darcyGridVariables, sol, meshName, dataNameV);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameV);
     }
     couplingParticipant.initialize();
 
@@ -477,16 +475,14 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshName,
-                                                        dataNameP, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameP,
+                                                        dt);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
-        setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol,
-                                              meshName, dataNameV);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameV);
+        setInterfaceVelocities<FluxVariables>(
+            *darcyProblem, *darcyGridVariables, sol, meshName, dataNameV);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameV);
 
         couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();

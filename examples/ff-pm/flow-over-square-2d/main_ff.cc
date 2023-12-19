@@ -287,11 +287,9 @@ try {
         GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
     if (couplingParticipant.requiresToWriteInitialData()) {
-        setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol,
-                                             meshName, dataNameP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameP);
+        setInterfacePressures<FluxVariables>(
+            *freeFlowProblem, *freeFlowGridVariables, sol, meshName, dataNameP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
     }
     couplingParticipant.initialize();
 
@@ -328,17 +326,15 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshName,
-                                                        dataNameV, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameV,
+                                                        dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
-        setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol,
-                                             meshName, dataNameP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataNameP);
+        setInterfacePressures<FluxVariables>(
+            *freeFlowProblem, *freeFlowGridVariables, sol, meshName, dataNameP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
