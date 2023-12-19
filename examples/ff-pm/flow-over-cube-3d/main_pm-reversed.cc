@@ -270,7 +270,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
 
 template<class Problem, class GridVariables, class SolutionVector>
 void writePressuresOnInterfaceToFile(const std::string &meshName,
-                                     std::string &filename,
+                                     const std::string &filename,
                                      const Problem &problem,
                                      const GridVariables &gridVars,
                                      const SolutionVector &sol)
