@@ -163,7 +163,7 @@ std::vector<double> &CouplingAdapter::getQuantityVector(
 
 void CouplingAdapter::writeQuantityVector(const std::string &meshName,
                                           const std::string &dataName,
-                                          std::vector<double> &values)
+                                          const std::vector<double> &values)
 {
     std::vector<double> &dataVector = getQuantityVector(meshName, dataName);
     assert(dataVector.size() == values.size());
