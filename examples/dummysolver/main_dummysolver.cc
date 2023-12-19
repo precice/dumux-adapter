@@ -42,7 +42,7 @@ try {
         getParamFromGroup<std::string>("preCICE", "ConfigFileName");
     const std::string meshName =
         getParamFromGroup<std::string>("preCICE", "MeshName");
-    const precice::string_view meshNameView(meshName);
+    const std::string meshNameView(meshName);
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver(solverName, preciceConfigFilename,
@@ -54,13 +54,13 @@ try {
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshNameView);
     assert(dimensions == 3);
-    const precice::string_view scalarDataWriteName = std::string(
+    const std::string scalarDataWriteName = std::string(
         (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo");
-    const precice::string_view scalarDataReadName = std::string(
+    const std::string scalarDataReadName = std::string(
         (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne");
-    const precice::string_view vectorDataWriteName = std::string(
+    const std::string vectorDataWriteName = std::string(
         (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo");
-    const precice::string_view vectorDataReadName = std::string(
+    const std::string vectorDataReadName = std::string(
         (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne");
 
     const int numberOfVertices = 3;
