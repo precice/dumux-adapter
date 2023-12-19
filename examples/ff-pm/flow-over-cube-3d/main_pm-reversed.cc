@@ -401,7 +401,6 @@ try {
         }
     }
 
-    const auto numberOfPoints = coords.size() / dim;
     couplingParticipant.setMesh(meshName, coords);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
