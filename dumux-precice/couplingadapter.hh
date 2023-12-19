@@ -253,7 +253,7 @@ public:
      */
     void writeQuantityVector(const std::string &meshName,
                              const std::string &dataName,
-                             std::vector<double> &values);
+                             const std::vector<double> &values);
     /*! 
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
