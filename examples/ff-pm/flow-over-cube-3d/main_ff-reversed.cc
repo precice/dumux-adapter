@@ -100,7 +100,7 @@ void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
                            const std::string meshName,
-                           const std::string dataNameView)
+                           const std::string dataName)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
