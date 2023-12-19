@@ -54,7 +54,7 @@ try {
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
-    const std::string scalarDataWriteName = 
+    const std::string scalarDataWriteName =
         (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo";
     const std::string scalarDataReadName =
         (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne";

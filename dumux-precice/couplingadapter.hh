@@ -147,7 +147,7 @@ public:
      *       Example 3D:\n
      *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
      */
-    void setMesh(const std::string &meshName, std::vector<double> &positions);
+    void setMesh(const std::string &meshName, const std::vector<double> &positions);
     /*!
      * @brief Initializes the coupling
      *
