@@ -42,7 +42,6 @@ try {
         getParamFromGroup<std::string>("preCICE", "ConfigFileName");
     const std::string meshName =
         getParamFromGroup<std::string>("preCICE", "MeshName");
-    const precice::string_view meshNameView(meshName);
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceSolver(solverName, preciceConfigFilename,
@@ -52,16 +51,16 @@ try {
               << preciceConfigFilename << "\", participant name \""
               << solverName << "\", and mesh name \"" << meshName << "\".\n";
 
-    const int dimensions = couplingParticipant.getMeshDimensions(meshNameView);
+    const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
-    const precice::string_view scalarDataWriteName = std::string(
-        (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo");
-    const precice::string_view scalarDataReadName = std::string(
-        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne");
-    const precice::string_view vectorDataWriteName = std::string(
-        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo");
-    const precice::string_view vectorDataReadName = std::string(
-        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne");
+    const std::string scalarDataWriteName =
+        (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo";
+    const std::string scalarDataReadName =
+        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne";
+    const std::string vectorDataWriteName =
+        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo";
+    const std::string vectorDataReadName =
+        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne";
 
     const int numberOfVertices = 3;
 
@@ -82,35 +81,29 @@ try {
         }
     }
 
-    precice::span<double> writeScalarDataSpan(writeScalarData);
-    precice::span<double> readScalarDataSpan(readScalarData);
-    precice::span<double> writeVectorDataSpan(writeVectorData);
-    precice::span<double> readVectorDataSpan(readVectorData);
-    precice::span<precice::VertexID> dumuxVertexIDsSpan(dumuxVertexIDs);
-
     std::cout << "DUMMY (" << mpiHelper.rank()
               << "): Initialize preCICE and set mesh\n";
-    couplingParticipant.setMesh(meshNameView, vertices);
+    couplingParticipant.setMesh(meshName, vertices);
 
     // Create index mapping between DuMuX's index numbering and preCICE's numbering
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Create index mapping\n";
     couplingParticipant.createIndexMapping(dumuxVertexIDs);
 
-    couplingParticipant.announceQuantity(meshNameView, scalarDataWriteName);
-    couplingParticipant.announceQuantity(meshNameView, scalarDataReadName);
-    couplingParticipant.announceQuantity(meshNameView, vectorDataWriteName);
-    couplingParticipant.announceQuantity(meshNameView, vectorDataReadName);
+    couplingParticipant.announceQuantity(meshName, scalarDataWriteName);
+    couplingParticipant.announceQuantity(meshName, scalarDataReadName);
+    couplingParticipant.announceQuantity(meshName, vectorDataWriteName);
+    couplingParticipant.announceQuantity(meshName, vectorDataReadName);
 
     if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
-        couplingParticipant.writeQuantityVector(
-            meshNameView, scalarDataWriteName, writeScalarData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+        couplingParticipant.writeQuantityVector(meshName, scalarDataWriteName,
+                                                writeScalarData);
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        scalarDataWriteName);
-        couplingParticipant.writeQuantityVector(
-            meshNameView, vectorDataWriteName, writeVectorData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+        couplingParticipant.writeQuantityVector(meshName, vectorDataWriteName,
+                                                writeVectorData);
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        vectorDataWriteName);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
@@ -122,13 +115,12 @@ try {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Reading initial data\n";
         couplingParticipant.readQuantityFromOtherSolver(
-            meshNameView, scalarDataReadName, preciceDt);
+            meshName, scalarDataReadName, preciceDt);
         couplingParticipant.readQuantityFromOtherSolver(
-            meshNameView, vectorDataReadName, preciceDt);
+            meshName, vectorDataReadName, preciceDt);
 
         const std::vector<double> &readScalarQuantity =
-            couplingParticipant.getQuantityVector(meshNameView,
-                                                  scalarDataReadName);
+            couplingParticipant.getQuantityVector(meshName, scalarDataReadName);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Scalar data\n";
         for (const double &value : readScalarQuantity)
@@ -136,8 +128,7 @@ try {
         std::cout << "\n";
 
         const std::vector<double> &readVectorQuantity =
-            couplingParticipant.getQuantityVector(meshNameView,
-                                                  vectorDataReadName);
+            couplingParticipant.getQuantityVector(meshName, vectorDataReadName);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Vector data\n";
         for (const double &value : readVectorQuantity)
@@ -181,19 +172,19 @@ try {
         //Read data
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading data\n";
         couplingParticipant.readQuantityFromOtherSolver(
-            meshNameView, scalarDataReadName, preciceDt);
+            meshName, scalarDataReadName, preciceDt);
         couplingParticipant.readQuantityFromOtherSolver(
-            meshNameView, vectorDataReadName, preciceDt);
+            meshName, vectorDataReadName, preciceDt);
 
         // Check data
         if (iter > 0) {
             int offset = (solverName == "SolverOne") ? 0 : 1;
 
             const std::vector<double> &readScalarQuantity =
-                couplingParticipant.getQuantityVector(meshNameView,
+                couplingParticipant.getQuantityVector(meshName,
                                                       scalarDataReadName);
             const std::vector<double> &readVectorQuantity =
-                couplingParticipant.getQuantityVector(meshNameView,
+                couplingParticipant.getQuantityVector(meshName,
                                                       vectorDataReadName);
 
             for (int i = 0; i < numberOfVertices; i++) {
@@ -240,15 +231,15 @@ try {
         for (int i = 0; i < numberOfVertices; i++) {
             const double value = i + iter;
             couplingParticipant.writeScalarQuantityOnFace(
-                meshNameView, scalarDataWriteName, dumuxVertexIDs[i], value);
+                meshName, scalarDataWriteName, dumuxVertexIDs[i], value);
         }
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        scalarDataWriteName);
 
         // Write vector data
-        couplingParticipant.writeQuantityVector(
-            meshNameView, vectorDataWriteName, writeVectorData);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+        couplingParticipant.writeQuantityVector(meshName, vectorDataWriteName,
+                                                writeVectorData);
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        vectorDataWriteName);
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         couplingParticipant.advance(preciceDt);

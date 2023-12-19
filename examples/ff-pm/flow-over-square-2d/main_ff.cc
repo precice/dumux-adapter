@@ -99,8 +99,8 @@ template<class FluxVariables,
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
-                           const precice::string_view meshNameView,
-                           const precice::string_view dataNameView)
+                           const std::string meshName,
+                           const std::string dataName)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -123,7 +123,7 @@ void setInterfacePressures(const Problem &problem,
                     problem, element, scvf, fvGeometry, elemVolVars,
                     elemFaceVars, elemFluxVarsCache);
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), p);
+                    meshName, dataName, scvf.index(), p);
             }
         }
     }
@@ -133,8 +133,8 @@ template<class Problem, class GridVariables, class SolutionVector>
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
                             const SolutionVector &sol,
-                            const precice::string_view meshNameView,
-                            const precice::string_view dataNameView)
+                            const std::string meshName,
+                            const std::string dataName)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -154,7 +154,7 @@ void setInterfaceVelocities(const Problem &problem,
                 const auto v = velocityAtInterface(elemFaceVars,
                                                    scvf)[scvf.directionIndex()];
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), v);
+                    meshName, dataName, scvf.index(), v);
             }
         }
     }
@@ -224,8 +224,8 @@ try {
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView("FreeFlowMesh", 12);  // mesh name
-    const int dim = couplingParticipant.getMeshDimensions(meshNameView);
+    const std::string meshName("FreeFlowMesh");  // mesh name
+    const int dim = couplingParticipant.getMeshDimensions(meshName);
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(FreeFlowGridGeometry::GridView::dimension))
@@ -256,15 +256,13 @@ try {
         }
     }
 
-    const auto numberOfPoints = coords.size() / dim;
-    precice::span<double> coordsSpan(coords);
-    couplingParticipant.setMesh(meshNameView, coordsSpan);
+    couplingParticipant.setMesh(meshName, coords);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV("Velocity", 8);
-    const precice::string_view dataNameViewP("Pressure", 8);
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
+    const std::string dataNameV("Velocity");
+    const std::string dataNameP("Pressure");
+    couplingParticipant.announceQuantity(meshName, dataNameV);
+    couplingParticipant.announceQuantity(meshName, dataNameP);
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
@@ -289,11 +287,9 @@ try {
         GetPropType<FreeFlowTypeTag, Properties::FluxVariables>;
 
     if (couplingParticipant.requiresToWriteInitialData()) {
-        setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol,
-                                             meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
-                                                       dataNameViewP);
+        setInterfacePressures<FluxVariables>(
+            *freeFlowProblem, *freeFlowGridVariables, sol, meshName, dataNameP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
     }
     couplingParticipant.initialize();
 
@@ -330,17 +326,15 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
-                                                        dataNameViewV, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameV,
+                                                        dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
         // TODO
-        setInterfacePressures<FluxVariables>(*freeFlowProblem,
-                                             *freeFlowGridVariables, sol,
-                                             meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
-                                                       dataNameViewP);
+        setInterfacePressures<FluxVariables>(
+            *freeFlowProblem, *freeFlowGridVariables, sol, meshName, dataNameP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
