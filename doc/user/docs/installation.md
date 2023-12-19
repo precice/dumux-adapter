@@ -20,7 +20,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 
 ## Detailed installation steps
 
-1. Install [DuMuX](https://dumux.org/) and the needed dependencies. The easiest way is to follow [DuMuX's installation instructions](https://dumux.org/installation/). The DuMuX project provides a script that installs and DuMuX and the DUNE modules required by DuMuX. This means, after installing DuMuX via the provided script you should be good to go to use the DuMuX-preCICE adapter.
+1. Install [DuMuX](https://dumux.org/) and the needed dependencies. The easiest way is to follow [DuMuX's installation instructions](https://dumux.org/docs/doxygen/master/installation.html). The DuMuX project provides a script that installs and DuMuX and the DUNE modules required by DuMuX. This means, after installing DuMuX via the provided script you should be good to go to use the DuMuX-preCICE adapter.
 
     After the installation you should have a root directory that contains the base DUNE modules, i.e. a  number of directories named like `dune-common`, `dune-geometry` etc., and a directory called `dumux`.
 
@@ -38,12 +38,12 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
     git clone -b develop git@github.com:precice/dumux-adapter.git
     ```
 
-3. Verify that the `dumux-precice` folder is in the same directory as the DUNE module folders and the `dumux` folder.
+3. Verify that the `dumux-adapter` folder is in the same directory as the DUNE module folders and the `dumux` folder.
 
 4. Build and configure the adapter using `dunecontrol`. While being in the directory mentioned in the previous step via calling
 
     ```text
-    dunecontrol --only=dumux-precice all
+    dune-common/bin/dunecontrol --only=dumux-precice all
     ```
 
     After the build and configure step a new directory `build-cmake` was created inside the `dumux-precice` directory.
@@ -51,25 +51,26 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
     You can configure the build and configuration process using advanced options by manipulating CMake variables. `dunecontrol` allows to pass an options file for that
 
     ```bash
-    dunecontrol --opts=OPTSFILE.opts --only=dumux-precice all
+    dune-common/bin/dunecontrol --opts=OPTSFILE.opts --only=dumux-precice all
     ```
 
     There is an `opts`-file provided by the adapter that resides in `test/`. You can use it as
 
     ```bash
-    dunecontrol --opts=dumux-precice/test/cmake-test.opts --only=dumux-precice all
+    dune-common/bin/dunecontrol --opts=dumux-adapter/test/cmake-test.opts --only=dumux-precice all
     ```
 
     This provided `cmake-test.opts` file turns off some system-dependent optimizations such that the tests create comparable results on different computers.
 
-    To use the adapter in a separate DUNE module it may be desired to build a dynamic version of the adapter's library. To do so, use the CMake option `-DBUILD_SHARED_LIBS=ON` to build the adapter and upstream modules.
+    To use the adapter in a separate DUNE module it may be desired to build a dynamic version of the adapter's library. To do so, use the CMake option `-DBUILD_SHARED_LIBS=ON` to build the adapter and upstream modules. The DuMux installscript uses `dumux/cmake.opts`, which already sets this option.
+    Note that to change this setting it may be required to clear the CMake caches in `build-cmake/CMakeCache.txt`.
 
     For more ways do manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
 
 5. Optional, but recommended: Build all tests to verify the installation. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
 
     ```bash
-    cd dumux-precice/build-cmake
+    cd dumux-adapter/build-cmake
     make -j1 build_tests
     ```
 
