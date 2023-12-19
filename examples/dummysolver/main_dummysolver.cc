@@ -52,16 +52,16 @@ try {
               << preciceConfigFilename << "\", participant name \""
               << solverName << "\", and mesh name \"" << meshName << "\".\n";
 
-    const int dimensions = couplingParticipant.getMeshDimensions(meshNameView);
+    const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
     const std::string scalarDataWriteName = 
         (solverName == "SolverOne") ? "scalarDataOne" : "scalarDataTwo";
-    const std::string scalarDataReadName = std::string(
-        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne");
-    const std::string vectorDataWriteName = std::string(
-        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo");
-    const std::string vectorDataReadName = std::string(
-        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne");
+    const std::string scalarDataReadName =
+        (solverName == "SolverOne") ? "scalarDataTwo" : "scalarDataOne";
+    const std::string vectorDataWriteName =
+        (solverName == "SolverOne") ? "vectorDataOne" : "vectorDataTwo";
+    const std::string vectorDataReadName =
+        (solverName == "SolverOne") ? "vectorDataTwo" : "vectorDataOne";
 
     const int numberOfVertices = 3;
 
@@ -81,12 +81,6 @@ try {
             writeVectorData.at(j + dimensions * i) = i;
         }
     }
-
-    precice::span<double> writeScalarDataSpan(writeScalarData);
-    precice::span<double> readScalarDataSpan(readScalarData);
-    precice::span<double> writeVectorDataSpan(writeVectorData);
-    precice::span<double> readVectorDataSpan(readVectorData);
-    precice::span<precice::VertexID> dumuxVertexIDsSpan(dumuxVertexIDs);
 
     std::cout << "DUMMY (" << mpiHelper.rank()
               << "): Initialize preCICE and set mesh\n";
