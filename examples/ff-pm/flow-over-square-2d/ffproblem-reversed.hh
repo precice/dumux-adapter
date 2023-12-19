@@ -226,8 +226,8 @@ public:
         const auto faceId = scvf.index();
         if (couplingParticipant_.isCoupledEntity(faceId)) {
             values[Indices::velocityYIdx] =
-                couplingParticipant_.getScalarQuantityOnFace(
-                    meshName_, dataName_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(meshName_,
+                                                             dataName_, faceId);
         }
 
         return values;
