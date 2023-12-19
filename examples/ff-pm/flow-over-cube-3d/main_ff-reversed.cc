@@ -99,7 +99,7 @@ template<class FluxVariables,
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
-                           const std::string meshNameView,
+                           const std::string meshName,
                            const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
@@ -123,7 +123,7 @@ void setInterfacePressures(const Problem &problem,
                     problem, element, scvf, fvGeometry, elemVolVars,
                     elemFaceVars, elemFluxVarsCache);
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), p);
+                    meshName, dataNameView, scvf.index(), p);
             }
         }
     }
@@ -133,7 +133,7 @@ template<class Problem, class GridVariables, class SolutionVector>
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
                             const SolutionVector &sol,
-                            const std::string meshNameView,
+                            const std::string meshName,
                             const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
@@ -154,7 +154,7 @@ void setInterfaceVelocities(const Problem &problem,
                 const auto v = velocityAtInterface(elemFaceVars,
                                                    scvf)[scvf.directionIndex()];
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), v);
+                    meshName, dataNameView, scvf.index(), v);
             }
         }
     }
@@ -162,7 +162,7 @@ void setInterfaceVelocities(const Problem &problem,
 
 template<class Problem, class GridVariables, class SolutionVector>
 std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
-    const std::string &meshNameView,
+    const std::string &meshName,
     const std::string &filename,
     const Problem &problem,
     const GridVariables &gridVars,
@@ -179,7 +179,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
     std::ofstream ofs(filename + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
     ofs << "x,y,";
-    if (couplingParticipant.getMeshDimensions(meshNameView) == 3)
+    if (couplingParticipant.getMeshDimensions(meshName) == 3)
         ofs << "z,";
     ofs << "velocityY"
         << "\n";
@@ -196,7 +196,7 @@ std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
                 for (int i = 0;
-                     i < couplingParticipant.getMeshDimensions(meshNameView);
+                     i < couplingParticipant.getMeshDimensions(meshName);
                      ++i) {
                     ofs << pos[i] << ",";
                 }
@@ -223,7 +223,7 @@ template<class FluxVariables,
          class Problem,
          class GridVariables,
          class SolutionVector>
-void writePressuresOnInterfaceToFile(const std::string &meshNameView,
+void writePressuresOnInterfaceToFile(const std::string &meshName,
                                      const std::string &filename,
                                      const Problem &problem,
                                      const GridVariables &gridVars,
@@ -241,7 +241,7 @@ void writePressuresOnInterfaceToFile(const std::string &meshNameView,
     std::ofstream ofs(filename + ".csv",
                       std::ofstream::out | std::ofstream::trunc);
     ofs << "x,y,";
-    if (couplingParticipant.getMeshDimensions(meshNameView) == 3)
+    if (couplingParticipant.getMeshDimensions(meshName) == 3)
         ofs << "z,";
     ofs << "pressure"
         << "\n";
@@ -255,7 +255,7 @@ void writePressuresOnInterfaceToFile(const std::string &meshNameView,
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 const auto &pos = scvf.center();
                 for (int i = 0;
-                     i < couplingParticipant.getMeshDimensions(meshNameView);
+                     i < couplingParticipant.getMeshDimensions(meshName);
                      ++i) {
                     ofs << pos[i] << ",";
                 }
@@ -334,8 +334,8 @@ try {
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const std::string meshNameView("FreeFlowMesh");
-    const int dim = couplingParticipant.getMeshDimensions(meshNameView);
+    const std::string meshName("FreeFlowMesh");
+    const int dim = couplingParticipant.getMeshDimensions(meshName);
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(FreeFlowGridGeometry::GridView::dimension))
@@ -368,13 +368,13 @@ try {
 
     const auto numberOfPoints = coords.size() / dim;
     std::vector<double> coordsSpan(coords);
-    couplingParticipant.setMesh(meshNameView, coordsSpan);
+    couplingParticipant.setMesh(meshName, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
     const std::string dataNameViewV("Velocity");
     const std::string dataNameViewP("Pressure");
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
+    couplingParticipant.announceQuantity(meshName, dataNameViewV);
+    couplingParticipant.announceQuantity(meshName, dataNameViewP);
 
     // apply initial solution for instationary problems
     freeFlowProblem->applyInitialSolution(sol);
@@ -401,8 +401,8 @@ try {
     if (couplingParticipant.requiresToWriteInitialData()) {
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
-                                             meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                             meshName, dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        dataNameViewP);
     }
     couplingParticipant.initialize();
@@ -440,7 +440,7 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
+        couplingParticipant.readQuantityFromOtherSolver(meshName,
                                                         dataNameViewV, dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
@@ -448,8 +448,8 @@ try {
         // TODO
         setInterfacePressures<FluxVariables>(*freeFlowProblem,
                                              *freeFlowGridVariables, sol,
-                                             meshNameView, dataNameViewP);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
+                                             meshName, dataNameViewP);
+        couplingParticipant.writeQuantityToOtherSolver(meshName,
                                                        dataNameViewP);
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
