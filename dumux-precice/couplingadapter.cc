@@ -55,7 +55,7 @@ int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
 }
 
 void CouplingAdapter::setMesh(const std::string &meshName,
-                              std::vector<double> &positions)
+                              const std::vector<double> &positions)
 {
     assert(wasCreated_);
     vertexIDs_ =
