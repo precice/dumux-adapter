@@ -115,8 +115,8 @@ template<class Problem, class GridVariables, class SolutionVector>
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
-                           const precice::string_view meshNameView,
-                           const precice::string_view dataNameView)
+                           const std::string meshNameView,
+                           const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -179,8 +179,8 @@ template<class FluxVariables,
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
                             const SolutionVector &sol,
-                            const precice::string_view meshNameView,
-                            const precice::string_view dataNameView)
+                            const std::string meshNameView,
+                            const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -263,7 +263,7 @@ try {
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView("DarcyMesh", 9);
+    const std::string meshNameView("DarcyMesh");
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension)
               << std::endl;
@@ -296,12 +296,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    precice::span<double> coordsSpan(coords);
+    std::vector<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV("Velocity", 8);
-    const precice::string_view dataNameViewP("Pressure", 8);
+    const std::string dataNameViewV("Velocity");
+    const std::string dataNameViewP("Pressure");
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
 

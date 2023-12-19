@@ -99,8 +99,8 @@ template<class FluxVariables,
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
-                           const precice::string_view meshNameView,
-                           const precice::string_view dataNameView)
+                           const std::string meshNameView,
+                           const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -133,8 +133,8 @@ template<class Problem, class GridVariables, class SolutionVector>
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
                             const SolutionVector &sol,
-                            const precice::string_view meshNameView,
-                            const precice::string_view dataNameView)
+                            const std::string meshNameView,
+                            const std::string dataNameView)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -162,7 +162,7 @@ void setInterfaceVelocities(const Problem &problem,
 
 template<class Problem, class GridVariables, class SolutionVector>
 std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
-    const precice::string_view &meshNameView,
+    const std::string &meshNameView,
     const std::string &filename,
     const Problem &problem,
     const GridVariables &gridVars,
@@ -223,7 +223,7 @@ template<class FluxVariables,
          class Problem,
          class GridVariables,
          class SolutionVector>
-void writePressuresOnInterfaceToFile(const precice::string_view &meshNameView,
+void writePressuresOnInterfaceToFile(const std::string &meshNameView,
                                      const std::string &filename,
                                      const Problem &problem,
                                      const GridVariables &gridVars,
@@ -334,7 +334,7 @@ try {
     couplingParticipant.announceSolver("FreeFlow", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView("FreeFlowMesh", 12);
+    const std::string meshNameView("FreeFlowMesh");
     const int dim = couplingParticipant.getMeshDimensions(meshNameView);
     std::cout << dim << "  " << int(FreeFlowGridGeometry::GridView::dimension)
               << std::endl;
@@ -367,12 +367,12 @@ try {
     }
 
     const auto numberOfPoints = coords.size() / dim;
-    precice::span<double> coordsSpan(coords);
+    std::vector<double> coordsSpan(coords);
     couplingParticipant.setMesh(meshNameView, coordsSpan);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV("Velocity", 8);
-    const precice::string_view dataNameViewP("Pressure", 8);
+    const std::string dataNameViewV("Velocity");
+    const std::string dataNameViewP("Pressure");
     couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
     couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
 

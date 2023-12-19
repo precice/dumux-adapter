@@ -180,8 +180,8 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
-        precice::string_view meshNameView_("DarcyMesh", 9);
-        precice::string_view dataNameView_("Pressure", 8);
+        std::string meshNameView_("DarcyMesh");
+        std::string dataNameView_("Pressure");
         // set p = 0 at the bottom
         PrimaryVariables values(0.0);
         values = initial(element);
