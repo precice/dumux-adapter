@@ -218,16 +218,14 @@ public:
     PrimaryVariables dirichlet(const Element &element,
                                const SubControlVolumeFace &scvf) const
     {
-        std::string meshName_("FreeFlowMesh");
-        std::string dataName_("Velocity");
         PrimaryVariables values(0.0);
         values = initialAtPos(scvf.center());
 
         const auto faceId = scvf.index();
         if (couplingParticipant_.isCoupledEntity(faceId)) {
             values[Indices::velocityYIdx] =
-                couplingParticipant_.getScalarQuantityOnFace(meshName_,
-                                                             dataName_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(
+                    "FreeFlowMesh", "Velocity", faceId);
         }
 
         return values;
@@ -249,8 +247,6 @@ public:
                         const ElementFaceVariables &elemFaceVars,
                         const SubControlVolumeFace &scvf) const
     {
-        std::string meshName_("FreeFlowMesh");
-        std::string dataName_("Pressure");
         NumEqVector values(0.0);
 
         const auto faceId = scvf.index();
@@ -263,7 +259,7 @@ public:
             values[Indices::momentumYBalanceIdx] =
                 scvf.directionSign() *
                 (couplingParticipant_.getScalarQuantityOnFace(
-                     meshName_, dataName_, faceId) -
+                     "FreeFlowMesh", "Pressure", faceId) -
                  initialAtPos(scvf.center())[Indices::pressureIdx]);
         }
         return values;
