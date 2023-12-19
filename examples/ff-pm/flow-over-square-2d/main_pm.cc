@@ -115,8 +115,8 @@ template<class Problem, class GridVariables, class SolutionVector>
 void setInterfacePressures(const Problem &problem,
                            const GridVariables &gridVars,
                            const SolutionVector &sol,
-                           const precice::string_view meshNameView,
-                           const precice::string_view dataNameView)
+                           const std::string meshName,
+                           const std::string dataName)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -137,7 +137,7 @@ void setInterfacePressures(const Problem &problem,
                     pressureAtInterface(problem, element, gridGeometry,
                                         elemVolVars, scvf, elemFluxVarsCache);
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), p);
+                    meshName, dataName, scvf.index(), p);
             }
         }
     }
@@ -179,8 +179,8 @@ template<class FluxVariables,
 void setInterfaceVelocities(const Problem &problem,
                             const GridVariables &gridVars,
                             const SolutionVector &sol,
-                            const precice::string_view meshNameView,
-                            const precice::string_view dataNameView)
+                            const std::string meshName,
+                            const std::string dataName)
 {
     const auto &gridGeometry = problem.gridGeometry();
     auto fvGeometry = localView(gridGeometry);
@@ -201,7 +201,7 @@ void setInterfaceVelocities(const Problem &problem,
                     problem, element, fvGeometry, elemVolVars, scvf,
                     elemFluxVarsCache);
                 couplingParticipant.writeScalarQuantityOnFace(
-                    meshNameView, dataNameView, scvf.index(), v);
+                    meshName, dataName, scvf.index(), v);
             }
         }
     }
@@ -263,8 +263,8 @@ try {
     couplingParticipant.announceSolver("Darcy", preciceConfigFilename,
                                        mpiHelper.rank(), mpiHelper.size());
 
-    const precice::string_view meshNameView("DarcyMesh", 9);
-    const int dim = couplingParticipant.getMeshDimensions(meshNameView);
+    const std::string meshName("DarcyMesh");
+    const int dim = couplingParticipant.getMeshDimensions(meshName);
     std::cout << dim << "  " << int(DarcyGridGeometry::GridView::dimension)
               << std::endl;
     if (dim != int(DarcyGridGeometry::GridView::dimension))
@@ -295,15 +295,13 @@ try {
         }
     }
 
-    const auto numberOfPoints = coords.size() / dim;
-    precice::span<double> coordsSpan(coords);
-    couplingParticipant.setMesh(meshNameView, coordsSpan);
+    couplingParticipant.setMesh(meshName, coords);
     couplingParticipant.createIndexMapping(coupledScvfIndices);
 
-    const precice::string_view dataNameViewV("Velocity", 8);
-    const precice::string_view dataNameViewP("Pressure", 8);
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewP);
-    couplingParticipant.announceQuantity(meshNameView, dataNameViewV);
+    const std::string dataNameV("Velocity");
+    const std::string dataNameP("Pressure");
+    couplingParticipant.announceQuantity(meshName, dataNameP);
+    couplingParticipant.announceQuantity(meshName, dataNameV);
 
     darcyProblem->applyInitialSolution(sol);
 
@@ -332,11 +330,9 @@ try {
     using FluxVariables = GetPropType<DarcyTypeTag, Properties::FluxVariables>;
     if (couplingParticipant.requiresToWriteInitialData()) {
         //TODO
-        setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol,
-                                              meshNameView, dataNameViewV);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
-                                                       dataNameViewV);
+        setInterfaceVelocities<FluxVariables>(
+            *darcyProblem, *darcyGridVariables, sol, meshName, dataNameV);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameV);
     }
     couplingParticipant.initialize();
 
@@ -372,16 +368,14 @@ try {
             sol_checkpoint = sol;
         }
 
-        couplingParticipant.readQuantityFromOtherSolver(meshNameView,
-                                                        dataNameViewP, dt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameP,
+                                                        dt);
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
-        setInterfaceVelocities<FluxVariables>(*darcyProblem,
-                                              *darcyGridVariables, sol,
-                                              meshNameView, dataNameViewV);
-        couplingParticipant.writeQuantityToOtherSolver(meshNameView,
-                                                       dataNameViewV);
+        setInterfaceVelocities<FluxVariables>(
+            *darcyProblem, *darcyGridVariables, sol, meshName, dataNameV);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameV);
 
         couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();
