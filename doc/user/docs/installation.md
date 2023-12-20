@@ -62,7 +62,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 
     This provided `cmake-test.opts` file turns off some system-dependent optimizations such that the tests create comparable results on different computers.
 
-    To use the adapter in a separate DUNE module it may be desired to build a dynamic version of the adapter's library. To do so, use the CMake option `-DBUILD_SHARED_LIBS=ON` to build the adapter and upstream modules. The DuMux installscript uses `dumux/cmake.opts`, which already sets this option.
+    To use the adapter in a separate DUNE module, we recommend building the adapter as a shared library. To do so, use the CMake option `-DBUILD_SHARED_LIBS=ON` to build the adapter and upstream modules. The DuMux install script uses `dumux/cmake.opts`, which already sets this option.
     Note that to change this setting it may be required to clear the CMake caches in `build-cmake/CMakeCache.txt`.
 
     For more ways do manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
