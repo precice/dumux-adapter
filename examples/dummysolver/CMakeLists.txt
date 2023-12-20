@@ -1,7 +1,5 @@
 add_executable(dumuxprecice_dummysolver EXCLUDE_FROM_ALL main_dummysolver.cc)
 
-target_link_libraries(dumuxprecice_dummysolver PRIVATE dumux-precice)
-
 dune_symlink_to_source_files(FILES precice-dummy-solver-config.xml)
 dune_symlink_to_source_files(FILES Allrun.sh)
 
