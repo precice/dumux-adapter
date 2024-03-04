@@ -17,7 +17,7 @@ jobs:
         dockerhub_username: precice
     strategy:
       matrix:
-        dumux_version: [3.4, 3.5]
+        dumux_version: [3.7, 3.8]
         precice_version: [develop]
     steps:
       - name: Checkout Repository
