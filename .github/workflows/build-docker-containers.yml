@@ -37,7 +37,7 @@ jobs:
           file: "./dockerfile.slim"
           tags: ${{ env.dockerhub_username }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
           build-args: |
-            DUNEVERSION=2.8
+            DUNEVERSION=2.9
             PRECICEUBUNTU=focal
             DUMUXVERSION=${{ matrix.dumux_version }}
             PRECICEVERSION=${{ matrix.precice_version }}
