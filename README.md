@@ -23,13 +23,13 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 ### Prerequisites
 
-- DuMuX **newer** than 3.2
+- DuMuX **newer** than 3.7
 
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
     - Needs UMFPack (available via SuiteSparse) as solver for linear systems of equations. This is needed to run the examples included in the adapter. Otherwise you can skip UMFPack.
 
-- preCICE >=2.0.0
+- preCICE >=3.0.0
 
     - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
 
@@ -51,13 +51,13 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. It is recommended to use the latest release of the adapter, which can be found by checking out the relevant release tag.
 
     ```text
-    git clone -b v1.0.0 https://github.com/precice/dumux-adapter.git
+    git clone -b v2.0.0 https://github.com/precice/dumux-adapter.git
     ```
 
     You can also try to clone the repository via SSH:
 
     ```text
-    git clone -b v1.0.0 git@github.com:precice/dumux-adapter.git
+    git clone -b v2.0.0 git@github.com:precice/dumux-adapter.git
     ```
 
 3. Verify that the `dumux-adapter` folder is in the same directory as the DUNE module folders and the `dumux` folder.
