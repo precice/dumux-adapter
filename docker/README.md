@@ -19,8 +19,8 @@ For more details on what is installed, please check the `Dockerfile`.
 
 The versions of the main dependencies can be manipulated when building the Docker image via the arguments with given default values
 
-- `ARG DUNEVERSION=2.7`: DUNE version. Available in all recipes.
-- `ARG DUMUXVERSION=3.4`: DuMuX version. Available in all recipes.
+- `ARG DUNEVERSION=2.9`: DUNE version. Available in all recipes.
+- `ARG DUMUXVERSION=3.7`: DuMuX version. Available in all recipes.
 - `ARG PRECICEVERSION=2.2.1`: preCICE version. Available only in "large" and "slim" recipes.
 - `ARG PRECICEUBUNTU=focal`: preCICE target platform (here, Ubuntu Focal Fossa). Available only in "large" recipe.
 

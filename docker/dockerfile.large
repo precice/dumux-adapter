@@ -14,8 +14,8 @@ RUN apt-get install -y apt-utils vim htop git
 RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config python3
 
 # Obtain DuMuX and Dune repositories
-ARG DUNEVERSION=2.7
-ARG DUMUXVERSION=3.4
+ARG DUNEVERSION=2.9
+ARG DUMUXVERSION=3.7
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 

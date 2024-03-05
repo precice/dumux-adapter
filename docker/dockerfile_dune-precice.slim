@@ -13,7 +13,7 @@ ARG DUMUXINSTALLPATH=/opt/DUMUX
 WORKDIR ${DUMUXINSTALLPATH}
 
 # Obtain DuMuX and Dune repositories
-ARG DUNEVERSION=2.8
+ARG DUNEVERSION=2.9
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} none
 
