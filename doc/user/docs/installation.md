@@ -4,7 +4,7 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 ## Prerequisites
 
-- DuMuX **newer** than 3.2
+- DuMuX >= 3.7
 
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
@@ -46,7 +46,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
     dune-common/bin/dunecontrol --only=dumux-precice all
     ```
 
-    After the build and configure step a new directory `build-cmake` was created inside the `dumux-precice` directory.
+    After the build and configure step a new directory `build-cmake` was created inside the `dumux-adapter` directory.
 
     You can configure the build and configuration process using advanced options by manipulating CMake variables. `dunecontrol` allows to pass an options file for that
 
@@ -65,7 +65,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
     To use the adapter in a separate DUNE module, we recommend building the adapter as a shared library. To do so, use the CMake option `-DBUILD_SHARED_LIBS=ON` to build the adapter and upstream modules. The DuMux install script uses `dumux/cmake.opts`, which already sets this option.
     Note that to change this setting it may be required to clear the CMake caches in `build-cmake/CMakeCache.txt`.
 
-    For more ways do manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
+    For more ways to manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
 
 5. Optional, but recommended: Build all tests to verify the installation. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
 
