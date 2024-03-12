@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Install DUNE and DuMuX in /home/dumux
 WORKDIR	${USER_HOME}
@@ -32,7 +32,7 @@ ENV PYTHONPATH ${USER_HOME}/dumux/bin/testing:${PYTHONPATH}
 
 #Install preCICE
 ARG PRECICEVERSION=3.0.0
-ARG PRECICEUBUNTU=focal
+ARG PRECICEUBUNTU=jammy
 RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice3_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& apt install -y ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& rm -f ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb

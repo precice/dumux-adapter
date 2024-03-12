@@ -22,7 +22,7 @@ The versions of the main dependencies can be manipulated when building the Docke
 - `ARG DUNEVERSION=2.9`: DUNE version. Available in all recipes.
 - `ARG DUMUXVERSION=3.7`: DuMuX version. Available in all recipes.
 - `ARG PRECICEVERSION=3.0.0`: preCICE version. Available only in "large" and "slim" (use branch name e.g. "v3.0.0" or "develop") recipes.
-- `ARG PRECICEUBUNTU=focal`: preCICE target platform (here, Ubuntu Focal Fossa). Available only in "large" recipe.
+- `ARG PRECICEUBUNTU=jammy`: preCICE target platform (here, Ubuntu Jammy Jellyfish). Available only in "large" recipe.
 
 If one wants to build a "slim" image using DUNE 2.9, DuMuX from the current master branch and preCICE 3.0.0 one could call it with the following command:
 

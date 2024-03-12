@@ -38,7 +38,7 @@ jobs:
           tags: ${{ env.dockerhub_username }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
           build-args: |
             DUNEVERSION=2.9
-            PRECICEUBUNTU=focal
+            PRECICEUBUNTU=jammy
             DUMUXVERSION=${{ matrix.dumux_version }}
             PRECICEVERSION=${{ matrix.precice_version }}
   build-dune-precice:
@@ -69,5 +69,5 @@ jobs:
           tags: ${{ env.dockerhub_username }}/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}
           build-args: |
             DUNEVERSION=${{ matrix.dune_version }}
-            PRECICEUBUNTU=focal
+            PRECICEUBUNTU=jammy
             PRECICEVERSION=${{ matrix.precice_version }}
