@@ -56,8 +56,6 @@
       <max-time-windows value="2" />
       <time-window-size value="1.0" />
       <max-iterations value="2" />
-      <min-iteration-convergence-measure min-iterations="5" data="scalarDataOne" mesh="MeshOne"/>
-      <min-iteration-convergence-measure min-iterations="5" data="vectorDataOne" mesh="MeshOne"/>
 
       <exchange data="scalarDataOne" mesh="MeshOne" from="SolverOne" to="SolverTwo" />
       <exchange data="vectorDataOne" mesh="MeshOne" from="SolverOne" to="SolverTwo" />
