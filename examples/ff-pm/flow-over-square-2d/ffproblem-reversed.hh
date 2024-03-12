@@ -24,20 +24,15 @@
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
 #include <dune/grid/yaspgrid.hh>
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
+
 #include <dumux/common/numeqvector.hh>
-#endif
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 6
 #include <dumux/freeflow/navierstokes/staggered/problem.hh>
-#else
-#include <dumux/freeflow/navierstokes/problem.hh>
-#endif
 
 #include <dumux-precice/couplingadapter.hh>
 
@@ -97,15 +92,9 @@ struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
  * \brief The free flow sub problem
  */
 template<class TypeTag>
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 6
 class StokesSubProblem : public NavierStokesStaggeredProblem<TypeTag>
 {
     using ParentType = NavierStokesStaggeredProblem<TypeTag>;
-#else
-class StokesSubProblem : public NavierStokesProblem<TypeTag>
-{
-    using ParentType = NavierStokesProblem<TypeTag>;
-#endif
 
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using GridView = typename GridGeometry::GridView;
@@ -126,11 +115,7 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
 
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
 
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
-#else
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
-#endif
 
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
@@ -148,19 +133,6 @@ public:
      * \name Problem parameters
      */
     // \{
-
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR < 5
-    /*!
-     * \brief Return the temperature within the domain in [K].
-     *
-     * This problem assumes a temperature of 10 degrees Celsius.
-     */
-    Scalar temperature() const
-    {
-        // 10°C
-        return 273.15 + 10;
-    }
-#endif
 
     /*!
      * \brief Return the sources within the domain.
@@ -316,11 +288,7 @@ public:
         using std::sqrt;
         const Scalar dPdX = -deltaP_ / (this->gridGeometry().bBoxMax()[0] -
                                         this->gridGeometry().bBoxMin()[0]);
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
         static const Scalar mu = FluidSystem::viscosity(273.15 + 10, 1e5);
-#else
-        static const Scalar mu = FluidSystem::viscosity(temperature(), 1e5);
-#endif
         static const Scalar alpha =
             getParam<Scalar>("Darcy.SpatialParams.AlphaBeaversJoseph");
         static const Scalar K =

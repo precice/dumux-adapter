@@ -26,9 +26,7 @@
 
 #include <dune/grid/yaspgrid.hh>
 
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
-#endif
 
 #include <dumux/discretization/cctpfa.hh>
 
@@ -97,11 +95,7 @@ class DarcySubProblem : public PorousMediumFlowProblem<TypeTag>
         typename GetPropType<TypeTag, Properties::GridGeometry>::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
-#else
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
-#endif
     using BoundaryTypes = Dumux::BoundaryTypes<
         GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
     using VolumeVariables = GetPropType<TypeTag, Properties::VolumeVariables>;
@@ -130,19 +124,6 @@ public:
      * \name Simulation steering
      */
     // \{
-
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR < 5
-    /*!
-     * \brief Return the temperature within the domain in [K].
-     *
-     */
-    Scalar temperature() const
-    {
-        // 10°C
-        return 273.15 + 10;
-    }
-    // \}
-#endif
 
     /*!
      * \name Boundary conditions
