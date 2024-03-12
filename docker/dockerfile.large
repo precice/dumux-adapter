@@ -31,9 +31,9 @@ ENV DUNE_CONTROL_PATH=${USER_HOME}/dune-common/dune.module:${USER_HOME}/dune-geo
 ENV PYTHONPATH ${USER_HOME}/dumux/bin/testing:${PYTHONPATH}
 
 #Install preCICE
-ARG PRECICEVERSION=2.2.1
+ARG PRECICEVERSION=3.0.0
 ARG PRECICEUBUNTU=focal
-RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice2_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
+RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice3_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& apt install -y ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& rm -f ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb
 
