@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Install DUNE and DuMuX in /home/dumux
 WORKDIR	${USER_HOME}
@@ -14,8 +14,8 @@ RUN apt-get install -y apt-utils vim htop git
 RUN apt-get install -y openmpi-bin libopenmpi-dev git gcc g++ wget cmake sudo libboost-all-dev pkg-config python3
 
 # Obtain DuMuX and Dune repositories
-ARG DUNEVERSION=2.7
-ARG DUMUXVERSION=3.4
+ARG DUNEVERSION=2.9
+ARG DUMUXVERSION=3.7
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 
@@ -31,9 +31,9 @@ ENV DUNE_CONTROL_PATH=${USER_HOME}/dune-common/dune.module:${USER_HOME}/dune-geo
 ENV PYTHONPATH ${USER_HOME}/dumux/bin/testing:${PYTHONPATH}
 
 #Install preCICE
-ARG PRECICEVERSION=2.2.1
-ARG PRECICEUBUNTU=focal
-RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice2_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
+ARG PRECICEVERSION=3.0.0
+ARG PRECICEUBUNTU=jammy
+RUN wget https://github.com/precice/precice/releases/download/v${PRECICEVERSION}/libprecice3_${PRECICEVERSION}_${PRECICEUBUNTU}.deb -O libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& apt install -y ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb \
 	&& rm -f ./libprecice${PRECICEVERSION}-${PRECICEUBUNTU}.deb
 

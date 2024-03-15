@@ -25,16 +25,14 @@
 
 #include <dune/grid/yaspgrid.hh>
 
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
 #include <dumux/common/numeqvector.hh>
-#endif
 
 #include <dumux/material/components/simpleh2o.hh>
 #include <dumux/material/fluidsystems/1pliquid.hh>
 
 #include <dumux/discretization/staggered/freeflow/properties.hh>
 #include <dumux/freeflow/navierstokes/model.hh>
-#include <dumux/freeflow/navierstokes/problem.hh>
+#include <dumux/freeflow/navierstokes/staggered/problem.hh>
 
 #include <dumux-precice/couplingadapter.hh>
 
@@ -94,9 +92,9 @@ struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
  * \brief The free flow sub problem
  */
 template<class TypeTag>
-class StokesSubProblem : public NavierStokesProblem<TypeTag>
+class StokesSubProblem : public NavierStokesStaggeredProblem<TypeTag>
 {
-    using ParentType = NavierStokesProblem<TypeTag>;
+    using ParentType = NavierStokesStaggeredProblem<TypeTag>;
 
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using GridView = typename GridGeometry::GridView;
@@ -116,41 +114,23 @@ class StokesSubProblem : public NavierStokesProblem<TypeTag>
     using GlobalPosition = typename Element::Geometry::GlobalCoordinate;
 
     using PrimaryVariables = GetPropType<TypeTag, Properties::PrimaryVariables>;
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 4
     using NumEqVector = Dumux::NumEqVector<PrimaryVariables>;
-#else
-    using NumEqVector = GetPropType<TypeTag, Properties::NumEqVector>;
-#endif
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
 public:
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
         : ParentType(gridGeometry, "FreeFlow"),
           eps_(1e-6),
-          couplingInterface_(Dumux::Precice::CouplingAdapter::getInstance()),
-          pressureId_(0),
-          velocityId_(0),
-          dataIdsWereSet_(false)
+          couplingParticipant_(Dumux::Precice::CouplingAdapter::getInstance())
     {
         deltaP_ = getParamFromGroup<Scalar>(this->paramGroup(),
                                             "Problem.PressureDifference");
-        //        pressureId_ =  couplingInterface_.getIdFromName( "Pressure" );
-        //        velocityId_ = couplingInterface_.getIdFromName( "Velocity" );
     }
 
     /*!
      * \name Problem parameters
      */
     // \{
-
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR < 5
-    /*!
-     * \brief Return the temperature within the domain in [K].
-     *
-     * This problem assumes a temperature of 10 degrees Celsius.
-     */
-    Scalar temperature() const { return 273.15 + 10; }  // 10°C
-#endif
 
     /*!
      * \brief Return the sources within the domain.
@@ -188,16 +168,8 @@ public:
             values.setDirichlet(Indices::pressureIdx);
         }
         // coupling interface
-        else if (couplingInterface_.isCoupledEntity(faceId)) {
-            // // TODO do preCICE stuff in analogy to heat transfer
-            assert(dataIdsWereSet_setBeaversJoseph);
-            //TODO What do I want to do here?
-            //  values.setCouplingNeumann(Indices::conti0EqIdx);
-            //  values.setCouplingNeumann(Indices::momentumYBalanceIdx);
+        else if (couplingParticipant_.isCoupledEntity(faceId)) {
             values.setDirichlet(Indices::velocityYIdx);
-
-            //          values.setNeumann(Indices::conti0EqIdx);
-            //          values.setNeumann(Indices::momentumYBalanceIdx);
             values.setBeaversJoseph(Indices::momentumXBalanceIdx);
             values.setBeaversJoseph(Indices::momentumZBalanceIdx);
         } else {
@@ -222,9 +194,10 @@ public:
         values = initialAtPos(scvf.center());
 
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId)) {
+        if (couplingParticipant_.isCoupledEntity(faceId)) {
             values[Indices::velocityYIdx] =
-                couplingInterface_.getScalarQuantityOnFace(velocityId_, faceId);
+                couplingParticipant_.getScalarQuantityOnFace(
+                    "FreeFlowMesh", "Velocity", faceId);
         }
 
         return values;
@@ -248,9 +221,8 @@ public:
     {
         NumEqVector values(0.0);
 
-        assert(dataIdsWereSet_);
         const auto faceId = scvf.index();
-        if (couplingInterface_.isCoupledEntity(faceId)) {
+        if (couplingParticipant_.isCoupledEntity(faceId)) {
             const Scalar density =
                 1000;  // TODO how to handle compressible fluids?
             values[Indices::conti0EqIdx] = density *
@@ -258,8 +230,8 @@ public:
                                            scvf.directionSign();
             values[Indices::momentumYBalanceIdx] =
                 scvf.directionSign() *
-                (couplingInterface_.getScalarQuantityOnFace(pressureId_,
-                                                            faceId) -
+                (couplingParticipant_.getScalarQuantityOnFace(
+                     "FreeFlowMesh", "Pressure", faceId) -
                  initialAtPos(scvf.center())[Indices::pressureIdx]);
         }
         return values;
@@ -316,11 +288,7 @@ public:
         using std::sqrt;
         const Scalar dPdX = -deltaP_ / (this->gridGeometry().bBoxMax()[0] -
                                         this->gridGeometry().bBoxMin()[0]);
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR > 4
         static const Scalar mu = FluidSystem::viscosity(273.15 + 10, 1e5);
-#else
-        static const Scalar mu = FluidSystem::viscosity(temperature(), 1e5);
-#endif
         static const Scalar alpha =
             getParam<Scalar>("Darcy.SpatialParams.AlphaBeaversJoseph");
         static const Scalar K =
@@ -358,13 +326,6 @@ public:
         return analyticalVelocityX_;
     }
 
-    void updatePreciceDataIds()
-    {
-        pressureId_ = couplingInterface_.getIdFromName("Pressure");
-        velocityId_ = couplingInterface_.getIdFromName("Velocity");
-        dataIdsWereSet_ = true;
-    }
-
     // \}
 
 private:
@@ -391,10 +352,7 @@ private:
     Scalar eps_;
     Scalar deltaP_;
 
-    Dumux::Precice::CouplingAdapter &couplingInterface_;
-    size_t pressureId_;
-    size_t velocityId_;
-    bool dataIdsWereSet_;
+    Dumux::Precice::CouplingAdapter &couplingParticipant_;
 
     mutable std::vector<Scalar> analyticalVelocityX_;
 };

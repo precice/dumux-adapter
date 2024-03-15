@@ -12,12 +12,12 @@ Please provide information about the operating system and relevant versions of
 the software.
 
 Example:
-Ubuntu 20.04 LTS, preCICE 2.3.0, DuMuX 3.4, DuMuX-preCICE 0.1
+Ubuntu 22.04 LTS, preCICE 3.0.0, DuMuX 3.7, DuMuX-preCICE 2.0.0
 --->
 
 ## Steps to reproduce
 
-<!-- Please describe the steps one has to execture to reproduce the problem. --->
+<!-- Please describe the steps one has to execute to reproduce the problem. --->
 
 ### Expected behavior
 

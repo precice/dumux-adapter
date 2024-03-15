@@ -1,9 +1,6 @@
 add_executable(ff_flow_over_cube_3d EXCLUDE_FROM_ALL main_ff-reversed.cc)
 add_executable(pm_flow_over_cube_3d EXCLUDE_FROM_ALL main_pm-reversed.cc)
 
-target_link_libraries(ff_flow_over_cube_3d PRIVATE dumux-precice)
-target_link_libraries(pm_flow_over_cube_3d PRIVATE dumux-precice)
-
 # add a symlink for each input file
 add_input_file_links()
 # add a symlink for each preCICE configuration file
@@ -18,13 +15,6 @@ dumux_add_test(NAME dummytarget_to_build_pm_flow_over_cube_3d
               TIMEOUT 5
               COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
 )
-
-#dumux_add_test(NAME dummytarget_to_build_ff_flow_over_cube_3d
-#              TARGET ff_flow_over_cube_3d
-#              LABELS freeflow stokes precice darcy 3d
-#              TIMEOUT 5
-#              COMMAND ${CMAKE_SOURCE_DIR}/test/return-test-passed.sh
-#)
 
 
 dumux_add_test(NAME test_ff_pm_flow_over_cube_3d

@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -7,13 +7,13 @@ ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
 
 # Install dependencies from
 RUN apt-get update
-RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libboost-log1.71.0 libboost-thread1.71.0 libboost-system1.71.0 libboost-filesystem1.71.0 libboost-program-options1.71.0 libboost-test1.71.0 libboost-container1.71.0 libeigen3-dev libxml2 libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libeigen3-dev libxml2-dev libsuitesparse-dev python3
+RUN apt-get install -y git gcc g++ gfortran cmake pkg-config libboost-log1.74.0 libboost-thread1.74.0 libboost-system1.74.0 libboost-filesystem1.74.0 libboost-program-options1.74.0 libboost-test1.74.0 libboost-container1.74.0 libeigen3-dev libxml2 libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libeigen3-dev libxml2-dev libsuitesparse-dev python3
 
 ARG DUMUXINSTALLPATH=/opt/DUMUX
 WORKDIR ${DUMUXINSTALLPATH}
 
 # Obtain DuMuX and Dune repositories
-ARG DUNEVERSION=2.8
+ARG DUNEVERSION=2.9
 COPY checkout_repositories.sh .
 RUN bash checkout_repositories.sh ${DUNEVERSION} none
 
@@ -27,11 +27,11 @@ RUN dunecontrol --opts=cmake-test.opts all
 ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALLPATH}/dune-geometry/dune.module:${DUMUXINSTALLPATH}/dune-grid/dune.module:${DUMUXINSTALLPATH}/dune-localfunctions/dune.module:${DUMUXINSTALLPATH}/dune-istl/dune.module:${DUMUXINSTALLPATH}/dune-subgrid/dune.module
 
 # Compile minmum version of preCICE
-ARG PRECICEVERSION=2.4.0
-ARG PRECICEUBUNTU=focal
-RUN git clone --depth 1 -b v${PRECICEVERSION} https://github.com/precice/precice.git precice-${PRECICEVERSION} && cd precice-${PRECICEVERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_SHARED_LIBS=ON -DPRECICE_MPICommunication=OFF -DPRECICE_PETScMapping=OFF -DPRECICE_PythonActions=OFF -DCMAKE_INSTALL_PREFIX=/usr && make -j 4 && make test && make install && cd ../../ && rm -rf precice-${PRECICEVERSION}
+ARG PRECICEVERSION=v3.0.0
+ARG PRECICEUBUNTU=jammy
+RUN git clone --depth 1 -b ${PRECICEVERSION} https://github.com/precice/precice.git precice-${PRECICEVERSION} && cd precice-${PRECICEVERSION} && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DPRECICE_FEATURE_MPI_COMMUNICATION=OFF -DPRECICE_FEATURE_PETSC_MAPPING=OFF -DPRECICE_FEATURE_PYTHON_ACTIONS=OFF -DCMAKE_INSTALL_PREFIX=/usr && make -j 4 && make test && make install && cd ../../ && rm -rf precice-${PRECICEVERSION}
 
-RUN apt-get purge -y libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libxml2-dev && binprecice md
+RUN apt-get purge -y libboost-log-dev libboost-thread-dev libboost-system-dev libboost-filesystem-dev libboost-program-options-dev libboost-test-dev libboost-container-dev libxml2-dev
 
 # Cleanup
 RUN apt-get autoremove -y && apt-get clean

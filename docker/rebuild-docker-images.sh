@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-DUNE_VERSION="2.8"
-DUMUX_VERSIONS=("3.4" "3.5")
-PRECICE_VERSIONS=("2.4.0" "2.3.0")
+DUNE_VERSION="2.9"
+DUMUX_VERSIONS=("3.7" "3.8")
+PRECICE_VERSIONS=("develop")
 
 for dumux_version in ${DUMUX_VERSIONS[@]}; do
     for precice_version in ${PRECICE_VERSIONS[@]}; do
@@ -13,7 +13,7 @@ for dumux_version in ${DUMUX_VERSIONS[@]}; do
     done
 done
 
-PRECICE_VERSION="2.4.0"
+PRECICE_VERSION="develop"
 echo "Building dune-precice:${dumux_version}-${precice_version}"
 docker build --build-arg DUNEVERSION=${DUNE_VERSION} --build-arg PRECICEVERSION=${PRECICE_VERSION} -t precice/dune-precice:${DUNE_VERSION}-${PRECICE_VERSION} --file dockerfile_dune-precice.slim .
 docker push precice/dune-precice:${DUNE_VERSION}-${PRECICE_VERSION}

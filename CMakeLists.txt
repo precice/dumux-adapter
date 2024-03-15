@@ -14,7 +14,7 @@ endif()
 #find dune-common and set the module path
 find_package(dune-common REQUIRED)
 # Find preCICE library
-find_package(precice 2 REQUIRED CONFIG)
+find_package(precice 3.0.0 REQUIRED CONFIG)
 
 list(APPEND CMAKE_MODULE_PATH ${dune-common_MODULE_PATH}
   "${PROJECT_SOURCE_DIR}/cmake/modules")
@@ -24,7 +24,7 @@ include(DuneMacros)
 # start a dune project with information from dune.module
 dune_project()
 
-dune_enable_all_packages()
+dune_enable_all_packages(MODULE_LIBRARIES dumux-precice)
 
 # enforce C++-17
 dune_require_cxx_standard(MODULE "DuMuX-preCICE" VERSION 17)

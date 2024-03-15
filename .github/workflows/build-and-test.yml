@@ -11,30 +11,30 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        dumux_version: [3.4, 3.5]
-        precice_version: [2.3.0, 2.4.0, 2.5.0]
+        dumux_version: [3.7, 3.8]
+        precice_version: [develop]
     container:
       image: precice/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
     steps:
-    - name: Print python3 version
-      run: python3 --version
-    - name: Print python3 version (/usr/bin/env python3)
-      run: /usr/bin/env python3 --version
-    - name: Check out code
-      uses: actions/checkout@v3
-      with:
-        path: dumux-precice
-    - name: Build code
-      run: |
-        ls -lah
-        export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
-        echo $DUNE_CONTROL_PATH
-        dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
-        cd dumux-precice/build-cmake/
-        make -j2 build_tests
-    - name: Run tests
-      run: |
-        export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
-        cd dumux-precice/build-cmake/
-        CTEST_OUTPUT_ON_FAILURE=1 ctest -j1
+      - name: Print python3 version
+        run: python3 --version
+      - name: Print python3 version (/usr/bin/env python3)
+        run: /usr/bin/env python3 --version
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          path: dumux-precice
+      - name: Build code
+        run: |
+          ls -lah
+          export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
+          echo $DUNE_CONTROL_PATH
+          dunecontrol --only=dumux-precice --opts=./dumux-precice/test/cmake-test.opts all
+          cd dumux-precice/build-cmake/
+          make -j2 build_tests
+      - name: Run tests
+        run: |
+          export DUNE_CONTROL_PATH=${PWD}/dumux-precice:${DUNE_CONTROL_PATH}
+          cd dumux-precice/build-cmake/
+          CTEST_OUTPUT_ON_FAILURE=1 ctest -j1
