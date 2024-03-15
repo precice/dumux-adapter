@@ -23,13 +23,13 @@ The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be bu
 
 ### Prerequisites
 
-- DuMuX **newer** than 3.2
+- DuMuX >= than 3.7
 
     - Builds using the current `master` branch of DuMuX might fail.
     - If you run into trouble with a new DuMuX release, please open an issue in the repository and add the error message that you receive.
     - Needs UMFPack (available via SuiteSparse) as solver for linear systems of equations. This is needed to run the examples included in the adapter. Otherwise you can skip UMFPack.
 
-- preCICE >=2.0.0
+- preCICE >=3.0.0
 
     - The adapter is build via the DUNE build system that is based on CMake. Thus, the CMake [link instructions for preCICE](https://precice.org/installation-linking.html#cmake) apply.
 
@@ -42,7 +42,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 
 ### Detailed installation steps
 
-1. Install [DuMuX](https://dumux.org/) and the needed dependencies. The easiest way is to follow [DuMuX's installation instructions](https://dumux.org/installation/). The DuMuX project provides a script that installs and DuMuX and the DUNE modules required by DuMuX. This means, after installing DuMuX via the provided script you should be good to go to use the DuMuX-preCICE adapter.
+1. Install [DuMuX](https://dumux.org/) and the needed dependencies. The easiest way is to follow [DuMuX's installation instructions](https://dumux.org/docs/doxygen/master/installation.html). The DuMuX project provides a script that installs and DuMuX and the DUNE modules required by DuMuX. This means, after installing DuMuX via the provided script you should be good to go to use the DuMuX-preCICE adapter.
 
     After the installation you should have a root directory that contains the base DUNE modules, i.e. a  number of directories named like `dune-common`, `dune-geometry` etc., and a directory called `dumux`.
 
@@ -51,13 +51,13 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 2. Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. It is recommended to use the latest release of the adapter, which can be found by checking out the relevant release tag.
 
     ```text
-    git clone -b v1.0.0 https://github.com/precice/dumux-adapter.git
+    git clone -b v2.0.0 https://github.com/precice/dumux-adapter.git
     ```
 
     You can also try to clone the repository via SSH:
 
     ```text
-    git clone -b v1.0.0 git@github.com:precice/dumux-adapter.git
+    git clone -b v2.0.0 git@github.com:precice/dumux-adapter.git
     ```
 
 3. Verify that the `dumux-adapter` folder is in the same directory as the DUNE module folders and the `dumux` folder.
@@ -68,7 +68,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
     ./dune-common/bin/dunecontrol --only=dumux-precice all
     ```
 
-    After the build and configure step a new directory `build-cmake` was created inside the `dumux-precice` directory.
+    After the build and configure step a new directory `build-cmake` was created inside the `dumux-adapter` directory.
 
     You can configure the build and configuration process using advanced options by manipulating CMake variables. `dunecontrol` allows to pass an options file for that
 
@@ -84,7 +84,7 @@ The DuMuX-preCICE adapter should build fine if DuMuX, preCICE and their dependen
 
     This provided `cmake-test.opts` file turns off some system-dependent optimizations such that the tests create comparable results on different computers.
 
-    For more ways do manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
+    For more ways to manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
 
 5. Optional, but recommended: Build all tests to verify the installation. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
 

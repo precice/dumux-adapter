@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<precice-configuration >
+<precice-configuration>
 
   <log>
     <sink type="stream" output="stdout"  filter= "%Severity% > debug" format="preCICE:%ColorizedSeverity% %Message%" enabled="true" />

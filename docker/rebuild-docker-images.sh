@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-DUNE_VERSION="2.8"
-DUMUX_VERSIONS=("3.4" "3.5")
+DUNE_VERSION="2.9"
+DUMUX_VERSIONS=("3.7" "3.8")
 PRECICE_VERSIONS=("develop")
 
 for dumux_version in ${DUMUX_VERSIONS[@]}; do

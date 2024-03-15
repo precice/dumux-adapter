@@ -1,8 +1,8 @@
 # DuMuX-preCICE change log
 
-## Not released yet
+## v2.0.0
 
-- 2023-08-10: Updated the adapter to align with preCICE V3. Updated the examples accordingly.
+- 2023-08-10: Updated the adapter to be compatible with preCICE v3.0.0. Updated the examples too.
 
 ## v1.0.0
 

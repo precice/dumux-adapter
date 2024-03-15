@@ -42,13 +42,9 @@ bool printstuff = false;
 #include <dumux/common/parameters.hh>
 #include <dumux/common/properties.hh>
 
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
 #include <dumux/linear/istlsolvers.hh>
 #include <dumux/linear/linearalgebratraits.hh>
 #include <dumux/linear/linearsolvertraits.hh>
-#else
-#include <dumux/linear/seqsolverbackend.hh>
-#endif
 
 #include <dumux/nonlinear/newtonsolver.hh>
 
@@ -341,11 +337,7 @@ try {
     using DarcyGridGeometry =
         GetPropType<DarcyTypeTag, Properties::GridGeometry>;
     auto darcyGridGeometry = std::make_shared<DarcyGridGeometry>(darcyGridView);
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 5
     darcyGridGeometry->update(darcyGridManager.grid().leafGridView());
-#else
-    darcyGridGeometry->update();
-#endif
 
     using DarcyProblem = GetPropType<DarcyTypeTag, Properties::Problem>;
     auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry);
@@ -448,13 +440,9 @@ try {
         darcyProblem, darcyGridGeometry, darcyGridVariables);
 
     // the linear solver
-#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 7
     using LinearSolver =
         UMFPackIstlSolver<SeqLinearSolverTraits,
                           LinearAlgebraTraitsFromAssembler<Assembler>>;
-#else
-    using LinearSolver = UMFPackBackend;
-#endif
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver

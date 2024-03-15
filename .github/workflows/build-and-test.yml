@@ -11,7 +11,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        dumux_version: [3.4, 3.5]
+        dumux_version: [3.7, 3.8]
         precice_version: [develop]
     container:
       image: precice/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
