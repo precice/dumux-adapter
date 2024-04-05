@@ -8,6 +8,6 @@ repos:
   rev: v0.30.0
   hooks:
     - id: markdownlint
-      exclude: changelog-entries
+      exclude: 'CHANGELOG.md|.github/*'
     - id: markdownlint-fix
-      exclude: changelog-entries
+      exclude: 'CHANGELOG.md|.github/*'
