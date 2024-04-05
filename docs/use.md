@@ -2,7 +2,7 @@
 title: Use the DuMuX adapter
 permalink: adapter-dumux-use.html
 keywords: DuMuX, DUNE, C++
-summary: 
+summary: How to use the DuMuX adapter for building your own coupled solver.
 ---
 
 Please check out the examples in the [`examples/`](https://github.com/precice/dumux-adapter/tree/develop/examples) directory to get an idea on how to use the adapter.

@@ -23,4 +23,3 @@ Note that this repository is a [DUNE module](https://www.dune-project.org/) and 
 - `examples/`: Contains examples on how to couple different domains. Some of the examples are taken from DuMuX or are slightly adapted from DuMuX test cases or tutorials. Please check the `README.md` file in this directory and corresponding subdirectories to find further explanations of the examples. Additional examples can be found in the `test/` directory.
 - `scripts/`: Contains useful scripts to run simulations and for checking the code's formatting.
 - `test/`: Contains test cases and reference solutions (`reference-solutions/`). The directory also contains several DUNE configuration files (`.opts` files) for configuring the project.
-
