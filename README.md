@@ -5,6 +5,12 @@
 
 This repository provides a [DuMuX](https://dumux.org/)-specific adapter to couple to other codes using [preCICE](https://www.precice.org/). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice).
 
+## Documentation
+
+Find the [user documentation on the preCICE website](https://precice.org/adapter-dumux.html).
+
+You can also generate Doxygen documentation of the API from the `docs-api/` directory.
+
 ## Structure of the repository
 
 Note that this repository is a [DUNE module](https://www.dune-project.org/) and thus some parts of the repository structure are given by the typical DUNE module layout.
@@ -18,17 +24,3 @@ Note that this repository is a [DUNE module](https://www.dune-project.org/) and 
 - `scripts/`: Contains useful scripts to run simulations and for checking the code's formatting.
 - `test/`: Contains test cases and reference solutions (`reference-solutions/`). The directory also contains several DUNE configuration files (`.opts` files) for configuring the project.
 
-## Documentation
-
-Find the [user documentation on the preCICE website](https://precice.org/adapter-dumux.html).
-
-### API documentation
-
-The interface of the coupling adapter and also the internal (private) interface are documented using Doxygen. In order to build this documentation you need [Doxygen](https://www.doxygen.nl/index.html) installed. After configuring the project using CMake/`dunecontrol` you can build the documentation via navigating to the `build-cmake` directory and building the `doxygen_dumux-precice` target, i.e.,
-
-```text
-cd build-cmake
-make doxygen_dumux-precice
-```
-
-This generates a HTML documentation which you can view in a browser of your choice. It is stored in `build-cmake/doc/doxygen/index.html`.
