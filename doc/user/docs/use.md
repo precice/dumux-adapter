@@ -1,5 +1,5 @@
 ---
-title: Adapter usage
+title: Use the DuMuX adapter
 permalink: adapter-dumux-use.html
 keywords: DuMuX, DUNE, C++
 summary: 

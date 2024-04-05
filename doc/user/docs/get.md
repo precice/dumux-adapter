@@ -1,5 +1,5 @@
 ---
-title: Installation
+title: Get the DuMuX adapter
 permalink: adapter-dumux-get.html
 keywords: DuMuX, DUNE, C++
 summary: 
