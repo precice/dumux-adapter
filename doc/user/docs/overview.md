@@ -1,11 +1,16 @@
-# Structure of the repository
+# The DuMuX adapter
 
-Note that the DuMuX-preCICE adapter is a [DUNE module](https://www.dune-project.org/) and thus some parts of the repository structure are given by the typical DUNE module layout.
+This is a [DuMuX](https://dumux.org/) adapter to couple to other codes using [preCICE](https://www.precice.org/). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice) and is now [part of the preCICE organization ]
 
-- `cmake/`: Contains CMake modules for building the adapter. Under normal circumstances you do not need
-- `examples/`: Contains examples on how to couple different domains. Some of the examples are taken from DuMuX or are slightly adapted from DuMuX test cases or tutorials. Please check the `README.md` file in this directory and corresponding subdirectories to find further explanations of the examples. Additional examples can be found in the `test/` directory.
-- `doc/`: Additional documentation.
-- `docker/`: A Docker recipe that creates a container with DUNE, DuMuX and preCICE. The recipe is mainly used for the automated tests. Check the `README.md` in the subdirectory for more details.
-- `dumux-precice/`: The preCICE adapter source code and further code for some of the tests and examples.
-- `scripts/`: Contains useful scripts to run simulations and for checking the code's formatting.
-- `test/`: Contains test cases and reference solutions (`reference-solutions/`). The directory also contains several DUNE configuration files (`.opts` files) for configuring the project.
+This is a [DuMuX](https://dumux.org/) adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter).
+
+## Cite
+
+There is no code-specific publication related to the DuMuX adapter available yet.
+
+### Publications using dumux-precice
+
+You may find more examples and related theory in these publications.
+
+- Jaust A., Weishaupt K., Mehl M., Flemisch B. (2020) Partitioned Coupling Schemes for Free-Flow and Porous-Media Applications with Sharp Interfaces. In: Klöfkorn R., Keilegavlen E., Radu F., Fuhrmann J. (eds) Finite Volumes for Complex Applications IX - Methods, Theoretical Aspects, Examples. FVCA 2020. Springer Proceedings in Mathematics & Statistics, vol 323. Springer, Cham. <https://doi.org/10.1007/978-3-030-43651-3_57>
+    - Code can be found at: <https://git.iws.uni-stuttgart.de/dumux-pub/jaust2020a>
