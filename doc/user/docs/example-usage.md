@@ -1,4 +1,9 @@
-# Adapter usage
+---
+title: Adapter usage
+permalink: adapter-dumux-use.html
+keywords: DuMuX, DUNE, C++
+summary: 
+---
 
 Please check out the examples in the `examples/` directory to get an idea on how to use the adapter.
 

@@ -1,4 +1,9 @@
-# Installation
+---
+title: Installation
+permalink: adapter-dumux-get.html
+keywords: DuMuX, DUNE, C++
+summary: 
+---
 
 The DuMuX-preCICE adapter is a DUNE module named `dumux-precice` which can be build using the [DUNE build system](https://www.dune-project.org/doc/installation/). The DUNE build system is build on top of CMake and comes with various tools that make installation and management of DUNE modules easier. Therefore, it is recommended to install `dumux-precice` using `dunecontrol`. Please check out the [DUNE installation instructions](https://www.dune-project.org/doc/installation/) to get an overview over the `dunecontrol` tools and how DUNE modules work.
 
