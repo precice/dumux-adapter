@@ -19,9 +19,7 @@ Note that this repository is a [DUNE module](https://www.dune-project.org/) and 
 
 ## Documentation
 
-### User documentation
-
-The main user documentation is currently not available on an online service, but can be found in the `docs/user/docs` directory. Additionally, one may find interesting information in the API documentation (see below) as well as the test and example cases that are provided with this repository. If something is unclear or you would want something to be documented better, please open an [issue](https://github.com/precice/dumux-adapter/issues) and let us know.
+Find the [user documentation on the preCICE website](https://precice.org/adapter-dumux.html).
 
 ### API documentation
 

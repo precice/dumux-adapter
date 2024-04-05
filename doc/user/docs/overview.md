@@ -1,6 +1,9 @@
-# The DuMuX adapter
-
-This is a [DuMuX](https://dumux.org/) adapter to couple to other codes using [preCICE](https://www.precice.org/). The source code of the adapter was formerly stored [in a repository on the IWS GitLab](https://git.iws.uni-stuttgart.de/dumux-appl/dumux-precice) and is now [part of the preCICE organization ]
+---
+title: The DuMuX adapter
+permalink: adapter-dumux.html
+keywords: DuMuX, DUNE, C++
+summary: 
+---
 
 This is a [DuMuX](https://dumux.org/) adapter to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter).
 
