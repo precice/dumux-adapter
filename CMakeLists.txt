@@ -30,7 +30,7 @@ dune_enable_all_packages(MODULE_LIBRARIES dumux-precice)
 dune_require_cxx_standard(MODULE "DuMuX-preCICE" VERSION 17)
 
 add_subdirectory(cmake/modules)
-add_subdirectory(doc)
+add_subdirectory(docs-api)
 add_subdirectory(dumux-precice)
 add_subdirectory(examples)
 add_subdirectory(test EXCLUDE_FROM_ALL)
