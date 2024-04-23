@@ -77,6 +77,11 @@ Note that to change this setting it may be required to clear the CMake caches in
 
 For more ways to manipulate/adapt the build and configuration step, please consult the `dunecontrol` documentation.
 
+{% important %}
+In case you are building both the [DUNE adapter](https://precice.org/adapter-dune.html) and the DuMux adapter, make sure that you build all modules with the same CMake options.
+To ensure consistency among DUNE module versions, you might want to explicitly download and build each module, instead of using the `installdumux.py` script.
+{% endimportant %}
+
 ## Build tests (optional)
 
 Optional, but recommended: Build all tests to verify the installation. For this navigate in the `build-cmake/` directory and build the `build_tests` target.
