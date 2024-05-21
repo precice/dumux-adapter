@@ -5,7 +5,7 @@ keywords: DuMuX, DUNE, C++
 summary: A DuMuX-specific DUNE module for coupling to other codes with preCICE.
 ---
 
-This is a [DuMuX](https://dumux.org/) adapter (a DUNE module specific to DuMuX) to couple to other codes using [preCICE](https://www.precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter).
+This is a [DuMuX](https://dumux.org/) adapter (a DUNE module specific to DuMuX) to couple to other codes using [preCICE](https://precice.org/). You can find the source code of this adapter [on GitHub](https://github.com/precice/dumux-adapter).
 
 [Get](adapter-dumux-get.html) and [learn how to use](adapter-dumux-use.html) the adapter.
 
