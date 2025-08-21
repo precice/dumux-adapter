@@ -45,6 +45,8 @@ private:
     std::vector<int> vertexIDs_;  //should be size_t
     //! Span of the precice vertex indices vector vertexIDs_
     precice::span<precice::VertexID> vertexIDsSpan_;
+    //! Number of "interior" coupling points
+    int numInteriorVertices_;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -139,7 +141,7 @@ public:
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
      * @param[in] positions A span to the coordinates of the vertices.
-     * 
+     *
      * \note The coordinates need to be stored consecutively
      *       according to their spatial coordinates as.\n
      *       Example 2D:\n
@@ -149,6 +151,24 @@ public:
      */
     void setMesh(const std::string &meshName,
                  const std::vector<double> &positions);
+    /*!
+     * @brief Adds mesh for coupling of solvers. Positions are separated into interior and overlap
+     *        positions for parallel runs.
+     *
+     * @param[in] meshName The name of the mesh to add the vertices to.
+     * @param[in] interiorPositions A span to the coordinates of the interior vertices.
+     * @param[in] overlapPositions A span to the coordinates of the overlap vertices.
+     *
+     * \note The coordinates need to be stored consecutively
+     *       according to their spatial coordinates as.\n
+     *       Example 2D:\n
+     *       [x_1, y_1, x_2, y_2,...x_numPoints, y_numPoints]\n
+     *       Example 3D:\n
+     *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
+     */
+    void setMesh(const std::string &meshName,
+                 const std::vector<double> &interiorPositions,
+                 const std::vector<double> &overlapPositions);
     /*!
      * @brief Initializes the coupling
      *

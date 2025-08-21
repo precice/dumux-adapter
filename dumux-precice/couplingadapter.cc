@@ -5,6 +5,8 @@
 #include <exception>
 #include <limits>
 
+#include <dune/common/parallel/mpihelper.hh>
+
 using namespace Dumux::Precice;
 
 CouplingAdapter::CouplingAdapter()
@@ -52,6 +54,26 @@ int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
 {
     assert(wasCreated_);
     return precice_->getMeshDimensions(meshName);
+}
+
+
+void CouplingAdapter::setMesh(const std::string &meshName,
+                              const std::vector<double> &interiorPositions,
+                              const std::vector<double> &overlapPositions)
+{
+    assert(wasCreated_);
+    vertexIDs_ = std::vector<int>((interiorPositions.size() + overlapPositions.size()) /
+            getMeshDimensions(meshName));
+    numInteriorVertices_ = interiorPositions.size()/getMeshDimensions(meshName);
+    vertexIDsSpan_ = precice::span(vertexIDs_.data(), numInteriorVertices_);
+    precice_->setMeshVertices(meshName, interiorPositions, vertexIDsSpan_);
+    for (int i = numInteriorVertices_; i < vertexIDs_.size(); ++i)
+    {
+        vertexIDs_[i] = i;
+    }
+    // TODO: determine source ranks for overlap positions
+    auto mpiCommunication = Dune::MPIHelper::getCommunication();
+    meshWasCreated_ = true;
 }
 
 void CouplingAdapter::setMesh(const std::string &meshName,
@@ -202,16 +224,18 @@ void CouplingAdapter::readQuantityFromOtherSolver(const std::string &meshName,
                                                   const std::string &dataName,
                                                   double relativeReadTime)
 {
-    precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
+    precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName).data(),
+            numInteriorVertices_);
     precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime,
                        dataValuesSpan);
+    // TODO: read data for overlap from other ranks and write into back end of getQuantityVector
 }
 
 void CouplingAdapter::writeQuantityToOtherSolver(const std::string &meshName,
                                                  const std::string &dataName)
 {
     precice::span<const double> dataValuesSpan(
-        getQuantityVector(meshName, dataName));
+        getQuantityVector(meshName, dataName).data(), numInteriorVertices_);
     precice_->writeData(meshName, dataName, vertexIDsSpan_, dataValuesSpan);
 }
 
