@@ -2,7 +2,6 @@
 #define DUMUXPRECICEINDEXWRAPPER_H
 
 #include <cassert>
-#include <iostream>
 #include <map>
 #include <ostream>
 #include <vector>
