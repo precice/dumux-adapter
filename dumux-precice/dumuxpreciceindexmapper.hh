@@ -2,7 +2,7 @@
 #define DUMUXPRECICEINDEXWRAPPER_H
 
 #include <cassert>
-#include <map>
+#include <unordered_map>
 #include <ostream>
 #include <vector>
 
@@ -26,9 +26,9 @@ class DumuxPreciceIndexMapper
 {
 private:
     //!  Mapping from Dumux' face indices to preCICE's vertex indices.
-    std::map<FaceID, VertexID> dumuxFaceIndexToPreciceIndex_;
+    std::unordered_map<FaceID, VertexID> dumuxFaceIndexToPreciceIndex_;
     //!  Mapping from preCICE's vertex indices to Dumux' face indices.
-    std::map<VertexID, FaceID> preciceVertexToDumuxFaceIndex_;
+    std::unordered_map<VertexID, FaceID> preciceVertexToDumuxFaceIndex_;
 
 public:
     /*!
@@ -48,6 +48,8 @@ public:
     {
         assert(dumuxIndices.size() == preciceIndices.size());
         const size_t size_ = dumuxIndices.size();
+        preciceVertexToDumuxFaceIndex_.reserve(size_);
+        dumuxFaceIndexToPreciceIndex_.reserve(size_);
 
         for (size_t i = 0; i < size_; i++) {
             preciceVertexToDumuxFaceIndex_.emplace(preciceIndices[i],
