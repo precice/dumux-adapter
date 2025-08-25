@@ -19,16 +19,17 @@ namespace Dumux::Precice::Internal
 /*!
  * @brief Mapping between preCICE vertex indices and DuMuX face indices.
  *
- * @tparam T Data type of the indices.
+ * @tparam FaceID Data type of the Dumux face ID.
+ * @tparam VertexID Data type of the preCICE vertex ID.
  */
-template<typename T>
+template<typename FaceID, typename VertexID>
 class DumuxPreciceIndexMapper
 {
 private:
     //!  Mapping from Dumux' face indices to preCICE's vertex indices.
-    std::map<T, T> dumuxFaceIndexToPreciceIndex_;
+    std::map<FaceID, VertexID> dumuxFaceIndexToPreciceIndex_;
     //!  Mapping from preCICE's vertex indices to Dumux' face indices.
-    std::map<T, T> preciceVertexToDumuxFaceIndex_;
+    std::map<VertexID, FaceID> preciceVertexToDumuxFaceIndex_;
 
 public:
     /*!
@@ -43,13 +44,13 @@ public:
      * @param[in] dumuxIndices Vector of DuMuX' face indices.
      * @param[in] preciceIndices Vector of preCICE's vertex indices.
      */
-    void createMapping(const std::vector<T> &dumuxIndices,
-                       const std::vector<T> &preciceIndices)
+    void createMapping(const std::vector<FaceID> &dumuxIndices,
+                       const std::vector<VertexID> &preciceIndices)
     {
         assert(dumuxIndices.size() == preciceIndices.size());
         const size_t size_ = dumuxIndices.size();
 
-        for (T i = 0; i < size_; i++) {
+        for (size_t i = 0; i < size_; i++) {
             preciceVertexToDumuxFaceIndex_.emplace(preciceIndices[i],
                                                    dumuxIndices[i]);
             dumuxFaceIndexToPreciceIndex_.emplace(dumuxIndices[i],
@@ -62,7 +63,7 @@ public:
      * @param[in] dumuxId DuMuX face index.
      * @return const T preCICE vertex index.
      */
-    const T getPreciceId(const T dumuxId) const
+    const VertexID getPreciceId(const FaceID dumuxId) const
     {
         assert(isDumuxIdMapped(dumuxId));
         return dumuxFaceIndexToPreciceIndex_.at(dumuxId);
@@ -73,7 +74,7 @@ public:
      * @param[in] preciceId preCICE vertex index.
      * @return const T DuMuX face index.
      */
-    const T getDumuxId(const T preciceId) const
+    const FaceID getDumuxId(const VertexID preciceId) const
     {
         assert(isPreciceIdMapped(preciceId));
         return preciceVertexToDumuxFaceIndex_.at(preciceId);
@@ -85,7 +86,7 @@ public:
      * @return true DuMuX face index is mapped to a preCICE vertex index.
      * @return false No mapping for the given index available.
      */
-    bool isDumuxIdMapped(const T dumuxId) const
+    bool isDumuxIdMapped(const FaceID dumuxId) const
     {
         return dumuxFaceIndexToPreciceIndex_.count(dumuxId) == 1;
     }
@@ -96,7 +97,7 @@ public:
      * @return true preCICE vertex index is mapped to a DuMuX face index.
      * @return false  No mapping for the given index available.
      */
-    bool isPreciceIdMapped(const T preciceId) const
+    bool isPreciceIdMapped(const VertexID preciceId) const
     {
         return preciceVertexToDumuxFaceIndex_.count(preciceId) == 1;
     }
@@ -115,19 +116,21 @@ public:
     /*!
      * @brief Prints state of the DumuxPreciceIndexMapper object to the given outstream.
      *
-     * @tparam U Data type of the indices.
+     * @tparam D Data type of the Dumux indices.
+     * @tparam P Data type of the preCICE indices.
      * @param os Outstream.
      * @param wrapper DumuxPreciceIndexMapper object that should be printed.
      * @return std::ostream& Outstream.
      */
-    template<typename U>
-    friend std::ostream &operator<<(std::ostream &os,
-                                    const DumuxPreciceIndexMapper<U> &wrapper);
+    template<typename D, typename P>
+    friend std::ostream &operator<<(
+        std::ostream &os,
+        const DumuxPreciceIndexMapper<D, P> &wrapper);
 };
 
-template<typename T>
+template<typename D, typename P>
 std::ostream &operator<<(std::ostream &os,
-                         const DumuxPreciceIndexMapper<T> &wrapper)
+                         const DumuxPreciceIndexMapper<D, P> &wrapper)
 {
     os << "preCICE to DuMuX mapping "
        << "\n";

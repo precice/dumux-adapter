@@ -48,7 +48,7 @@ private:
      *        DuMuX' identifiers of vertices and preCICE's identifiers.
      *
      */
-    Internal::DumuxPreciceIndexMapper<int> indexMapper_;
+    Internal::DumuxPreciceIndexMapper<int, int> indexMapper_;
     /*!
      * @brief Get the number of quantities exchanged.
      *
