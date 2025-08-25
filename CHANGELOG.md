@@ -1,5 +1,9 @@
 # DuMuX-preCICE change log
 
+## vX.X.X
+
+- 2025-08-25: Improved ID lookup from `log(n)` to constant where n is the mesh size
+
 ## v2.0.0
 
 - 2023-08-10: Updated the adapter to be compatible with preCICE v3.0.0. Updated the examples too.
