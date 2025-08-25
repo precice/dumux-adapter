@@ -201,16 +201,16 @@ void CouplingAdapter::readQuantityFromOtherSolver(const std::string &meshName,
                                                   const std::string &dataName,
                                                   double relativeReadTime)
 {
-    precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
-    precice_->readData(meshName, dataName, vertexIDs_, relativeReadTime, dataValuesSpan);
+    auto &dataValues = getQuantityVector(meshName, dataName);
+    precice_->readData(meshName, dataName, vertexIDs_, relativeReadTime,
+                       dataValues);
 }
 
 void CouplingAdapter::writeQuantityToOtherSolver(const std::string &meshName,
                                                  const std::string &dataName)
 {
-    precice::span<const double> dataValuesSpan(
-        getQuantityVector(meshName, dataName));
-    precice_->writeData(meshName, dataName, vertexIDs_, dataValuesSpan);
+    auto &dataValues = getQuantityVector(meshName, dataName);
+    precice_->writeData(meshName, dataName, vertexIDs_, dataValues);
 }
 
 bool CouplingAdapter::requiresToWriteInitialData()
