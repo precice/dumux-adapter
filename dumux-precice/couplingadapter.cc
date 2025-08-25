@@ -12,8 +12,7 @@ CouplingAdapter::CouplingAdapter()
       precice_(nullptr),
       meshWasCreated_(false),
       preciceWasInitialized_(false),
-      hasIndexMapper_(false),
-      timeStepSize_(0.)
+      hasIndexMapper_(false)
 {
 }
 
@@ -70,8 +69,6 @@ void CouplingAdapter::initialize()
     assert(!preciceWasInitialized_);
 
     precice_->initialize();
-    timeStepSize_ = precice_->getMaxTimeStepSize();
-    assert(timeStepSize_ > 0);
 
     preciceWasInitialized_ = true;
     assert(preciceWasInitialized_);

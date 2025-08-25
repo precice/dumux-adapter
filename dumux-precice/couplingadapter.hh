@@ -37,8 +37,6 @@ private:
     bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
-    //! Time step size.
-    double timeStepSize_;
     //! Map storing meshName:dataName and data vectors
     std::map<std::string, std::vector<double>> dataMap_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
