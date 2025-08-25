@@ -175,17 +175,7 @@ std::string CouplingAdapter::meshAndDataKey(const std::string &meshName,
                                             const std::string &dataName) const
 {
     assert(wasCreated_);
-    std::string combinedKey;
-    int length = meshName.size() + 1 + dataName.size();
-    for (int i = 0; i < length; i++) {
-        if (i < meshName.size())
-            combinedKey += meshName[i];
-        else if (i == meshName.size())
-            combinedKey += ":";
-        else
-            combinedKey += dataName[i - meshName.size() - 1];
-    }
-    return combinedKey;
+    return meshName + ":" + dataName;
 }
 
 void CouplingAdapter::print(std::ostream &os)
