@@ -58,8 +58,7 @@ void CouplingAdapter::setMesh(const std::string &meshName,
                               const std::vector<double> &positions)
 {
     assert(wasCreated_);
-    vertexIDs_ =
-        std::vector<int>(positions.size() / getMeshDimensions(meshName));
+    vertexIDs_.resize(positions.size() / getMeshDimensions(meshName));
     precice_->setMeshVertices(meshName, positions, vertexIDs_);
     meshWasCreated_ = true;
 }
