@@ -43,8 +43,6 @@ private:
     std::map<std::string, std::vector<double>> dataMap_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
     std::vector<int> vertexIDs_;  //should be size_t
-    //! Span of the precice vertex indices vector vertexIDs_
-    precice::span<precice::VertexID> vertexIDsSpan_;
     //! Constructor
     CouplingAdapter();
     /*!
