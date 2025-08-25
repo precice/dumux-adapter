@@ -4,6 +4,7 @@
 #include <ostream>
 #include <precice/precice.hpp>
 #include <string>
+#include <map>
 
 #include "dumuxpreciceindexmapper.hh"
 
