@@ -12,7 +12,7 @@ jobs:
       max-parallel: 1
       matrix:
         precice_version: [develop]
-        dune_version: [2.10]
+        dune_version: ['2.10']
     container:
       image: precice/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
