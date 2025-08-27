@@ -23,88 +23,40 @@
 #ifndef DUMUX_STOKES_SUBPROBLEM_HH
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
-#include <dune/grid/yaspgrid.hh>
-
 #include <dumux/common/numeqvector.hh>
 
-#include <dumux/material/components/simpleh2o.hh>
-#include <dumux/material/fluidsystems/1pliquid.hh>
+#include <dumux/freeflow/navierstokes/mass/problem.hh>
+#include <dumux/freeflow/navierstokes/momentum/problem.hh>
 
-#include <dumux/discretization/staggered/freeflow/properties.hh>
-#include <dumux/freeflow/navierstokes/model.hh>
-#include <dumux/freeflow/navierstokes/staggered/problem.hh>
+#include <dumux/freeflow/navierstokes/momentum/fluxhelper.hh>
+#include <dumux/freeflow/navierstokes/scalarfluxhelper.hh>
+#include <dumux/freeflow/navierstokes/mass/1p/advectiveflux.hh>
 
 #include <dumux-precice/couplingadapter.hh>
 
 namespace Dumux
 {
-template<class TypeTag>
-class StokesSubProblem;
-
-namespace Properties
-{
-// Create new type tags
-namespace TTag
-{
-struct FreeFlowModel {
-    using InheritsFrom = std::tuple<NavierStokes, StaggeredFreeFlowModel>;
-};
-}  // end namespace TTag
-
-// the fluid system
-template<class TypeTag>
-struct FluidSystem<TypeTag, TTag::FreeFlowModel> {
-    using Scalar = GetPropType<TypeTag, Properties::Scalar>;
-    using type =
-        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> >;
-};
-
-// Set the grid type
-template<class TypeTag>
-struct Grid<TypeTag, TTag::FreeFlowModel> {
-    using type = Dune::YaspGrid<2,
-                                Dune::EquidistantOffsetCoordinates<
-                                    GetPropType<TypeTag, Properties::Scalar>,
-                                    2> >;
-};
-
-// Set the problem property
-template<class TypeTag>
-struct Problem<TypeTag, TTag::FreeFlowModel> {
-    using type = Dumux::StokesSubProblem<TypeTag>;
-};
-
-template<class TypeTag>
-struct EnableGridGeometryCache<TypeTag, TTag::FreeFlowModel> {
-    static constexpr bool value = true;
-};
-template<class TypeTag>
-struct EnableGridFluxVariablesCache<TypeTag, TTag::FreeFlowModel> {
-    static constexpr bool value = true;
-};
-template<class TypeTag>
-struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
-    static constexpr bool value = true;
-};
-}  // end namespace Properties
 
 /*!
  * \brief The free flow sub problem
  */
-template<class TypeTag>
-class StokesSubProblem : public NavierStokesStaggeredProblem<TypeTag>
+template<class TypeTag, class BaseProblem>
+class StokesSubProblem : public BaseProblem
 {
-    using ParentType = NavierStokesStaggeredProblem<TypeTag>;
+    using ParentType = BaseProblem;
 
     using GridGeometry = GetPropType<TypeTag, Properties::GridGeometry>;
     using GridView = typename GridGeometry::GridView;
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
 
-    using Indices =
-        typename GetPropType<TypeTag, Properties::ModelTraits>::Indices;
+    using ModelTraits = GetPropType<TypeTag, Properties::ModelTraits>;
+    using Indices = typename ModelTraits::Indices;
 
-    using BoundaryTypes = Dumux::NavierStokesBoundaryTypes<
-        GetPropType<TypeTag, Properties::ModelTraits>::numEq()>;
+    using BoundaryTypes = typename ParentType::BoundaryTypes;
+    using InitialValues = typename ParentType::InitialValues;
+    using Sources = typename ParentType::Sources;
+    using DirichletValues = typename ParentType::DirichletValues;
+    using BoundaryFluxes = typename ParentType::BoundaryFluxes;
 
     using FVElementGeometry = typename GridGeometry::LocalView;
     using SubControlVolumeFace =
@@ -119,9 +71,12 @@ class StokesSubProblem : public NavierStokesStaggeredProblem<TypeTag>
 
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
+    using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
+
 public:
-    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry)
-        : ParentType(gridGeometry, "FreeFlow"),
+    StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
+                     std::shared_ptr<CouplingManager> couplingManager)
+        : ParentType(gridGeometry, couplingManager, "FreeFlow"),
           eps_(1e-6),
           couplingParticipant_(Dumux::Precice::CouplingAdapter::getInstance())
     {
@@ -139,9 +94,9 @@ public:
      *
      * \param globalPos The global position
      */
-    NumEqVector sourceAtPos(const GlobalPosition &globalPos) const
+    Sources sourceAtPos(const GlobalPosition &globalPos) const
     {
-        return NumEqVector(0.0);
+        return Sources(0.0);
     }
     // \}
 
@@ -162,20 +117,34 @@ public:
     {
         BoundaryTypes values;
 
-        const auto &globalPos = scvf.dofPosition();
-        const auto faceId = scvf.index();
+        const auto &globalPos = scvf.center();
 
-        // left/right wall
-        if (onRightBoundary_(globalPos) || (onLeftBoundary_(globalPos))) {
-            values.setDirichlet(Indices::pressureIdx);
+        if constexpr (ParentType::isMomentumProblem())
+        {
+            const auto faceId = scvf.index();
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
+                values.setAllNeumann();
+            }
+            // coupling interface
+            else if (couplingParticipant_.isCoupledEntity(faceId)) {
+                values.setDirichlet(Indices::velocityYIdx);
+                values.setBeaversJoseph(Indices::momentumXBalanceIdx);
+            } else {
+                values.setDirichlet(Indices::velocityXIdx);
+                values.setDirichlet(Indices::velocityYIdx);
+            }
         }
-        // coupling interface
-        else if (couplingParticipant_.isCoupledEntity(faceId)) {
-            values.setDirichlet(Indices::velocityYIdx);
-            values.setBeaversJoseph(Indices::momentumXBalanceIdx);
-        } else {
-            values.setDirichlet(Indices::velocityXIdx);
-            values.setDirichlet(Indices::velocityYIdx);
+        else // mass subproblem
+        {
+            //if (onLeftBoundary_(globalPos)) {
+            //    // TODO: use flux helper also at inlet? Use given pressure on both ends?
+            //    values.setDirichlet(Indices::pressureIdx);
+            //} else
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
+                values.setNeumann(Indices::conti0EqIdx);
+            } else {
+                values.setNeumann(Indices::conti0EqIdx);
+            }
         }
 
         return values;
@@ -186,18 +155,25 @@ public:
      *
      * \param globalPos The global position
      */
-    using ParentType::dirichlet;
-    PrimaryVariables dirichlet(const Element &element,
-                               const SubControlVolumeFace &scvf) const
+    DirichletValues dirichlet(const Element &element,
+                              const SubControlVolumeFace &scvf) const
     {
-        PrimaryVariables values(0.0);
+        DirichletValues values(0.0);
         values = initialAtPos(scvf.center());
 
-        const auto faceId = scvf.index();
-        if (couplingParticipant_.isCoupledEntity(faceId)) {
-            values[Indices::velocityYIdx] =
-                couplingParticipant_.getScalarQuantityOnFace(
-                    "FreeFlowMesh", "Velocity", faceId);
+        if constexpr (ParentType::isMomentumProblem())
+        {
+            const auto faceId = scvf.index();
+            if (couplingParticipant_.isCoupledEntity(faceId)) {
+                values[Indices::velocityYIdx] =
+                    couplingParticipant_.getScalarQuantityOnFace(
+                        "FreeFlowMesh", "Velocity", faceId);
+            }
+        }
+        else
+        {
+            // TODO: or inletOutletPressure (doesn't matter because of Flux BCs)
+            //values = this->couplingManager().cellPressure(element, scvf);
         }
 
         return values;
@@ -212,27 +188,57 @@ public:
      * \param elemFaceVars The element face variables
      * \param scvf The boundary sub control volume face
      */
-    template<class ElementVolumeVariables, class ElementFaceVariables>
-    NumEqVector neumann(const Element &element,
-                        const FVElementGeometry &fvGeometry,
-                        const ElementVolumeVariables &elemVolVars,
-                        const ElementFaceVariables &elemFaceVars,
-                        const SubControlVolumeFace &scvf) const
+    template<class ElementVolumeVariables, class ElementFluxVariablesCache>
+    BoundaryFluxes neumann(const Element &element,
+                           const FVElementGeometry &fvGeometry,
+                           const ElementVolumeVariables &elemVolVars,
+                           const ElementFluxVariablesCache &elemFluxVarsCache,
+                           const SubControlVolumeFace &scvf) const
     {
-        NumEqVector values(0.0);
+        BoundaryFluxes values(0.0);
 
         const auto faceId = scvf.index();
-        if (couplingParticipant_.isCoupledEntity(faceId)) {
-            const Scalar density =
-                1000;  // TODO how to handle compressible fluids?
-            values[Indices::conti0EqIdx] = density *
-                                           elemFaceVars[scvf].velocitySelf() *
-                                           scvf.directionSign();
-            values[Indices::momentumYBalanceIdx] =
-                scvf.directionSign() *
-                (couplingParticipant_.getScalarQuantityOnFace(
-                     "FreeFlowMesh", "Pressure", faceId) -
-                 initialAtPos(scvf.center())[Indices::pressureIdx]);
+        const auto &globalPos = scvf.center();
+        if constexpr (ParentType::isMomentumProblem())
+        {
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos))
+            {
+                using FluxHelper =
+#if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 9
+                    NavierStokesMomentumBoundaryFlux<typename GridGeometry::DiscretizationMethod>;
+#else
+                    NavierStokesMomentumBoundaryFluxHelper;
+#endif
+                auto pressure = onLeftBoundary_(globalPos) ? deltaP_ : 0.0;
+                values = FluxHelper::fixedPressureMomentumFlux(*this, fvGeometry, scvf, elemVolVars,
+                        elemFluxVarsCache, pressure, /* zeroNormalVelocityGradient = */ true);
+            }
+            else if (couplingParticipant_.isCoupledEntity(faceId))
+            {
+                values[Indices::momentumYBalanceIdx] =
+                    scvf.directionSign() *
+                    (couplingParticipant_.getScalarQuantityOnFace(
+                         "FreeFlowMesh", "Pressure", faceId) -
+                     this->referencePressure(element, fvGeometry, scvf));
+            }
+        }
+        else
+        {
+            using FluxHelper = NavierStokesScalarBoundaryFluxHelper<AdvectiveFlux<ModelTraits>>;
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos))
+            {
+                values = FluxHelper::scalarOutflowFlux(*this, element, fvGeometry, scvf,
+                        elemVolVars);
+            }
+            else if (couplingParticipant_.isCoupledEntity(faceId)) {
+                const Scalar density =
+                    1000;  // TODO how to handle compressible fluids?
+                // TODO: Use flux helper with outside data?
+                // TODO: remove hard-coded values index y=1 and dirsign = -1.0
+                values[Indices::conti0EqIdx] = density *
+                                               this->faceVelocity(element, fvGeometry, scvf)[1] *
+                                               -1.0;//scvf.directionSign();
+            }
         }
         return values;
     }
@@ -249,14 +255,21 @@ public:
      *
      * \param globalPos The global position
      */
-    PrimaryVariables initialAtPos(const GlobalPosition &globalPos) const
+    InitialValues initialAtPos(const GlobalPosition &globalPos) const
     {
-        PrimaryVariables values(0.0);
-        //values[Indices::velocityYIdx] = -1e-6 * globalPos[0] * (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
-        if (onLeftBoundary_(globalPos))
-            values[Indices::pressureIdx] = deltaP_;
-        if (onRightBoundary_(globalPos))
-            values[Indices::pressureIdx] = 0.0;
+        InitialValues values(0.0);
+
+        if constexpr (ParentType::isMomentumProblem())
+        {
+            //values[Indices::velocityYIdx] = -1e-6 * globalPos[0] * (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
+        }
+        else
+        {
+            if (onLeftBoundary_(globalPos))
+                values[Indices::pressureIdx] = deltaP_;
+            if (onRightBoundary_(globalPos))
+                values[Indices::pressureIdx] = 0.0;
+        }
 
         return values;
     }
@@ -273,9 +286,19 @@ public:
     /*!
      * \brief Returns the alpha value required as input parameter for the Beavers-Joseph-Saffman boundary condition
      */
-    Scalar alphaBJ(const SubControlVolumeFace &scvf) const
+    Scalar alphaBJ(const FVElementGeometry &fvGeometry, const SubControlVolumeFace &scvf) const
     {
         return 1.0;  // TODO transfer information or just use constant value
+    }
+
+    /*!
+     * \brief Returns the beta value required as input parameter for the Beavers-Joseph-Saffman boundary condition
+     */
+    Scalar betaBJ(const FVElementGeometry &fvGeometry,
+                  const SubControlVolumeFace &scvf,
+                  const GlobalPosition &tangentialVector) const
+    {
+        return 1e+5;  // TODO transfer information or just use constant value
     }
 
     /*!
