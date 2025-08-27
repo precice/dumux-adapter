@@ -56,7 +56,7 @@ bool printstuff = false;
 #include <dumux/io/grid/gridmanager.hh>
 #include <dumux/io/vtkoutputmodule.hh>
 
-#include "pmproblem-reversed.hh"
+#include "pmproperties.hh"
 
 #include "dumux-precice/couplingadapter.hh"
 
