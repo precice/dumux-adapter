@@ -37,7 +37,7 @@ jobs:
           file: "./dockerfile.slim"
           tags: ${{ env.dockerhub_username }}/dumux-precice:${{ matrix.dumux_version }}-${{ matrix.precice_version }}
           build-args: |
-            DUNEVERSION=2.9
+            DUNEVERSION=2.10
             PRECICEUBUNTU=jammy
             DUMUXVERSION=${{ matrix.dumux_version }}
             PRECICEVERSION=${{ matrix.precice_version }}
@@ -48,7 +48,7 @@ jobs:
         dockerhub_username: precice
     strategy:
       matrix:
-        dune_version: [2.9]
+        dune_version: [2.10]
         precice_version: [develop]
     steps:
       - name: Checkout Repository
