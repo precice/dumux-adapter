@@ -54,9 +54,9 @@
 
 #include "dumux-precice/couplingadapter.hh"
 
-#include <type_traits>
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <type_traits>
 
 //TODO
 // Helper function to put pressure on interface
@@ -75,21 +75,23 @@ auto pressureAtInterface(const Problem *problem,
                          const ElementVolumeVariables &elemVolVars,
                          const ElementFluxVariablesCache &elemFluxVarsCache)
 {
-    using ElementBoundaryTypes = Dumux::GetPropType<TypeTag,
-          Dumux::Properties::ElementBoundaryTypes>;
-    using LocalResidual = Dumux::GetPropType<TypeTag, Dumux::Properties::LocalResidual>;
-    using NumEqVector = Dumux::NumEqVector<Dumux::GetPropType<TypeTag, Dumux::Properties::PrimaryVariables>>;
+    using ElementBoundaryTypes =
+        Dumux::GetPropType<TypeTag, Dumux::Properties::ElementBoundaryTypes>;
+    using LocalResidual =
+        Dumux::GetPropType<TypeTag, Dumux::Properties::LocalResidual>;
+    using NumEqVector = Dumux::NumEqVector<
+        Dumux::GetPropType<TypeTag, Dumux::Properties::PrimaryVariables>>;
 
     ElementBoundaryTypes elemBcTypes;
     auto localResidual = LocalResidual(problem);
     elemBcTypes.update(*problem, element, fvGeometry);
 
     NumEqVector flux(0.0);
-    const auto& scv = fvGeometry.scv(scvf.insideScvIdx());
-    for (const auto& otherScvf : scvfs(fvGeometry, scv))
-    {
-        flux += localResidual.computeFlux(*problem, element, fvGeometry, elemVolVars, otherScvf,
-            elemFluxVarsCache, elemBcTypes);
+    const auto &scv = fvGeometry.scv(scvf.insideScvIdx());
+    for (const auto &otherScvf : scvfs(fvGeometry, scv)) {
+        flux += localResidual.computeFlux(*problem, element, fvGeometry,
+                                          elemVolVars, otherScvf,
+                                          elemFluxVarsCache, elemBcTypes);
     }
     // TODO: flux += FluxHelper::fixedPressureMomentumFlux(problem, fvGeometry, scvf, elemVolVars,
     //        elemFluxVarsCache, 0.0, /*zeroNormalVelocityGradient=*/true) * scvf.area();
@@ -151,8 +153,8 @@ void setInterfaceVelocities(const MassProblem &massProblem,
         for (const auto &scvf : scvfs(fvGeometry)) {
             if (couplingParticipant.isCoupledEntity(scvf.index())) {
                 //TODO: What to do here?
-                const auto v = massProblem.faceVelocity(element, fvGeometry, scvf)
-                        [scvf.directionIndex()];
+                const auto v = massProblem.faceVelocity(
+                    element, fvGeometry, scvf)[scvf.directionIndex()];
                 couplingParticipant.writeScalarQuantityOnFace(
                     meshName, dataName, scvf.index(), v);
             }
@@ -192,21 +194,21 @@ try {
         GetPropType<MomentumTypeTag, Properties::GridGeometry>;
     auto momentumGridGeometry =
         std::make_shared<MomentumGridGeometry>(freeFlowGridView);
-    using MassGridGeometry =
-        GetPropType<MassTypeTag, Properties::GridGeometry>;
+    using MassGridGeometry = GetPropType<MassTypeTag, Properties::GridGeometry>;
     auto massGridGeometry =
         std::make_shared<MassGridGeometry>(freeFlowGridView);
 
     // create the coupling manager to couple the two subproblems of the freeflow participant
-    using CouplingManager = GetPropType<MomentumTypeTag, Properties::CouplingManager>;
+    using CouplingManager =
+        GetPropType<MomentumTypeTag, Properties::CouplingManager>;
     auto couplingManager = std::make_shared<CouplingManager>();
     constexpr auto momentumIdx = CouplingManager::freeFlowMomentumIndex;
     constexpr auto massIdx = CouplingManager::freeFlowMassIndex;
 
     // the problem (initial and boundary conditions)
     using MomentumProblem = GetPropType<MomentumTypeTag, Properties::Problem>;
-    auto momentumProblem =
-        std::make_shared<MomentumProblem>(momentumGridGeometry, couplingManager);
+    auto momentumProblem = std::make_shared<MomentumProblem>(
+        momentumGridGeometry, couplingManager);
     using MassProblem = GetPropType<MassTypeTag, Properties::Problem>;
     auto massProblem =
         std::make_shared<MassProblem>(massGridGeometry, couplingManager);
@@ -278,29 +280,37 @@ try {
     massProblem->applyInitialSolution(sol[massIdx]);
 
     // the grid variables
-    using MomentumGridVariables = GetPropType<MomentumTypeTag, Properties::GridVariables>;
-    auto momentumGridVariables = std::make_shared<MomentumGridVariables>(momentumProblem, momentumGridGeometry);
-    using MassGridVariables = GetPropType<MassTypeTag, Properties::GridVariables>;
-    auto massGridVariables = std::make_shared<MassGridVariables>(massProblem, massGridGeometry);
+    using MomentumGridVariables =
+        GetPropType<MomentumTypeTag, Properties::GridVariables>;
+    auto momentumGridVariables = std::make_shared<MomentumGridVariables>(
+        momentumProblem, momentumGridGeometry);
+    using MassGridVariables =
+        GetPropType<MassTypeTag, Properties::GridVariables>;
+    auto massGridVariables =
+        std::make_shared<MassGridVariables>(massProblem, massGridGeometry);
 
     // initialize the coupling manager and the grid variables of the subproblems
-    couplingManager->init(momentumProblem, massProblem,
-                          std::make_tuple(momentumGridVariables, massGridVariables), sol);
+    couplingManager->init(
+        momentumProblem, massProblem,
+        std::make_tuple(momentumGridVariables, massGridVariables), sol);
     momentumGridVariables->init(sol[momentumIdx]);
     massGridVariables->init(sol[massIdx]);
 
     // intialize the vtk output module
     using IOFields = GetPropType<MassTypeTag, Properties::IOFields>;
-    VtkOutputModule freeFlowVtkWriter(*massGridVariables, sol[massIdx], massProblem->name());
+    VtkOutputModule freeFlowVtkWriter(*massGridVariables, sol[massIdx],
+                                      massProblem->name());
     IOFields::initOutputModule(freeFlowVtkWriter);
-    freeFlowVtkWriter.addVelocityOutput(std::make_shared<NavierStokesVelocityOutput<MassGridVariables>>());
+    freeFlowVtkWriter.addVelocityOutput(
+        std::make_shared<NavierStokesVelocityOutput<MassGridVariables>>());
     freeFlowVtkWriter.addField(massProblem->getAnalyticalVelocityX(),
                                "analyticalV_x");
     freeFlowVtkWriter.write(0.0);
 
     if (couplingParticipant.requiresToWriteInitialData()) {
         setInterfacePressures<MomentumTypeTag>(
-            momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName, dataNameP);
+            momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
+            dataNameP);
         couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
     }
     couplingParticipant.initialize();
@@ -321,7 +331,8 @@ try {
     auto linearSolver = std::make_shared<LinearSolver>();
 
     // the non-linear solver
-    using NewtonSolver = MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
+    using NewtonSolver =
+        MultiDomainNewtonSolver<Assembler, LinearSolver, CouplingManager>;
     NewtonSolver nonLinearSolver(assembler, linearSolver, couplingManager);
 
     double preciceDt = couplingParticipant.getMaxTimeStepSize();
@@ -344,7 +355,8 @@ try {
 
         // TODO
         setInterfacePressures<MomentumTypeTag>(
-            momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName, dataNameP);
+            momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
+            dataNameP);
         couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
         //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);

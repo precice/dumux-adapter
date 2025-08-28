@@ -47,12 +47,15 @@ namespace Properties
 // Create new type tags
 namespace TTag
 {
-struct FreeFlowModel {};
+struct FreeFlowModel {
+};
 struct FreeFlowSubMomentum {
-    using InheritsFrom = std::tuple<FreeFlowModel, NavierStokesMomentum, FaceCenteredStaggeredModel>;
+    using InheritsFrom = std::
+        tuple<FreeFlowModel, NavierStokesMomentum, FaceCenteredStaggeredModel>;
 };
 struct FreeFlowSubMass {
-    using InheritsFrom = std::tuple<FreeFlowModel, NavierStokesMassOneP, CCTpfaModel>;
+    using InheritsFrom =
+        std::tuple<FreeFlowModel, NavierStokesMassOneP, CCTpfaModel>;
 };
 }  // end namespace TTag
 
@@ -61,7 +64,7 @@ template<class TypeTag>
 struct FluidSystem<TypeTag, TTag::FreeFlowModel> {
     using Scalar = GetPropType<TypeTag, Properties::Scalar>;
     using type =
-        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar> >;
+        FluidSystems::OnePLiquid<Scalar, Dumux::Components::SimpleH2O<Scalar>>;
 };
 
 // Set the grid type
@@ -70,17 +73,21 @@ struct Grid<TypeTag, TTag::FreeFlowModel> {
     using type = Dune::YaspGrid<2,
                                 Dune::EquidistantOffsetCoordinates<
                                     GetPropType<TypeTag, Properties::Scalar>,
-                                    2> >;
+                                    2>>;
 };
 
 // Set the problem property
 template<class TypeTag>
 struct Problem<TypeTag, TTag::FreeFlowSubMomentum> {
-    using type = Dumux::StokesSubProblem<TypeTag, Dumux::NavierStokesMomentumProblem<TypeTag>>;
+    using type =
+        Dumux::StokesSubProblem<TypeTag,
+                                Dumux::NavierStokesMomentumProblem<TypeTag>>;
 };
 template<class TypeTag>
 struct Problem<TypeTag, TTag::FreeFlowSubMass> {
-    using type = Dumux::StokesSubProblem<TypeTag, Dumux::NavierStokesMassProblem<TypeTag>>;
+    using type =
+        Dumux::StokesSubProblem<TypeTag,
+                                Dumux::NavierStokesMassProblem<TypeTag>>;
 };
 
 template<class TypeTag>
@@ -99,9 +106,9 @@ struct EnableGridVolumeVariablesCache<TypeTag, TTag::FreeFlowModel> {
 // Define the DuMux coupling manager to couple the momentum and mass subproblems
 // of the freeflow participant
 template<class TypeTag>
-struct CouplingManager<TypeTag, TTag::FreeFlowModel>
-{
-    using Traits = MultiDomainTraits<TTag::FreeFlowSubMomentum, TTag::FreeFlowSubMass>;
+struct CouplingManager<TypeTag, TTag::FreeFlowModel> {
+    using Traits =
+        MultiDomainTraits<TTag::FreeFlowSubMomentum, TTag::FreeFlowSubMass>;
     using type = FreeFlowCouplingManager<Traits>;
 };
 }  // end namespace Properties
