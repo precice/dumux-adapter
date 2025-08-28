@@ -117,7 +117,7 @@ public:
     {
         BoundaryTypes values;
 
-        const auto &globalPos = scvf.center();
+        const auto &globalPos = scvf.ipGlobal();
 
         if constexpr (ParentType::isMomentumProblem()) {
             const auto faceId = scvf.index();
@@ -157,7 +157,7 @@ public:
                               const SubControlVolumeFace &scvf) const
     {
         DirichletValues values(0.0);
-        values = initialAtPos(scvf.center());
+        values = initialAtPos(scvf.ipGlobal());
 
         if constexpr (ParentType::isMomentumProblem()) {
             const auto faceId = scvf.index();
@@ -193,7 +193,7 @@ public:
         BoundaryFluxes values(0.0);
 
         const auto faceId = scvf.index();
-        const auto &globalPos = scvf.center();
+        const auto &globalPos = scvf.ipGlobal();
         if constexpr (ParentType::isMomentumProblem()) {
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 using FluxHelper =
