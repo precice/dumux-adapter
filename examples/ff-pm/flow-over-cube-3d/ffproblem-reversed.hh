@@ -28,9 +28,9 @@
 #include <dumux/freeflow/navierstokes/mass/problem.hh>
 #include <dumux/freeflow/navierstokes/momentum/problem.hh>
 
+#include <dumux/freeflow/navierstokes/mass/1p/advectiveflux.hh>
 #include <dumux/freeflow/navierstokes/momentum/fluxhelper.hh>
 #include <dumux/freeflow/navierstokes/scalarfluxhelper.hh>
-#include <dumux/freeflow/navierstokes/mass/1p/advectiveflux.hh>
 
 #include <dumux-precice/couplingadapter.hh>
 
@@ -117,8 +117,7 @@ public:
 
         const auto &globalPos = scvf.center();
 
-        if constexpr (ParentType::isMomentumProblem())
-        {
+        if constexpr (ParentType::isMomentumProblem()) {
             const auto faceId = scvf.index();
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values.setAllNeumann();
@@ -133,8 +132,7 @@ public:
                 values.setDirichlet(Indices::velocityYIdx);
                 values.setDirichlet(Indices::velocityZIdx);
             }
-        }
-        else // mass subproblem
+        } else  // mass subproblem
         {
             //if (onLeftBoundary_(globalPos)) {
             //    // TODO: use flux helper also at inlet? Use given pressure on both ends?
@@ -161,17 +159,14 @@ public:
         DirichletValues values(0.0);
         values = initialAtPos(scvf.center());
 
-        if constexpr (ParentType::isMomentumProblem())
-        {
+        if constexpr (ParentType::isMomentumProblem()) {
             const auto faceId = scvf.index();
             if (couplingParticipant_.isCoupledEntity(faceId)) {
                 values[Indices::velocityYIdx] =
                     couplingParticipant_.getScalarQuantityOnFace(
                         "FreeFlowMesh", "Velocity", faceId);
             }
-        }
-        else
-        {
+        } else {
             // TODO: or inletOutletPressure (doesn't matter because of Flux BCs)
             //values = this->couplingManager().cellPressure(element, scvf);
         }
@@ -199,45 +194,40 @@ public:
 
         const auto faceId = scvf.index();
         const auto &globalPos = scvf.center();
-        if constexpr (ParentType::isMomentumProblem())
-        {
-            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos))
-            {
+        if constexpr (ParentType::isMomentumProblem()) {
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 using FluxHelper =
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 9
-                    NavierStokesMomentumBoundaryFlux<typename GridGeometry::DiscretizationMethod>;
+                    NavierStokesMomentumBoundaryFlux<
+                        typename GridGeometry::DiscretizationMethod>;
 #else
                     NavierStokesMomentumBoundaryFluxHelper;
 #endif
                 auto pressure = onLeftBoundary_(globalPos) ? deltaP_ : 0.0;
-                values = FluxHelper::fixedPressureMomentumFlux(*this, fvGeometry, scvf, elemVolVars,
-                        elemFluxVarsCache, pressure, /* zeroNormalVelocityGradient = */ true);
-            }
-            else if (couplingParticipant_.isCoupledEntity(faceId))
-            {
+                values = FluxHelper::fixedPressureMomentumFlux(
+                    *this, fvGeometry, scvf, elemVolVars, elemFluxVarsCache,
+                    pressure, /* zeroNormalVelocityGradient = */ true);
+            } else if (couplingParticipant_.isCoupledEntity(faceId)) {
                 values[Indices::momentumYBalanceIdx] =
                     scvf.directionSign() *
                     (couplingParticipant_.getScalarQuantityOnFace(
                          "FreeFlowMesh", "Pressure", faceId) -
                      this->referencePressure(element, fvGeometry, scvf));
             }
-        }
-        else
-        {
-            using FluxHelper = NavierStokesScalarBoundaryFluxHelper<AdvectiveFlux<ModelTraits>>;
-            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos))
-            {
-                values = FluxHelper::scalarOutflowFlux(*this, element, fvGeometry, scvf,
-                        elemVolVars);
-            }
-            else if (couplingParticipant_.isCoupledEntity(faceId)) {
+        } else {
+            using FluxHelper = NavierStokesScalarBoundaryFluxHelper<
+                AdvectiveFlux<ModelTraits>>;
+            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
+                values = FluxHelper::scalarOutflowFlux(
+                    *this, element, fvGeometry, scvf, elemVolVars);
+            } else if (couplingParticipant_.isCoupledEntity(faceId)) {
                 const Scalar density =
                     1000;  // TODO how to handle compressible fluids?
                 // TODO: Use flux helper with outside data?
                 // TODO: remove hard-coded values index y=1 and dirsign = -1.0
-                values[Indices::conti0EqIdx] = density *
-                                               this->faceVelocity(element, fvGeometry, scvf)[1] *
-                                               -1.0;//scvf.directionSign();
+                values[Indices::conti0EqIdx] =
+                    density * this->faceVelocity(element, fvGeometry, scvf)[1] *
+                    -1.0;  //scvf.directionSign();
             }
         }
         return values;
@@ -259,12 +249,9 @@ public:
     {
         InitialValues values(0.0);
 
-        if constexpr (ParentType::isMomentumProblem())
-        {
+        if constexpr (ParentType::isMomentumProblem()) {
             //values[Indices::velocityYIdx] = -1e-6 * globalPos[0] * (this->gridGeometry().bBoxMax()[0] - globalPos[0]);
-        }
-        else
-        {
+        } else {
             if (onLeftBoundary_(globalPos))
                 values[Indices::pressureIdx] = deltaP_;
             if (onRightBoundary_(globalPos))
@@ -286,7 +273,8 @@ public:
     /*!
      * \brief Returns the alpha value required as input parameter for the Beavers-Joseph-Saffman boundary condition
      */
-    Scalar alphaBJ(const FVElementGeometry &fvGeometry, const SubControlVolumeFace &scvf) const
+    Scalar alphaBJ(const FVElementGeometry &fvGeometry,
+                   const SubControlVolumeFace &scvf) const
     {
         return 1.0;  // TODO transfer information or just use constant value
     }
