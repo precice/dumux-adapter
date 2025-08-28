@@ -81,20 +81,35 @@ auto pressureAtInterface(const Problem *problem,
         Dumux::GetPropType<TypeTag, Dumux::Properties::LocalResidual>;
     using NumEqVector = Dumux::NumEqVector<
         Dumux::GetPropType<TypeTag, Dumux::Properties::PrimaryVariables>>;
+#if DUMUX_VERSION_MAJOR >= 3 && DUMUX_VERSION_MINOR >= 9
+    using SlipVelocityPolicy = Dumux::NavierStokesSlipVelocity<
+        typename FVElementGeometry::GridGeometry::DiscretizationMethod,
+        Dumux::NavierStokes::SlipConditions::BJ>;
+    using FluxHelper = Dumux::NavierStokesMomentumBoundaryFlux<
+        typename FVElementGeometry::GridGeometry::DiscretizationMethod,
+        SlipVelocityPolicy>;
+#else
+    using FluxHelper = Dumux::NavierStokesMomentumBoundaryFluxHelper;
+#endif
 
     ElementBoundaryTypes elemBcTypes;
     auto localResidual = LocalResidual(problem);
     elemBcTypes.update(*problem, element, fvGeometry);
 
     NumEqVector flux(0.0);
+    NumEqVector neumannFlux(0.0);
     const auto &scv = fvGeometry.scv(scvf.insideScvIdx());
     for (const auto &otherScvf : scvfs(fvGeometry, scv)) {
-        flux += localResidual.computeFlux(*problem, element, fvGeometry,
-                                          elemVolVars, otherScvf,
-                                          elemFluxVarsCache, elemBcTypes);
+        if (otherScvf.index() == scvf.index())
+            continue;
+        flux += localResidual.maybeHandleNeumannBoundary(
+            *problem, element, fvGeometry, elemVolVars, elemBcTypes,
+            elemFluxVarsCache, otherScvf);
     }
-    // TODO: flux += FluxHelper::fixedPressureMomentumFlux(problem, fvGeometry, scvf, elemVolVars,
-    //        elemFluxVarsCache, 0.0, /*zeroNormalVelocityGradient=*/true) * scvf.area();
+    flux += FluxHelper::fixedPressureMomentumFlux(
+                *problem, fvGeometry, scvf, elemVolVars, elemFluxVarsCache, 0.0,
+                /*zeroNormalVelocityGradient=*/false)[scvf.normalAxis()] *
+            scvf.area();
     return -1 * scvf.directionSign() * flux / scvf.area();
 }
 

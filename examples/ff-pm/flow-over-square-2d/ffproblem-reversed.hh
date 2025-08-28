@@ -120,7 +120,6 @@ public:
         const auto &globalPos = scvf.ipGlobal();
 
         if constexpr (ParentType::isMomentumProblem()) {
-            const auto faceId = scvf.index();
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values.setAllNeumann();
             }
@@ -187,7 +186,6 @@ public:
     {
         BoundaryFluxes values(0.0);
 
-        const auto faceId = scvf.index();
         const auto &globalPos = scvf.ipGlobal();
         if constexpr (ParentType::isMomentumProblem()) {
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 9
