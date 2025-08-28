@@ -124,20 +124,15 @@ public:
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values.setAllNeumann();
             }
-            // coupling interface
-            else if (couplingParticipant_.isCoupledEntity(faceId)) {
+            // slip boundary with coupling interface
+            else if (onLowerBoundary_(scvf.ipGlobal())) {
+                values.setAllNeumann();
                 values.setDirichlet(Indices::velocityYIdx);
-                values.setBeaversJoseph(Indices::momentumXBalanceIdx);
             } else {
-                values.setDirichlet(Indices::velocityXIdx);
-                values.setDirichlet(Indices::velocityYIdx);
+                values.setAllDirichlet();
             }
         } else  // mass subproblem
         {
-            //if (onLeftBoundary_(globalPos)) {
-            //    // TODO: use flux helper also at inlet? Use given pressure on both ends?
-            //    values.setDirichlet(Indices::pressureIdx);
-            //} else
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values.setNeumann(Indices::conti0EqIdx);
             } else {
@@ -167,8 +162,8 @@ public:
                         "FreeFlowMesh", "Velocity", faceId);
             }
         } else {
-            // TODO: or inletOutletPressure (doesn't matter because of Flux BCs)
-            //values = this->couplingManager().cellPressure(element, scvf);
+            auto pressure = onLeftBoundary_(scvf.ipGlobal()) ? deltaP_ : 0.0;
+            values[Indices::pressureIdx] = pressure;
         }
 
         return values;
@@ -195,24 +190,25 @@ public:
         const auto faceId = scvf.index();
         const auto &globalPos = scvf.ipGlobal();
         if constexpr (ParentType::isMomentumProblem()) {
-            if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
-                using FluxHelper =
 #if DUMUX_VERSION_MAJOR >= 3 & DUMUX_VERSION_MINOR >= 9
-                    NavierStokesMomentumBoundaryFlux<
-                        typename GridGeometry::DiscretizationMethod>;
+            using SlipVelocityPolicy = NavierStokesSlipVelocity<
+                typename GridGeometry::DiscretizationMethod,
+                NavierStokes::SlipConditions::BJ>;
+            using FluxHelper = NavierStokesMomentumBoundaryFlux<
+                typename GridGeometry::DiscretizationMethod,
+                SlipVelocityPolicy>;
 #else
-                    NavierStokesMomentumBoundaryFluxHelper;
+            using FluxHelper = NavierStokesMomentumBoundaryFluxHelper;
 #endif
+            if (onSlipBoundary(fvGeometry, scvf)) {
+                values += FluxHelper::slipVelocityMomentumFlux(
+                    *this, fvGeometry, scvf, elemVolVars, elemFluxVarsCache);
+            } else if (onLeftBoundary_(globalPos) ||
+                       onRightBoundary_(globalPos)) {
                 auto pressure = onLeftBoundary_(globalPos) ? deltaP_ : 0.0;
                 values = FluxHelper::fixedPressureMomentumFlux(
                     *this, fvGeometry, scvf, elemVolVars, elemFluxVarsCache,
                     pressure, /* zeroNormalVelocityGradient = */ true);
-            } else if (couplingParticipant_.isCoupledEntity(faceId)) {
-                values[Indices::momentumYBalanceIdx] =
-                    scvf.directionSign() *
-                    (couplingParticipant_.getScalarQuantityOnFace(
-                         "FreeFlowMesh", "Pressure", faceId) -
-                     this->referencePressure(element, fvGeometry, scvf));
             }
         } else {
             using FluxHelper = NavierStokesScalarBoundaryFluxHelper<
@@ -220,7 +216,7 @@ public:
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values = FluxHelper::scalarOutflowFlux(
                     *this, element, fvGeometry, scvf, elemVolVars);
-            } else if (couplingParticipant_.isCoupledEntity(faceId)) {
+            } else if (onSlipBoundary(fvGeometry, scvf)) {
                 const Scalar density =
                     1000;  // TODO how to handle compressible fluids?
                 // TODO: Use flux helper with outside data?
@@ -231,6 +227,12 @@ public:
             }
         }
         return values;
+    }
+
+    bool onSlipBoundary(const FVElementGeometry &fvGeometry,
+                        const SubControlVolumeFace &scvf) const
+    {
+        return onLowerBoundary_(scvf.ipGlobal());
     }
 
     // \}
