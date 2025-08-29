@@ -39,6 +39,7 @@
 #include <dumux/common/partial.hh>
 #include <dumux/common/properties.hh>
 #include <dumux/discretization/method.hh>
+#include <dumux/io/format.hh>
 #include <dumux/io/grid/gridmanager.hh>
 
 #include <dumux/freeflow/navierstokes/velocityoutput.hh>
@@ -483,7 +484,13 @@ try {
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
-        // TODO
+        writeVelocitiesOnInterfaceToFile(
+            meshName, Dumux::Fmt::format("ff_interface_velocities_{}", vtkTime),
+            momentumProblem, *momentumGridVariables, sol[momentumIdx]);
+        writePressuresOnInterfaceToFile<MomentumTypeTag>(
+            meshName, Dumux::Fmt::format("ff_interface_pressures_{}", vtkTime),
+            momentumProblem, *momentumGridVariables, sol[momentumIdx]);
+
         setInterfacePressures<MomentumTypeTag>(
             momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
             dataNameP);

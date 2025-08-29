@@ -53,6 +53,7 @@ bool printstuff = false;
 
 #include <dumux/discretization/method.hh>
 
+#include <dumux/io/format.hh>
 #include <dumux/io/grid/gridmanager.hh>
 #include <dumux/io/vtkoutputmodule.hh>
 
@@ -468,6 +469,14 @@ try {
 
         // solve the non-linear system
         nonLinearSolver.solve(sol);
+
+        writeVelocitiesOnInterfaceToFile<FluxVariables>(
+            meshName, Dumux::Fmt::format("pm_interface_velocities_{}", vtkTime),
+            *darcyProblem, *darcyGridVariables, sol);
+        writePressuresOnInterfaceToFile(
+            meshName, Dumux::Fmt::format("pm_interface_pressures_{}", vtkTime),
+            *darcyProblem, *darcyGridVariables, sol);
+
         setInterfaceVelocities<FluxVariables>(
             *darcyProblem, *darcyGridVariables, sol, meshName, dataNameV);
         couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameV);
