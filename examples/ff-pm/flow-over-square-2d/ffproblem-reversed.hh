@@ -117,16 +117,19 @@ public:
     {
         BoundaryTypes values;
 
-        const auto &globalPos = scvf.ipGlobal();
+        const auto &globalPos = scvf.center();
 
         if constexpr (ParentType::isMomentumProblem()) {
             if (onLeftBoundary_(globalPos) || onRightBoundary_(globalPos)) {
                 values.setAllNeumann();
             }
             // slip boundary with coupling interface
-            else if (onLowerBoundary_(scvf.ipGlobal())) {
+            else if (onLowerBoundary_(globalPos)) {
                 values.setAllNeumann();
-                values.setDirichlet(Indices::velocityYIdx);
+                // TODO: Check the handling of the corners
+                if (!onLeftBoundary_(scvf.ipGlobal()) &&
+                    !onRightBoundary_(scvf.ipGlobal()))
+                    values.setDirichlet(Indices::velocityYIdx);
             } else {
                 values.setAllDirichlet();
             }
