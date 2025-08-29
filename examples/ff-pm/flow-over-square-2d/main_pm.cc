@@ -95,7 +95,8 @@ auto pressureAtInterface(const Problem &problem,
 
     // v = -kr/mu*K * (gradP + rho*g) = -mobility*K * (gradP + rho*g)
     const auto alpha =
-        Dumux::vtmv(scvf.unitOuterNormal(), K, problem.gravity());
+        Dumux::vtmv(scvf.unitOuterNormal(), K,
+                    problem.spatialParams().gravity(scvf.ipGlobal()));
 
     auto distanceVector = scvf.center() - element.geometry().center();
     distanceVector /= distanceVector.two_norm2();
@@ -201,6 +202,112 @@ void setInterfaceVelocities(const Problem &problem,
             }
         }
     }
+}
+
+template<class FluxVariables,
+         class Problem,
+         class GridVariables,
+         class SolutionVector>
+std::tuple<double, double, double> writeVelocitiesOnInterfaceToFile(
+    const std::string &meshName,
+    const std::string &filename,
+    const Problem &problem,
+    const GridVariables &gridVars,
+    const SolutionVector &sol)
+{
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+    const auto &couplingParticipant =
+        Dumux::Precice::CouplingAdapter::getInstance();
+
+    std::ofstream ofs(filename + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    ofs << "x,y,";
+    if (couplingParticipant.getMeshDimensions(meshName) == 3)
+        ofs << "z,";
+    ofs << "velocityY"
+        << "\n";
+
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
+    double sum = 0.;
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bind(element);
+        elemVolVars.bind(element, fvGeometry, sol);
+        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingParticipant.isCoupledEntity(scvf.index())) {
+                const auto &pos = scvf.center();
+                for (int i = 0;
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
+                    ofs << pos[i] << ",";
+                }
+                const double v = velocityAtInterface<FluxVariables>(
+                    problem, element, fvGeometry, elemVolVars, scvf,
+                    elemFluxVarsCache);
+                max = std::max(v, max);
+                min = std::min(v, min);
+                sum += v;
+                const int prec = ofs.precision();
+                ofs << std::setprecision(std::numeric_limits<double>::digits10 +
+                                         1)
+                    << v << "\n";
+                ofs.precision(prec);
+            }
+        }
+    }
+
+    ofs.close();
+    return std::make_tuple(min, max, sum);
+}
+
+template<class Problem, class GridVariables, class SolutionVector>
+void writePressuresOnInterfaceToFile(const std::string &meshName,
+                                     const std::string &filename,
+                                     const Problem &problem,
+                                     const GridVariables &gridVars,
+                                     const SolutionVector &sol)
+{
+    const auto &gridGeometry = problem.gridGeometry();
+    auto fvGeometry = localView(gridGeometry);
+    auto elemVolVars = localView(gridVars.curGridVolVars());
+    auto elemFluxVarsCache = localView(gridVars.gridFluxVarsCache());
+
+    const auto &couplingParticipant =
+        Dumux::Precice::CouplingAdapter::getInstance();
+
+    std::ofstream ofs(filename + ".csv",
+                      std::ofstream::out | std::ofstream::trunc);
+    ofs << "x,y,";
+    if (couplingParticipant.getMeshDimensions(meshName) == 3)
+        ofs << "z,";
+    ofs << "pressure"
+        << "\n";
+    for (const auto &element : elements(gridGeometry.gridView())) {
+        fvGeometry.bind(element);
+        elemVolVars.bind(element, fvGeometry, sol);
+        elemFluxVarsCache.bind(element, fvGeometry, elemVolVars);
+
+        for (const auto &scvf : scvfs(fvGeometry)) {
+            if (couplingParticipant.isCoupledEntity(scvf.index())) {
+                const auto &pos = scvf.center();
+                for (int i = 0;
+                     i < couplingParticipant.getMeshDimensions(meshName); ++i) {
+                    ofs << pos[i] << ",";
+                }
+                const double p =
+                    pressureAtInterface(problem, element, gridGeometry,
+                                        elemVolVars, scvf, elemFluxVarsCache);
+                ofs << p << "\n";
+            }
+        }
+    }
+
+    ofs.close();
 }
 
 int main(int argc, char **argv)
