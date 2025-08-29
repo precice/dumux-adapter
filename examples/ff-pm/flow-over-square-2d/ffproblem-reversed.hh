@@ -23,6 +23,8 @@
 #ifndef DUMUX_STOKES_SUBPROBLEM_HH
 #define DUMUX_STOKES_SUBPROBLEM_HH
 
+#include <dune/common/fvector.hh>
+
 #include <dumux/common/numeqvector.hh>
 
 #include <dumux/freeflow/navierstokes/mass/problem.hh>
@@ -72,6 +74,9 @@ class StokesSubProblem : public BaseProblem
     using FluidSystem = GetPropType<TypeTag, Properties::FluidSystem>;
 
     using CouplingManager = GetPropType<TypeTag, Properties::CouplingManager>;
+
+    static constexpr auto dimWorld = GridGeometry::GridView::dimensionworld;
+    using VelocityVector = Dune::FieldVector<Scalar, dimWorld>;
 
 public:
     StokesSubProblem(std::shared_ptr<const GridGeometry> gridGeometry,
@@ -290,6 +295,24 @@ public:
                   const GlobalPosition &tangentialVector) const
     {
         return 1e+5;  // TODO transfer information or just use constant value
+    }
+
+    /*!
+     * \brief Returns the velocity in the porous medium (which is 0 by default according to Saffman).
+     */
+    VelocityVector porousMediumVelocity(const FVElementGeometry &fvGeometry,
+                                        const SubControlVolumeFace &scvf) const
+    {
+        VelocityVector velocity(0.0);
+        if constexpr (ParentType::isMomentumProblem()) {
+            const auto faceId = scvf.index();
+            if (couplingParticipant_.isCoupledEntity(faceId)) {
+                velocity[Indices::velocityYIdx] =
+                    couplingParticipant_.getScalarQuantityOnFace(
+                        "FreeFlowMesh", "Velocity", faceId);
+            }
+        }
+        return velocity;
     }
 
     /*!
