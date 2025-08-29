@@ -24,6 +24,10 @@
 #ifndef DUMUX_DARCY_SUBPROPERTIES_HH
 #define DUMUX_DARCY_SUBPROPERTIES_HH
 
+#ifndef DIMWORLD
+#define DIMWORLD 2
+#endif
+
 #include <dune/grid/yaspgrid.hh>
 
 #include <dumux/discretization/cctpfa.hh>
@@ -65,7 +69,7 @@ struct FluidSystem<TypeTag, TTag::DarcyOneP> {
 // Set the grid type
 template<class TypeTag>
 struct Grid<TypeTag, TTag::DarcyOneP> {
-    using type = Dune::YaspGrid<2>;
+    using type = Dune::YaspGrid<DIMWORLD>;
 };
 
 template<class TypeTag>

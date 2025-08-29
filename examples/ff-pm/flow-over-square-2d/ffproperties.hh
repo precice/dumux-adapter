@@ -23,6 +23,10 @@
 #ifndef DUMUX_STOKES_SUBPROPERTIES_HH
 #define DUMUX_STOKES_SUBPROPERTIES_HH
 
+#ifndef DIMWORLD
+#define DIMWORLD 2
+#endif
+
 #include <dune/grid/yaspgrid.hh>
 
 #include <dumux/material/components/simpleh2o.hh>
@@ -70,10 +74,10 @@ struct FluidSystem<TypeTag, TTag::FreeFlowModel> {
 // Set the grid type
 template<class TypeTag>
 struct Grid<TypeTag, TTag::FreeFlowModel> {
-    using type = Dune::YaspGrid<2,
+    using type = Dune::YaspGrid<DIMWORLD,
                                 Dune::EquidistantOffsetCoordinates<
                                     GetPropType<TypeTag, Properties::Scalar>,
-                                    2>>;
+                                    DIMWORLD>>;
 };
 
 // Set the problem property
