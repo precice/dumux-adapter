@@ -12,7 +12,7 @@ jobs:
       max-parallel: 1
       matrix:
         precice_version: [develop]
-        dune_version: [2.9]
+        dune_version: ['2.10']
     container:
       image: precice/dune-precice:${{ matrix.dune_version }}-${{ matrix.precice_version }}
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
           export DUNE_CONTROL_PATH=${DUNE_CONTROL_PATH}:${PWD}/dumux/dune.module
           dunecontrol --opts=/opt/DUMUX/cmake-test.opts --only=dumux all
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
         with:
           path: dumux-precice
       - name: Build code

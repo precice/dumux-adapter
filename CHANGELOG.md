@@ -1,8 +1,9 @@
 # DuMuX-preCICE change log
 
-## vX.X.X
+## latest
 
-- 2025-08-25: Improved ID lookup from `log(n)` to constant where n is the mesh size
+- Improved ID lookup from `log(n)` to constant where n is the mesh size [#44](https://github.com/precice/dumux-adapter/pull/44)
+- Update DUNE version in the CI to 2.10 and update examples for compatibility [#45](https://github.com/precice/dumux-adapter/pull/45)
 
 ## v2.0.0
 

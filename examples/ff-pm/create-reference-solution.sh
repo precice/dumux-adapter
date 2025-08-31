@@ -3,8 +3,8 @@
 # Start progam
 #solver_input="params.input"
 
-ff_solver="fvca-iterative-ff"
-pm_solver="fvca-iterative-pm"
+ff_solver="ff_flow_over_square_2d"
+pm_solver="pm_flow_over_square_2d"
 
 
 function clean_up_dir()
@@ -84,14 +84,14 @@ function move_result_to_dir()
     #ls darcy-iterative
     #find "darcy-iterative*.vtu" -type f -exec ls -al {} \; | sort -nr -k5 | head -n 1
     if [[ "${case_label}" == *"navierstokes"* ]]; then
-        navierstokes_final_vtu=$(find .  -maxdepth 1 -iname "navierstokes-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
+        navierstokes_final_vtu=$(find .  -maxdepth 1 -iname "ff-pm-2d-precice-navierstokes*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
         #echo "Move ${navierstokes_final_vtu} to ${target_directory}/${case_label}_navierstokes.vtu"
         mv ${navierstokes_final_vtu} "${target_directory}/${case_label}_navierstokes.vtu"
     else
-        stokes_final_vtu=$(find .  -maxdepth 1 -iname "stokes-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
+        stokes_final_vtu=$(find .  -maxdepth 1 -iname "ff-pm-2d-precice-stokes*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
         mv ${stokes_final_vtu} "${target_directory}/${case_label}_stokes.vtu"
     fi
-    darcy_final_vtu=$(find .  -maxdepth 1 -iname "darcy-iterative*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
+    darcy_final_vtu=$(find .  -maxdepth 1 -iname "ff-pm-2d-precice-darcy*.vtu" -type f -exec ls {} \; | sort -r | head -n1)
     mv ${darcy_final_vtu} "${target_directory}/${case_label}_darcy.vtu"
 
 
@@ -116,27 +116,27 @@ clean_up_dir
 # Stokes
 ##################
 
-run_test_case params-stokesdarcy.input  ./precice-config-si-stokes-first.xml
-move_result_to_dir "test_stokes_first_si" "../../reference-solutions/flow-over-square-2d/"
+run_test_case params-stokesdarcy.input  ./precice-config-si-free-flow-first.xml
+move_result_to_dir "test_stokes_first_si" "../../../test/reference-solutions/flow-over-square-2d/"
 
-run_test_case ./params-stokesdarcy.input ./precice-config-si-stokes-second.xml
-move_result_to_dir "test_stokes_second_si" "../../reference-solutions/flow-over-square-2d/"
+run_test_case ./params-stokesdarcy.input ./precice-config-si-free-flow-second.xml
+move_result_to_dir "test_stokes_second_si" "../../../test/reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-stokesdarcy.input ./precice-config-pi.xml
-move_result_to_dir "test_stokes_pi" "../../reference-solutions/flow-over-square-2d/"
+move_result_to_dir "test_stokes_pi" "../../../test/reference-solutions/flow-over-square-2d/"
 
 ##################
 # Navier-Stokes
 ##################
 
-run_test_case ./params-navierstokesdarcy.input ./precice-config-si-stokes-first.xml
-move_result_to_dir "test_navierstokes_first_si" "../../reference-solutions/flow-over-square-2d/"
+run_test_case ./params-navierstokesdarcy.input ./precice-config-si-free-flow-first.xml
+move_result_to_dir "test_navierstokes_first_si" "../../../test/reference-solutions/flow-over-square-2d/"
 
-run_test_case ./params-navierstokesdarcy.input ./precice-config-si-stokes-second.xml
-move_result_to_dir "test_navierstokes_second_si" "../../reference-solutions/flow-over-square-2d/"
+run_test_case ./params-navierstokesdarcy.input ./precice-config-si-free-flow-second.xml
+move_result_to_dir "test_navierstokes_second_si" "../../../test/reference-solutions/flow-over-square-2d/"
 
 run_test_case ./params-navierstokesdarcy.input ./precice-config-pi.xml
-move_result_to_dir "test_navierstokes_pi" "../../reference-solutions/flow-over-square-2d/"
+move_result_to_dir "test_navierstokes_pi" "../../../test/reference-solutions/flow-over-square-2d/"
 
 
 exit 0
