@@ -1,30 +1,28 @@
 
-###         #   #        # #                            
-#  #  #  #  ## ##  #  #   #                             
-#  #  #  #  # # #  #  #  # #                            
-###    ##   #   #   ##                                  
-                                                        
-Dune for Multi-{ Phase,                                 
-                 Component,                             
-                 Scale,                                 
-                 Physics,                               
-                 ...} flow and transport in porous media
+Elliot Carver: Mr. Jones, are we ready to release our new software?
+Jones: Yes, sir. As requested, it's full of bugs, which means people will be forced to upgrade for years.
+ - James Bond, Tomorrow Never Dies
 
 Reading parameters from file ./params-navierstokesdarcy.input.
-(0) 22:39:32 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 22:39:32 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 22:39:32 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-si-stokes-second.xml"
-(0) 22:39:32 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.0170242 seconds.
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.00846885 seconds.
+[2025-08-31 08:40:07.796632] [0x00007f7ba2d93b40] [info]    This is preCICE version 3.1.1
+[2025-08-31 08:40:07.796679] [0x00007f7ba2d93b40] [info]    Revision info: v3.1.1
+[2025-08-31 08:40:07.796694] [0x00007f7ba2d93b40] [info]    Build type: Release (without debug log)
+[2025-08-31 08:40:07.796708] [0x00007f7ba2d93b40] [info]    Configuring preCICE with configuration "./precice-config-si-free-flow-second.xml"
+[2025-08-31 08:40:07.796724] [0x00007f7ba2d93b40] [info]    I am participant "Darcy"
 2  2
-(0) 22:39:32 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 22:39:32 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 22:39:32 [partition::ProvidedPartition]:36 in communicate: [0mGather mesh DarcyMesh
-(0) 22:39:32 [partition::ProvidedPartition]:62 in communicate: [0mSend global mesh DarcyMesh
-(0) 22:39:32 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh DarcyMesh
-(0) 22:39:32 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 22:39:32 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 22:39:32 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
+[2025-08-31 08:40:07.972158] [0x00007f7ba2d93b40] [info]    Setting up primary communication to coupling partner/s
+[2025-08-31 08:40:07.974670] [0x00007f7ba2d93b40] [info]    Primary ranks are connected
+[2025-08-31 08:40:07.974716] [0x00007f7ba2d93b40] [info]    Setting up preliminary secondary communication to coupling partner/s
+[2025-08-31 08:40:07.974735] [0x00007f7ba2d93b40] [info]    Prepare partition for mesh DarcyMesh
+[2025-08-31 08:40:07.974815] [0x00007f7ba2d93b40] [info]    Gather mesh DarcyMesh
+[2025-08-31 08:40:07.974833] [0x00007f7ba2d93b40] [info]    Send global mesh DarcyMesh
+[2025-08-31 08:40:07.974924] [0x00007f7ba2d93b40] [info]    Setting up secondary communication to coupling partner/s
+[2025-08-31 08:40:08.064817] [0x00007f7ba2d93b40] [info]    Secondary ranks are connected
+[2025-08-31 08:40:08.065372] [0x00007f7ba2d93b40] [info]    iteration: 1 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, write-iteration-checkpoint 
+Colored 1600 elements with 7 colors in 0.025704071 seconds.
 
 Newton solver configured with the following options and parameters:
  -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
@@ -37,73 +35,37 @@ Newton solver configured with the following options and parameters:
 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 0.0000e+00
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 0.0000e+00
-Assemble/solve/update time: 0.0099(53.11%)/0.0087(46.76%)/2.4e-05(0.13%)
-(0) 22:39:32 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Assemble/solve/update time: 0.1(87.40%)/0.014(11.57%)/0.0012(1.04%)
+[2025-08-31 08:40:12.764882] [0x00007f7ba2d93b40] [info]    iteration: 2 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.4438e-16
-Assemble/solve/update time: 0.0099(56.05%)/0.0077(43.85%)/1.8e-05(0.10%)
-(0) 22:39:33 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.01 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.5498e-16
+Assemble/solve/update time: 0.11(87.76%)/0.014(11.22%)/0.0012(1.02%)
+[2025-08-31 08:40:18.810093] [0x00007f7ba2d93b40] [info]    iteration: 3 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.11 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5635e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0932e-14
-Assemble/solve/update time: 0.0099(58.85%)/0.0069(41.05%)/1.6e-05(0.10%)
-(0) 22:39:33 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.014 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1030e-14
+Assemble/solve/update time: 0.081(89.32%)/0.009(9.84%)/0.00077(0.84%)
+[2025-08-31 08:40:23.630018] [0x00007f7ba2d93b40] [info]    iteration: 4 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.11 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1012e-14
-Assemble/solve/update time: 0.01(56.84%)/0.0078(43.06%)/1.8e-05(0.10%)
-(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.018 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1013e-14
+Assemble/solve/update time: 0.086(89.08%)/0.0096(10.03%)/0.00086(0.89%)
+[2025-08-31 08:40:28.496124] [0x00007f7ba2d93b40] [info]    iteration: 5 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.11 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.2715e-14
-Assemble/solve/update time: 0.012(59.88%)/0.0081(39.99%)/2.6e-05(0.13%)
-(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.2130e-14
+Assemble/solve/update time: 0.084(89.16%)/0.0093(9.95%)/0.00083(0.89%)
+[2025-08-31 08:40:34.933051] [0x00007f7ba2d93b40] [info]    iteration: 6 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.5020e-14
-Assemble/solve/update time: 0.0093(57.02%)/0.007(42.87%)/1.7e-05(0.10%)
-(0) 22:39:34 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 22:39:34 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "darcy-iterative". Took 0.011 seconds.
-Writing output for problem "darcy-iterative". Took 0.0092 seconds.
-Run finished at Thu Aug  5 22:39:34 2021
-Global runtime       = 2387ms / 2.387s
-Number of processors = 1
-# Rank: 0
-
-                                         Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
-------------------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |          1 |       2387 |       2387 |       2387 |       2387 |          1 |
-                                       advance |          6 |       2151 |        401 |        281 |        358 |      0.901 |
-                                     configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      finalize |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |          1 |         12 |         12 |         12 |         12 |    0.00503 |
-         initialize/m2n.acceptMasterConnection |          1 |         12 |         12 |         12 |         12 |    0.00503 |
-         initialize/m2n.acceptSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
-   initialize/partition.feedbackMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-     initialize/partition.gatherMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initialize/partition.sendGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |          1 |          1 |          1 |          1 |   0.000419 |
-                                solver.advance |          6 |        185 |         40 |         19 |         30 |     0.0775 |
-                             solver.initialize |          1 |         36 |         36 |         36 |         36 |     0.0151 |
-
-
-                                          Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
------------------------------------------------------------------------------------------------------------------
-                                       _GLOBAL |       2387 |          0 |       2387 |          0 |          1 |
-                                       advance |        401 |          0 |        281 |          0 |   0.700748 |
-                                     configure |          0 |          0 |          0 |          0 |          0 |
-                                      finalize |          0 |          0 |          0 |          0 |          0 |
-                                    initialize |         12 |          0 |         12 |          0 |          1 |
-         initialize/m2n.acceptMasterConnection |         12 |          0 |         12 |          0 |          1 |
-         initialize/m2n.acceptSlavesConnection |          0 |          0 |          0 |          0 |          0 |
-   initialize/partition.feedbackMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-     initialize/partition.gatherMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
- initialize/partition.sendGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                initializeData |          1 |          0 |          1 |          0 |          1 |
-                                solver.advance |         40 |          0 |         19 |          0 |      0.475 |
-                             solver.initialize |         36 |          0 |         36 |          0 |          1 |
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0946e-14
+Assemble/solve/update time: 0.1(87.26%)/0.014(11.68%)/0.0013(1.06%)
+[2025-08-31 08:40:42.151080] [0x00007f7ba2d93b40] [info]    Time window completed
+[2025-08-31 08:40:42.151140] [0x00007f7ba2d93b40] [info]    iteration: 1 of 100 (min 1), time-window: 2, time: 1 of 1, time-window-size: 1, max-time-step-size: 0, ongoing: no, time-window-complete: yes, 
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.14 seconds.
+Writing output for problem "ff-pm-2d-precice-darcy". Took 0.097 seconds.
+[2025-08-31 08:40:42.386045] [0x00007f7ba2d93b40] [info]    Close communication channels
 
 # Runtime-specified parameters used:
 [ Darcy ]
@@ -113,7 +75,7 @@ LowerLeft = "0 0"
 UpperRight = "1 1"
 [ Darcy.Problem ]
 InitialP = "0.0e-9"
-Name = "darcy-iterative"
+Name = "ff-pm-2d-precice-darcy"
 [ Darcy.SpatialParams ]
 AlphaBeaversJoseph = "1.0"
 Permeability = "1e-6"
@@ -129,46 +91,22 @@ AddVelocity = "1"
 NumericDifferenceMethod = "1"
 [ Flux ]
 UpwindWeight = "1.0"
-[ Newton ]
-EnableAbsoluteResidualCriterion = "false"
-EnableChop = "false"
-EnablePartialReassembly = "false"
-EnableResidualCriterion = "false"
-EnableShiftCriterion = "true"
-MaxAbsoluteResidual = "1e-5"
-MaxRelativeShift = "1e-8"
-MaxSteps = "18"
-MinSteps = "2"
-ResidualReduction = "1e-5"
-SatisfyResidualAndShiftCriterion = "false"
-TargetSteps = "10"
-UseLineSearch = "false"
-[ Vtk ]
-AddProcessRank = "true"
 
 # Unused parameters:
- = "./precice-config-si-stokes-second.xml"
+ = "./precice-config-si-free-flow-second.xml"
 FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
 FreeFlow.Grid.Verbosity = "true"
 FreeFlow.Grid.LowerLeft = "0 1"
 FreeFlow.Grid.UpperRight = "1 2"
 FreeFlow.Grid.Cells = "40 40"
 FreeFlow.Grid.Grading1 = "1"
-FreeFlow.Problem.Name = "navierstokes-iterative"
+FreeFlow.Problem.Name = "ff-pm-2d-precice-navierstokes"
 FreeFlow.Problem.EnableInertiaTerms = "true"
 FreeFlow.Problem.PressureDifference = "1e-4"
 Darcy.Grid.Verbosity = "true"
 Darcy.Grid.Grading1 = "1"
 Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
 
-###         #   #        # #                            
-#  #  #  #  ## ##  #  #   #                             
-#  #  #  #  # # #  #  #  # #                            
-###    ##   #   #   ##                                  
-                                                        
-Dune for Multi-{ Phase,                                 
-                 Component,                             
-                 Scale,                                 
-                 Physics,                               
-                 ...} flow and transport in porous media
+Elliot Carver: Outstanding.
+ - James Bond, Tomorrow Never Dies
 

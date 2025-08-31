@@ -1,23 +1,31 @@
 
-You idiot! You signed the order to destroy Earth!
- - Douglas Adams, HGttG
+Don't panic... !
 
 Reading parameters from file ./params-navierstokesdarcy.input.
-(0) 22:39:35 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 22:39:35 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 22:39:35 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-pi.xml"
-(0) 22:39:35 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.00850816 seconds.
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.00845439 seconds.
+[2025-08-31 08:40:43.160618] [0x00007fc1780acb80] [info]    This is preCICE version 3.1.1
+[2025-08-31 08:40:43.160676] [0x00007fc1780acb80] [info]    Revision info: v3.1.1
+[2025-08-31 08:40:43.160690] [0x00007fc1780acb80] [info]    Build type: Release (without debug log)
+[2025-08-31 08:40:43.160705] [0x00007fc1780acb80] [info]    Configuring preCICE with configuration "./precice-config-pi.xml"
+[2025-08-31 08:40:43.160719] [0x00007fc1780acb80] [info]    I am participant "FreeFlow"
 2  2
-(0) 22:39:35 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 22:39:35 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 22:39:35 [partition::ReceivedPartition]:35 in communicate: [0mReceive global mesh DarcyMesh
-(0) 22:39:35 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh FreeFlowMesh
-(0) 22:39:35 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 22:39:35 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 22:39:35 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
-Writing output for problem "navierstokes-iterative". Took 0.015 seconds.
-(0) 22:39:35 [impl::SolverInterfaceImpl]:1414 in mapWrittenData: [0mCompute write mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh".
-(0) 22:39:35 [impl::SolverInterfaceImpl]:1465 in mapReadData: [0mCompute read mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh".
+ -- Using the default temperature of 293.15 in the entire domain. Overload temperatureAtPos() in your spatial params class to define a custom temperature field.Or provide the preferred domain temperature via the SpatialParams.Temperature parameter.
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.049 seconds.
+[2025-08-31 08:40:43.231226] [0x00007fc1780acb80] [info]    Setting up primary communication to coupling partner/s
+[2025-08-31 08:40:43.369014] [0x00007fc1780acb80] [info]    Primary ranks are connected
+[2025-08-31 08:40:43.369050] [0x00007fc1780acb80] [info]    Setting up preliminary secondary communication to coupling partner/s
+[2025-08-31 08:40:43.369068] [0x00007fc1780acb80] [info]    Receive global mesh DarcyMesh
+[2025-08-31 08:40:43.410894] [0x00007fc1780acb80] [info]    Prepare partition for mesh FreeFlowMesh
+[2025-08-31 08:40:43.411019] [0x00007fc1780acb80] [info]    Setting up secondary communication to coupling partner/s
+[2025-08-31 08:40:43.456145] [0x00007fc1780acb80] [info]    Secondary ranks are connected
+[2025-08-31 08:40:43.456199] [0x00007fc1780acb80] [info]    Computing "nearest-neighbor" mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh" in "write" direction.
+[2025-08-31 08:40:43.456335] [0x00007fc1780acb80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
+[2025-08-31 08:40:43.456390] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=0 from "FreeFlowMesh" to "DarcyMesh" (skipped zero sample)
+[2025-08-31 08:40:43.456954] [0x00007fc1780acb80] [info]    Computing "nearest-neighbor" mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh" in "read" direction.
+[2025-08-31 08:40:43.457086] [0x00007fc1780acb80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
+[2025-08-31 08:40:43.457117] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=0 from "DarcyMesh" to "FreeFlowMesh" (skipped zero sample)
+[2025-08-31 08:40:43.457176] [0x00007fc1780acb80] [info]    iteration: 1 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, write-iteration-checkpoint 
 Instantiated assembler for a stationary problem.
 
 Newton solver configured with the following options and parameters:
@@ -30,134 +38,104 @@ Newton solver configured with the following options and parameters:
  -- Newton.MaxTimeStepDivisions = 10
 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.8195e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.2316e-09
-Assemble/solve/update time: 0.09(34.15%)/0.17(64.70%)/0.003(1.15%)
-Writing output for problem "navierstokes-iterative". Took 0.01 seconds.
-(0) 22:39:35 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.8055e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.2479e-09
+Assemble/solve/update time: 3.8(87.88%)/0.46(10.60%)/0.066(1.52%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.069 seconds.
+[2025-08-31 08:40:47.954758] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:40:47.955327] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:40:47.955389] [0x00007fc1780acb80] [info]    iteration: 2 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.8195e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.2316e-09
-Assemble/solve/update time: 0.084(34.56%)/0.16(63.84%)/0.0039(1.60%)
-Writing output for problem "navierstokes-iterative". Took 0.018 seconds.
-(0) 22:39:35 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.8055e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.2479e-09
+Assemble/solve/update time: 3.4(87.85%)/0.44(11.40%)/0.029(0.75%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.046 seconds.
+[2025-08-31 08:40:51.895948] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:40:51.896559] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:40:51.896592] [0x00007fc1780acb80] [info]    iteration: 3 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4284e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 1.8518e-07
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 1.1398e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 1.1957e-10
-Assemble/solve/update time: 0.14(35.25%)/0.25(63.55%)/0.0047(1.20%)
-Writing output for problem "navierstokes-iterative". Took 0.01 seconds.
-(0) 22:39:36 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4281e-06
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 1.8486e-07
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 1.1519e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 1.0026e-10
+Assemble/solve/update time: 4.3(87.83%)/0.57(11.56%)/0.03(0.61%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.052 seconds.
+[2025-08-31 08:40:56.864838] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:40:56.865423] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:40:56.865463] [0x00007fc1780acb80] [info]    iteration: 4 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6378e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6864e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 7.1100e-07
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.5071e-10
-Assemble/solve/update time: 0.17(38.20%)/0.27(60.36%)/0.0064(1.44%)
-Writing output for problem "navierstokes-iterative". Took 0.018 seconds.
-(0) 22:39:36 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6352e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.7234e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 7.0430e-07
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 6.5568e-10
+Assemble/solve/update time: 4.3(88.26%)/0.55(11.27%)/0.023(0.47%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.053 seconds.
+[2025-08-31 08:41:01.807734] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:01.808317] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:01.808362] [0x00007fc1780acb80] [info]    iteration: 5 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6387e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.7143e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 7.0388e-07
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 4.0334e-10
-Assemble/solve/update time: 0.14(35.38%)/0.25(62.81%)/0.0073(1.81%)
-Writing output for problem "navierstokes-iterative". Took 0.017 seconds.
-(0) 22:39:37 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6356e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.7575e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 7.1629e-07
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.8122e-10
+Assemble/solve/update time: 4.5(88.73%)/0.55(10.96%)/0.016(0.31%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.047 seconds.
+[2025-08-31 08:41:06.916824] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:06.917406] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:06.917443] [0x00007fc1780acb80] [info]    iteration: 6 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6227e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6380e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 4.2015e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.9237e-11
-Assemble/solve/update time: 0.15(36.05%)/0.25(62.81%)/0.0046(1.14%)
-Writing output for problem "navierstokes-iterative". Took 0.0099 seconds.
-(0) 22:39:37 [impl::SolverInterfaceImpl]:390 in advance: [0mit 7 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6383e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 4.6011e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 3.1639e-11
+Assemble/solve/update time: 4.5(88.89%)/0.54(10.63%)/0.024(0.47%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.047 seconds.
+[2025-08-31 08:41:12.070734] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:12.098106] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:12.098212] [0x00007fc1780acb80] [info]    iteration: 7 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6229e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6264e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 7.0309e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.3225e-11
-Assemble/solve/update time: 0.15(35.15%)/0.28(63.62%)/0.0054(1.23%)
-Writing output for problem "navierstokes-iterative". Took 0.018 seconds.
-(0) 22:39:38 [impl::SolverInterfaceImpl]:390 in advance: [0mit 8 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6218e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6409e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 5.7786e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 6.1178e-11
+Assemble/solve/update time: 6.4(89.22%)/0.75(10.52%)/0.019(0.27%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.069 seconds.
+[2025-08-31 08:41:19.348472] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:19.349099] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:19.349147] [0x00007fc1780acb80] [info]    iteration: 8 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6212e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6464e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 5.0317e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.9800e-11
-Assemble/solve/update time: 0.14(34.59%)/0.27(64.25%)/0.0049(1.17%)
-Writing output for problem "navierstokes-iterative". Took 0.0092 seconds.
-(0) 22:39:38 [impl::SolverInterfaceImpl]:390 in advance: [0mit 9 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6225e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6343e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 4.6507e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 1.6596e-11
+Assemble/solve/update time: 5.3(88.79%)/0.63(10.67%)/0.032(0.55%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.048 seconds.
+[2025-08-31 08:41:25.323354] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:25.324030] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:25.324067] [0x00007fc1780acb80] [info]    iteration: 9 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6222e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6299e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 6.0582e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.2183e-11
-Assemble/solve/update time: 0.15(34.04%)/0.28(64.69%)/0.0055(1.27%)
-Writing output for problem "navierstokes-iterative". Took 0.01 seconds.
-(0) 22:39:38 [impl::SolverInterfaceImpl]:390 in advance: [0mit 10 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6219e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6421e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 5.8105e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.2466e-11
+Assemble/solve/update time: 4.1(88.95%)/0.5(10.74%)/0.015(0.31%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.045 seconds.
+[2025-08-31 08:41:30.033327] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:30.033946] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:30.033994] [0x00007fc1780acb80] [info]    iteration: 10 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e-02
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6228e-04
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6369e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 6.1080e-08
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 2.4082e-11
-Assemble/solve/update time: 0.14(33.55%)/0.28(65.24%)/0.0051(1.21%)
-Writing output for problem "navierstokes-iterative". Took 0.01 seconds.
-(0) 22:39:39 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 22:39:39 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "navierstokes-iterative". Took 0.0095 seconds.
-Run finished at Thu Aug  5 22:39:39 2021
-Global runtime       = 4085ms / 4.085s
-Number of processors = 1
-# Rank: 0
-
-                                                                               Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |          1 |       4085 |       4085 |       4085 |       4085 |          1 |
-                                                                             advance |         10 |          3 |          0 |          0 |          0 |   0.000734 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |         10 |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |         10 |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |          1 |         40 |         40 |         40 |         40 |    0.00979 |
-                                                                          initialize |          1 |          2 |          2 |          2 |          2 |    0.00049 |
-                                              initialize/m2n.requestMasterConnection |          1 |          1 |          1 |          1 |          1 |   0.000245 |
-                                              initialize/m2n.requestSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |          1 |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |         10 |       3737 |        461 |          9 |        373 |      0.915 |
-                                                                   solver.initialize |          1 |        301 |        301 |        301 |        301 |     0.0737 |
-
-
-                                                                                Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
--------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |       4085 |          0 |       4085 |          0 |          1 |
-                                                                             advance |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |         40 |          0 |         40 |          0 |          1 |
-                                                                          initialize |          2 |          0 |          2 |          0 |          1 |
-                                              initialize/m2n.requestMasterConnection |          1 |          0 |          1 |          0 |          1 |
-                                              initialize/m2n.requestSlavesConnection |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |        461 |          0 |          9 |          0 |  0.0195228 |
-                                                                   solver.initialize |        301 |          0 |        301 |          0 |          1 |
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.6217e-04
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 2.6385e-05
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  4 done, maximum relative shift = 5.3747e-08
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  5 done, maximum relative shift = 7.6756e-11
+Assemble/solve/update time: 4(88.86%)/0.49(10.80%)/0.015(0.33%)
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.045 seconds.
+[2025-08-31 08:41:34.658311] [0x00007fc1780acb80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:41:34.659604] [0x00007fc1780acb80] [info]    Time window completed
+[2025-08-31 08:41:34.659647] [0x00007fc1780acb80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:41:34.659683] [0x00007fc1780acb80] [info]    iteration: 1 of 100 (min 1), time-window: 2, time: 1 of 1, time-window-size: 1, max-time-step-size: 0, ongoing: no, time-window-complete: yes, 
+Writing output for problem "ff-pm-2d-precice-navierstokes". Took 0.062 seconds.
+[2025-08-31 08:41:34.721520] [0x00007fc1780acb80] [info]    Close communication channels
 
 # Runtime-specified parameters used:
 [ Darcy ]
@@ -175,7 +153,7 @@ LowerLeft = "0 1"
 UpperRight = "1 2"
 [ FreeFlow.Problem ]
 EnableInertiaTerms = "true"
-Name = "navierstokes-iterative"
+Name = "ff-pm-2d-precice-navierstokes"
 PressureDifference = "1e-4"
 [ Problem ]
 EnableGravity = "false"
@@ -187,22 +165,6 @@ AddVelocity = "1"
 NumericDifferenceMethod = "1"
 [ Flux ]
 UpwindWeight = "1.0"
-[ Newton ]
-EnableAbsoluteResidualCriterion = "false"
-EnableChop = "false"
-EnablePartialReassembly = "false"
-EnableResidualCriterion = "false"
-EnableShiftCriterion = "true"
-MaxAbsoluteResidual = "1e-5"
-MaxRelativeShift = "1e-8"
-MaxSteps = "18"
-MinSteps = "2"
-ResidualReduction = "1e-5"
-SatisfyResidualAndShiftCriterion = "false"
-TargetSteps = "10"
-UseLineSearch = "false"
-[ Vtk ]
-AddProcessRank = "true"
 
 # Unused parameters:
  = "./precice-config-pi.xml"
@@ -211,14 +173,11 @@ FreeFlow.Grid.Grading1 = "1"
 Darcy.Grid.Verbosity = "true"
 Darcy.Grid.Cells = "40 40"
 Darcy.Grid.Grading1 = "1"
-Darcy.Problem.Name = "darcy-iterative"
+Darcy.Problem.Name = "ff-pm-2d-precice-darcy"
 Darcy.Problem.InitialP = "0.0e-9"
 Darcy.SpatialParams.Porosity = "0.4"
 Problem.Name = "fvca-iterative"
 Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
 
-Marvin: I've been talking to the main computer.
-Arthur: And?
-Marvin: It hates me.
- - Douglas Adams, HGttG
+Don't panic... !
 

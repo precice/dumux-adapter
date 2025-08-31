@@ -1,23 +1,32 @@
 
-You idiot! You signed the order to destroy Earth!
- - Douglas Adams, HGttG
+Welcome aboard DuMuX airlines. Please fasten your seatbelts! Emergency exits are near the time integration.
 
 Reading parameters from file ./params-stokesdarcy.input.
-(0) 21:54:57 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 21:54:57 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 21:54:57 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-si-stokes-second.xml"
-(0) 21:54:57 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.0169465 seconds.
+Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.00873552 seconds.
+[2025-08-31 08:39:01.209487] [0x00007fe763777b80] [info]    This is preCICE version 3.1.1
+[2025-08-31 08:39:01.209541] [0x00007fe763777b80] [info]    Revision info: v3.1.1
+[2025-08-31 08:39:01.209555] [0x00007fe763777b80] [info]    Build type: Release (without debug log)
+[2025-08-31 08:39:01.209569] [0x00007fe763777b80] [info]    Configuring preCICE with configuration "./precice-config-si-free-flow-second.xml"
+[2025-08-31 08:39:01.209583] [0x00007fe763777b80] [info]    I am participant "FreeFlow"
 2  2
-(0) 21:54:57 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 21:54:57 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 21:54:57 [partition::ReceivedPartition]:35 in communicate: [0mReceive global mesh DarcyMesh
-(0) 21:54:57 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh FreeFlowMesh
-(0) 21:54:57 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 21:54:57 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 21:54:57 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-initial-data | write-iteration-checkpoint | 
-Writing output for problem "stokes-iterative". Took 0.0093 seconds.
-(0) 21:54:57 [impl::SolverInterfaceImpl]:1414 in mapWrittenData: [0mCompute write mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh".
-(0) 21:54:57 [impl::SolverInterfaceImpl]:1465 in mapReadData: [0mCompute read mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh".
+ -- Using the default temperature of 293.15 in the entire domain. Overload temperatureAtPos() in your spatial params class to define a custom temperature field.Or provide the preferred domain temperature via the SpatialParams.Temperature parameter.
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.053 seconds.
+[2025-08-31 08:39:01.295296] [0x00007fe763777b80] [info]    Setting up primary communication to coupling partner/s
+[2025-08-31 08:39:01.296151] [0x00007fe763777b80] [info]    Primary ranks are connected
+[2025-08-31 08:39:01.296189] [0x00007fe763777b80] [info]    Setting up preliminary secondary communication to coupling partner/s
+[2025-08-31 08:39:01.296213] [0x00007fe763777b80] [info]    Receive global mesh DarcyMesh
+[2025-08-31 08:39:01.338860] [0x00007fe763777b80] [info]    Prepare partition for mesh FreeFlowMesh
+[2025-08-31 08:39:01.338987] [0x00007fe763777b80] [info]    Setting up secondary communication to coupling partner/s
+[2025-08-31 08:39:01.385808] [0x00007fe763777b80] [info]    Secondary ranks are connected
+[2025-08-31 08:39:01.385854] [0x00007fe763777b80] [info]    Computing "nearest-neighbor" mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh" in "write" direction.
+[2025-08-31 08:39:01.386009] [0x00007fe763777b80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
+[2025-08-31 08:39:01.386063] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=0 from "FreeFlowMesh" to "DarcyMesh" (skipped zero sample)
+[2025-08-31 08:39:01.622184] [0x00007fe763777b80] [info]    Computing "nearest-neighbor" mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh" in "read" direction.
+[2025-08-31 08:39:01.622382] [0x00007fe763777b80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
+[2025-08-31 08:39:01.622421] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=0 from "DarcyMesh" to "FreeFlowMesh" (skipped zero sample)
+[2025-08-31 08:39:01.622452] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh" (skipped zero sample)
+[2025-08-31 08:39:01.622524] [0x00007fe763777b80] [info]    iteration: 1 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, write-initial-data write-iteration-checkpoint 
 Instantiated assembler for a stationary problem.
 
 Newton solver configured with the following options and parameters:
@@ -30,111 +39,63 @@ Newton solver configured with the following options and parameters:
  -- Newton.MaxTimeStepDivisions = 10
 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.5954e-12
-Assemble/solve/update time: 0.068(28.01%)/0.17(70.76%)/0.003(1.23%)
-Writing output for problem "stokes-iterative". Took 0.013 seconds.
-(0) 21:54:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.036512, relative limit = 3.6512e-08, conv = false
-(0) 21:54:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0, relative limit = 0, conv = true
-(0) 21:54:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.036512, limit = 1e-08, conv = false
-(0) 21:54:57 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0, limit = 1e-08, conv = true
-(0) 21:54:57 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8244e-09
+Assemble/solve/update time: 2.2(86.84%)/0.31(12.57%)/0.015(0.59%)
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
+[2025-08-31 08:39:04.274857] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:39:04.274949] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.00e+00, limit = 1.00e-06, normalization = 3.65e-02, conv = false
+[2025-08-31 08:39:04.274975] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = inf, limit = 1.00e-06, normalization = 0.00e+00, conv = true
+[2025-08-31 08:39:04.274998] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.65e-02, limit = 1.00e-08, conv = false
+[2025-08-31 08:39:04.275042] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 0.00e+00, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:04.652401] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:39:04.652507] [0x00007fe763777b80] [info]    iteration: 2 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 5.4284e-12
-Assemble/solve/update time: 0.061(30.12%)/0.14(68.54%)/0.0027(1.34%)
-Writing output for problem "stokes-iterative". Took 0.0091 seconds.
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 0.0328608, relative limit = 3.6512e-08, conv = false
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 6.19228e-06, relative limit = 6.19228e-12, conv = false
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 0.0328608, limit = 1e-08, conv = false
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 6.19228e-06, limit = 1e-08, conv = false
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8244e-09
+Assemble/solve/update time: 2.2(87.25%)/0.3(12.14%)/0.015(0.60%)
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
+[2025-08-31 08:39:07.206452] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:39:07.206531] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 9.00e-01, limit = 1.00e-06, normalization = 3.65e-02, conv = false
+[2025-08-31 08:39:07.206557] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.00e+00, limit = 1.00e-06, normalization = 6.19e-06, conv = false
+[2025-08-31 08:39:07.206581] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.29e-02, limit = 1.00e-08, conv = false
+[2025-08-31 08:39:07.206611] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 6.19e-06, limit = 1.00e-08, conv = false
+[2025-08-31 08:39:07.571917] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:39:07.572048] [0x00007fe763777b80] [info]    iteration: 3 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 7.5945e-12
-Assemble/solve/update time: 0.059(29.90%)/0.14(68.78%)/0.0026(1.32%)
-Writing output for problem "stokes-iterative". Took 0.0087 seconds.
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.53191e-09, relative limit = 3.65118e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 5.57235e-05, relative limit = 6.19158e-11, conv = false
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.53191e-09, limit = 1e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 5.57235e-05, limit = 1e-08, conv = false
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
+Assemble/solve/update time: 2.2(87.23%)/0.32(12.51%)/0.0066(0.26%)
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.07 seconds.
+[2025-08-31 08:39:10.185017] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:39:10.185092] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 6.93e-08, limit = 1.00e-06, normalization = 3.65e-02, conv = true
+[2025-08-31 08:39:10.185117] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 9.00e-01, limit = 1.00e-06, normalization = 6.19e-05, conv = false
+[2025-08-31 08:39:10.185140] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 2.53e-09, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:10.185170] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 5.57e-05, limit = 1.00e-08, conv = false
+[2025-08-31 08:39:10.558420] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:39:10.558556] [0x00007fe763777b80] [info]    iteration: 4 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 4.7557e-12
-Assemble/solve/update time: 0.062(29.75%)/0.14(69.01%)/0.0026(1.24%)
-Writing output for problem "stokes-iterative". Took 0.0091 seconds.
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 1.40729e-11, relative limit = 3.65118e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 1.19262e-10, relative limit = 6.19158e-11, conv = false
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 1.40729e-11, limit = 1e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 1.19262e-10, limit = 1e-08, conv = true
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
+Assemble/solve/update time: 2.2(87.54%)/0.3(12.17%)/0.0071(0.28%)
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
+[2025-08-31 08:39:13.146877] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:39:13.146953] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 3.85e-10, limit = 1.00e-06, normalization = 3.65e-02, conv = true
+[2025-08-31 08:39:13.146978] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.93e-06, limit = 1.00e-06, normalization = 6.19e-05, conv = false
+[2025-08-31 08:39:13.147001] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 1.41e-11, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:13.147031] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 1.19e-10, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:13.525905] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
+[2025-08-31 08:39:13.526016] [0x00007fe763777b80] [info]    iteration: 5 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
 Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 4.0110e-12
-Assemble/solve/update time: 0.06(30.23%)/0.14(68.43%)/0.0027(1.34%)
-Writing output for problem "stokes-iterative". Took 0.0089 seconds.
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 2.50299e-14, relative limit = 3.65118e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mrelative convergence measure: two-norm diff = 7.13582e-13, relative limit = 6.19158e-11, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 2.50299e-14, limit = 1e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:673 in measureConvergence: [0mabsolute convergence measure: two-norm diff = 7.13582e-13, limit = 1e-08, conv = true
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:677 in measureConvergence: [0mAll converged
-(0) 21:54:58 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 21:54:58 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "stokes-iterative". Took 0.0091 seconds.
-Run finished at Thu Aug  5 21:54:58 2021
-Global runtime       = 1345ms / 1.345s
-Number of processors = 1
-# Rank: 0
-
-                                                                               Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |          1 |       1345 |       1345 |       1345 |       1345 |          1 |
-                                                                             advance |          5 |        170 |         79 |          0 |         34 |      0.126 |
-                                                advance/cpl.computeQuasiNewtonUpdate |          4 |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          4 |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          5 |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |          1 |         11 |         11 |         11 |         11 |    0.00818 |
-                                                                          initialize |          1 |          2 |          2 |          2 |          2 |    0.00149 |
-                                              initialize/m2n.requestMasterConnection |          1 |          1 |          1 |          1 |          1 |   0.000743 |
-                                              initialize/m2n.requestSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |          1 |         25 |         25 |         25 |         25 |     0.0186 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |          5 |        860 |        218 |          9 |        172 |      0.639 |
-                                                                   solver.initialize |          1 |        275 |        275 |        275 |        275 |      0.204 |
-
-
-                                                                                Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
--------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |       1345 |          0 |       1345 |          0 |          1 |
-                                                                             advance |         79 |          0 |          0 |          0 |          0 |
-                                                advance/cpl.computeQuasiNewtonUpdate |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |         11 |          0 |         11 |          0 |          1 |
-                                                                          initialize |          2 |          0 |          2 |          0 |          1 |
-                                              initialize/m2n.requestMasterConnection |          1 |          0 |          1 |          0 |          1 |
-                                              initialize/m2n.requestSlavesConnection |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |         25 |          0 |         25 |          0 |          1 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |        218 |          0 |          9 |          0 |  0.0412844 |
-                                                                   solver.initialize |        275 |          0 |        275 |          0 |          1 |
+Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
+Assemble/solve/update time: 2.2(87.38%)/0.31(12.34%)/0.0069(0.28%)
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
+[2025-08-31 08:39:16.099059] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
+[2025-08-31 08:39:16.099144] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 6.86e-13, limit = 1.00e-06, normalization = 3.65e-02, conv = true
+[2025-08-31 08:39:16.099170] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.15e-08, limit = 1.00e-06, normalization = 6.19e-05, conv = true
+[2025-08-31 08:39:16.099193] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 2.51e-14, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:16.099223] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 7.14e-13, limit = 1.00e-08, conv = true
+[2025-08-31 08:39:16.099240] [0x00007fe763777b80] [info]    All converged
+[2025-08-31 08:39:16.114075] [0x00007fe763777b80] [info]    Time window completed
+[2025-08-31 08:39:16.114132] [0x00007fe763777b80] [info]    iteration: 1 of 100 (min 1), time-window: 2, time: 1 of 1, time-window-size: 1, max-time-step-size: 0, ongoing: no, time-window-complete: yes, 
+Writing output for problem "ff-pm-2d-precice-stokes". Took 0.052 seconds.
+[2025-08-31 08:39:16.166423] [0x00007fe763777b80] [info]    Close communication channels
 
 # Runtime-specified parameters used:
 [ Darcy ]
@@ -152,7 +113,7 @@ LowerLeft = "0 1"
 UpperRight = "1 2"
 [ FreeFlow.Problem ]
 EnableInertiaTerms = "false"
-Name = "stokes-iterative"
+Name = "ff-pm-2d-precice-stokes"
 PressureDifference = "1e-2"
 [ Problem ]
 EnableGravity = "false"
@@ -164,38 +125,20 @@ AddVelocity = "1"
 NumericDifferenceMethod = "1"
 [ Flux ]
 UpwindWeight = "1.0"
-[ Newton ]
-EnableAbsoluteResidualCriterion = "false"
-EnableChop = "false"
-EnablePartialReassembly = "false"
-EnableResidualCriterion = "false"
-EnableShiftCriterion = "true"
-MaxAbsoluteResidual = "1e-5"
-MaxRelativeShift = "1e-8"
-MaxSteps = "18"
-MinSteps = "2"
-ResidualReduction = "1e-5"
-SatisfyResidualAndShiftCriterion = "false"
-TargetSteps = "10"
-UseLineSearch = "false"
-[ Vtk ]
-AddProcessRank = "true"
 
 # Unused parameters:
- = "./precice-config-si-stokes-second.xml"
+ = "./precice-config-si-free-flow-second.xml"
 FreeFlow.Grid.Verbosity = "true"
 FreeFlow.Grid.Grading1 = "1"
 Darcy.Grid.Verbosity = "true"
 Darcy.Grid.Cells = "40 40"
 Darcy.Grid.Grading1 = "1"
-Darcy.Problem.Name = "darcy-iterative"
+Darcy.Problem.Name = "ff-pm-2d-precice-darcy"
 Darcy.Problem.InitialP = "0.0e-9"
 Darcy.SpatialParams.Porosity = "0.4"
 Problem.Name = "fvca-iterative"
 Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
 
-Marvin: I've been talking to the main computer.
-Arthur: And?
-Marvin: It hates me.
- - Douglas Adams, HGttG
+We hope that you enjoyed simulating with us 
+and that you will choose us next time, too.
 

@@ -1,5 +1,9 @@
 # DuMuX-preCICE change log
 
+## latest
+
+- Update DUNE version in the CI to 2.10 and update examples for compatibility [#45](https://github.com/precice/dumux-adapter/pull/45)
+
 ## v2.0.0
 
 - 2023-08-10: Updated the adapter to be compatible with preCICE v3.0.0. Updated the examples too.
