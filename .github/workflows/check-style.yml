@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout preCICE
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup python
         uses: actions/setup-python@v5
         with:
@@ -30,8 +30,8 @@ jobs:
   python_linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10.10'
       - name: "Install style checker"
@@ -41,7 +41,7 @@ jobs:
   cpp_linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
       - name: Run format check
         run: |
           sudo apt-get install clang-format-14
