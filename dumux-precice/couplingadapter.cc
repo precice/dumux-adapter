@@ -29,7 +29,7 @@ void CouplingAdapter::announceSolver(const std::string &name,
 {
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::Participant>(
-        name, configurationFileName, rank, size);
+         name, configurationFileName, rank, size);
     wasCreated_ = true;
 }
 
