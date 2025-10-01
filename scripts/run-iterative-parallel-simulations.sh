@@ -33,14 +33,14 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
           for alpha in "${alphaBeaversJoseph[@]}"; do
             for mesh in "${meshSizes[@]}"; do
               i=$((i+1))
-              
-              # Check if Stokes or Navier-Stokes        
+
+              # Check if Stokes or Navier-Stokes
               flowProblemName="stokes"
               echo ${hasInertiaTerms}
               if [[ "${hasInertiaTerms}" == "true" ]]; then
                 flowProblemName="navier-stokes"
               fi
-            
+
               # Generate name of test case and create directories
               casename="${flowProblemName}-${preciceRelTol}-${mesh}-${alpha}-${permeability}-${dp}"
               if [[ ${preciceBase} == *"darcy-first"* ]]; then
@@ -48,7 +48,7 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
               fi
               echo "${casename}"
 
-              # Setting up input file          
+              # Setting up input file
               inputFile="${casename}.input"
               sed -e s/MESHSIZE/"${mesh}"/g \
                   -e "s/FLOWPROBLEMNAME/${flowProblemName}/g" \
@@ -58,12 +58,12 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
                   -e "s/HASINERTIATERMS/${hasInertiaTerms}/g" \
                   -e "s/CASENAME/${casename}/g" \
                   "${inputTemplate}" > ${inputFile}
-                  
+
               preciceXML="${casename}.xml"
               echo "${preciceBase}"
               sed -e "s/RELTOL/${preciceRelTol}/g" \
-                  "${preciceBase}" > ${preciceXML}                  
-                  
+                  "${preciceBase}" > ${preciceXML}
+
               rm -rf "precice-run/"
 #              ff_cmd="./${ff_solver} - ${preciceXML}"
               echo "${ff_cmd}"
@@ -96,7 +96,7 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
               mv *.txt ${targetDir}/
               mv *.json ${targetDir}/
               mv ${preciceXML} ${targetDir}/
-              mv "${inputFile}" ${targetDir}/ 
+              mv "${inputFile}" ${targetDir}/
               rm -f *.csv *.pvd *.vtu *.log *.txt *.json
               #cd ${casename}
     #          ln -s "../${solver}" "${solver}"
@@ -113,8 +113,3 @@ for hasInertiaTerms in "${hasInertiaTerms[@]}"; do
 done
 
 echo "In total ${i} cases were run"
-
-
-
-
-

@@ -11,3 +11,22 @@ repos:
       exclude: 'CHANGELOG.md|.github/*'
     - id: markdownlint-fix
       exclude: 'CHANGELOG.md|.github/*'
+# clang-format for C/C++ formatting
+-   repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v19.1.2
+    hooks:
+    -   id: clang-format
+        args: ['--style=file']
+        types_or: [c++]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+    - id: check-xml
+      exclude: "^test/reference-solutions/.*"
+    - id: check-merge-conflict
+    - id: mixed-line-ending
+      exclude: "^test/reference-solutions/.*"
+    - id: end-of-file-fixer
+      exclude: "^test/reference-solutions/.*"
+    - id: trailing-whitespace
+      exclude: "^test/reference-solutions/.*"
