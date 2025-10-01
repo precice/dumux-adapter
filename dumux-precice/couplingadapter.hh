@@ -13,6 +13,10 @@
  */
 namespace Dumux::Precice
 {
+
+//! Type of Dumux face IDs
+using FaceID = int;
+
 /*!
  * @brief A DuMuX-preCICE coupling adapter class
  *
@@ -37,14 +41,10 @@ private:
     bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
-    //! Time step size.
-    double timeStepSize_;
     //! Map storing meshName:dataName and data vectors
     std::map<std::string, std::vector<double>> dataMap_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
     std::vector<int> vertexIDs_;  //should be size_t
-    //! Span of the precice vertex indices vector vertexIDs_
-    precice::span<precice::VertexID> vertexIDsSpan_;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -52,7 +52,7 @@ private:
      *        DuMuX' identifiers of vertices and preCICE's identifiers.
      *
      */
-    Internal::DumuxPreciceIndexMapper<int> indexMapper_;
+    Internal::DumuxPreciceIndexMapper<FaceID, precice::VertexID> indexMapper_;
     /*!
      * @brief Get the number of quantities exchanged.
      *
@@ -166,7 +166,7 @@ public:
      * \note The order of the face identifiers must be correspond to the order of coordinates
      *       passed in setMesh.
      */
-    void createIndexMapping(const std::vector<int> &dumuxFaceIDs);
+    void createIndexMapping(const std::vector<FaceID> &dumuxFaceIDs);
     /*!
      * @brief Destroys the coupling.
      *
@@ -222,7 +222,7 @@ public:
      */
     double getScalarQuantityOnFace(const std::string &meshName,
                                    const std::string &dataName,
-                                   const int faceID);
+                                   const FaceID faceID);
     /*!
      * @brief Writes value of scalar quantity on a given finite volume face to data map.
      *
@@ -233,7 +233,7 @@ public:
      */
     void writeScalarQuantityOnFace(const std::string &meshName,
                                    const std::string &dataName,
-                                   const int faceID,
+                                   const FaceID faceID,
                                    const double value);
     /*!
      * @brief Gets the quantity value vector from the data map according to the mesh and data name.

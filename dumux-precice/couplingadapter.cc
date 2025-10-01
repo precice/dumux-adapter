@@ -12,8 +12,7 @@ CouplingAdapter::CouplingAdapter()
       precice_(nullptr),
       meshWasCreated_(false),
       preciceWasInitialized_(false),
-      hasIndexMapper_(false),
-      timeStepSize_(0.)
+      hasIndexMapper_(false)
 {
 }
 
@@ -58,10 +57,8 @@ void CouplingAdapter::setMesh(const std::string &meshName,
                               const std::vector<double> &positions)
 {
     assert(wasCreated_);
-    vertexIDs_ =
-        std::vector<int>(positions.size() / getMeshDimensions(meshName));
-    vertexIDsSpan_ = precice::span(vertexIDs_);
-    precice_->setMeshVertices(meshName, positions, vertexIDsSpan_);
+    vertexIDs_.resize(positions.size() / getMeshDimensions(meshName));
+    precice_->setMeshVertices(meshName, positions, vertexIDs_);
     meshWasCreated_ = true;
 }
 
@@ -72,8 +69,6 @@ void CouplingAdapter::initialize()
     assert(!preciceWasInitialized_);
 
     precice_->initialize();
-    timeStepSize_ = precice_->getMaxTimeStepSize();
-    assert(timeStepSize_ > 0);
 
     preciceWasInitialized_ = true;
     assert(preciceWasInitialized_);
@@ -180,17 +175,7 @@ std::string CouplingAdapter::meshAndDataKey(const std::string &meshName,
                                             const std::string &dataName) const
 {
     assert(wasCreated_);
-    std::string combinedKey;
-    int length = meshName.size() + 1 + dataName.size();
-    for (int i = 0; i < length; i++) {
-        if (i < meshName.size())
-            combinedKey += meshName[i];
-        else if (i == meshName.size())
-            combinedKey += ":";
-        else
-            combinedKey += dataName[i - meshName.size() - 1];
-    }
-    return combinedKey;
+    return meshName + ":" + dataName;
 }
 
 void CouplingAdapter::print(std::ostream &os)
@@ -202,17 +187,16 @@ void CouplingAdapter::readQuantityFromOtherSolver(const std::string &meshName,
                                                   const std::string &dataName,
                                                   double relativeReadTime)
 {
-    precice::span<double> dataValuesSpan(getQuantityVector(meshName, dataName));
-    precice_->readData(meshName, dataName, vertexIDsSpan_, relativeReadTime,
-                       dataValuesSpan);
+    auto &dataValues = getQuantityVector(meshName, dataName);
+    precice_->readData(meshName, dataName, vertexIDs_, relativeReadTime,
+                       dataValues);
 }
 
 void CouplingAdapter::writeQuantityToOtherSolver(const std::string &meshName,
                                                  const std::string &dataName)
 {
-    precice::span<const double> dataValuesSpan(
-        getQuantityVector(meshName, dataName));
-    precice_->writeData(meshName, dataName, vertexIDsSpan_, dataValuesSpan);
+    auto &dataValues = getQuantityVector(meshName, dataName);
+    precice_->writeData(meshName, dataName, vertexIDs_, dataValues);
 }
 
 bool CouplingAdapter::requiresToWriteInitialData()
