@@ -2,8 +2,8 @@
 #define DUMUXPRECICEINDEXWRAPPER_H
 
 #include <cassert>
-#include <unordered_map>
 #include <ostream>
+#include <unordered_map>
 #include <vector>
 
 /*!

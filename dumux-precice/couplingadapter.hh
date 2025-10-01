@@ -1,10 +1,10 @@
 #ifndef PRECICEWRAPPER_HH
 #define PRECICEWRAPPER_HH
 
+#include <map>
 #include <ostream>
 #include <precice/precice.hpp>
 #include <string>
-#include <map>
 
 #include "dumuxpreciceindexmapper.hh"
 
