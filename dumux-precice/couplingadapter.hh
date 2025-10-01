@@ -112,7 +112,7 @@ public:
      */
     double getMaxTimeStepSize() const;
     /*!
-     * @brief Checks if the participant is required to read an iteration checkpoint. If true, the participant is required to read an iteration checkpoint before calling advance(). 
+     * @brief Checks if the participant is required to read an iteration checkpoint. If true, the participant is required to read an iteration checkpoint before calling advance().
      *
      * @return true Simulation checkpoint has to be restored.
      * @return false No further action is needed.
@@ -120,7 +120,7 @@ public:
     bool requiresToReadCheckpoint();
 
     /*!
-     * @brief Checks if the participant is required to write an iteration checkpoint. If true, the participant is required to write an iteration checkpoint before calling advance(). 
+     * @brief Checks if the participant is required to write an iteration checkpoint. If true, the participant is required to write an iteration checkpoint before calling advance().
      *
      * @return true Simulation checkpoints needs to be stored.
      * @return false No further action is needed.
@@ -140,7 +140,7 @@ public:
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
      * @param[in] positions A span to the coordinates of the vertices.
-     * 
+     *
      * \note The coordinates need to be stored consecutively
      *       according to their spatial coordinates as.\n
      *       Example 2D:\n
@@ -255,7 +255,7 @@ public:
     void writeQuantityVector(const std::string &meshName,
                              const std::string &dataName,
                              const std::vector<double> &values);
-    /*! 
+    /*!
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
      * @param[in] faceID Identifier of the face according to DuMuX' numbering.
