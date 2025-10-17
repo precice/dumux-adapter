@@ -19,29 +19,34 @@
 #include "dumux-precice/couplingadapter.hh"
 
 #include <memory>
-#include <type_traits>
 #include <numeric>
+#include <type_traits>
 
 // Mock TimeLoop class to test checkpointing functionality
-class TimeLoop {
-    public:
+class TimeLoop
+{
+public:
     double t{0.0};
     long idx{0};
     double time() const { return t; }
     long timeStepIndex() const { return idx; }
-    void setTime(double tt, long i) { t = tt; idx = i; }
+    void setTime(double tt, long i)
+    {
+        t = tt;
+        idx = i;
+    }
     void setTimeStepSize(double /*dt*/) {}
 };
 
 // Mock GridVariables class to test checkpointing functionality
-class GridVariables {
-    public:
+class GridVariables
+{
+public:
     bool updated{false};
     bool advanced{false};
     void update(const std::vector<double> & /*x*/) { updated = true; }
     void advanceTimeStep() { advanced = true; }
 };
-
 
 int main(int argc, char **argv)
 try {
@@ -96,7 +101,8 @@ try {
     std::iota(dumuxVertexIDs.begin(), dumuxVertexIDs.end(), numberOfVertices);
     // set vertex coordinates: for each vertex i fill its `dimensions` entries with i
     for (int i = 0; i < numberOfVertices; ++i) {
-        std::fill_n(vertices.begin() + i * dimensions, dimensions, static_cast<double>(i));
+        std::fill_n(vertices.begin() + i * dimensions, dimensions,
+                    static_cast<double>(i));
     }
 
     std::cout << "DUMMY (" << mpiHelper.rank()
@@ -115,8 +121,7 @@ try {
                   << "): Writing initial data\n";
         couplingParticipant.writeQuantityVector(meshName, dataToWrite,
                                                 writeScalarData);
-        couplingParticipant.writeQuantityToOtherSolver(meshName,
-                                                       dataToWrite);
+        couplingParticipant.writeQuantityToOtherSolver(meshName, dataToWrite);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -129,20 +134,21 @@ try {
     GridVariables gridVars;
 
     // Register writeScalarData as the solver state for checkpointing.
-    couplingParticipant.initializeCheckpoint(writeScalarData, timeLoop, gridVars);
+    couplingParticipant.initializeCheckpoint(writeScalarData, timeLoop,
+                                             gridVars);
 
     // Check exchanged initial data
     if (solverName == "SolverOne") {
         std::cout << "SolverOne: Reading initial data\n";
-        couplingParticipant.readQuantityFromOtherSolver(
-            meshName, dataToRead, preciceDt);
+        couplingParticipant.readQuantityFromOtherSolver(meshName, dataToRead,
+                                                        preciceDt);
     }
 
     int iter = 0;
     dataToKeep = writeScalarData;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if(solverName=="SolverOne") {
+        if (solverName == "SolverOne") {
             couplingParticipant.writeCheckpointIfRequired();
 
             ++iter;
@@ -153,11 +159,11 @@ try {
             couplingParticipant.advance(preciceDt);
             couplingParticipant.readCheckpointIfRequired(preciceDt);
             if (writeScalarData != dataToKeep) {
-                throw std::runtime_error("SolverOne: Checkpointing failed, data not restored correctly");
+                throw std::runtime_error(
+                    "SolverOne: Checkpointing failed, data not restored "
+                    "correctly");
             }
-        }
-        else
-        {
+        } else {
             couplingParticipant.writeCheckpointIfRequired();
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
