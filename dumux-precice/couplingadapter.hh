@@ -58,10 +58,9 @@ private:
      */
     Internal::DumuxPreciceIndexMapper<FaceID, precice::VertexID> indexMapper_;
     /*!
-     * @brief Store the state of the solver for checkpointing.
+     * @brief Store the states of the solver for checkpointing.
      *
      */
-    // std::unique_ptr<SolverStateBase> state_
     std::vector<std::unique_ptr<SolverStateBase>> states_;
 
     // Helper: add a new concrete SolverState instance
