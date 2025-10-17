@@ -62,15 +62,6 @@ private:
      *
      */
     std::vector<std::unique_ptr<SolverStateBase>> states_;
-
-    // Helper: add a new concrete SolverState instance
-    template<typename StateType, typename... Args>
-    void addState(Args &&...args)
-    {
-        states_.emplace_back(
-            std::make_unique<StateType>(std::forward<Args>(args)...));
-        checkpointingInitialized_ = true;
-    }
     /*!
      * @brief Get the number of quantities exchanged.
      *
@@ -333,21 +324,27 @@ void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
                                            TimeLoop &tl,
                                            GridVariables &gv)
 {
-    addState<SolverStateGridVarTime<SolutionVector, TimeLoop, GridVariables>>(
-        x, tl, gv);
+    states_.emplace_back(
+        std::make_unique<
+            SolverStateGridVarTime<SolutionVector, TimeLoop, GridVariables>>(
+            x, tl, gv));
+    checkpointingInitialized_ = true;
 }
 
 template<class SolutionVector, class GridVariables>
 void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv)
 {
-    addState<SolverStateGridVar<SolutionVector, GridVariables>>(x, gv);
+    states_.emplace_back(
+        std::make_unique<SolverStateGridVar<SolutionVector, GridVariables>>(
+            x, gv));
+    checkpointingInitialized_ = true;
 }
 
 template<class SolutionVector>
 void CouplingAdapter::initializeCheckpoint(SolutionVector &x)
 {
-    addState<SolverStateOnly<SolutionVector>>(x);
+    states_.emplace_back(std::make_unique<SolverStateOnly<SolutionVector>>(x));
+    checkpointingInitialized_ = true;
 }
-
 }  // namespace Dumux::Precice
 #endif

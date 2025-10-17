@@ -221,24 +221,24 @@ bool CouplingAdapter::requiresToWriteCheckpoint()
 
 bool CouplingAdapter::writeCheckpointIfRequired()
 {
-    if (requiresToWriteCheckpoint() && !states_.empty()) {
-        for (auto &state : states_) {
-            state->writeState();
-        }
-        return true;
+    if (!requiresToWriteCheckpoint()) {
+        return false;
     }
-    return false;
+    for (auto &state : states_) {
+        state->writeState();
+    }
+    return true;
 }
 
 bool CouplingAdapter::readCheckpointIfRequired(double dt)
 {
-    if (requiresToReadCheckpoint() && !states_.empty()) {
-        for (auto &state : states_) {
-            state->readState(dt);
-        }
-        return true;
+    if (!requiresToReadCheckpoint()) {
+        return false;
     }
-    return false;
+    for (auto &state : states_) {
+        state->readState(dt);
+    }
+    return true;
 }
 
 CouplingAdapter::~CouplingAdapter() {}
