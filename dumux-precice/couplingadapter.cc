@@ -208,14 +208,14 @@ bool CouplingAdapter::requiresToWriteInitialData()
 bool CouplingAdapter::requiresToReadCheckpoint()
 {
     assert(wasCreated_);
-    assert(checkpointingInitialized_);
+    assert(!states_.empty());
     return precice_->requiresReadingCheckpoint();
 }
 
 bool CouplingAdapter::requiresToWriteCheckpoint()
 {
     assert(wasCreated_);
-    assert(checkpointingInitialized_);
+    assert(!states_.empty());
     return precice_->requiresWritingCheckpoint();
 }
 

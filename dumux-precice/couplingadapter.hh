@@ -41,8 +41,6 @@ private:
     bool meshWasCreated_;
     //! True if precice::Participant.initialize() has been called.
     bool preciceWasInitialized_;
-    //! True if checkpointing functionality has been initialized
-    bool checkpointingInitialized_{false};
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
     //! Map storing meshName:dataName and data vectors
@@ -328,7 +326,6 @@ void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
         std::make_unique<
             SolverStateGridVarTime<SolutionVector, TimeLoop, GridVariables>>(
             x, tl, gv));
-    checkpointingInitialized_ = true;
 }
 
 template<class SolutionVector, class GridVariables>
@@ -337,14 +334,12 @@ void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv)
     states_.emplace_back(
         std::make_unique<SolverStateGridVar<SolutionVector, GridVariables>>(
             x, gv));
-    checkpointingInitialized_ = true;
 }
 
 template<class SolutionVector>
 void CouplingAdapter::initializeCheckpoint(SolutionVector &x)
 {
     states_.emplace_back(std::make_unique<SolverStateOnly<SolutionVector>>(x));
-    checkpointingInitialized_ = true;
 }
 }  // namespace Dumux::Precice
 #endif
