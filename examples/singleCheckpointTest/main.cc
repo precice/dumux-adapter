@@ -22,22 +22,6 @@
 #include <numeric>
 #include <type_traits>
 
-// Mock TimeLoop class to test checkpointing functionality
-class TimeLoop
-{
-public:
-    double t{0.0};
-    long idx{0};
-    double time() const { return t; }
-    long timeStepIndex() const { return idx; }
-    void setTime(double tt, long i)
-    {
-        t = tt;
-        idx = i;
-    }
-    void setTimeStepSize(double /*dt*/) {}
-};
-
 // Mock GridVariables class to test checkpointing functionality
 class GridVariables
 {
@@ -49,7 +33,7 @@ public:
 };
 
 int main(int argc, char **argv)
-try {
+{
     using namespace Dumux;
     // initialize MPI, finalize is done automatically on exit
     const auto &mpiHelper = Dune::MPIHelper::instance(argc, argv);
@@ -127,15 +111,11 @@ try {
     couplingParticipant.initialize();
     double preciceDt = 0;
 
-    // Create instances of the file-scope mock types and register them for
-    // checkpointing. Types are declared in the anonymous namespace above so
-    // template instantiation will see their definitions.
-    TimeLoop timeLoop;
+    // Create instances of the file-scope mock types for checkpointing.
     GridVariables gridVars;
 
     // Register writeScalarData as the solver state for checkpointing.
-    couplingParticipant.initializeCheckpoint(writeScalarData, timeLoop,
-                                             gridVars);
+    couplingParticipant.initializeCheckpoint(writeScalarData, gridVars);
 
     // Check exchanged initial data
     if (solverName == "SolverOne") {
@@ -186,17 +166,3 @@ try {
 
     return 0;
 }  // end main
-// namespace
-catch (Dumux::ParameterException &e) {
-    std::cerr << std::endl << e << " ---> Abort!" << std::endl;
-    return 1;
-} catch (Dune::Exception &e) {
-    std::cerr << "Dune reported error: " << e << " ---> Abort!" << std::endl;
-    return 3;
-} catch (std::runtime_error &e) {
-    std::cerr << std::endl << e.what() << " ---> Abort!" << std::endl;
-    return 4;
-} catch (...) {
-    std::cerr << "Unknown exception thrown! ---> Abort!" << std::endl;
-    return 5;
-}
