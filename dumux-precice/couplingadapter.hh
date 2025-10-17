@@ -7,6 +7,7 @@
 #include <string>
 
 #include "dumuxpreciceindexmapper.hh"
+#include "solverstate.hh"
 
 /*!
  * @brief Namespace of dumux-precice
@@ -40,6 +41,8 @@ private:
     bool meshWasCreated_;
     //! True if precice::Participant.initialize() has been called.
     bool preciceWasInitialized_;
+    //! True if checkpointing functionality has been initialized
+    bool checkpointingInitialized_{false};
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
     //! Map storing meshName:dataName and data vectors
@@ -54,6 +57,21 @@ private:
      *
      */
     Internal::DumuxPreciceIndexMapper<FaceID, precice::VertexID> indexMapper_;
+    /*!
+     * @brief Store the state of the solver for checkpointing.
+     *
+     */
+    // std::unique_ptr<SolverStateBase> state_
+    std::vector<std::unique_ptr<SolverStateBase>> states_;
+
+    // Helper: add a new concrete SolverState instance
+    template<typename StateType, typename... Args>
+    void addState(Args &&...args)
+    {
+        states_.emplace_back(
+            std::make_unique<StateType>(std::forward<Args>(args)...));
+        checkpointingInitialized_ = true;
+    }
     /*!
      * @brief Get the number of quantities exchanged.
      *
@@ -126,6 +144,37 @@ public:
      * @return false No further action is needed.
      */
     bool requiresToWriteCheckpoint();
+
+    /*!
+     * @brief Initializes the checkpointing functionality.
+     *
+     * This function needs to be called at least once before using the checkpointing functionality.
+     *
+     * @param[in] x Solution vector
+     * @param[in] tl Timeloop
+     * @param[in] gv Grid variables
+     */
+    template<class SolutionVector, class TimeLoop, class GridVariables>
+    void initializeCheckpoint(SolutionVector &x,
+                              TimeLoop &tl,
+                              GridVariables &gv);
+
+    template<class SolutionVector, class GridVariables>
+    void initializeCheckpoint(SolutionVector &x, GridVariables &gv);
+
+    template<class SolutionVector>
+    void initializeCheckpoint(SolutionVector &x);
+    /*!
+     * @brief Writes the solver state to a checkpoint if required by preCICE.
+     *
+     */
+    bool writeCheckpointIfRequired();
+    /*!
+     * @brief Reads the solver state from a checkpoint if required by preCICE.
+     *
+     * @param[in] dt Time step size to set after reading the checkpoint
+     */
+    bool readCheckpointIfRequired(double dt);
 
     /*!
      * @brief Checks if the participant is required to provide initial data. If true, the participant needs to write initial data to defined vertices prior to calling initialize().
@@ -279,6 +328,27 @@ public:
      */
     void print(std::ostream &os);
 };
+
+template<class SolutionVector, class TimeLoop, class GridVariables>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
+                                           TimeLoop &tl,
+                                           GridVariables &gv)
+{
+    addState<SolverStateGridVarTime<SolutionVector, TimeLoop, GridVariables>>(
+        x, tl, gv);
+}
+
+template<class SolutionVector, class GridVariables>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv)
+{
+    addState<SolverStateGridVar<SolutionVector, GridVariables>>(x, gv);
+}
+
+template<class SolutionVector>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x)
+{
+    addState<SolverStateOnly<SolutionVector>>(x);
+}
 
 }  // namespace Dumux::Precice
 #endif
