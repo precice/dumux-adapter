@@ -139,14 +139,8 @@ public:
      * This function needs to be called at least once before using the checkpointing functionality.
      *
      * @param[in] x Solution vector
-     * @param[in] tl Timeloop
      * @param[in] gv Grid variables
      */
-    template<class SolutionVector, class TimeLoop, class GridVariables>
-    void initializeCheckpoint(SolutionVector &x,
-                              TimeLoop &tl,
-                              GridVariables &gv);
-
     template<class SolutionVector, class GridVariables>
     void initializeCheckpoint(SolutionVector &x, GridVariables &gv);
 
@@ -316,17 +310,6 @@ public:
      */
     void print(std::ostream &os);
 };
-
-template<class SolutionVector, class TimeLoop, class GridVariables>
-void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
-                                           TimeLoop &tl,
-                                           GridVariables &gv)
-{
-    states_.emplace_back(
-        std::make_unique<
-            SolverStateGridVarTime<SolutionVector, TimeLoop, GridVariables>>(
-            x, tl, gv));
-}
 
 template<class SolutionVector, class GridVariables>
 void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv)

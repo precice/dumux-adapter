@@ -59,40 +59,5 @@ public:
         gv_->update(*x_);
     }
 };
-/*!
-    * @brief A class to store and provide the state of the solver while checkpointing, one SolutionVector object is supported.
-    */
-template<class SolutionVector, class TimeLoop, class GridVariables>
-class SolverStateGridVarTime : public SolverStateBase
-{
-private:
-    SolutionVector *x_;
-    SolutionVector xCheckpoint_;
-    TimeLoop *tl_;
-    double timeCheckpoint_{0.0};
-    long timeStepCheckpoint_{0};
-    GridVariables *gv_;
-
-public:
-    SolverStateGridVarTime(SolutionVector &x, TimeLoop &tl, GridVariables &gv)
-        : x_(&x), xCheckpoint_(*x_), tl_(&tl), gv_(&gv)
-    {
-    }
-
-    void writeState() override
-    {
-        xCheckpoint_ = *x_;
-        timeCheckpoint_ = tl_->time();
-        timeStepCheckpoint_ = tl_->timeStepIndex();
-    }
-
-    void readState(double dt) override
-    {
-        *x_ = xCheckpoint_;
-        tl_->setTime(timeCheckpoint_, timeStepCheckpoint_);
-        tl_->setTimeStepSize(dt);
-        gv_->update(*x_);
-    }
-};
 }  // namespace Dumux::Precice
 #endif
