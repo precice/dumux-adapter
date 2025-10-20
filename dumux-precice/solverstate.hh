@@ -57,7 +57,6 @@ public:
     {
         *x_ = xCheckpoint_;
         gv_->update(*x_);
-        gv_->advanceTimeStep();
     }
 };
 /*!
@@ -93,7 +92,6 @@ public:
         tl_->setTime(timeCheckpoint_, timeStepCheckpoint_);
         tl_->setTimeStepSize(dt);
         gv_->update(*x_);
-        gv_->advanceTimeStep();
     }
 };
 }  // namespace Dumux::Precice
