@@ -153,10 +153,8 @@ public:
     bool writeCheckpointIfRequired();
     /*!
      * @brief Reads the solver state from a checkpoint if required by preCICE.
-     *
-     * @param[in] dt Time step size to set after reading the checkpoint
      */
-    bool readCheckpointIfRequired(double dt);
+    bool readCheckpointIfRequired();
 
     /*!
      * @brief Checks if the participant is required to provide initial data. If true, the participant needs to write initial data to defined vertices prior to calling initialize().

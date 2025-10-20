@@ -15,7 +15,7 @@ namespace Dumux::Precice
 struct SolverStateBase {
     virtual ~SolverStateBase() = default;
     virtual void writeState() = 0;
-    virtual void readState(double dt) = 0;
+    virtual void readState() = 0;
 };
 /*!
     * @brief A class to store and provide the state of the solver while checkpointing, one SolutionVector object is supported.
@@ -32,7 +32,7 @@ public:
 
     void writeState() override { xCheckpoint_ = *x_; }
 
-    void readState(double dt) override { *x_ = xCheckpoint_; }
+    void readState() override { *x_ = xCheckpoint_; }
 };
 /*!
     * @brief A class to store and provide the state of the solver while checkpointing, one SolutionVector object is supported.
@@ -53,7 +53,7 @@ public:
 
     void writeState() override { xCheckpoint_ = *x_; }
 
-    void readState(double dt) override
+    void readState() override
     {
         *x_ = xCheckpoint_;
         gv_->update(*x_);

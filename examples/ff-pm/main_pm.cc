@@ -486,7 +486,7 @@ try {
         dt = std::min(preciceDt, dt);
 
         darcyVtkWriter.write(vtkTime);
-        if (couplingParticipant.readCheckpointIfRequired(dt)) {
+        if (couplingParticipant.readCheckpointIfRequired()) {
             vtkTime += 1.;
         }
     }

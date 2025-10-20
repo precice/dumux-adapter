@@ -499,7 +499,7 @@ try {
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         dt = std::min(preciceDt, dt);
 
-        if (!couplingParticipant.readCheckpointIfRequired(dt)) {
+        if (!couplingParticipant.readCheckpointIfRequired()) {
             freeFlowVtkWriter.write(vtkTime);
         }
     }

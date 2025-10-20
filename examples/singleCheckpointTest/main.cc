@@ -137,7 +137,7 @@ int main(int argc, char **argv)
 
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
-            couplingParticipant.readCheckpointIfRequired(preciceDt);
+            couplingParticipant.readCheckpointIfRequired();
             if (writeScalarData != dataToKeep) {
                 throw std::runtime_error(
                     "SolverOne: Checkpointing failed, data not restored "
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
             couplingParticipant.writeCheckpointIfRequired();
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
-            couplingParticipant.readCheckpointIfRequired(preciceDt);
+            couplingParticipant.readCheckpointIfRequired();
         }
     }
     ////////////////////////////////////////////////////////////

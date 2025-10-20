@@ -230,13 +230,13 @@ bool CouplingAdapter::writeCheckpointIfRequired()
     return true;
 }
 
-bool CouplingAdapter::readCheckpointIfRequired(double dt)
+bool CouplingAdapter::readCheckpointIfRequired()
 {
     if (!requiresToReadCheckpoint()) {
         return false;
     }
     for (auto &state : states_) {
-        state->readState(dt);
+        state->readState();
     }
     return true;
 }
