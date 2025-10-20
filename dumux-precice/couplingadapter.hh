@@ -117,21 +117,6 @@ public:
      * @return double time step size
      */
     double getMaxTimeStepSize() const;
-    /*!
-     * @brief Checks if the participant is required to read an iteration checkpoint. If true, the participant is required to read an iteration checkpoint before calling advance().
-     *
-     * @return true Simulation checkpoint has to be restored.
-     * @return false No further action is needed.
-     */
-    bool requiresToReadCheckpoint();
-
-    /*!
-     * @brief Checks if the participant is required to write an iteration checkpoint. If true, the participant is required to write an iteration checkpoint before calling advance().
-     *
-     * @return true Simulation checkpoints needs to be stored.
-     * @return false No further action is needed.
-     */
-    bool requiresToWriteCheckpoint();
 
     /*!
      * @brief Initializes the checkpointing functionality.

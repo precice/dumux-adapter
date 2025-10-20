@@ -164,7 +164,7 @@ try {
     int iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.requiresToWriteCheckpoint()) {
+        if (couplingParticipant.writeCheckpointIfRequired()) {
             std::cout << "DUMMY (" << mpiHelper.rank()
                       << "): Writing iteration checkpoint\n";
         }
@@ -244,7 +244,7 @@ try {
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         couplingParticipant.advance(preciceDt);
 
-        if (couplingParticipant.requiresToReadCheckpoint()) {
+        if (couplingParticipant.readCheckpointIfRequired()) {
             std::cout << "DUMMY (" << mpiHelper.rank()
                       << "): Reading iteration checkpoint\n";
         } else {
