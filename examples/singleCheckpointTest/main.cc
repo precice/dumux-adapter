@@ -10,8 +10,6 @@
 #include <iostream>
 
 #include <dune/common/parallel/mpihelper.hh>
-#include <dune/common/timer.hh>
-#include <dune/istl/io.hh>
 
 #include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>

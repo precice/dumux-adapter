@@ -207,6 +207,7 @@ bool CouplingAdapter::requiresToWriteInitialData()
 
 bool CouplingAdapter::writeCheckpointIfRequired()
 {
+    assert(wasCreated_);
     if (!precice_->requiresWritingCheckpoint()) {
         return false;
     }
@@ -218,6 +219,7 @@ bool CouplingAdapter::writeCheckpointIfRequired()
 
 bool CouplingAdapter::readCheckpointIfRequired()
 {
+    assert(wasCreated_);
     if (!precice_->requiresReadingCheckpoint()) {
         return false;
     }

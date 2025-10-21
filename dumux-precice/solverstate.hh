@@ -1,10 +1,7 @@
 #ifndef SOLVERSTATE_HH
 #define SOLVERSTATE_HH
 
-#include <dumux/common/properties.hh>
-#include <ostream>
 #include <precice/precice.hpp>
-#include <string>
 
 /*!
  * @brief Namespace of dumux-precice
