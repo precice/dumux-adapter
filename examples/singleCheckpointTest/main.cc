@@ -22,6 +22,25 @@
 #include <numeric>
 #include <type_traits>
 
+class TimeLoop
+{
+private:
+    double currentTime_{0.0};
+    long currentStep_{0};
+public:
+    double time() const { return currentTime_; }
+    long timeStepIndex() const { return currentStep_; }
+    void advanceTime(double dt)
+    {
+        currentTime_ += dt;
+        ++currentStep_;
+    }
+    void setTime(double time, long step)
+    {
+        currentTime_ = time;
+        currentStep_ = step;
+    }
+};
 // Mock GridVariables class to test checkpointing functionality
 class GridVariables
 {
@@ -113,9 +132,11 @@ int main(int argc, char **argv)
 
     // Create instances of the file-scope mock types for checkpointing.
     GridVariables gridVars;
+    TimeLoop timeLoop;
 
     // Register writeScalarData as the solver state for checkpointing.
-    couplingParticipant.initializeCheckpoint(writeScalarData, gridVars);
+    couplingParticipant.initializeCheckpoint(writeScalarData, gridVars,
+                                                 timeLoop);
 
     // Check exchanged initial data
     if (solverName == "SolverOne") {
@@ -126,6 +147,8 @@ int main(int argc, char **argv)
 
     int iter = 0;
     dataToKeep = writeScalarData;
+    double timeToKeep = timeLoop.time();
+    long timeStepIndexToKeep = timeLoop.timeStepIndex();
 
     while (couplingParticipant.isCouplingOngoing()) {
         if (solverName == "SolverOne") {
@@ -137,11 +160,19 @@ int main(int argc, char **argv)
 
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
-            couplingParticipant.readCheckpointIfRequired();
+            timeLoop.advanceTime(preciceDt);
+            if (!couplingParticipant.readCheckpointIfRequired()) {
+                timeToKeep = timeLoop.time();
+                timeStepIndexToKeep = timeLoop.timeStepIndex();}
             if (writeScalarData != dataToKeep) {
                 throw std::runtime_error(
                     "SolverOne: Checkpointing failed, data not restored "
                     "correctly");
+            }
+            if ((timeStepIndexToKeep != timeLoop.timeStepIndex()) || (timeToKeep != timeLoop.time())) {
+                throw std::runtime_error(
+                    "SolverOne: Checkpointing failed, time step not "
+                    "restored correctly");
             }
         } else {
             couplingParticipant.writeCheckpointIfRequired();
