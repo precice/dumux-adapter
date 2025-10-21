@@ -27,6 +27,7 @@ class TimeLoop
 private:
     double currentTime_{0.0};
     long currentStep_{0};
+
 public:
     double time() const { return currentTime_; }
     long timeStepIndex() const { return currentStep_; }
@@ -136,7 +137,7 @@ int main(int argc, char **argv)
 
     // Register writeScalarData as the solver state for checkpointing.
     couplingParticipant.initializeCheckpoint(writeScalarData, gridVars,
-                                                 timeLoop);
+                                             timeLoop);
 
     // Check exchanged initial data
     if (solverName == "SolverOne") {
@@ -163,13 +164,15 @@ int main(int argc, char **argv)
             timeLoop.advanceTime(preciceDt);
             if (!couplingParticipant.readCheckpointIfRequired()) {
                 timeToKeep = timeLoop.time();
-                timeStepIndexToKeep = timeLoop.timeStepIndex();}
+                timeStepIndexToKeep = timeLoop.timeStepIndex();
+            }
             if (writeScalarData != dataToKeep) {
                 throw std::runtime_error(
                     "SolverOne: Checkpointing failed, data not restored "
                     "correctly");
             }
-            if ((timeStepIndexToKeep != timeLoop.timeStepIndex()) || (timeToKeep != timeLoop.time())) {
+            if ((timeStepIndexToKeep != timeLoop.timeStepIndex()) ||
+                (timeToKeep != timeLoop.time())) {
                 throw std::runtime_error(
                     "SolverOne: Checkpointing failed, time step not "
                     "restored correctly");

@@ -74,12 +74,19 @@ private:
     long timeStepCheckpoint_ = 0;
 
 public:
-    SolverStateGridVarTimeLoop(SolutionVector &x, GridVariables &gv, TimeLoop &tl)
+    SolverStateGridVarTimeLoop(SolutionVector &x,
+                               GridVariables &gv,
+                               TimeLoop &tl)
         : x_(&x), xCheckpoint_(*x_), gv_(&gv), tl_(&tl)
     {
     }
 
-    void writeState() override { xCheckpoint_ = *x_; timeCheckpoint_ = tl_->time(); timeStepCheckpoint_ = tl_->timeStepIndex(); }
+    void writeState() override
+    {
+        xCheckpoint_ = *x_;
+        timeCheckpoint_ = tl_->time();
+        timeStepCheckpoint_ = tl_->timeStepIndex();
+    }
 
     void readState() override
     {

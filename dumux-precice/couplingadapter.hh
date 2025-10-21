@@ -127,7 +127,9 @@ public:
      * @param[in] gv Grid variables
      */
     template<class SolutionVector, class GridVariables, class TimeLoop>
-    void initializeCheckpoint(SolutionVector &x, GridVariables &gv, TimeLoop &tl);
+    void initializeCheckpoint(SolutionVector &x,
+                              GridVariables &gv,
+                              TimeLoop &tl);
 
     template<class SolutionVector, class GridVariables>
     void initializeCheckpoint(SolutionVector &x, GridVariables &gv);
@@ -298,10 +300,13 @@ public:
 };
 
 template<class SolutionVector, class GridVariables, class TimeLoop>
-void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv, TimeLoop &tl)
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
+                                           GridVariables &gv,
+                                           TimeLoop &tl)
 {
     states_.emplace_back(
-        std::make_unique<SolverStateGridVarTimeLoop<SolutionVector, GridVariables, TimeLoop>>(
+        std::make_unique<SolverStateGridVarTimeLoop<SolutionVector,
+                                                    GridVariables, TimeLoop>>(
             x, gv, tl));
 }
 
