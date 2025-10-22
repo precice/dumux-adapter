@@ -68,6 +68,7 @@ private:
     GridVariables *gv_;
     TimeLoop *tl_;
     double timeCheckpoint_ = 0.0;
+    double dtCheckpoint_ = 0.0;
     long timeStepCheckpoint_ = 0;
 
 public:
@@ -83,6 +84,7 @@ public:
         xCheckpoint_ = *x_;
         timeCheckpoint_ = tl_->time();
         timeStepCheckpoint_ = tl_->timeStepIndex();
+        dtCheckpoint_ = tl_->timeStepSize();
     }
 
     void readState() override
@@ -90,6 +92,7 @@ public:
         *x_ = xCheckpoint_;
         gv_->update(*x_);
         tl_->setTime(timeCheckpoint_, timeStepCheckpoint_);
+        tl_->setTimeStepSize(dtCheckpoint_);
     }
 };
 }  // namespace Dumux::Precice
