@@ -47,11 +47,9 @@ public:
 // Mock GridVariables class to test checkpointing functionality
 class GridVariables
 {
-public:
     bool updated{false};
-    bool advanced{false};
+public:
     void update(const std::vector<double> & /*x*/) { updated = true; }
-    void advanceTimeStep() { advanced = true; }
 };
 
 int main(int argc, char **argv)
@@ -97,7 +95,6 @@ int main(int argc, char **argv)
 
     std::vector<double> writeScalarData(numberOfVertices);
     std::vector<double> readScalarData(numberOfVertices);
-    std::vector<double> dataToKeep(numberOfVertices);
 
     std::vector<double> vertices(numberOfVertices * dimensions);  // coordinates
     std::vector<int> dumuxVertexIDs(numberOfVertices);
@@ -149,13 +146,20 @@ int main(int argc, char **argv)
     }
 
     int iter = 0;
-    dataToKeep = writeScalarData;
-    double timeToKeep = timeLoop.time();
-    long timeStepIndexToKeep = timeLoop.timeStepIndex();
+    std::vector<double> dataToKeep(numberOfVertices);
+    double timeToKeep = 0.0;
+    long timeStepIndexToKeep = 0;
+    double timeStepSizeToKeep = 0.0;
 
     while (couplingParticipant.isCouplingOngoing()) {
         if (solverName == "SolverOne") {
-            couplingParticipant.writeCheckpointIfRequired();
+            if (couplingParticipant.writeCheckpointIfRequired()) {
+                // Keep data for later comparison
+                dataToKeep = writeScalarData;
+                timeToKeep = timeLoop.time();
+                timeStepIndexToKeep = timeLoop.timeStepIndex();
+                timeStepSizeToKeep = timeLoop.timeStepSize();
+            }
 
             ++iter;
 
@@ -164,20 +168,20 @@ int main(int argc, char **argv)
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
             timeLoop.advanceTime(preciceDt);
-            if (!couplingParticipant.readCheckpointIfRequired()) {
-                timeToKeep = timeLoop.time();
-                timeStepIndexToKeep = timeLoop.timeStepIndex();
-            }
-            if (writeScalarData != dataToKeep) {
-                throw std::runtime_error(
-                    "SolverOne: Checkpointing failed, data not restored "
-                    "correctly");
-            }
-            if ((timeStepIndexToKeep != timeLoop.timeStepIndex()) ||
-                (timeToKeep != timeLoop.time())) {
-                throw std::runtime_error(
-                    "SolverOne: Checkpointing failed, time step not "
-                    "restored correctly");
+            timeLoop.setTimeStepSize(preciceDt/2.);
+            if (couplingParticipant.readCheckpointIfRequired()) {
+                if (writeScalarData != dataToKeep) {
+                    throw std::runtime_error(
+                        "SolverOne: Checkpointing failed, data not restored "
+                        "correctly");
+                }
+                if ((timeStepIndexToKeep != timeLoop.timeStepIndex()) ||
+                    (timeToKeep != timeLoop.time()) ||
+                    (timeStepSizeToKeep != timeLoop.timeStepSize())) {
+                    throw std::runtime_error(
+                        "SolverOne: Checkpointing failed, time step not "
+                        "restored correctly");
+                }
             }
         } else {
             couplingParticipant.writeCheckpointIfRequired();

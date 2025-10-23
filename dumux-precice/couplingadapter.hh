@@ -125,6 +125,7 @@ public:
      *
      * @param[in] x Solution vector
      * @param[in] gv Grid variables
+     * @param[in] tl Time loop
      */
     template<class SolutionVector, class GridVariables, class TimeLoop>
     void initializeCheckpoint(SolutionVector &x,
