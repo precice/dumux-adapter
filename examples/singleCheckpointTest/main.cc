@@ -24,14 +24,17 @@ class TimeLoop
 {
 private:
     double currentTime_{0.0};
+    double currentDt_{0.0};
     long currentStep_{0};
 
 public:
     double time() const { return currentTime_; }
     long timeStepIndex() const { return currentStep_; }
+    double timeStepSize() const { return currentDt_; }
     void advanceTime(double dt)
     {
         currentTime_ += dt;
+        currentDt_ = dt;
         ++currentStep_;
     }
     void setTime(double time, long step)
@@ -39,6 +42,7 @@ public:
         currentTime_ = time;
         currentStep_ = step;
     }
+    void setTimeStepSize(double dt) { currentDt_ = dt; }
 };
 // Mock GridVariables class to test checkpointing functionality
 class GridVariables
