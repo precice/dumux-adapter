@@ -445,6 +445,9 @@ try {
         couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
     }
     couplingParticipant.initialize();
+    couplingParticipant.initializeCheckpoint(sol[momentumIdx],
+                                             *momentumGridVariables);
+    couplingParticipant.initializeCheckpoint(sol[massIdx], *massGridVariables);
 
     // the assembler for a stationary problem
     using Assembler =
@@ -468,16 +471,11 @@ try {
 
     double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
-    auto sol_checkpoint = sol;
 
     double vtkTime = 1.0;
-    size_t iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.requiresToWriteCheckpoint()) {
-            //DO CHECKPOINTING
-            sol_checkpoint = sol;
-        }
+        couplingParticipant.writeCheckpointIfRequired();
 
         couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameV,
                                                         dt);
@@ -495,24 +493,13 @@ try {
             momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
             dataNameP);
         couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
-        //Read checkpoint
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
         couplingParticipant.advance(dt);
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         dt = std::min(preciceDt, dt);
 
-        ++iter;
-
-        if (couplingParticipant.requiresToReadCheckpoint()) {
-            sol = sol_checkpoint;
-            momentumGridVariables->update(sol[momentumIdx]);
-            massGridVariables->update(sol[massIdx]);
-            momentumGridVariables->advanceTimeStep();
-            massGridVariables->advanceTimeStep();
-        } else  // coupling successful
-        {
-            // write vtk output
+        if (!couplingParticipant.readCheckpointIfRequired()) {
             freeFlowVtkWriter.write(vtkTime);
         }
     }

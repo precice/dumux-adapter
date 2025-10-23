@@ -205,15 +205,28 @@ bool CouplingAdapter::requiresToWriteInitialData()
     return precice_->requiresInitialData();
 }
 
-bool CouplingAdapter::requiresToReadCheckpoint()
+bool CouplingAdapter::writeCheckpointIfRequired()
 {
     assert(wasCreated_);
-    return precice_->requiresReadingCheckpoint();
+    if (!precice_->requiresWritingCheckpoint()) {
+        return false;
+    }
+    for (auto &state : states_) {
+        state->writeState();
+    }
+    return true;
 }
 
-bool CouplingAdapter::requiresToWriteCheckpoint()
+bool CouplingAdapter::readCheckpointIfRequired()
 {
     assert(wasCreated_);
-    return precice_->requiresWritingCheckpoint();
+    if (!precice_->requiresReadingCheckpoint()) {
+        return false;
+    }
+    for (auto &state : states_) {
+        state->readState();
+    }
+    return true;
 }
+
 CouplingAdapter::~CouplingAdapter() {}

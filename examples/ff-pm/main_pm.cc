@@ -345,7 +345,9 @@ try {
     auto darcyProblem = std::make_shared<DarcyProblem>(darcyGridGeometry);
 
     // the solution vector
-    GetPropType<DarcyTypeTag, Properties::SolutionVector> sol;
+    using SolutionVector =
+        GetPropType<DarcyTypeTag, Properties::SolutionVector>;
+    SolutionVector sol;
     sol.resize(darcyGridGeometry->numDofs());
 
     // Initialize preCICE.Tell preCICE about:
@@ -436,6 +438,9 @@ try {
     }
     couplingParticipant.initialize();
 
+    //initialize checkpointing
+    couplingParticipant.initializeCheckpoint(sol, *darcyGridVariables);
+
     // the assembler for a stationary problem
     using Assembler = FVAssembler<DarcyTypeTag, DiffMethod::numeric>;
     auto assembler = std::make_shared<Assembler>(
@@ -453,16 +458,11 @@ try {
 
     double preciceDt = couplingParticipant.getMaxTimeStepSize();
     auto dt = preciceDt;
-    auto sol_checkpoint = sol;
 
     double vtkTime = 1.0;
-    size_t iter = 0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (couplingParticipant.requiresToWriteCheckpoint()) {
-            //DO CHECKPOINTING
-            sol_checkpoint = sol;
-        }
+        couplingParticipant.writeCheckpointIfRequired();
 
         couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameP,
                                                         dt);
@@ -485,19 +485,9 @@ try {
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         dt = std::min(preciceDt, dt);
 
-        ++iter;
-
-        if (couplingParticipant.requiresToReadCheckpoint()) {
-            //Read checkpoint
-            darcyVtkWriter.write(vtkTime);
+        darcyVtkWriter.write(vtkTime);
+        if (couplingParticipant.readCheckpointIfRequired()) {
             vtkTime += 1.;
-            sol = sol_checkpoint;
-            darcyGridVariables->update(sol);
-            darcyGridVariables->advanceTimeStep();
-        } else  // coupling successful
-        {
-            // write vtk output
-            darcyVtkWriter.write(vtkTime);
         }
     }
     // write vtk output
