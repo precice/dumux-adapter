@@ -48,6 +48,7 @@ public:
 class GridVariables
 {
     bool updated{false};
+
 public:
     void update(const std::vector<double> & /*x*/) { updated = true; }
 };
@@ -168,7 +169,7 @@ int main(int argc, char **argv)
             preciceDt = couplingParticipant.getMaxTimeStepSize();
             couplingParticipant.advance(preciceDt);
             timeLoop.advanceTime(preciceDt);
-            timeLoop.setTimeStepSize(preciceDt/2.);
+            timeLoop.setTimeStepSize(preciceDt / 2.);
             if (couplingParticipant.readCheckpointIfRequired()) {
                 if (writeScalarData != dataToKeep) {
                     throw std::runtime_error(
