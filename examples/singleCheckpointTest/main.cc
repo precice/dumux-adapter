@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 
     // initialize writeScalarData and dumuxVertexIDs with consecutive values
     std::iota(writeScalarData.begin(), writeScalarData.end(), numberOfVertices);
-    std::iota(dumuxVertexIDs.begin(), dumuxVertexIDs.end(), numberOfVertices);
+    std::iota(dumuxVertexIDs.begin(), dumuxVertexIDs.end(), 0);
     // set vertex coordinates: for each vertex i fill its `dimensions` entries with i
     for (int i = 0; i < numberOfVertices; ++i) {
         std::fill_n(vertices.begin() + i * dimensions, dimensions,
@@ -117,15 +117,11 @@ int main(int argc, char **argv)
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Create index mapping\n";
     couplingParticipant.createIndexMapping(dumuxVertexIDs);
 
-    couplingParticipant.announceQuantity(meshName, dataToWrite);
-    couplingParticipant.announceQuantity(meshName, dataToRead);
-
     if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
-        couplingParticipant.writeQuantityVector(meshName, dataToWrite,
-                                                writeScalarData);
-        couplingParticipant.writeQuantityToOtherSolver(meshName, dataToWrite);
+        couplingParticipant.writeToPreCICE(meshName, dataToWrite,
+                                           writeScalarData);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -142,8 +138,8 @@ int main(int argc, char **argv)
     // Check exchanged initial data
     if (solverName == "SolverOne") {
         std::cout << "SolverOne: Reading initial data\n";
-        couplingParticipant.readQuantityFromOtherSolver(meshName, dataToRead,
-                                                        preciceDt);
+        couplingParticipant.readFromPreCICE(meshName, dataToRead, preciceDt,
+                                            readScalarData);
     }
 
     int iter = 0;

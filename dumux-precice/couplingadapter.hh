@@ -43,8 +43,6 @@ private:
     bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
-    //! Map storing meshName:dataName and data vectors
-    std::map<std::string, std::vector<double>> dataMap_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
     std::vector<int> vertexIDs_;  //should be size_t
     //! Constructor
@@ -60,12 +58,6 @@ private:
      *
      */
     std::vector<std::unique_ptr<SolverStateBase>> states_;
-    /*!
-     * @brief Get the number of quantities exchanged.
-     *
-     * @return size_t Number of quantities defined on coupling interface.
-     */
-    size_t getNumberOfQuantities() const { return dataMap_.size(); }
     /*!
      * @brief Destroy the CouplingAdapter object
      *
@@ -93,17 +85,6 @@ public:
                         const std::string &configurationFileName,
                         const int rank,
                         const int size);
-    /*!
-     * @brief Announces a quantity on the coupling interface.
-     *
-     * Internally, the quantity is announced to preCICE and the corresponding
-     * data structures are initilized to store information about the quantity.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     */
-    void announceQuantity(const std::string &meshName,
-                          const std::string &dataName);
     /*!
      * @brief Get the number of spatial dimensions
      *
@@ -222,59 +203,19 @@ public:
      * @param[in] dataName Name of the data.
      * @param[in] relativeReadTime The relative time tagged to the data to be read.
      */
-    void readQuantityFromOtherSolver(const std::string &meshName,
-                                     const std::string &dataName,
-                                     double relativeReadTime);
+    void readFromPreCICE(const std::string &meshName,
+                         const std::string &dataName,
+                         double relativeReadTime,
+                         std::vector<double> &dataValues);
     /*!
      * @brief Writes full block of data to preCICE.
      *
      * @param[in] meshName Name of the mesh.
      * @param[in] dataName Name of the data.
      */
-    void writeQuantityToOtherSolver(const std::string &meshName,
-                                    const std::string &dataName);
-    /*!
-     * @brief Gets value of a scalar quantity on a finite volume face.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     * @param[in] faceID Identifier of the face according to DuMuX' numbering.
-     * @return double Value of scalar quantity.
-     */
-    double getScalarQuantityOnFace(const std::string &meshName,
-                                   const std::string &dataName,
-                                   const FaceID faceID);
-    /*!
-     * @brief Writes value of scalar quantity on a given finite volume face to data map.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     * @param[in] faceID Identifier of the face according to DuMuX' numbering.
-     * @param[in] value  Value of scalar quantity.
-     */
-    void writeScalarQuantityOnFace(const std::string &meshName,
-                                   const std::string &dataName,
-                                   const FaceID faceID,
-                                   const double value);
-    /*!
-     * @brief Gets the quantity value vector from the data map according to the mesh and data name.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     * @return The value vector of the quantity.
-     */
-    std::vector<double> &getQuantityVector(const std::string &meshName,
-                                           const std::string &dataName);
-    /*!
-     * @brief Writes the quantity value vector into the data map.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     * @param[in] values Value of the scalar or vector quantity.
-     */
-    void writeQuantityVector(const std::string &meshName,
-                             const std::string &dataName,
-                             const std::vector<double> &values);
+    void writeToPreCICE(const std::string &meshName,
+                        const std::string &dataName,
+                        std::vector<double> &dataValues);
     /*!
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
@@ -283,15 +224,6 @@ public:
      * @return false Face is not part of coupling interface.
      */
     bool isCoupledEntity(const int faceID) const;
-    /*!
-     * @brief Get a quantity's identifier from its name.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the quantity.
-     * @return size_t Numeric identifier of quantity.
-     */
-    std::string meshAndDataKey(const std::string &meshName,
-                               const std::string &dataName) const;
     /*!
      * @brief Prints status of coupling adapter to given output stream.
      *

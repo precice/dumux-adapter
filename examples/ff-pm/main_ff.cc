@@ -442,7 +442,7 @@ try {
         setInterfacePressures<MomentumTypeTag>(
             momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
             dataNameP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
+        couplingParticipant.writeToPreCICE(meshName, dataNameP);
     }
     couplingParticipant.initialize();
     couplingParticipant.initializeCheckpoint(sol[momentumIdx],
@@ -477,8 +477,7 @@ try {
     while (couplingParticipant.isCouplingOngoing()) {
         couplingParticipant.writeCheckpointIfRequired();
 
-        couplingParticipant.readQuantityFromOtherSolver(meshName, dataNameV,
-                                                        dt);
+        couplingParticipant.readFromPreCICE(meshName, dataNameV, dt);
         // solve the non-linear system
         nonLinearSolver.solve(sol);
 
@@ -492,7 +491,7 @@ try {
         setInterfacePressures<MomentumTypeTag>(
             momentumProblem, *momentumGridVariables, sol[momentumIdx], meshName,
             dataNameP);
-        couplingParticipant.writeQuantityToOtherSolver(meshName, dataNameP);
+        couplingParticipant.writeToPreCICE(meshName, dataNameP);
         freeFlowVtkWriter.write(vtkTime);
         vtkTime += 1.;
         couplingParticipant.advance(dt);
