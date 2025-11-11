@@ -1,6 +1,7 @@
 #ifndef PRECICEWRAPPER_HH
 #define PRECICEWRAPPER_HH
 
+#include <dumux/common/parameters.hh>
 #include <map>
 #include <ostream>
 #include <precice/precice.hpp>
@@ -33,6 +34,14 @@ using FaceID = int;
 class CouplingAdapter
 {
 private:
+    //! Store preCICE configuration information
+    std::string configFileName_;
+    std::string participantName_;
+    std::vector<std::string> meshName_;
+    std::vector<std::string> readDataName_;
+    std::vector<std::string> writeDataName_;
+
+    bool adapterWasConfigured_;
     //! True if preCICE instance was initiated
     bool wasCreated_;
     //! Pointer to preCICE instance
@@ -81,6 +90,8 @@ public:
      * @return CouplingAdapter& Reference to current instance of the CouplingAdapter
      */
     static CouplingAdapter &getInstance();
+
+    void readAdapterConfig(const std::string &configFileName);
     /*!
      * @brief Announces the DuMuX solver.
      *
@@ -89,10 +100,10 @@ public:
      * @param[in] rank Rank of the current process of the DuMuX solver.
      * @param[in] size Total number of processes of the DuMuX solver.
      */
-    void announceSolver(const std::string &name,
-                        const std::string &configurationFileName,
-                        const int rank,
-                        const int size);
+    void announceSolver(const std::string &name = participantName_,
+                        const std::string &configurationFileName = configFileName_,
+                        const int rank = 0,
+                        const int size = 1);
     /*!
      * @brief Announces a quantity on the coupling interface.
      *
@@ -209,6 +220,35 @@ public:
      * @return false Coupling finished.
      */
     bool isCouplingOngoing();
+    /*!
+     * @brief Gets the name of the preCICE configuration file.
+     *
+     * @return The name of the preCICE configuration file.
+     */
+    std::string getPreCICEConfigFileName() const;
+    /*!
+     * @brief Gets the name of the participant.
+     *
+     * @return The name of the participant.
+     */
+    std::string getParticipantName() const;
+
+    /*!
+    * @brief Gets the mesh names.
+    * @return The mesh names.
+    */
+    std::vector<std::string> getMeshNames() const;
+    /*!
+    * @brief Gets the readData names.
+    * @return The readData names.
+    */
+    std::vector<std::string> getReadDataNames() const;
+    /*!
+    * @brief Gets the writeData names.
+    * @return The writeData names.
+    */
+    std::vector<std::string> getWriteDataNames() const;
+
     /*!
      * @brief Get the number of vertices on the coupling interface.
      *

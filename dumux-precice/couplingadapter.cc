@@ -22,6 +22,26 @@ CouplingAdapter &CouplingAdapter::getInstance()
     return instance;
 }
 
+void CouplingAdapter::readAdapterConfig(const std::string &configFileName)
+{
+    Parameters::init("params.input");
+
+    configFileName_ =
+        Dumux::getParamFromGroup<std::string>("preCICE", "configFile");
+
+    // Read parameters from input file
+    participantName_ =
+        Dumux::getParamFromGroup<std::string>("preCICE", "participantName");
+    meshName_.emplace_back(
+        Dumux::getParamFromGroupVector<std::string>("preCICE", "mesh"));
+    readDataName_.emplace_back(
+        Dumux::getParamFromGroupVector<std::string>("preCICE", "readData"));
+    writeDataName_.emplace_back(
+        Dumux::getParamFromGroupVector<std::string>("preCICE", "writeData"));
+
+    adapterWasConfigured_ = true;
+}
+
 void CouplingAdapter::announceSolver(const std::string &name,
                                      const std::string &configurationFileName,
                                      const int rank,
@@ -45,6 +65,31 @@ void CouplingAdapter::announceQuantity(const std::string &meshName,
     int dataDimension = precice_->getDataDimensions(meshName, dataName);
     std::vector<double> dataValues(vertexIDs_.size() * dataDimension);
     dataMap_.insert(std::make_pair(key, dataValues));
+}
+
+std::string CouplingAdapter::getPreCICEConfigFileName() const
+{
+    return configFileName_;
+}
+
+std::string CouplingAdapter::getParticipantName() const
+{
+    return participantName_;
+}
+
+std::vector<std::string> CouplingAdapter::getMeshNames() const
+{
+    return meshName_;
+}
+
+std::vector<std::string> CouplingAdapter::getReadDataNames() const
+{
+    return readDataName_;
+}
+
+std::vector<std::string> CouplingAdapter::getWriteDataNames() const
+{
+    return writeDataName_;
 }
 
 int CouplingAdapter::getMeshDimensions(const std::string &meshName) const

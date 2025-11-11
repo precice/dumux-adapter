@@ -1,0 +1,6 @@
+[preCICE]
+configFile = "precice-config.xml"
+participantName = solverTwo
+mesh = meshTwo
+readData = scalarDataOne vectorDataOne
+writeData = scalarDataTwo
