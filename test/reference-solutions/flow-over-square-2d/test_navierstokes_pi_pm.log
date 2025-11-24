@@ -1,170 +1,0 @@
-
-Don't panic... !
-
-Reading parameters from file ./params-navierstokesdarcy.input.
-Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.0168579 seconds.
-Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.0084349 seconds.
-[2025-08-31 08:40:43.095690] [0x00007f4bda30bb40] [info]    This is preCICE version 3.1.1
-[2025-08-31 08:40:43.095744] [0x00007f4bda30bb40] [info]    Revision info: v3.1.1
-[2025-08-31 08:40:43.095759] [0x00007f4bda30bb40] [info]    Build type: Release (without debug log)
-[2025-08-31 08:40:43.095773] [0x00007f4bda30bb40] [info]    Configuring preCICE with configuration "./precice-config-pi.xml"
-[2025-08-31 08:40:43.095787] [0x00007f4bda30bb40] [info]    I am participant "Darcy"
-2  2
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
-[2025-08-31 08:40:43.366323] [0x00007f4bda30bb40] [info]    Setting up primary communication to coupling partner/s
-[2025-08-31 08:40:43.369004] [0x00007f4bda30bb40] [info]    Primary ranks are connected
-[2025-08-31 08:40:43.369036] [0x00007f4bda30bb40] [info]    Setting up preliminary secondary communication to coupling partner/s
-[2025-08-31 08:40:43.369052] [0x00007f4bda30bb40] [info]    Prepare partition for mesh DarcyMesh
-[2025-08-31 08:40:43.369118] [0x00007f4bda30bb40] [info]    Gather mesh DarcyMesh
-[2025-08-31 08:40:43.369136] [0x00007f4bda30bb40] [info]    Send global mesh DarcyMesh
-[2025-08-31 08:40:43.369222] [0x00007f4bda30bb40] [info]    Setting up secondary communication to coupling partner/s
-[2025-08-31 08:40:43.456256] [0x00007f4bda30bb40] [info]    Secondary ranks are connected
-[2025-08-31 08:40:43.456867] [0x00007f4bda30bb40] [info]    iteration: 1 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, write-initial-data write-iteration-checkpoint 
-Colored 1600 elements with 7 colors in 0.026539682 seconds.
-
-Newton solver configured with the following options and parameters:
- -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
- -- Newton.MaxRelativeShift = 1e-08
- -- Newton.MinSteps = 2
- -- Newton.MaxSteps = 18
- -- Newton.TargetSteps = 10
- -- Newton.RetryTimeStepReductionFactor = 0.5
- -- Newton.MaxTimeStepDivisions = 10
-
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 0.0000e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 0.0000e+00
-Assemble/solve/update time: 0.11(88.03%)/0.014(10.96%)/0.0013(1.01%)
-[2025-08-31 08:40:47.955030] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.00e+00, limit = 1.00e-06, normalization = 3.65e-04, conv = false
-[2025-08-31 08:40:47.955077] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = inf, limit = 1.00e-06, normalization = 0.00e+00, conv = true
-[2025-08-31 08:40:47.955101] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.65e-04, limit = 1.00e-08, conv = false
-[2025-08-31 08:40:47.955150] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 0.00e+00, limit = 1.00e-08, conv = true
-[2025-08-31 08:40:47.955343] [0x00007f4bda30bb40] [info]    iteration: 2 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.5498e-16
-Assemble/solve/update time: 0.1(87.13%)/0.014(11.79%)/0.0012(1.07%)
-[2025-08-31 08:40:51.896213] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 9.00e-01, limit = 1.00e-06, normalization = 3.65e-04, conv = false
-[2025-08-31 08:40:51.896280] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.00e+00, limit = 1.00e-06, normalization = 6.19e-08, conv = false
-[2025-08-31 08:40:51.896307] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.29e-04, limit = 1.00e-08, conv = false
-[2025-08-31 08:40:51.896340] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 6.19e-08, limit = 1.00e-08, conv = false
-[2025-08-31 08:40:51.896576] [0x00007f4bda30bb40] [info]    iteration: 3 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.21 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5518e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1003e-14
-Assemble/solve/update time: 0.11(85.74%)/0.017(13.16%)/0.0014(1.09%)
-[2025-08-31 08:40:56.865099] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.35e-04, limit = 1.00e-06, normalization = 3.65e-04, conv = false
-[2025-08-31 08:40:56.865147] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 9.88e-01, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:40:56.865174] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 4.94e-08, limit = 1.00e-08, conv = false
-[2025-08-31 08:40:56.865207] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 6.12e-07, limit = 1.00e-08, conv = false
-[2025-08-31 08:40:56.865439] [0x00007f4bda30bb40] [info]    iteration: 4 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.2 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5520e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.0569e-14
-Assemble/solve/update time: 0.11(86.86%)/0.015(12.03%)/0.0014(1.11%)
-[2025-08-31 08:41:01.808003] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.07e-02, limit = 1.00e-06, normalization = 3.68e-04, conv = false
-[2025-08-31 08:41:01.808052] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 2.78e-04, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:01.808078] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.95e-06, limit = 1.00e-08, conv = false
-[2025-08-31 08:41:01.808112] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 1.72e-10, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:01.808336] [0x00007f4bda30bb40] [info]    iteration: 5 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.2 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5541e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1017e-14
-Assemble/solve/update time: 0.11(86.56%)/0.015(12.30%)/0.0014(1.14%)
-[2025-08-31 08:41:06.917083] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 8.70e-03, limit = 1.00e-06, normalization = 3.68e-04, conv = false
-[2025-08-31 08:41:06.917133] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 4.48e-03, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:06.917160] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.20e-06, limit = 1.00e-08, conv = false
-[2025-08-31 08:41:06.917194] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 2.77e-09, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:06.917424] [0x00007f4bda30bb40] [info]    iteration: 6 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.2 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5632e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1035e-14
-Assemble/solve/update time: 0.1(85.65%)/0.016(13.19%)/0.0014(1.16%)
-[2025-08-31 08:41:12.070994] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.27e-04, limit = 1.00e-06, normalization = 3.68e-04, conv = false
-[2025-08-31 08:41:12.071026] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 5.71e-06, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:12.071045] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 4.66e-08, limit = 1.00e-08, conv = false
-[2025-08-31 08:41:12.071070] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 3.53e-12, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:12.071263] [0x00007f4bda30bb40] [info]    iteration: 7 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.14 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5632e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1048e-14
-Assemble/solve/update time: 0.089(89.60%)/0.0095(9.55%)/0.00084(0.85%)
-[2025-08-31 08:41:19.348757] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.68e-05, limit = 1.00e-06, normalization = 3.68e-04, conv = false
-[2025-08-31 08:41:19.348806] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 4.02e-04, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:19.348831] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 6.18e-09, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:19.348862] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 2.48e-10, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:19.349104] [0x00007f4bda30bb40] [info]    iteration: 8 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1004e-14
-Assemble/solve/update time: 0.11(88.03%)/0.014(11.00%)/0.0012(0.97%)
-[2025-08-31 08:41:25.323620] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.94e-06, limit = 1.00e-06, normalization = 3.68e-04, conv = false
-[2025-08-31 08:41:25.323683] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.66e-06, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:25.323715] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 7.15e-10, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:25.323760] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 1.03e-12, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:25.324048] [0x00007f4bda30bb40] [info]    iteration: 9 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.19 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.1020e-14
-Assemble/solve/update time: 0.1(85.81%)/0.015(13.04%)/0.0014(1.15%)
-[2025-08-31 08:41:30.033591] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 8.02e-08, limit = 1.00e-06, normalization = 3.68e-04, conv = true
-[2025-08-31 08:41:30.033640] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.25e-05, limit = 1.00e-06, normalization = 6.19e-07, conv = false
-[2025-08-31 08:41:30.033666] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 2.95e-11, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:30.033699] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 7.71e-12, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:30.033958] [0x00007f4bda30bb40] [info]    iteration: 10 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.2 seconds.
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 9.5631e-05
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 1.4003e-14
-Assemble/solve/update time: 0.1(86.34%)/0.015(12.52%)/0.0014(1.14%)
-[2025-08-31 08:41:34.658566] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 4.50e-08, limit = 1.00e-06, normalization = 3.68e-04, conv = true
-[2025-08-31 08:41:34.658617] [0x00007f4bda30bb40] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.66e-07, limit = 1.00e-06, normalization = 6.19e-07, conv = true
-[2025-08-31 08:41:34.658643] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 1.66e-11, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:34.658675] [0x00007f4bda30bb40] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 1.03e-13, limit = 1.00e-08, conv = true
-[2025-08-31 08:41:34.658719] [0x00007f4bda30bb40] [info]    All converged
-[2025-08-31 08:41:34.658931] [0x00007f4bda30bb40] [info]    Time window completed
-[2025-08-31 08:41:34.658989] [0x00007f4bda30bb40] [info]    iteration: 1 of 100 (min 1), time-window: 2, time: 1 of 1, time-window-size: 1, max-time-step-size: 0, ongoing: no, time-window-complete: yes, 
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.19 seconds.
-Writing output for problem "ff-pm-2d-precice-darcy". Took 0.16 seconds.
-[2025-08-31 08:41:35.002564] [0x00007f4bda30bb40] [info]    Close communication channels
-
-# Runtime-specified parameters used:
-[ Darcy ]
-[ Darcy.Grid ]
-Cells = "40 40"
-LowerLeft = "0 0"
-UpperRight = "1 1"
-[ Darcy.Problem ]
-InitialP = "0.0e-9"
-Name = "ff-pm-2d-precice-darcy"
-[ Darcy.SpatialParams ]
-AlphaBeaversJoseph = "1.0"
-Permeability = "1e-6"
-Porosity = "0.4"
-[ Problem ]
-EnableGravity = "false"
-Name = "fvca-iterative"
-[ Vtk ]
-AddVelocity = "1"
-
-# Global default parameters used:
-[ Assembly ]
-NumericDifferenceMethod = "1"
-[ Flux ]
-UpwindWeight = "1.0"
-
-# Unused parameters:
- = "./precice-config-pi.xml"
-FreeFlow.EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
-FreeFlow.Grid.Verbosity = "true"
-FreeFlow.Grid.LowerLeft = "0 1"
-FreeFlow.Grid.UpperRight = "1 2"
-FreeFlow.Grid.Cells = "40 40"
-FreeFlow.Grid.Grading1 = "1"
-FreeFlow.Problem.Name = "ff-pm-2d-precice-navierstokes"
-FreeFlow.Problem.EnableInertiaTerms = "true"
-FreeFlow.Problem.PressureDifference = "1e-4"
-Darcy.Grid.Verbosity = "true"
-Darcy.Grid.Grading1 = "1"
-Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
-
-Don't panic... !
-

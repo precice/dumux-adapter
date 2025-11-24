@@ -1,144 +1,0 @@
-
-Welcome aboard DuMuX airlines. Please fasten your seatbelts! Emergency exits are near the time integration.
-
-Reading parameters from file ./params-stokesdarcy.input.
-Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.0169465 seconds.
-Computed bounding box tree with 3199 nodes for 1600 grid entities in 0.00873552 seconds.
-[2025-08-31 08:39:01.209487] [0x00007fe763777b80] [info]    This is preCICE version 3.1.1
-[2025-08-31 08:39:01.209541] [0x00007fe763777b80] [info]    Revision info: v3.1.1
-[2025-08-31 08:39:01.209555] [0x00007fe763777b80] [info]    Build type: Release (without debug log)
-[2025-08-31 08:39:01.209569] [0x00007fe763777b80] [info]    Configuring preCICE with configuration "./precice-config-si-free-flow-second.xml"
-[2025-08-31 08:39:01.209583] [0x00007fe763777b80] [info]    I am participant "FreeFlow"
-2  2
- -- Using the default temperature of 293.15 in the entire domain. Overload temperatureAtPos() in your spatial params class to define a custom temperature field.Or provide the preferred domain temperature via the SpatialParams.Temperature parameter.
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.053 seconds.
-[2025-08-31 08:39:01.295296] [0x00007fe763777b80] [info]    Setting up primary communication to coupling partner/s
-[2025-08-31 08:39:01.296151] [0x00007fe763777b80] [info]    Primary ranks are connected
-[2025-08-31 08:39:01.296189] [0x00007fe763777b80] [info]    Setting up preliminary secondary communication to coupling partner/s
-[2025-08-31 08:39:01.296213] [0x00007fe763777b80] [info]    Receive global mesh DarcyMesh
-[2025-08-31 08:39:01.338860] [0x00007fe763777b80] [info]    Prepare partition for mesh FreeFlowMesh
-[2025-08-31 08:39:01.338987] [0x00007fe763777b80] [info]    Setting up secondary communication to coupling partner/s
-[2025-08-31 08:39:01.385808] [0x00007fe763777b80] [info]    Secondary ranks are connected
-[2025-08-31 08:39:01.385854] [0x00007fe763777b80] [info]    Computing "nearest-neighbor" mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh" in "write" direction.
-[2025-08-31 08:39:01.386009] [0x00007fe763777b80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
-[2025-08-31 08:39:01.386063] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=0 from "FreeFlowMesh" to "DarcyMesh" (skipped zero sample)
-[2025-08-31 08:39:01.622184] [0x00007fe763777b80] [info]    Computing "nearest-neighbor" mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh" in "read" direction.
-[2025-08-31 08:39:01.622382] [0x00007fe763777b80] [info]    Mapping distance min:0 max:0 avg: 0 var: 0 cnt: 40
-[2025-08-31 08:39:01.622421] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=0 from "DarcyMesh" to "FreeFlowMesh" (skipped zero sample)
-[2025-08-31 08:39:01.622452] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh" (skipped zero sample)
-[2025-08-31 08:39:01.622524] [0x00007fe763777b80] [info]    iteration: 1 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, write-initial-data write-iteration-checkpoint 
-Instantiated assembler for a stationary problem.
-
-Newton solver configured with the following options and parameters:
- -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
- -- Newton.MaxRelativeShift = 1e-08
- -- Newton.MinSteps = 2
- -- Newton.MaxSteps = 18
- -- Newton.TargetSteps = 10
- -- Newton.RetryTimeStepReductionFactor = 0.5
- -- Newton.MaxTimeStepDivisions = 10
-
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8244e-09
-Assemble/solve/update time: 2.2(86.84%)/0.31(12.57%)/0.015(0.59%)
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
-[2025-08-31 08:39:04.274857] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
-[2025-08-31 08:39:04.274949] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 1.00e+00, limit = 1.00e-06, normalization = 3.65e-02, conv = false
-[2025-08-31 08:39:04.274975] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = inf, limit = 1.00e-06, normalization = 0.00e+00, conv = true
-[2025-08-31 08:39:04.274998] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.65e-02, limit = 1.00e-08, conv = false
-[2025-08-31 08:39:04.275042] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 0.00e+00, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:04.652401] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
-[2025-08-31 08:39:04.652507] [0x00007fe763777b80] [info]    iteration: 2 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8244e-09
-Assemble/solve/update time: 2.2(87.25%)/0.3(12.14%)/0.015(0.60%)
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
-[2025-08-31 08:39:07.206452] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
-[2025-08-31 08:39:07.206531] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 9.00e-01, limit = 1.00e-06, normalization = 3.65e-02, conv = false
-[2025-08-31 08:39:07.206557] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.00e+00, limit = 1.00e-06, normalization = 6.19e-06, conv = false
-[2025-08-31 08:39:07.206581] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 3.29e-02, limit = 1.00e-08, conv = false
-[2025-08-31 08:39:07.206611] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 6.19e-06, limit = 1.00e-08, conv = false
-[2025-08-31 08:39:07.571917] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
-[2025-08-31 08:39:07.572048] [0x00007fe763777b80] [info]    iteration: 3 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
-Assemble/solve/update time: 2.2(87.23%)/0.32(12.51%)/0.0066(0.26%)
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.07 seconds.
-[2025-08-31 08:39:10.185017] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
-[2025-08-31 08:39:10.185092] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 6.93e-08, limit = 1.00e-06, normalization = 3.65e-02, conv = true
-[2025-08-31 08:39:10.185117] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 9.00e-01, limit = 1.00e-06, normalization = 6.19e-05, conv = false
-[2025-08-31 08:39:10.185140] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 2.53e-09, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:10.185170] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 5.57e-05, limit = 1.00e-08, conv = false
-[2025-08-31 08:39:10.558420] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
-[2025-08-31 08:39:10.558556] [0x00007fe763777b80] [info]    iteration: 4 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
-Assemble/solve/update time: 2.2(87.54%)/0.3(12.17%)/0.0071(0.28%)
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
-[2025-08-31 08:39:13.146877] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
-[2025-08-31 08:39:13.146953] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 3.85e-10, limit = 1.00e-06, normalization = 3.65e-02, conv = true
-[2025-08-31 08:39:13.146978] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.93e-06, limit = 1.00e-06, normalization = 6.19e-05, conv = false
-[2025-08-31 08:39:13.147001] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 1.41e-11, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:13.147031] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 1.19e-10, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:13.525905] [0x00007fe763777b80] [info]    Mapping "Velocity" for t=1 from "DarcyMesh" to "FreeFlowMesh"
-[2025-08-31 08:39:13.526016] [0x00007fe763777b80] [info]    iteration: 5 of 100 (min 1), time-window: 1, time: 0 of 1, time-window-size: 1, max-time-step-size: 1, ongoing: yes, time-window-complete: no, read-iteration-checkpoint 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 6.8243e-09
-Assemble/solve/update time: 2.2(87.38%)/0.31(12.34%)/0.0069(0.28%)
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.069 seconds.
-[2025-08-31 08:39:16.099059] [0x00007fe763777b80] [info]    Mapping "Pressure" for t=1 from "FreeFlowMesh" to "DarcyMesh"
-[2025-08-31 08:39:16.099144] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Pressure" = 6.86e-13, limit = 1.00e-06, normalization = 3.65e-02, conv = true
-[2025-08-31 08:39:16.099170] [0x00007fe763777b80] [info]    relative convergence measure: relative two-norm diff of data "Velocity" = 1.15e-08, limit = 1.00e-06, normalization = 6.19e-05, conv = true
-[2025-08-31 08:39:16.099193] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Pressure" = 2.51e-14, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:16.099223] [0x00007fe763777b80] [info]    absolute convergence measure: two-norm diff of data "Velocity" = 7.14e-13, limit = 1.00e-08, conv = true
-[2025-08-31 08:39:16.099240] [0x00007fe763777b80] [info]    All converged
-[2025-08-31 08:39:16.114075] [0x00007fe763777b80] [info]    Time window completed
-[2025-08-31 08:39:16.114132] [0x00007fe763777b80] [info]    iteration: 1 of 100 (min 1), time-window: 2, time: 1 of 1, time-window-size: 1, max-time-step-size: 0, ongoing: no, time-window-complete: yes, 
-Writing output for problem "ff-pm-2d-precice-stokes". Took 0.052 seconds.
-[2025-08-31 08:39:16.166423] [0x00007fe763777b80] [info]    Close communication channels
-
-# Runtime-specified parameters used:
-[ Darcy ]
-[ Darcy.Grid ]
-LowerLeft = "0 0"
-UpperRight = "1 1"
-[ Darcy.SpatialParams ]
-AlphaBeaversJoseph = "1.0"
-Permeability = "1e-6"
-[ FreeFlow ]
-EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
-[ FreeFlow.Grid ]
-Cells = "40 40"
-LowerLeft = "0 1"
-UpperRight = "1 2"
-[ FreeFlow.Problem ]
-EnableInertiaTerms = "false"
-Name = "ff-pm-2d-precice-stokes"
-PressureDifference = "1e-2"
-[ Problem ]
-EnableGravity = "false"
-[ Vtk ]
-AddVelocity = "1"
-
-# Global default parameters used:
-[ Assembly ]
-NumericDifferenceMethod = "1"
-[ Flux ]
-UpwindWeight = "1.0"
-
-# Unused parameters:
- = "./precice-config-si-free-flow-second.xml"
-FreeFlow.Grid.Verbosity = "true"
-FreeFlow.Grid.Grading1 = "1"
-Darcy.Grid.Verbosity = "true"
-Darcy.Grid.Cells = "40 40"
-Darcy.Grid.Grading1 = "1"
-Darcy.Problem.Name = "ff-pm-2d-precice-darcy"
-Darcy.Problem.InitialP = "0.0e-9"
-Darcy.SpatialParams.Porosity = "0.4"
-Problem.Name = "fvca-iterative"
-Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
-
-We hope that you enjoyed simulating with us 
-and that you will choose us next time, too.
-
