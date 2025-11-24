@@ -22,7 +22,7 @@ jobs:
       - name: Print python3 version (/usr/bin/env python3)
         run: /usr/bin/env python3 --version
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           path: dumux-precice
       - name: Build code
