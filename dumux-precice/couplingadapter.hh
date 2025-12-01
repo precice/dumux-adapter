@@ -212,8 +212,8 @@ public:
     /*!
      * @brief Checks whether the time window has completed.
      *
-     * @return true Coupling is still ongoing.
-     * @return false Coupling finished.
+     * @return true Time window has completed.
+     * @return false Time window is still ongoing.
      */
     bool isTimeWindowComplete();
     /*!
