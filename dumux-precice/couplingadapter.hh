@@ -210,7 +210,7 @@ public:
      */
     bool isCouplingOngoing();
     /*!
-     * @brief Checks whether the coupling is still ongoing.
+     * @brief Checks whether the time window has completed.
      *
      * @return true Coupling is still ongoing.
      * @return false Coupling finished.
