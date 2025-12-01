@@ -210,6 +210,13 @@ public:
      */
     bool isCouplingOngoing();
     /*!
+     * @brief Checks whether the coupling is still ongoing.
+     *
+     * @return true Coupling is still ongoing.
+     * @return false Coupling finished.
+     */
+    bool isTimeWindowComplete();
+    /*!
      * @brief Get the number of vertices on the coupling interface.
      *
      * @return size_t Number of vertices on the coupling interface.
