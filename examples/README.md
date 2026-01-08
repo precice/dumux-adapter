@@ -9,21 +9,6 @@ The examples often have two input files that should be passed to the executables
 
 **Note:** The examples described here are used for testing the correctness of the adapter as well. These tests are defined in the `CMakeLists.txt` file of the examples and relevant scripts and reference data reside in the `test/` subdirectory.
 
-## Free and porous medium flow
-
-All examples of coupling free and porous-medium flow reside in `examples/ff-pm` and corresponding subdirectories in there. We use the abbreviation `ff` for things concerning the free flow and `pm` for things concerning the porous-medium part.
-
-### Flow over a porous-medium
-
-We implemented a simple test case with a pressure driven flow in a free-flow subdomain (top of domain). At the bottom of the free-flow subdomain the subdomain is connected to the porous-medium subdomain. All other boundaries of the porous-medium subdomain are walls (no-flow boundaries).
-
-|  | 2D | 3D |
-| --- | --- | --- |
-| Directory | `examples/flow-over-square-2d` | `examples/flow-over-cube-3d` |
-| Name of executable(s) | `ff_flow_over_square_2d` and `pm_flow_over_square_2d`| `ff_flow_over_cube_3d` and `pm_flow_over_cube_3d` |
-
-The 2D test case comes with three preCICE configurations for parallel-implicit coupling (`pi`), serial-implicit coupling (`si`) with either running the flow simulation first (`free-flow-first`) or second (`free-flow-second`). The 3D test case comes with only one preCICE configuration file.
-
 ## Dummy solver
 
 The dummy solver reside in `examples/dummysolver`. The solver does not solve any equations, but uses the DuMuX adapter to communicate some data between two instances of the dummy solver. The exchanged data is also checked within the dummy solvers as running the dummy solver is part of test implemented tests.
