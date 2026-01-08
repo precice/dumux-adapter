@@ -2,6 +2,7 @@
 
 ## latest
 
+- Separate test cases and examples [#65](https://github.com/precice/dumux-adapter/pull/65)
 - Removed free-flow porous-medium coupled case from examples/ [#60](https://github.com/precice/dumux-adapter/pull/60)
 - Added `isTimeWindowComplete` API function wrapper [#62](https://github.com/precice/dumux-adapter/pull/62)
 - Updated docker recipe to make preCICE version name consistent [#59](https://github.com/precice/dumux-adapter/pull/59)
