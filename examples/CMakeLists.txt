@@ -1,2 +1,1 @@
 add_subdirectory(dummysolver)
-add_subdirectory(singleCheckpointTest)
