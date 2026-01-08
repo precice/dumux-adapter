@@ -106,6 +106,12 @@ bool CouplingAdapter::isCouplingOngoing()
     return precice_->isCouplingOngoing();
 }
 
+bool CouplingAdapter::isTimeWindowComplete()
+{
+    assert(wasCreated_);
+    return precice_->isTimeWindowComplete();
+}
+
 size_t CouplingAdapter::getNumberOfVertices()
 {
     assert(wasCreated_);

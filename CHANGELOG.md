@@ -3,6 +3,7 @@
 ## latest
 
 - Removed free-flow porous-medium coupled case from examples/ [#60](https://github.com/precice/dumux-adapter/pull/60)
+- Added `isTimeWindowComplete` API function wrapper [#62](https://github.com/precice/dumux-adapter/pull/62)
 - Updated docker recipe to make preCICE version name consistent [#59](https://github.com/precice/dumux-adapter/pull/59)
 - Added dumux-customised checkpointing feature [#58](https://github.com/precice/dumux-adapter/pull/58)
 - Improved ID lookup from `log(n)` to constant where n is the mesh size [#44](https://github.com/precice/dumux-adapter/pull/44)
