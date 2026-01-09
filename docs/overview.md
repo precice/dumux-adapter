@@ -9,6 +9,10 @@ This is a [DuMuX](https://dumux.org/) adapter (a DUNE module specific to DuMuX) 
 
 [Get](adapter-dumux-get.html) and [learn how to use](adapter-dumux-use.html) the adapter.
 
+## Release strategy
+
+Any change that enforces the use of a new DuMuX version on the user side, or any change to the adapter API, is deemed a breaking change and warrants a major release. We follow the semantic versioning scheme: `v{major version}.{minor version}.{patch}`.
+
 ## Cite
 
 There is no code-specific publication related to the DuMuX adapter available yet.
