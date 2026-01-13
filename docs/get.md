@@ -37,13 +37,13 @@ Note that extended features of DuMuX or the DuMuX-preCICE adapter may need addit
 Download the DuMuX-preCICE adapter to the same directory as the DUNE modules and the `dumux` folder. It is recommended to use the latest release of the adapter, which can be found by checking out the relevant release tag.
 
 ```text
-git clone -b v2.0.0 https://github.com/precice/dumux-adapter.git
+git clone -b v3.0.0 https://github.com/precice/dumux-adapter.git
 ```
 
 You can also try to clone the repository via SSH:
 
 ```text
-git clone -b v2.0.0 git@github.com:precice/dumux-adapter.git
+git clone -b v3.0.0 git@github.com:precice/dumux-adapter.git
 ```
 
 ## Build the adapter
