@@ -1,183 +1,0 @@
-
-Elliot Carver: Mr. Jones, are we ready to release our new software?
-Jones: Yes, sir. As requested, it's full of bugs, which means people will be forced to upgrade for years.
- - James Bond, Tomorrow Never Dies
-
-Reading parameters from file ./params-stokesdarcy.input.
-(0) 21:54:59 [impl::SolverInterfaceImpl]:107 in configure: [0mThis is preCICE version 1.6.1
-(0) 21:54:59 [impl::SolverInterfaceImpl]:108 in configure: [0mRevision info: v1.6.1
-(0) 21:54:59 [impl::SolverInterfaceImpl]:109 in configure: [0mConfiguring preCICE with configuration: "./precice-config-pi.xml"
-(0) 21:54:59 [impl::SolverInterfaceImpl]:152 in configure: [0mRun in coupling mode
-2  2
-(0) 21:54:59 [impl::SolverInterfaceImpl]:220 in initialize: [0mSetting up master communication to coupling partner/s
-(0) 21:54:59 [impl::SolverInterfaceImpl]:228 in initialize: [0mMasters are connected
-(0) 21:54:59 [partition::ReceivedPartition]:35 in communicate: [0mReceive global mesh DarcyMesh
-(0) 21:54:59 [partition::ProvidedPartition]:79 in compute: [0mCompute partition for mesh FreeFlowMesh
-(0) 21:54:59 [impl::SolverInterfaceImpl]:232 in initialize: [0mSetting up slaves communication to coupling partner/s
-(0) 21:54:59 [impl::SolverInterfaceImpl]:240 in initialize: [0mSlaves are connected
-(0) 21:54:59 [impl::SolverInterfaceImpl]:266 in initialize: [0mit 1 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | write-iteration-checkpoint | 
-Writing output for problem "stokes-iterative". Took 0.0095 seconds.
-(0) 21:54:59 [impl::SolverInterfaceImpl]:1414 in mapWrittenData: [0mCompute write mapping from mesh "FreeFlowMesh" to mesh "DarcyMesh".
-(0) 21:54:59 [impl::SolverInterfaceImpl]:1465 in mapReadData: [0mCompute read mapping from mesh "DarcyMesh" to mesh "FreeFlowMesh".
-Instantiated assembler for a stationary problem.
-
-Newton solver configured with the following options and parameters:
- -- Newton.EnableShiftCriterion = true (relative shift convergence criterion)
- -- Newton.MaxRelativeShift = 1e-08
- -- Newton.MinSteps = 2
- -- Newton.MaxSteps = 18
- -- Newton.TargetSteps = 10
- -- Newton.RetryTimeStepReductionFactor = 0.5
- -- Newton.MaxTimeStepDivisions = 10
-
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.5954e-12
-Assemble/solve/update time: 0.075(29.84%)/0.17(68.60%)/0.0039(1.57%)
-Writing output for problem "stokes-iterative". Took 0.01 seconds.
-(0) 21:54:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 2 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.5954e-12
-Assemble/solve/update time: 0.059(30.30%)/0.13(68.44%)/0.0025(1.26%)
-Writing output for problem "stokes-iterative". Took 0.0084 seconds.
-(0) 21:54:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 3 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 5.3174e-12
-Assemble/solve/update time: 0.057(29.76%)/0.13(68.89%)/0.0026(1.35%)
-Writing output for problem "stokes-iterative". Took 0.0084 seconds.
-(0) 21:54:59 [impl::SolverInterfaceImpl]:390 in advance: [0mit 4 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 5.0255e-12
-Assemble/solve/update time: 0.061(30.89%)/0.13(67.85%)/0.0025(1.26%)
-Writing output for problem "stokes-iterative". Took 0.0087 seconds.
-(0) 21:55:00 [impl::SolverInterfaceImpl]:390 in advance: [0mit 5 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 6.4291e-12
-Assemble/solve/update time: 0.058(30.00%)/0.13(68.75%)/0.0024(1.25%)
-Writing output for problem "stokes-iterative". Took 0.0092 seconds.
-(0) 21:55:00 [impl::SolverInterfaceImpl]:390 in advance: [0mit 6 of 100 | dt# 1 | t 0 of 1 | dt 1 | max dt 1 | ongoing yes | dt complete no | read-iteration-checkpoint | 
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  1 done, maximum relative shift = 1.2500e+00
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  2 done, maximum relative shift = 2.4905e-06
-Assemble: r(x^k) = dS/dt + div F - q;   M = grad rSolve: M deltax^k = r[KUpdate: x^(k+1) = x^k - deltax^k[KNewton iteration  3 done, maximum relative shift = 5.9283e-12
-Assemble/solve/update time: 0.057(29.96%)/0.13(68.81%)/0.0024(1.23%)
-Writing output for problem "stokes-iterative". Took 0.0081 seconds.
-(0) 21:55:00 [cplscheme::BaseCouplingScheme]:855 in timestepCompleted: [0mTimestep completed
-(0) 21:55:00 [impl::SolverInterfaceImpl]:390 in advance: [0mit 1 of 100 | dt# 2 | t 1 of 1 | dt 1 | max dt 1 | ongoing no | dt complete yes | 
-Writing output for problem "stokes-iterative". Took 0.0088 seconds.
-Run finished at Thu Aug  5 21:55:00 2021
-Global runtime       = 1371ms / 1.371s
-Number of processors = 1
-# Rank: 0
-
-                                                                               Event |      Count |  Total[ms] |    Max[ms] |    Min[ms] |    Avg[ms] | Time Ratio |
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |          1 |       1371 |       1371 |       1371 |       1371 |          1 |
-                                                                             advance |          6 |          2 |          0 |          0 |          0 |    0.00146 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          6 |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          6 |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |          1 |         43 |         43 |         43 |         43 |     0.0314 |
-                                                                          initialize |          1 |          2 |          2 |          2 |          2 |    0.00146 |
-                                              initialize/m2n.requestMasterConnection |          1 |          1 |          1 |          1 |          1 |   0.000729 |
-                                              initialize/m2n.requestSlavesConnection |          1 |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |          1 |         13 |         13 |         13 |         13 |    0.00948 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          1 |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |          6 |       1026 |        206 |          8 |        171 |      0.748 |
-                                                                   solver.initialize |          1 |        283 |        283 |        283 |        283 |      0.206 |
-
-
-                                                                                Name |        Max |  MaxOnRank |        Min |  MinOnRank |    Min/Max |
--------------------------------------------------------------------------------------------------------------------------------------------------------
-                                                                             _GLOBAL |       1371 |          0 |       1371 |          0 |          1 |
-                                                                             advance |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                  advance/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                           configure |          0 |          0 |          0 |          0 |          0 |
-                                                                            finalize |         43 |          0 |         43 |          0 |          1 |
-                                                                          initialize |          2 |          0 |          2 |          0 |          1 |
-                                              initialize/m2n.requestMasterConnection |          1 |          0 |          1 |          0 |          1 |
-                                              initialize/m2n.requestSlavesConnection |          0 |          0 |          0 |          0 |          0 |
-                                      initialize/partition.feedbackMesh.FreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                                    initialize/partition.receiveGlobalMesh.DarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      initializeData |         13 |          0 |         13 |          0 |          1 |
-                    initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromDarcyMeshToFreeFlowMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                    initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
- initializeData/map.nn.computeMapping.FromFreeFlowMeshToDarcyMesh.getIndexOnVertices |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromDarcyMeshToFreeFlowMesh |          0 |          0 |          0 |          0 |          0 |
-                           initializeData/map.nn.mapData.FromFreeFlowMeshToDarcyMesh |          0 |          0 |          0 |          0 |          0 |
-                                                                      solver.advance |        206 |          0 |          8 |          0 |   0.038835 |
-                                                                   solver.initialize |        283 |          0 |        283 |          0 |          1 |
-
-# Runtime-specified parameters used:
-[ Darcy ]
-[ Darcy.Grid ]
-LowerLeft = "0 0"
-UpperRight = "1 1"
-[ Darcy.SpatialParams ]
-AlphaBeaversJoseph = "1.0"
-Permeability = "1e-6"
-[ FreeFlow ]
-EnableUnsymmetrizedVelocityGradientForBeaversJoseph = "false"
-[ FreeFlow.Grid ]
-Cells = "40 40"
-LowerLeft = "0 1"
-UpperRight = "1 2"
-[ FreeFlow.Problem ]
-EnableInertiaTerms = "false"
-Name = "stokes-iterative"
-PressureDifference = "1e-2"
-[ Problem ]
-EnableGravity = "false"
-[ Vtk ]
-AddVelocity = "1"
-
-# Global default parameters used:
-[ Assembly ]
-NumericDifferenceMethod = "1"
-[ Flux ]
-UpwindWeight = "1.0"
-[ Newton ]
-EnableAbsoluteResidualCriterion = "false"
-EnableChop = "false"
-EnablePartialReassembly = "false"
-EnableResidualCriterion = "false"
-EnableShiftCriterion = "true"
-MaxAbsoluteResidual = "1e-5"
-MaxRelativeShift = "1e-8"
-MaxSteps = "18"
-MinSteps = "2"
-ResidualReduction = "1e-5"
-SatisfyResidualAndShiftCriterion = "false"
-TargetSteps = "10"
-UseLineSearch = "false"
-[ Vtk ]
-AddProcessRank = "true"
-
-# Unused parameters:
- = "./precice-config-pi.xml"
-FreeFlow.Grid.Verbosity = "true"
-FreeFlow.Grid.Grading1 = "1"
-Darcy.Grid.Verbosity = "true"
-Darcy.Grid.Cells = "40 40"
-Darcy.Grid.Grading1 = "1"
-Darcy.Problem.Name = "darcy-iterative"
-Darcy.Problem.InitialP = "0.0e-9"
-Darcy.SpatialParams.Porosity = "0.4"
-Problem.Name = "fvca-iterative"
-Problem.CouplingMode = "ReconstructFreeFlowNormalStress"
-
-Elliot Carver: Outstanding.
- - James Bond, Tomorrow Never Dies
-

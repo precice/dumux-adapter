@@ -1,11 +1,13 @@
 #ifndef PRECICEWRAPPER_HH
 #define PRECICEWRAPPER_HH
 
+#include <map>
 #include <ostream>
 #include <precice/precice.hpp>
 #include <string>
 
 #include "dumuxpreciceindexmapper.hh"
+#include "solverstate.hh"
 
 /*!
  * @brief Namespace of dumux-precice
@@ -13,6 +15,10 @@
  */
 namespace Dumux::Precice
 {
+
+//! Type of Dumux face IDs
+using FaceID = int;
+
 /*!
  * @brief A DuMuX-preCICE coupling adapter class
  *
@@ -37,14 +43,10 @@ private:
     bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
-    //! Time step size.
-    double timeStepSize_;
     //! Map storing meshName:dataName and data vectors
     std::map<std::string, std::vector<double>> dataMap_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
     std::vector<int> vertexIDs_;  //should be size_t
-    //! Span of the precice vertex indices vector vertexIDs_
-    precice::span<precice::VertexID> vertexIDsSpan_;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -52,7 +54,12 @@ private:
      *        DuMuX' identifiers of vertices and preCICE's identifiers.
      *
      */
-    Internal::DumuxPreciceIndexMapper<int> indexMapper_;
+    Internal::DumuxPreciceIndexMapper<FaceID, precice::VertexID> indexMapper_;
+    /*!
+     * @brief Store the states of the solver for checkpointing.
+     *
+     */
+    std::vector<std::unique_ptr<SolverStateBase>> states_;
     /*!
      * @brief Get the number of quantities exchanged.
      *
@@ -110,21 +117,35 @@ public:
      * @return double time step size
      */
     double getMaxTimeStepSize() const;
-    /*!
-     * @brief Checks if the participant is required to read an iteration checkpoint. If true, the participant is required to read an iteration checkpoint before calling advance(). 
-     *
-     * @return true Simulation checkpoint has to be restored.
-     * @return false No further action is needed.
-     */
-    bool requiresToReadCheckpoint();
 
     /*!
-     * @brief Checks if the participant is required to write an iteration checkpoint. If true, the participant is required to write an iteration checkpoint before calling advance(). 
+     * @brief Initializes the checkpointing functionality.
      *
-     * @return true Simulation checkpoints needs to be stored.
-     * @return false No further action is needed.
+     * This function needs to be called at least once before using the checkpointing functionality.
+     *
+     * @param[in] x Solution vector
+     * @param[in] gv Grid variables
+     * @param[in] tl Time loop
      */
-    bool requiresToWriteCheckpoint();
+    template<class SolutionVector, class GridVariables, class TimeLoop>
+    void initializeCheckpoint(SolutionVector &x,
+                              GridVariables &gv,
+                              TimeLoop &tl);
+
+    template<class SolutionVector, class GridVariables>
+    void initializeCheckpoint(SolutionVector &x, GridVariables &gv);
+
+    template<class SolutionVector>
+    void initializeCheckpoint(SolutionVector &x);
+    /*!
+     * @brief Writes the solver state to a checkpoint if required by preCICE.
+     *
+     */
+    bool writeCheckpointIfRequired();
+    /*!
+     * @brief Reads the solver state from a checkpoint if required by preCICE.
+     */
+    bool readCheckpointIfRequired();
 
     /*!
      * @brief Checks if the participant is required to provide initial data. If true, the participant needs to write initial data to defined vertices prior to calling initialize().
@@ -139,7 +160,7 @@ public:
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
      * @param[in] positions A span to the coordinates of the vertices.
-     * 
+     *
      * \note The coordinates need to be stored consecutively
      *       according to their spatial coordinates as.\n
      *       Example 2D:\n
@@ -166,7 +187,7 @@ public:
      * \note The order of the face identifiers must be correspond to the order of coordinates
      *       passed in setMesh.
      */
-    void createIndexMapping(const std::vector<int> &dumuxFaceIDs);
+    void createIndexMapping(const std::vector<FaceID> &dumuxFaceIDs);
     /*!
      * @brief Destroys the coupling.
      *
@@ -188,6 +209,13 @@ public:
      * @return false Coupling finished.
      */
     bool isCouplingOngoing();
+    /*!
+     * @brief Checks whether the time window has completed.
+     *
+     * @return true Time window has completed.
+     * @return false Time window is still ongoing.
+     */
+    bool isTimeWindowComplete();
     /*!
      * @brief Get the number of vertices on the coupling interface.
      *
@@ -222,7 +250,7 @@ public:
      */
     double getScalarQuantityOnFace(const std::string &meshName,
                                    const std::string &dataName,
-                                   const int faceID);
+                                   const FaceID faceID);
     /*!
      * @brief Writes value of scalar quantity on a given finite volume face to data map.
      *
@@ -233,7 +261,7 @@ public:
      */
     void writeScalarQuantityOnFace(const std::string &meshName,
                                    const std::string &dataName,
-                                   const int faceID,
+                                   const FaceID faceID,
                                    const double value);
     /*!
      * @brief Gets the quantity value vector from the data map according to the mesh and data name.
@@ -254,7 +282,7 @@ public:
     void writeQuantityVector(const std::string &meshName,
                              const std::string &dataName,
                              const std::vector<double> &values);
-    /*! 
+    /*!
      * @brief Checks whether face with given identifier is part of coupling interface.
      *
      * @param[in] faceID Identifier of the face according to DuMuX' numbering.
@@ -279,5 +307,29 @@ public:
     void print(std::ostream &os);
 };
 
+template<class SolutionVector, class GridVariables, class TimeLoop>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x,
+                                           GridVariables &gv,
+                                           TimeLoop &tl)
+{
+    states_.emplace_back(
+        std::make_unique<SolverStateGridVarTimeLoop<SolutionVector,
+                                                    GridVariables, TimeLoop>>(
+            x, gv, tl));
+}
+
+template<class SolutionVector, class GridVariables>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x, GridVariables &gv)
+{
+    states_.emplace_back(
+        std::make_unique<SolverStateGridVar<SolutionVector, GridVariables>>(
+            x, gv));
+}
+
+template<class SolutionVector>
+void CouplingAdapter::initializeCheckpoint(SolutionVector &x)
+{
+    states_.emplace_back(std::make_unique<SolverStateOnly<SolutionVector>>(x));
+}
 }  // namespace Dumux::Precice
 #endif

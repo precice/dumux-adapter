@@ -1,0 +1,6 @@
+/*! \mainpage DuMuX-preCICE adapter
+ *
+ * This project helps with coupling DuMuX-based solvers
+ * with other solvers via the coupling library preCICE.
+ *
+ */
