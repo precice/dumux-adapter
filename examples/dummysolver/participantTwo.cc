@@ -37,12 +37,13 @@ int main(int argc, char **argv)
     // - Configuration file name
     // - Solver rank
     const std::string solverName = "SolverTwo";
-    const std::string preciceConfigFilename ="./precice-dummy-solver-config.xml";
+    const std::string preciceConfigFilename =
+        "./precice-dummy-solver-config.xml";
     const std::string meshName = "MeshTwo";
-    
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
-    couplingParticipant.announceSolver(solverName, preciceConfigFilename, mpiHelper.rank(), mpiHelper.size());
+    couplingParticipant.announceSolver(solverName, preciceConfigFilename,
+                                       mpiHelper.rank(), mpiHelper.size());
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
