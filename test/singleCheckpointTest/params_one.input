@@ -1,0 +1,7 @@
+[preCICE]
+preciceConfig = ./test.xml
+participant = SolverOne
+numberOfCouplingInterfaces = 1
+interface1.mesh="MeshOne"
+interface1.readData = dataTwo
+interface1.writeData = dataOne

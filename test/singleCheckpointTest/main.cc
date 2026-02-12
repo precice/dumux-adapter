@@ -66,31 +66,14 @@ int main(int argc, char **argv)
     // parse command line arguments and input file
     Parameters::init(argc, argv);
 
-    // Initialize preCICE. Tell preCICE about:
-    // - Name of solver
-    // - Configuration file name
-    // - Solver rank
-    const std::string solverName =
-        getParamFromGroup<std::string>("preCICE", "SolverName");
-    const std::string preciceConfigFilename =
-        getParamFromGroup<std::string>("preCICE", "ConfigFileName");
-    const std::string meshName =
-        getParamFromGroup<std::string>("preCICE", "MeshName");
-
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
-    couplingParticipant.announceSolver(solverName, preciceConfigFilename,
-                                       mpiHelper.rank(), mpiHelper.size());
-    std::cout << "DUMMY (" << mpiHelper.rank()
-              << "): Running solver dummy with preCICE config file \""
-              << preciceConfigFilename << "\", participant name \""
-              << solverName << "\", and mesh name \"" << meshName << "\".\n";
+    couplingParticipant.announceConfig(mpiHelper.rank(), mpiHelper.size());
 
+    const std::string meshName =
+        (couplingParticipant.getSolverName() == "SolverOne") ? "MeshOne"
+                                                             : "MeshTwo";
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
-    const std::string dataToWrite =
-        (solverName == "SolverOne") ? "dataOne" : "dataTwo";
-    const std::string dataToRead =
-        (solverName == "SolverOne") ? "dataTwo" : "dataOne";
 
     const int numberOfVertices = 3;
 
@@ -117,15 +100,14 @@ int main(int argc, char **argv)
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Create index mapping\n";
     couplingParticipant.createIndexMapping(dumuxVertexIDs);
 
-    couplingParticipant.announceQuantity(meshName, dataToWrite);
-    couplingParticipant.announceQuantity(meshName, dataToRead);
-
     if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
-        couplingParticipant.writeQuantityVector(meshName, dataToWrite,
-                                                writeScalarData);
-        couplingParticipant.writeQuantityToOtherSolver(meshName, dataToWrite);
+        couplingParticipant.writeQuantityVector(
+            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0],
+            writeScalarData);
+        couplingParticipant.writeQuantityToOtherSolver(
+            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0]);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -140,10 +122,11 @@ int main(int argc, char **argv)
                                              timeLoop);
 
     // Check exchanged initial data
-    if (solverName == "SolverOne") {
+    if (couplingParticipant.getSolverName() == "SolverOne") {
         std::cout << "SolverOne: Reading initial data\n";
-        couplingParticipant.readQuantityFromOtherSolver(meshName, dataToRead,
-                                                        preciceDt);
+        couplingParticipant.readQuantityFromOtherSolver(
+            meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[0],
+            preciceDt);
     }
 
     int iter = 0;
@@ -153,7 +136,7 @@ int main(int argc, char **argv)
     double timeStepSizeToKeep = 0.0;
 
     while (couplingParticipant.isCouplingOngoing()) {
-        if (solverName == "SolverOne") {
+        if (couplingParticipant.getSolverName() == "SolverOne") {
             if (couplingParticipant.writeCheckpointIfRequired()) {
                 // Keep data for later comparison
                 dataToKeep = writeScalarData;
