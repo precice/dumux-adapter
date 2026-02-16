@@ -1,0 +1,7 @@
+[preCICE]
+preciceConfig = ./precice-dummy-solver-config.xml
+participant = SolverTwo
+numberOfCouplingInterfaces = 1
+interface1.mesh = MeshTwo
+interface1.readData = scalarDataOne vectorDataOne
+interface1.writeData = scalarDataTwo vectorDataTwo

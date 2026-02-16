@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceConfig(mpiHelper.rank(), mpiHelper.size());
-    const std::string meshName = "MeshOne";
+    const std::string meshName = couplingParticipant.getMeshName()[0];
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);

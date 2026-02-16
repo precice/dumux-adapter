@@ -140,6 +140,12 @@ public:
      */
     std::string getSolverName() const;
     /*!
+     * @brief Get the coupled meshnames on this participant
+     *
+     * @return vector of neshnames
+     */
+    std::vector<std::string> getMeshName() const;
+    /*!
      * @brief Get the datanames for reading on this mesh
      *
      * @return vector of datanames

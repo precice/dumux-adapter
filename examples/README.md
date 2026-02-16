@@ -9,9 +9,9 @@ The examples often have two input files that should be passed to the executables
 
 ## Dummy solver
 
-The dummy solver reside in `examples/dummysolver`. The solver does not solve any equations, but uses the DuMuX adapter to communicate some data between two instances of the dummy solver. The first participant as in `participantOne.cc` uses `params_one.input` to configure the coupling interface, while `participantTwo.cc` has the interface configuration hardcoded.
+The dummy solver reside in `examples/dummysolver`. The solver does not solve any equations, but uses the DuMuX adapter to communicate some data between two instances of the dummy solver.
 
-The dummy solver can be used as an example on how to use the adapter, but also for developing and debugging a new code.
+The dummy solver is an example on how to use the adapter, but also for developing and debugging a new code.
 
 To start the two dummy participants, run following commands respectively in two terminals from the folder `build-cmake/examples`:
 

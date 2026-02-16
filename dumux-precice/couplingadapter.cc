@@ -140,6 +140,26 @@ std::string CouplingAdapter::getSolverName() const
     return participantName_;
 }
 
+std::vector<std::string> CouplingAdapter::getMeshName() const
+{
+    assert(wasCreated_);
+    std::vector<std::string> meshNames;
+
+    for (const auto &[key, value] : dataRead_) {
+        auto it = std::find(meshNames.begin(), meshNames.end(), key.first);
+        if (it == meshNames.end()) {
+            meshNames.push_back(key.first);
+        }
+    }
+    for (const auto &[key, value] : dataWrite_) {
+        auto it = std::find(meshNames.begin(), meshNames.end(), key.first);
+        if (it == meshNames.end()) {
+            meshNames.push_back(key.first);
+        }
+    }
+    return meshNames;
+}
+
 std::vector<std::string> CouplingAdapter::getReadDataNameOnMesh(
     const std::string &meshName) const
 {
