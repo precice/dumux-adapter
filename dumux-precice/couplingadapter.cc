@@ -26,9 +26,9 @@ CouplingAdapter &CouplingAdapter::getInstance()
 void CouplingAdapter::announceConfig(const int rank, const int size)
 {
     preciceConfigName_ = Dumux::getParamFromGroup<std::string>(
-        "preCICE", "precice_config_file_path");
-    participantName_ =
-        Dumux::getParamFromGroup<std::string>("preCICE", "participant_name");
+        "precice-adapter-config", "precice_config_file_path");
+    participantName_ = Dumux::getParamFromGroup<std::string>(
+        "precice-adapter-config", "participant_name");
 
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::Participant>(
@@ -40,36 +40,50 @@ void CouplingAdapter::announceConfig(const int rank, const int size)
         interfaceIndex++;
 
         std::string meshNameTag =
-            "interface." + std::to_string(interfaceIndex) + ".mesh_name";
+            "interfaces." + std::to_string(interfaceIndex) + ".mesh_name";
 
-        if (!Dumux::hasParamInGroup("preCICE", meshNameTag)) {
+        if (!Dumux::hasParamInGroup("precice-adapter-config", meshNameTag)) {
             break;
         }
 
-        const std::string meshName =
-            Dumux::getParamFromGroup<std::string>("preCICE", meshNameTag);
+        const std::string meshName = Dumux::getParamFromGroup<std::string>(
+            "precice-adapter-config", meshNameTag);
 
-        const std::string readDataTag =
-            "interface." + std::to_string(interfaceIndex) + ".read_data.name";
-        if (Dumux::hasParamInGroup("preCICE", readDataTag)) {
-            const std::vector<std::string> readDataName =
-                Dumux::getParamFromGroup<std::vector<std::string>>("preCICE",
-                                                                   readDataTag);
-            for (auto dataName : readDataName) {
-                announceReadQuantity(meshName, dataName);
-            }
-        }
+        int dataTag = 0;
+        do {
+            dataTag++;
+            const std::string readDataTag =
+                "interfaces." + std::to_string(interfaceIndex) + ".read_data." +
+                std::to_string(dataTag) + ".name";
 
-        const std::string writeDataTag =
-            "interface." + std::to_string(interfaceIndex) + ".write_data.name";
-        if (Dumux::hasParamInGroup("preCICE", writeDataTag)) {
-            const std::vector<std::string> writeDataName =
-                Dumux::getParamFromGroup<std::vector<std::string>>(
-                    "preCICE", writeDataTag);
-            for (auto dataName : writeDataName) {
-                announceWriteQuantity(meshName, dataName);
+            if (!Dumux::hasParamInGroup("precice-adapter-config",
+                                        readDataTag)) {
+                break;
             }
-        }
+
+            const std::string readDataName =
+                Dumux::getParamFromGroup<std::string>("precice-adapter-config",
+                                                      readDataTag);
+            announceReadQuantity(meshName, readDataName);
+        } while (true);
+
+        dataTag = 0;
+        do {
+            dataTag++;
+            const std::string writeDataTag =
+                "interfaces." + std::to_string(interfaceIndex) +
+                ".write_data." + std::to_string(dataTag) + ".name";
+
+            if (!Dumux::hasParamInGroup("precice-adapter-config",
+                                        writeDataTag)) {
+                break;
+            }
+
+            const std::string writeDataName =
+                Dumux::getParamFromGroup<std::string>("precice-adapter-config",
+                                                      writeDataTag);
+            announceWriteQuantity(meshName, writeDataName);
+        } while (true);
     } while (true);
 }
 
