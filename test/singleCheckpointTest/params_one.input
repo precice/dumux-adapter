@@ -1,0 +1,6 @@
+[precice-adapter-config]
+participant_name = SolverOne
+precice_config_file_path = ./test.xml
+interfaces.1.mesh_name="MeshOne"
+interfaces.1.read_data.1.name = dataTwo
+interfaces.1.write_data.1.name = dataOne

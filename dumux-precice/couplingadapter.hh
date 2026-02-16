@@ -43,10 +43,18 @@ private:
     bool preciceWasInitialized_;
     //! True if instance owns an instance of DumuxPreciceIndexMapper.
     bool hasIndexMapper_;
-    //! Map storing meshName:dataName and data vectors
-    std::map<std::string, std::vector<double>> dataMap_;
+    //! Map storing <meshName, dataName> and data vectors for reading
+    std::map<std::pair<std::string, std::string>, std::vector<double>>
+        dataRead_;
+    //! Map storing <meshName, dataName> and data vectors for writing
+    std::map<std::pair<std::string, std::string>, std::vector<double>>
+        dataWrite_;
     //! Vector of identifiers (in preCICE) of the vertices of the coupling mesh.
     std::vector<int> vertexIDs_;  //should be size_t
+    //! Configuration file name and psth
+    std::string preciceConfigName_;
+    //! Participant or solver name
+    std::string participantName_;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -60,12 +68,6 @@ private:
      *
      */
     std::vector<std::unique_ptr<SolverStateBase>> states_;
-    /*!
-     * @brief Get the number of quantities exchanged.
-     *
-     * @return size_t Number of quantities defined on coupling interface.
-     */
-    size_t getNumberOfQuantities() const { return dataMap_.size(); }
     /*!
      * @brief Destroy the CouplingAdapter object
      *
@@ -82,6 +84,11 @@ public:
      */
     static CouplingAdapter &getInstance();
     /*!
+     * @brief Read in configuration and add the paired mesh and data names into respective maps, initilize with empty vector
+     *
+    */
+    void announceConfig(const int rank, const int size);
+    /*!
      * @brief Announces the DuMuX solver.
      *
      * @param[in] name Name of the DuMuX solver.
@@ -93,17 +100,6 @@ public:
                         const std::string &configurationFileName,
                         const int rank,
                         const int size);
-    /*!
-     * @brief Announces a quantity on the coupling interface.
-     *
-     * Internally, the quantity is announced to preCICE and the corresponding
-     * data structures are initilized to store information about the quantity.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     */
-    void announceQuantity(const std::string &meshName,
-                          const std::string &dataName);
     /*!
      * @brief Get the number of spatial dimensions
      *
@@ -117,6 +113,32 @@ public:
      * @return double time step size
      */
     double getMaxTimeStepSize() const;
+    /*!
+     * @brief Get the participant name from config
+     *
+     * @return vector of datanames
+     */
+    std::string getSolverName() const;
+    /*!
+     * @brief Get the coupled meshnames on this participant
+     *
+     * @return vector of neshnames
+     */
+    std::vector<std::string> getMeshNames() const;
+    /*!
+     * @brief Get the datanames for reading on this mesh
+     *
+     * @return vector of datanames
+     */
+    std::vector<std::string> getReadDataNamesOnMesh(
+        const std::string &meshName) const;
+    /*!
+     * @brief Get the datanames for writing on this mesh
+     *
+     * @return vector of datanames
+     */
+    std::vector<std::string> getWriteDataNamesOnMesh(
+        const std::string &meshName) const;
 
     /*!
      * @brief Initializes the checkpointing functionality.
@@ -156,7 +178,7 @@ public:
     bool requiresToWriteInitialData();
 
     /*!
-     * @brief Adds mesh for coupling of solvers.
+     * @brief Adds mesh for coupling of solvers. With the mesh size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
      * @param[in] positions A span to the coordinates of the vertices.
@@ -264,15 +286,6 @@ public:
                                    const FaceID faceID,
                                    const double value);
     /*!
-     * @brief Gets the quantity value vector from the data map according to the mesh and data name.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     * @return The value vector of the quantity.
-     */
-    std::vector<double> &getQuantityVector(const std::string &meshName,
-                                           const std::string &dataName);
-    /*!
      * @brief Writes the quantity value vector into the data map.
      *
      * @param[in] meshName Name of the mesh.
@@ -290,15 +303,6 @@ public:
      * @return false Face is not part of coupling interface.
      */
     bool isCoupledEntity(const int faceID) const;
-    /*!
-     * @brief Get a quantity's identifier from its name.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the quantity.
-     * @return size_t Numeric identifier of quantity.
-     */
-    std::string meshAndDataKey(const std::string &meshName,
-                               const std::string &dataName) const;
     /*!
      * @brief Prints status of coupling adapter to given output stream.
      *

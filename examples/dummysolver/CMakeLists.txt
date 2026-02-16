@@ -1,10 +1,4 @@
-add_executable(dumuxprecice_dummysolver EXCLUDE_FROM_ALL main_dummysolver.cc)
+add_executable(dummy_participantOne participantOne.cc)
+add_executable(dummy_participantTwo participantTwo.cc)
 
-dune_symlink_to_source_files(FILES precice-dummy-solver-config.xml)
-dune_symlink_to_source_files(FILES Allrun.sh)
-
-dumux_add_test(NAME dumuxprecice_dummysolver
-              TARGET dumuxprecice_dummysolver
-              LABELS dummy precice
-              TIMEOUT 30
-              COMMAND Allrun.sh)
+dune_symlink_to_source_files(FILES precice-dummy-solver-config.xml params_one.input params_two.input runFirst.sh runSecond.sh)

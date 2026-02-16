@@ -1,5 +1,7 @@
 # DuMuX-preCICE change log
 
+- Add adapter configuration reader for configuration via `.input` file [#68](https://github.com/precice/dumux-adapter/pull/68)
+
 ## v3.0.0
 
 - Separate test cases and examples [#65](https://github.com/precice/dumux-adapter/pull/65)
