@@ -178,7 +178,7 @@ public:
     bool requiresToWriteInitialData();
 
     /*!
-     * @brief Adds mesh for coupling of solvers. With the mish size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
+     * @brief Adds mesh for coupling of solvers. With the mesh size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
      * @param[in] positions A span to the coordinates of the vertices.
