@@ -124,20 +124,20 @@ public:
      *
      * @return vector of neshnames
      */
-    std::vector<std::string> getMeshName() const;
+    std::vector<std::string> getMeshNames() const;
     /*!
      * @brief Get the datanames for reading on this mesh
      *
      * @return vector of datanames
      */
-    std::vector<std::string> getReadDataNameOnMesh(
+    std::vector<std::string> getReadDataNamesOnMesh(
         const std::string &meshName) const;
     /*!
      * @brief Get the datanames for writing on this mesh
      *
      * @return vector of datanames
      */
-    std::vector<std::string> getWriteDataNameOnMesh(
+    std::vector<std::string> getWriteDataNamesOnMesh(
         const std::string &meshName) const;
 
     /*!

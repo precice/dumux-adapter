@@ -35,19 +35,19 @@ int main(int argc, char **argv)
     // Initialize preCICE.
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceConfig(mpiHelper.rank(), mpiHelper.size());
-    const std::string meshName = couplingParticipant.getMeshName()[0];
+    const std::string meshName = couplingParticipant.getMeshNames()[0];
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
 
     const std::string scalarDataWriteName =
-        couplingParticipant.getWriteDataNameOnMesh(meshName)[0];
+        couplingParticipant.getWriteDataNamesOnMesh(meshName)[0];
     const std::string scalarDataReadName =
-        couplingParticipant.getReadDataNameOnMesh(meshName)[0];
+        couplingParticipant.getReadDataNamesOnMesh(meshName)[0];
     const std::string vectorDataWriteName =
-        couplingParticipant.getWriteDataNameOnMesh(meshName)[1];
+        couplingParticipant.getWriteDataNamesOnMesh(meshName)[1];
     const std::string vectorDataReadName =
-        couplingParticipant.getReadDataNameOnMesh(meshName)[1];
+        couplingParticipant.getReadDataNamesOnMesh(meshName)[1];
 
     const int numberOfVertices = 3;
 

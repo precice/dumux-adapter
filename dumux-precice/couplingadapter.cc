@@ -118,8 +118,8 @@ void CouplingAdapter::setMesh(const std::string &meshName,
     meshWasCreated_ = true;
 
     // compute size of data vectors for coupling data on this mesh
-    auto dataToReadOnMesh = getReadDataNameOnMesh(meshName);
-    auto dataToWriteOnMesh = getWriteDataNameOnMesh(meshName);
+    auto dataToReadOnMesh = getReadDataNamesOnMesh(meshName);
+    auto dataToWriteOnMesh = getWriteDataNamesOnMesh(meshName);
 
     for (auto dataName : dataToReadOnMesh) {
         int dataDimension = precice_->getDataDimensions(meshName, dataName);
@@ -157,7 +157,7 @@ std::string CouplingAdapter::getSolverName() const
     return participantName_;
 }
 
-std::vector<std::string> CouplingAdapter::getMeshName() const
+std::vector<std::string> CouplingAdapter::getMeshNames() const
 {
     assert(wasCreated_);
     std::vector<std::string> meshNames;
@@ -177,7 +177,7 @@ std::vector<std::string> CouplingAdapter::getMeshName() const
     return meshNames;
 }
 
-std::vector<std::string> CouplingAdapter::getReadDataNameOnMesh(
+std::vector<std::string> CouplingAdapter::getReadDataNamesOnMesh(
     const std::string &meshName) const
 {
     assert(wasCreated_);
@@ -191,7 +191,7 @@ std::vector<std::string> CouplingAdapter::getReadDataNameOnMesh(
     return readNames;
 }
 
-std::vector<std::string> CouplingAdapter::getWriteDataNameOnMesh(
+std::vector<std::string> CouplingAdapter::getWriteDataNamesOnMesh(
     const std::string &meshName) const
 {
     assert(wasCreated_);

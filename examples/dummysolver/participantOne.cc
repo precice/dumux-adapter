@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.announceConfig(mpiHelper.rank(), mpiHelper.size());
-    const std::string meshName = couplingParticipant.getMeshName()[0];
+    const std::string meshName = couplingParticipant.getMeshNames()[0];
 
     const int dimensions = couplingParticipant.getMeshDimensions(meshName);
     assert(dimensions == 3);
@@ -70,15 +70,15 @@ int main(int argc, char **argv)
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
         couplingParticipant.writeQuantityVector(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0],
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[0],
             writeScalarData);
         couplingParticipant.writeQuantityToOtherSolver(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0]);
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[0]);
         couplingParticipant.writeQuantityVector(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[1],
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[1],
             writeVectorData);
         couplingParticipant.writeQuantityToOtherSolver(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[1]);
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[1]);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -87,10 +87,10 @@ int main(int argc, char **argv)
     // Check exchanged initial data
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading initial data\n";
     couplingParticipant.readQuantityFromOtherSolver(
-        meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[0],
+        meshName, couplingParticipant.getReadDataNamesOnMesh(meshName)[0],
         preciceDt);
     couplingParticipant.readQuantityFromOtherSolver(
-        meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[1],
+        meshName, couplingParticipant.getReadDataNamesOnMesh(meshName)[1],
         preciceDt);
 
     int iter = 0;
@@ -104,10 +104,10 @@ int main(int argc, char **argv)
         //Read data
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Reading data\n";
         couplingParticipant.readQuantityFromOtherSolver(
-            meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[0],
+            meshName, couplingParticipant.getReadDataNamesOnMesh(meshName)[0],
             preciceDt);
         couplingParticipant.readQuantityFromOtherSolver(
-            meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[1],
+            meshName, couplingParticipant.getReadDataNamesOnMesh(meshName)[1],
             preciceDt);
 
         std::cout << "DUMMY (" << mpiHelper.rank() << "): Writing data\n";
@@ -123,18 +123,18 @@ int main(int argc, char **argv)
             const double value = i + iter;
             couplingParticipant.writeScalarQuantityOnFace(
                 meshName,
-                couplingParticipant.getWriteDataNameOnMesh(meshName)[0],
+                couplingParticipant.getWriteDataNamesOnMesh(meshName)[0],
                 dumuxVertexIDs[i], value);
         }
         couplingParticipant.writeQuantityToOtherSolver(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0]);
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[0]);
 
         // Write vector data
         couplingParticipant.writeQuantityVector(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[1],
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[1],
             writeVectorData);
         couplingParticipant.writeQuantityToOtherSolver(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[1]);
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[1]);
 
         preciceDt = couplingParticipant.getMaxTimeStepSize();
         couplingParticipant.advance(preciceDt);

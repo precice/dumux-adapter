@@ -104,10 +104,10 @@ int main(int argc, char **argv)
         std::cout << "DUMMY (" << mpiHelper.rank()
                   << "): Writing initial data\n";
         couplingParticipant.writeQuantityVector(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0],
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[0],
             writeScalarData);
         couplingParticipant.writeQuantityToOtherSolver(
-            meshName, couplingParticipant.getWriteDataNameOnMesh(meshName)[0]);
+            meshName, couplingParticipant.getWriteDataNamesOnMesh(meshName)[0]);
     }
     std::cout << "DUMMY (" << mpiHelper.rank() << "): Exchange initial\n";
     couplingParticipant.initialize();
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     if (couplingParticipant.getSolverName() == "SolverOne") {
         std::cout << "SolverOne: Reading initial data\n";
         couplingParticipant.readQuantityFromOtherSolver(
-            meshName, couplingParticipant.getReadDataNameOnMesh(meshName)[0],
+            meshName, couplingParticipant.getReadDataNamesOnMesh(meshName)[0],
             preciceDt);
     }
 
