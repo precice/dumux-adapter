@@ -101,26 +101,6 @@ public:
                         const int rank,
                         const int size);
     /*!
-     * @brief Announces a quantity on the coupling interface.
-     *
-     * Internally, the quantity is announced to the adapter.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     */
-    void announceReadQuantity(const std::string &meshName,
-                              const std::string &dataName);
-    /*!
-     * @brief Announces a quantity on the coupling interface.
-     *
-     * Internally, the quantity is announced to the adapter.
-     *
-     * @param[in] meshName Name of the mesh.
-     * @param[in] dataName Name of the data.
-     */
-    void announceWriteQuantity(const std::string &meshName,
-                               const std::string &dataName);
-    /*!
      * @brief Get the number of spatial dimensions
      *
      * @param[in] meshName Name of the mesh

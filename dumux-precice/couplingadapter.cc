@@ -64,7 +64,8 @@ void CouplingAdapter::announceConfig(const int rank, const int size)
             const std::string readDataName =
                 Dumux::getParamFromGroup<std::string>("precice-adapter-config",
                                                       readDataTag);
-            announceReadQuantity(meshName, readDataName);
+            auto key = std::make_pair(meshName, readDataName);
+            dataRead_.try_emplace(key);
         } while (true);
 
         dataTag = 0;
@@ -82,7 +83,8 @@ void CouplingAdapter::announceConfig(const int rank, const int size)
             const std::string writeDataName =
                 Dumux::getParamFromGroup<std::string>("precice-adapter-config",
                                                       writeDataTag);
-            announceWriteQuantity(meshName, writeDataName);
+            auto key = std::make_pair(meshName, writeDataName);
+            dataWrite_.try_emplace(key);
         } while (true);
     } while (true);
 }
@@ -99,20 +101,6 @@ void CouplingAdapter::announceSolver(const std::string &name,
     precice_ = std::make_unique<precice::Participant>(
         name, configurationFileName, rank, size);
     wasCreated_ = true;
-}
-
-void CouplingAdapter::announceReadQuantity(const std::string &meshName,
-                                           const std::string &dataName)
-{
-    auto key = std::make_pair(meshName, dataName);
-    dataRead_.try_emplace(key);
-}
-
-void CouplingAdapter::announceWriteQuantity(const std::string &meshName,
-                                            const std::string &dataName)
-{
-    auto key = std::make_pair(meshName, dataName);
-    dataWrite_.try_emplace(key);
 }
 
 int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
