@@ -25,37 +25,52 @@ CouplingAdapter &CouplingAdapter::getInstance()
 
 void CouplingAdapter::announceConfig(const int rank, const int size)
 {
-    preciceConfigName_ =
-        Dumux::getParamFromGroup<std::string>("preCICE", "preciceConfig");
+    preciceConfigName_ = Dumux::getParamFromGroup<std::string>(
+        "preCICE", "precice_config_file_path");
     participantName_ =
-        Dumux::getParamFromGroup<std::string>("preCICE", "participant");
+        Dumux::getParamFromGroup<std::string>("preCICE", "participant_name");
 
     assert(precice_ == nullptr);
     precice_ = std::make_unique<precice::Participant>(
         participantName_, preciceConfigName_, rank, size);
     wasCreated_ = true;
 
-    int interfaces =
-        Dumux::getParamFromGroup<int>("preCICE", "numberOfCouplingInterfaces");
+    int interfaceIndex = 0;
+    do {
+        interfaceIndex++;
 
-    for (int i = 0; i < interfaces; i++) {
-        const std::string meshName = Dumux::getParamFromGroup<std::string>(
-            "preCICE", "interface" + std::to_string(i + 1) + ".mesh");
+        std::string meshNameTag =
+            "interface." + std::to_string(interfaceIndex) + ".mesh_name";
 
-        const std::vector<std::string> readDataName =
-            Dumux::getParamFromGroup<std::vector<std::string>>(
-                "preCICE", "interface" + std::to_string(i + 1) + ".readData");
-        for (auto dataName : readDataName) {
-            announceReadQuantity(meshName, dataName);
+        if (!Dumux::hasParamInGroup("preCICE", meshNameTag)) {
+            break;
         }
 
-        const std::vector<std::string> writeDataName =
-            Dumux::getParamFromGroup<std::vector<std::string>>(
-                "preCICE", "interface" + std::to_string(i + 1) + ".writeData");
-        for (auto dataName : writeDataName) {
-            announceWriteQuantity(meshName, dataName);
+        const std::string meshName =
+            Dumux::getParamFromGroup<std::string>("preCICE", meshNameTag);
+
+        const std::string readDataTag =
+            "interface." + std::to_string(interfaceIndex) + ".read_data.name";
+        if (Dumux::hasParamInGroup("preCICE", readDataTag)) {
+            const std::vector<std::string> readDataName =
+                Dumux::getParamFromGroup<std::vector<std::string>>("preCICE",
+                                                                   readDataTag);
+            for (auto dataName : readDataName) {
+                announceReadQuantity(meshName, dataName);
+            }
         }
-    }
+
+        const std::string writeDataTag =
+            "interface." + std::to_string(interfaceIndex) + ".write_data.name";
+        if (Dumux::hasParamInGroup("preCICE", writeDataTag)) {
+            const std::vector<std::string> writeDataName =
+                Dumux::getParamFromGroup<std::vector<std::string>>(
+                    "preCICE", writeDataTag);
+            for (auto dataName : writeDataName) {
+                announceWriteQuantity(meshName, dataName);
+            }
+        }
+    } while (true);
 }
 
 void CouplingAdapter::announceSolver(const std::string &name,

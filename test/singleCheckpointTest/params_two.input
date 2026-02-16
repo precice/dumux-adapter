@@ -1,7 +1,6 @@
 [preCICE]
-preciceConfig = ./test.xml
-participant = SolverTwo
-numberOfCouplingInterfaces = 1
-interface1.mesh = MeshTwo
-interface1.readData = dataOne
-interface1.writeData = dataTwo
+participant_name = SolverTwo
+precice_config_file_path = ./test.xml
+interface.1.mesh_name = MeshTwo
+interface.1.read_data.name = dataOne
+interface.1.write_data.name = dataTwo

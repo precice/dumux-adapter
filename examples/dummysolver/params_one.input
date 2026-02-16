@@ -1,7 +1,6 @@
 [preCICE]
-preciceConfig = ./precice-dummy-solver-config.xml
-participant = SolverOne
-numberOfCouplingInterfaces = 1
-interface1.mesh = MeshOne
-interface1.readData = scalarDataTwo vectorDataTwo
-interface1.writeData = scalarDataOne vectorDataOne
+participant_name = SolverOne
+precice_config_file_path = ./precice-dummy-solver-config.xml
+interface.1.mesh_name = MeshOne
+interface.1.read_data.name = scalarDataTwo vectorDataTwo
+interface.1.write_data.name = scalarDataOne vectorDataOne
