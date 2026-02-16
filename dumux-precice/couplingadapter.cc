@@ -291,8 +291,6 @@ void CouplingAdapter::writeQuantityVector(const std::string &meshName,
 {
     auto key = std::make_pair(meshName, dataName);
     std::vector<double> &dataVector = dataWrite_[key];
-    std::cout << "dataVector size:" << dataVector.size() << std::endl;
-    std::cout << "values size:" << values.size() << std::endl;
     assert(dataVector.size() == values.size());
     dataVector = values;
 }
