@@ -11,7 +11,7 @@ This is a [DuMuX](https://dumux.org/) adapter (a DUNE module specific to DuMuX) 
 
 ## Supported features
 
-- Surface and volume coupling as represented respectively in the two tutorial cases [free-flow-over-porous-media](https://precice.org/tutorials-free-flow-over-porous-media-2d.html) and [two-scale-heat-conduction](https://precice.org/tutorials-two-scale-heat-conduction.html).
+- Surface and volume coupling as demonstrated in the two tutorial cases [free-flow-over-porous-media](https://precice.org/tutorials-free-flow-over-porous-media-2d.html) and [two-scale-heat-conduction](https://precice.org/tutorials-two-scale-heat-conduction.html).
 - The data types that can be communicated via the adapter is not limited. The user decides what data to send to preCICE under the data names in the adapter configuration.
 - In the configuration, one mesh can be set for each interface and multiple data can be read or written on each interface. Multiple interfaces can be configured.
 - Implicit coupling and manual subcycling are supported.
