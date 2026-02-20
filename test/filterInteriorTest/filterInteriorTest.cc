@@ -3,18 +3,18 @@
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/test/testsuite.hh>
 
-#include <dune/grid/yaspgrid.hh>
 #include <dune/grid/common/rangegenerators.hh>
+#include <dune/grid/yaspgrid.hh>
 
-#include <vector>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 #include "dumux-precice/couplingadapter.hh"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    auto& mpi = Dune::MPIHelper::instance(argc, argv);
+    auto &mpi = Dune::MPIHelper::instance(argc, argv);
     Dune::TestSuite t;
 
     static constexpr int dim = 2;
@@ -27,11 +27,11 @@ int main(int argc, char** argv)
 
     Dune::YaspGrid<dim> grid(L, N, periodic, overlap);
     auto gv = grid.leafGridView();
-    const auto& iset = gv.indexSet();
+    const auto &iset = gv.indexSet();
 
     std::vector<int> ids;
     std::vector<double> pos;
-    for (const auto& e : elements(gv)) {
+    for (const auto &e : elements(gv)) {
         ids.push_back(static_cast<int>(iset.index(e)));
         const auto c = e.geometry().center();
         pos.push_back(c[0]);
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
     // Reference: local interior element indices
     std::vector<int> refInterior;
-    for (const auto& e : elements(gv)) {
+    for (const auto &e : elements(gv)) {
         if (e.partitionType() == Dune::InteriorEntity)
             refInterior.push_back(static_cast<int>(iset.index(e)));
     }
@@ -51,34 +51,33 @@ int main(int argc, char** argv)
     std::cout << "Initial pos.size(): " << pos.size() << "\n";
     std::cout << "Reference interior count: " << refInterior.size() << "\n";
 
-    std::cout << "Initial local IDs on rank "<< mpi.rank()<<":" << "\n";
+    std::cout << "Initial local IDs on rank " << mpi.rank() << ":" << "\n";
     for (auto id : ids)
         std::cout << id << " ";
     std::cout << "\n";
 
-    
     auto &couplingParticipant = Dumux::Precice::CouplingAdapter::getInstance();
     couplingParticipant.filterInteriorEntities(gv, ids, pos);
 
-    std::cout << "After filtering ids.size(): " << ids.size() << " on rank "<< mpi.rank() << "\n";
-    std::cout << "After filtering pos.size(): " << pos.size() << " on rank "<< mpi.rank() << "\n";
+    std::cout << "After filtering ids.size(): " << ids.size() << " on rank "
+              << mpi.rank() << "\n";
+    std::cout << "After filtering pos.size(): " << pos.size() << " on rank "
+              << mpi.rank() << "\n";
 
-    std::cout << "Local IDs after filtering on rank "<< mpi.rank()<<":" << "\n";
+    std::cout << "Local IDs after filtering on rank " << mpi.rank() << ":"
+              << "\n";
     for (auto id : ids)
         std::cout << id << " ";
     std::cout << "\n";
-
 
     t.check(pos.size() == ids.size() * dim)
         << "pos size inconsistent after filtering";
 
-    t.check(ids.size() == refInterior.size())
-        << "filtered id count mismatch";
+    t.check(ids.size() == refInterior.size()) << "filtered id count mismatch";
 
     for (auto id : ids) {
-        t.check(std::find(refInterior.begin(),
-                          refInterior.end(),
-                          id) != refInterior.end())
+        t.check(std::find(refInterior.begin(), refInterior.end(), id) !=
+                refInterior.end())
             << "filtered id not interior: " << id;
     }
 
