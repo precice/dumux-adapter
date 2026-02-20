@@ -1,1 +1,2 @@
 add_subdirectory(singleCheckpointTest)
+add_subdirectory(filterInteriorTest)

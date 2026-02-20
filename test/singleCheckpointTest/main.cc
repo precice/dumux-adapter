@@ -13,6 +13,8 @@
 
 #include <dumux/common/dumuxmessage.hh>
 #include <dumux/common/parameters.hh>
+#include <dune/grid/common/rangegenerators.hh>
+#include <dune/grid/yaspgrid.hh>
 
 #include "dumux-precice/couplingadapter.hh"
 
@@ -72,10 +74,10 @@ int main(int argc, char **argv)
     const std::string meshName =
         (couplingParticipant.getSolverName() == "SolverOne") ? "MeshOne"
                                                              : "MeshTwo";
-    const int dimensions = couplingParticipant.getMeshDimensions(meshName);
-    assert(dimensions == 3);
+    assert(couplingParticipant.getMeshDimensions(meshName) == 3);
 
     const int numberOfVertices = 3;
+    static constexpr int dimensions = 3;
 
     std::vector<double> writeScalarData(numberOfVertices);
     std::vector<double> readScalarData(numberOfVertices);
@@ -94,11 +96,7 @@ int main(int argc, char **argv)
 
     std::cout << "DUMMY (" << mpiHelper.rank()
               << "): Initialize preCICE and set mesh\n";
-    couplingParticipant.setMesh(meshName, vertices);
-
-    // Create index mapping between DuMuX's index numbering and preCICE's numbering
-    std::cout << "DUMMY (" << mpiHelper.rank() << "): Create index mapping\n";
-    couplingParticipant.createIndexMapping(dumuxVertexIDs);
+    couplingParticipant.setSurfaceMesh(meshName, dumuxVertexIDs, vertices);
 
     if (couplingParticipant.requiresToWriteInitialData()) {
         std::cout << "DUMMY (" << mpiHelper.rank()
