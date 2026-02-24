@@ -1,5 +1,4 @@
-add_executable(dumuxprecice_filterInteriorTest filterInteriorTest.cc)
-target_link_libraries(dumuxprecice_filterInteriorTest dunecommon dunegrid)
+add_executable(dumuxprecice_filterInteriorTest EXCLUDE_FROM_ALL filterInteriorTest.cc)
 
 dumux_add_test(
   NAME dumuxprecice_filterInteriorTest

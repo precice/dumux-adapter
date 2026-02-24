@@ -11,8 +11,6 @@
 
 #include <dune/common/parallel/mpihelper.hh>
 #include <dune/common/timer.hh>
-#include <dune/grid/common/rangegenerators.hh>
-#include <dune/grid/yaspgrid.hh>
 #include <dune/istl/io.hh>
 
 #include <dumux/common/dumuxmessage.hh>
