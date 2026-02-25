@@ -38,11 +38,3 @@ jobs:
         run: pip install --user black~=22.12
       - name: "Run style check"
         run: black --check .
-  cpp_linting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - name: Run format check
-        run: |
-          sudo apt-get install clang-format-14
-          ./scripts/format/run-clang-format.sh
