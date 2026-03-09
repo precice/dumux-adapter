@@ -30,7 +30,7 @@ jobs:
           username: ${{ env.dockerhub_username }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push Dockerfile
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: "{{defaultContext}}:docker"
@@ -61,7 +61,7 @@ jobs:
           username: ${{ env.dockerhub_username }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push Dockerfile
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: true
           context: "{{defaultContext}}:docker"
