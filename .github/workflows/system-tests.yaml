@@ -41,7 +41,7 @@ jobs:
     needs: gather-refs
     uses: precice/tutorials/.github/workflows/run_testsuite_workflow.yml@develop
     with:
-      suites: dumux_adapter_pr
+      suites: dumux_test
       build_args: TUTORIALS_REF:${{ needs.gather-refs.outputs.ref-tutorials }},MICRO_MANAGER_REF:v0.8.0,DUMUX_ADAPTER_PR:${{ github.event.number }},DUMUX_ADAPTER_REF:${{ github.event.pull_request.head.sha }}
       system_tests_branch: develop
       log_level: "DEBUG"
