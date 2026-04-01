@@ -1,5 +1,6 @@
 # DuMuX-preCICE change log
 
+- Added a system tests workflow [#80](https://github.com/precice/dumux-adapter/pull/80)
 - Remove additional clang-format check and merge python formatting into pre-commit [#76](https://github.com/precice/dumux-adapter/pull/76)
 - Add adapter configuration reader for configuration via `.input` file [#68](https://github.com/precice/dumux-adapter/pull/68)
 
