@@ -29,7 +29,7 @@ jobs:
           export DUNE_CONTROL_PATH=${DUNE_CONTROL_PATH}:${PWD}/dumux/dune.module
           dunecontrol --opts=/opt/DUMUX/cmake-test.opts --only=dumux all
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: dumux-precice
       - name: Build code
