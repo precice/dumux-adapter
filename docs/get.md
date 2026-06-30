@@ -1,6 +1,8 @@
 ---
 title: Get the DuMuX adapter
 permalink: adapter-dumux-get.html
+aliases:
+  - /adapter-dumux-get.html
 keywords: DuMuX, DUNE, C++
 summary: Get DuMuX and preCICE, and build the adapter with dunecontrol.
 ---

@@ -1,6 +1,8 @@
 ---
 title: The DuMuX adapter
 permalink: adapter-dumux.html
+aliases:
+  - /adapter-dumux.html
 keywords: DuMuX, DUNE, C++
 summary: A DuMuX-specific DUNE module for coupling to other codes with preCICE.
 ---
