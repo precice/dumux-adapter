@@ -1,6 +1,6 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Prohibit /usr/doc files from being installed
 ADD 01_nodoc /etc/dpkg/dpkg.cfg.d/01_nodoc
@@ -21,13 +21,13 @@ RUN bash checkout_repositories.sh ${DUNEVERSION} ${DUMUXVERSION}
 # Install DUNE and DUMUX
 COPY cmake-test.opts .
 # Make dunecontrol available
-ENV PATH /opt/DUMUX/dune-common/bin:${PATH}
+ENV PATH=/opt/DUMUX/dune-common/bin:${PATH}
 RUN dunecontrol --opts=cmake-test.opts all
 
 # Make DUNE and DUMUX accessible
 ENV DUNE_CONTROL_PATH=${DUMUXINSTALLPATH}/dune-common/dune.module:${DUMUXINSTALLPATH}/dune-geometry/dune.module:${DUMUXINSTALLPATH}/dune-grid/dune.module:${DUMUXINSTALLPATH}/dune-localfunctions/dune.module:${DUMUXINSTALLPATH}/dune-istl/dune.module:${DUMUXINSTALLPATH}/dune-subgrid/dune.module:${DUMUXINSTALLPATH}/dumux/dune.module
 
-ENV PYTHONPATH ${DUMUXINSTALLPATH}/dumux/bin/testing:${PYTHONPATH}
+ENV PYTHONPATH=${DUMUXINSTALLPATH}/dumux/bin/testing
 
 # Cleanup
 RUN apt-get autoremove -y && apt-get clean

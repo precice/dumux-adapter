@@ -1,6 +1,4 @@
 project(dumux-precice CXX)
-# We require version CMake version 3.1 to prevent issues
-# with dune_enable_all_packages and older CMake versions.
 cmake_minimum_required(VERSION 3.13)
 
 if(NOT (dune-common_DIR
