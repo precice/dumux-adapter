@@ -1,7 +1,6 @@
 #include "couplingadapter.hh"
 #include <dumux/common/parameters.hh>
 
-#include <algorithm>
 #include <cassert>
 #include <exception>
 #include <limits>
@@ -34,6 +33,7 @@ void CouplingAdapter::announceConfig(const int rank, const int size)
     precice_ = std::make_unique<precice::Participant>(
         participantName_, preciceConfigName_, rank, size);
     wasCreated_ = true;
+    inParallel_ = size > 1;
 
     int interfaceIndex = 0;
     do {
@@ -101,6 +101,7 @@ void CouplingAdapter::announceSolver(const std::string &name,
     precice_ = std::make_unique<precice::Participant>(
         name, configurationFileName, rank, size);
     wasCreated_ = true;
+    inParallel_ = size > 1;
 }
 
 int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
@@ -109,13 +110,16 @@ int CouplingAdapter::getMeshDimensions(const std::string &meshName) const
     return precice_->getMeshDimensions(meshName);
 }
 
-void CouplingAdapter::setMesh(const std::string &meshName,
-                              const std::vector<double> &positions)
+void CouplingAdapter::setSurfaceMesh(const std::string &meshName,
+                                     std::vector<int> &coupledDumuxIDs,
+                                     std::vector<double> &positions)
 {
     assert(wasCreated_);
-    vertexIDs_.resize(positions.size() / getMeshDimensions(meshName));
+
+    vertexIDs_.resize(coupledDumuxIDs.size());
     precice_->setMeshVertices(meshName, positions, vertexIDs_);
     meshWasCreated_ = true;
+    createIndexMapping(coupledDumuxIDs);
 
     // compute size of data vectors for coupling data on this mesh
     auto dataToReadOnMesh = getReadDataNamesOnMesh(meshName);
@@ -313,12 +317,6 @@ void CouplingAdapter::readQuantityFromOtherSolver(const std::string &meshName,
                                                   double relativeReadTime)
 {
     auto key = std::make_pair(meshName, dataName);
-    for (std::map<std::pair<std::string, std::string>,
-                  std::vector<double>>::const_iterator it = dataRead_.begin();
-         it != dataRead_.end(); ++it) {
-        std::cout << it->first.first << " " << it->first.second << " "
-                  << it->second.size() << "\n";
-    }
     std::vector<double> &dataVector = dataRead_[key];
 
     precice_->readData(meshName, dataName, vertexIDs_, relativeReadTime,

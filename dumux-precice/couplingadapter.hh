@@ -1,6 +1,8 @@
 #ifndef PRECICEWRAPPER_HH
 #define PRECICEWRAPPER_HH
 
+#include <algorithm>
+#include <dune/grid/common/partitionset.hh>
 #include <map>
 #include <ostream>
 #include <precice/precice.hpp>
@@ -55,6 +57,8 @@ private:
     std::string preciceConfigName_;
     //! Participant or solver name
     std::string participantName_;
+    //! If field needs to be synchronized after reading
+    bool inParallel_ = false;
     //! Constructor
     CouplingAdapter();
     /*!
@@ -100,6 +104,17 @@ public:
                         const std::string &configurationFileName,
                         const int rank,
                         const int size);
+    /*!
+     * @brief Filter onon-interior element indices and positions out.
+     *
+     * @param[in] gv The grid view to find interior cells.
+     * @param[in] ids The dumuxIDs of the vertices.
+     * @param[in] positions The coordinates of the vertices.
+     */
+    template<class GridView>
+    void filterInteriorEntities(const GridView &gv,
+                                std::vector<int> &ids,
+                                std::vector<double> &positions);
     /*!
      * @brief Get the number of spatial dimensions
      *
@@ -176,13 +191,13 @@ public:
      * @return false No further action is needed.
      */
     bool requiresToWriteInitialData();
-
     /*!
-     * @brief Adds mesh for coupling of solvers. With the mesh size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
+     * @brief Adds surface-coupled mesh for coupling of solvers. With the mesh size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
      *
      * @param[in] meshName The name of the mesh to add the vertices to.
-     * @param[in] positions A span to the coordinates of the vertices.
-     *
+     * @param[in] coupledDumuxIDs The dumux IDs of the elements to be coupled.
+     * @param[in] positions The coordinates of the vertices.
+     * @return dumux IDs of the actually coupled IDs
      * \note The coordinates need to be stored consecutively
      *       according to their spatial coordinates as.\n
      *       Example 2D:\n
@@ -190,8 +205,30 @@ public:
      *       Example 3D:\n
      *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
      */
-    void setMesh(const std::string &meshName,
-                 const std::vector<double> &positions);
+    void setSurfaceMesh(const std::string &meshName,
+                        std::vector<int> &coupledDumuxIDs,
+                        std::vector<double> &positions);
+
+    /*!
+     * @brief Adds volume-coupled mesh for coupling of solvers. With the mesh size, the data maps inside the adapter initialize the relevant data vector to size of meshSize*dataDimension.
+     *
+     * @param[in] meshName The name of the mesh to add the vertices to.
+     * @param[in] coupledDumuxIDs The dumux IDs of the elements to be coupled.
+     * @param[in] positions The coordinates of the vertices.
+     * @param[in] gridView The gird view used to check repeating cells in parallel simulation
+     * @return dumux IDs of the actually coupled IDs after filtering out repeating vertices in a distributed case
+     * \note The coordinates need to be stored consecutively
+     *       according to their spatial coordinates as.\n
+     *       Example 2D:\n
+     *       [x_1, y_1, x_2, y_2,...x_numPoints, y_numPoints]\n
+     *       Example 3D:\n
+     *       [x_1, y_1, z_1, x_2, y_2, z_2,...x_numPoints, y_numPoints, z_numPoints]
+     */
+    template<class GridView>
+    std::vector<int> setVolumeMesh(const std::string &meshName,
+                                   std::vector<int> &coupledDumuxIDs,
+                                   std::vector<double> &positions,
+                                   const GridView &gridView);
     /*!
      * @brief Initializes the coupling
      *
@@ -334,6 +371,69 @@ template<class SolutionVector>
 void CouplingAdapter::initializeCheckpoint(SolutionVector &x)
 {
     states_.emplace_back(std::make_unique<SolverStateOnly<SolutionVector>>(x));
+}
+
+template<class GridView>
+void CouplingAdapter::filterInteriorEntities(const GridView &gv,
+                                             std::vector<int> &ids,
+                                             std::vector<double> &positions)
+{
+    const auto &iset = gv.indexSet();
+    const int dim = positions.size() / ids.size();
+
+    std::vector<int> interior;
+    for (const auto &e : elements(gv)) {
+        if (e.partitionType() == Dune::InteriorEntity)
+            interior.push_back(static_cast<int>(iset.index(e)));
+    }
+
+    for (std::size_t i = 0; i < ids.size();) {
+        if (std::find(interior.begin(), interior.end(), ids[i]) ==
+            interior.end()) {
+            ids.erase(ids.begin() + i);
+            positions.erase(positions.begin() + i * dim,
+                            positions.begin() + (i + 1) * dim);
+        } else {
+            ++i;
+        }
+    }
+}
+
+template<class GridView>
+std::vector<int> CouplingAdapter::setVolumeMesh(
+    const std::string &meshName,
+    std::vector<int> &coupledDumuxIDs,
+    std::vector<double> &positions,
+    const GridView &gridView)
+{
+    assert(wasCreated_);
+
+    if (inParallel_) {
+        filterInteriorEntities(gridView, coupledDumuxIDs, positions);
+    }
+
+    vertexIDs_.resize(coupledDumuxIDs.size());
+    precice_->setMeshVertices(meshName, positions, vertexIDs_);
+    meshWasCreated_ = true;
+    createIndexMapping(coupledDumuxIDs);
+
+    // compute size of data vectors for coupling data on this mesh
+    auto dataToReadOnMesh = getReadDataNamesOnMesh(meshName);
+    auto dataToWriteOnMesh = getWriteDataNamesOnMesh(meshName);
+
+    for (auto dataName : dataToReadOnMesh) {
+        int dataDimension = precice_->getDataDimensions(meshName, dataName);
+        dataRead_[std::make_pair(meshName, dataName)].resize(vertexIDs_.size() *
+                                                             dataDimension);
+    }
+
+    for (auto dataName : dataToWriteOnMesh) {
+        int dataDimension = precice_->getDataDimensions(meshName, dataName);
+        dataWrite_[std::make_pair(meshName, dataName)].resize(
+            vertexIDs_.size() * dataDimension);
+    }
+
+    return coupledDumuxIDs;
 }
 }  // namespace Dumux::Precice
 #endif
